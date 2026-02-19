@@ -75,17 +75,25 @@ class FlyingFleetHandler
 			/** @var $missionObj Mission */
 			$missionObj	= new $missionName($fleetRow);
 			
-			switch($fleetRow['fleet_mess'])
-			{
-				case 0:
-					$missionObj->TargetEvent();
-				break;
-				case 1:
-					$missionObj->ReturnEvent();
-				break;
-				case 2:
-					$missionObj->EndStayEvent();
-				break;
+			try {
+				switch($fleetRow['fleet_mess'])
+				{
+					case 0:
+						$missionObj->TargetEvent();
+					break;
+					case 1:
+						$missionObj->ReturnEvent();
+					break;
+					case 2:
+						$missionObj->EndStayEvent();
+					break;
+				}
+			} catch (\Throwable $e) {
+				// Log error but continue processing remaining fleets
+				// so one broken fleet doesn't jam the entire queue
+				$db->update("UPDATE %%FLEETS_EVENT%% SET `lock` = NULL WHERE fleetID = :fleetId;", array(
+					':fleetId' => $fleetRow['fleet_id']
+				));
 			}
 		}
 	}

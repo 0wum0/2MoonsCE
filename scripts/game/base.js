@@ -175,7 +175,7 @@ var Dialog	= {
 	},
 	
 	PlanetAction: function() {
-		return Dialog.open('game.php?page=overview&mode=actions', 400, 180);
+		return Dialog.open('game.php?page=overview&mode=actions', 400, 320);
 	},
 	
 	AllianceChat: function() {
@@ -183,13 +183,17 @@ var Dialog	= {
 	},
 	
 	open: function(url, width, height) {
-		$.fancybox({
-			width: width,
-			padding: 0,
-			height: height,
-			type: 'iframe',
-			href: url
-		});
+		if(typeof $ !== 'undefined' && $.fancybox) {
+			$.fancybox({
+				width: width,
+				padding: 0,
+				height: height,
+				type: 'iframe',
+				href: url
+			});
+		} else {
+			window.open(url+'&ajax=1', '_blank', 'width='+width+',height='+height+',scrollbars=yes,resizable=yes');
+		}
 		
 		return false;
 	}

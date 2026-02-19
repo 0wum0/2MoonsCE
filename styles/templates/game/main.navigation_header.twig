@@ -425,9 +425,11 @@ var SmartNotif=(function(){
 
         if(!Q.length) return;
 
-        // Add X-Buttons to active queue items
+        // Add X-Buttons to active queue items — target correct dropdown per queue
         Q.forEach(function(q) {
-            var item = document.querySelector('.nq-active');
+            var dropdown = document.getElementById('notif-' + q.id + '-dropdown');
+            if(!dropdown) return;
+            var item = dropdown.querySelector('.nq-active');
             if(item && q.cancelUrl) {
                 var header = item.querySelector('.nq-header');
                 if(header && !header.querySelector('.nq-cancel')) {
@@ -435,7 +437,8 @@ var SmartNotif=(function(){
                     cancelBtn.className = 'nq-cancel';
                     cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
                     cancelBtn.title = 'Abbrechen';
-                    cancelBtn.onclick = function() {
+                    cancelBtn.onclick = function(e) {
+                        e.stopPropagation();
                         if(confirm('Bau wirklich abbrechen?')) {
                             window.location.href = q.cancelUrl;
                         }
@@ -443,8 +446,14 @@ var SmartNotif=(function(){
                     header.appendChild(cancelBtn);
                 }
             }
+            // Sanitize initial values (PHP may deliver NaN or negative)
+            q.left = Math.max(0, parseInt(q.left) || 0);
+            q._init = Math.max(1, parseInt(q._init) || 1);
+            if(q.total !== undefined) q.total = Math.max(0, parseInt(q.total) || 0);
+            if(q.elapsed !== undefined) q.elapsed = Math.max(0, parseInt(q.elapsed) || 0);
         });
 
+        var refreshScheduled = false;
         function tick(){
             for(var i=0; i<Q.length; i++){
                 var q = Q[i];
@@ -462,11 +471,17 @@ var SmartNotif=(function(){
                     pct = q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
                 }
 
+                // NaN protection
+                if(isNaN(q.left) || q.left < 0) q.left = 0;
+                if(isNaN(pct)) pct = 100;
+
                 timer.textContent = fmt(q.left);
                 if(bar) bar.style.width = Math.min(100, pct).toFixed(1) + '%';
                 
-                // Auto-refresh when complete
-                if(q.left <= 0) {
+                // Auto-refresh when complete (only once)
+                if(q.left <= 0 && !refreshScheduled) {
+                    refreshScheduled = true;
+                    timer.textContent = '00:00:00';
                     setTimeout(function() {
                         window.location.reload();
                     }, 2000);

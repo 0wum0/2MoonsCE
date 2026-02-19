@@ -152,7 +152,7 @@ class MissionFunctions
 		{
 			$sql		= 'SELECT lang FROM %%USERS%% WHERE id = :userId;';
 			$language	= Database::get()->selectSingle($sql, array(
-				':userId' => $this->_fleet['fleet_owner']
+				':userId' => $userID
 			), 'lang');
 		}
 		
