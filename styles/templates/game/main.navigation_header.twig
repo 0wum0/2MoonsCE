@@ -262,6 +262,7 @@
                             {% if shortlyNumber %}{{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}{% else %}{{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}{% endif %}
                         </span>
                         <div class="res-progress"><div class="res-progress-fill" id="resbar_{{ resourceData.name }}"></div></div>
+                        <span class="res-trend" id="restrend_{{ resourceData.name }}">±0</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -307,10 +308,12 @@ window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|js
             var production = Number(node.getAttribute('data-res-production') || 0);
             var name = node.getAttribute('data-res-name') || '';
             var fill = name ? document.getElementById('resbar_' + name) : null;
+            var trend = name ? document.getElementById('restrend_' + name) : null;
             if(!fill) return;
 
             var pct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
-            fill.style.width = pct.toFixed(2) + '%';
+            var visiblePct = pct > 0 ? Math.max(4, pct) : 0;
+            fill.style.width = visiblePct.toFixed(2) + '%';
             fill.classList.toggle('is-full', pct >= 98);
             fill.classList.toggle('is-low', pct <= 15);
             fill.classList.toggle('is-positive', production > 0);
@@ -321,6 +324,15 @@ window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|js
             item.classList.toggle('res-anim-low', pct <= 15);
             item.classList.toggle('res-anim-negative', production < 0);
             item.classList.toggle('res-anim-positive', production > 0);
+
+            if (trend) {
+                var absProd = Math.abs(production);
+                var prefix = production > 0 ? '+' : (production < 0 ? '-' : '±');
+                trend.textContent = prefix + Math.round(absProd).toLocaleString('de-DE');
+                trend.classList.toggle('up', production > 0);
+                trend.classList.toggle('down', production < 0);
+                trend.classList.toggle('flat', production === 0);
+            }
         });
     }
 
