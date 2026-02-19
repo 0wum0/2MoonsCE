@@ -28,7 +28,7 @@
 
     <div class="glass-panel table-panel">
         <div class="table-responsive">
-            <table class="glass-table full-width">
+            <table class="glass-table full-width fleet-table-main">
                 <thead>
                     <tr>
                         <th>{{ LNG.fl_number }}</th>
@@ -62,7 +62,7 @@
                                 [{{ FlyingFleetRow.startGalaxy }}:{{ FlyingFleetRow.startSystem }}:{{ FlyingFleetRow.startPlanet }}]
                             </a>
                         </td>
-                        <td class="timer-cell" data-time="{{ (FlyingFleetRow.startTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
+                        <td class="timer-cell fleets" data-fleet-time="{{ (FlyingFleetRow.startTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
                             {{ FlyingFleetRow.startTime|date("H:i:s") }}
                         </td>
                         <td>
@@ -70,7 +70,7 @@
                                 [{{ FlyingFleetRow.endGalaxy }}:{{ FlyingFleetRow.endSystem }}:{{ FlyingFleetRow.endPlanet }}]
                             </a>
                         </td>
-                        <td class="timer-cell" data-time="{{ (FlyingFleetRow.endTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
+                        <td class="timer-cell fleets" data-fleet-time="{{ (FlyingFleetRow.endTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
                              {{ FlyingFleetRow.endTime|date("H:i:s") }}
                         </td>
                         <td>
@@ -108,6 +108,27 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <div class="fleet-cards-mobile">
+            {% for FlyingFleetRow in FlyingFleetList %}
+            <div class="fleet-mobile-card {% if FlyingFleetRow.state == 1 %}returning{% endif %}">
+                <div class="fleet-mobile-top">
+                    <span class="mission-badge m-{{ FlyingFleetRow.mission }}">{{ LNG["type_mission_" ~ FlyingFleetRow.mission] }}</span>
+                    <span class="text-highlight">{{ FlyingFleetRow.amount|number_format }}</span>
+                </div>
+                <div class="fleet-mobile-route">
+                    <div>{{ LNG.fl_beginning }}: <span class="coord-link">[{{ FlyingFleetRow.startGalaxy }}:{{ FlyingFleetRow.startSystem }}:{{ FlyingFleetRow.startPlanet }}]</span></div>
+                    <div>{{ LNG.fl_destiny }}: <span class="coord-link">[{{ FlyingFleetRow.endGalaxy }}:{{ FlyingFleetRow.endSystem }}:{{ FlyingFleetRow.endPlanet }}]</span></div>
+                </div>
+                <div class="fleet-mobile-times">
+                    <span class="timer-cell fleets" data-fleet-time="{{ (FlyingFleetRow.startTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">{{ FlyingFleetRow.startTime|date("H:i:s") }}</span>
+                    <span class="timer-cell fleets" data-fleet-time="{{ (FlyingFleetRow.endTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">{{ FlyingFleetRow.endTime|date("H:i:s") }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center text-muted p-3">{{ LNG.fl_no_flying_fleets }}</div>
+            {% endfor %}
         </div>
     </div>
 
