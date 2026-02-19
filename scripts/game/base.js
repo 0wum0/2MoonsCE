@@ -183,15 +183,25 @@ var Dialog	= {
 	},
 	
 	open: function(url, width, height) {
-		if ($.fancybox) {
-			$.fancybox({
-				width: width,
-				padding: 0,
-				height: height,
-				type: 'iframe',
-				href: url
-			});
-		} else {
+		var usedFancybox = false;
+		if (typeof $.fancybox === 'function') {
+			try {
+				$.fancybox({
+					width: width,
+					padding: 0,
+					height: height,
+					type: 'iframe',
+					href: url
+				});
+				usedFancybox = true;
+			} catch (e) {
+				if (window.console && console.warn) {
+					console.warn('Fancybox open failed, using modal fallback', e);
+				}
+			}
+		}
+
+		if (!usedFancybox) {
 			var modal = document.getElementById('smart-modal-overlay');
 			if(!modal) {
 				modal = document.createElement('div');
