@@ -1,5 +1,7 @@
 $(function() {
-	$('#tabs').tabs();
+	if($('#tabs').length) {
+		$('#tabs').tabs();
+	}
 });
 
 function checkrename()
@@ -7,7 +9,7 @@ function checkrename()
 	if($.trim($('#name').val()) == '') {
 		return false;
 	} else {
-		$.getJSON('game.php?page=overview&mode=rename&name='+$('#name').val(), function(response){
+		$.getJSON('game.php?page=overview&mode=rename&name='+encodeURIComponent($('#name').val()), function(response){
 			alert(response.message);
 			if(!response.error) {
 				parent.location.reload();

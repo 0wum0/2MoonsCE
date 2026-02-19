@@ -141,7 +141,7 @@
 
             <!-- FLOTTEN -->
             <div class="notif-icon-wrap">
-                <button class="notif-btn" onclick="SmartNotif.toggle('fleets')">
+                <button class="notif-btn" id="fleet-notif-btn" onclick="SmartNotif.toggle('fleets')">
                     <i class="fas fa-rocket"></i><span class="notif-badge" id="fleet-badge" style="display:none;">0</span>
                 </button>
                 <div class="notif-dropdown" id="notif-fleets-dropdown">
@@ -369,6 +369,11 @@ var SmartNotif=(function(){
         if(!b) return;
         if(n>0){ b.textContent = n>99 ? '99+' : n; b.style.display='flex'; }
         else { b.style.display='none'; }
+        // Also toggle active class on the parent button for fleet badge
+        if(id==='fleet-badge'){
+            var btn=document.getElementById('fleet-notif-btn');
+            if(btn){ if(n>0) btn.classList.add('notif-btn-active'); else btn.classList.remove('notif-btn-active'); }
+        }
     }
 
     function setAttackMode(on){
@@ -507,13 +512,13 @@ var SmartNotif=(function(){
     function initQueues(){
         var Q = [];
         {% if buildQueue.building %}
-        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, _init:{{ buildQueue.building.timeLeft|default(0)|raw }}, mode:'end', cancelUrl:'game.php?page=buildings&mode=cancel'});
+        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, total:{{ buildQueue.building.totalTime|default(1)|raw }}, elapsed:{{ buildQueue.building.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=buildings&mode=cancel'});
         {% endif %}
         {% if buildQueue.research %}
-        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, _init:{{ buildQueue.research.timeLeft|default(0)|raw }}, mode:'end', cancelUrl:'game.php?page=research&mode=cancel'});
+        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, total:{{ buildQueue.research.totalTime|default(1)|raw }}, elapsed:{{ buildQueue.research.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=research&mode=cancel'});
         {% endif %}
         {% if buildQueue.hangar %}
-        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, _init:{{ buildQueue.hangar.totalTime|default(1)|raw }}, total:{{ buildQueue.hangar.totalTime|default(0)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=shipyard&mode=cancel'});
+        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, total:{{ buildQueue.hangar.totalTime|default(1)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=shipyard&mode=cancel'});
         {% endif %}
 
         if(!Q.length) return;
@@ -522,6 +527,8 @@ var SmartNotif=(function(){
             mountCancelButton(q.id, q.cancelUrl);
         });
 
+        var refreshScheduled = false;
+        var firstTick = true;
         function tick(){
             var shouldReload = false;
             for(var i=0; i<Q.length; i++){
