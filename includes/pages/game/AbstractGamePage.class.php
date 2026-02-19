@@ -214,19 +214,26 @@ abstract class AbstractGamePage
 			$bQueue = @unserialize($PLANET['b_building_id']);
 			if (!empty($bQueue) && isset($bQueue[0])) {
 				$items = array();
+				$totalBuildTime = 0;
 				foreach ($bQueue as $idx => $entry) {
+					$itemDuration = isset($entry[2]) ? (int) $entry[2] : 0;
+					$totalBuildTime += $itemDuration;
 					$items[] = array(
-						'id'    => (int) $entry[0],
-						'name'  => $LNG['tech'][$entry[0]] ?? 'Gebäude #'.$entry[0],
-						'level' => (int) $entry[1],
-						'endTime' => isset($entry[3]) ? (int) $entry[3] : 0,
+						'id'       => (int) $entry[0],
+						'name'     => $LNG['tech'][$entry[0]] ?? 'Gebäude #'.$entry[0],
+						'level'    => (int) $entry[1],
+						'duration' => $itemDuration,
+						'endTime'  => isset($entry[3]) ? (int) $entry[3] : 0,
 					);
 				}
+				$timeLeft = max(0, (int) $PLANET['b_building'] - TIMESTAMP);
 				$queues['building'] = array(
-					'items'    => $items,
-					'endTime'  => (int) $PLANET['b_building'],
-					'timeLeft' => max(0, (int) $PLANET['b_building'] - TIMESTAMP),
-					'count'    => count($bQueue),
+					'items'     => $items,
+					'endTime'   => (int) $PLANET['b_building'],
+					'timeLeft'  => $timeLeft,
+					'totalTime' => max(1, $totalBuildTime),
+					'elapsed'   => max(0, $totalBuildTime - $timeLeft),
+					'count'     => count($bQueue),
 				);
 			}
 		}
@@ -236,18 +243,25 @@ abstract class AbstractGamePage
 			$tQueue = @unserialize($USER['b_tech_queue']);
 			if (!empty($tQueue) && isset($tQueue[0])) {
 				$items = array();
+				$totalResearchTime = 0;
 				foreach ($tQueue as $idx => $entry) {
+					$itemDuration = isset($entry[2]) ? (int) $entry[2] : 0;
+					$totalResearchTime += $itemDuration;
 					$items[] = array(
-						'id'    => (int) $entry[0],
-						'name'  => $LNG['tech'][$entry[0]] ?? 'Forschung #'.$entry[0],
-						'level' => (int) $entry[1],
+						'id'       => (int) $entry[0],
+						'name'     => $LNG['tech'][$entry[0]] ?? 'Forschung #'.$entry[0],
+						'level'    => (int) $entry[1],
+						'duration' => $itemDuration,
 					);
 				}
+				$timeLeft = max(0, (int) $USER['b_tech'] - TIMESTAMP);
 				$queues['research'] = array(
-					'items'    => $items,
-					'endTime'  => (int) $USER['b_tech'],
-					'timeLeft' => max(0, (int) $USER['b_tech'] - TIMESTAMP),
-					'count'    => count($tQueue),
+					'items'     => $items,
+					'endTime'   => (int) $USER['b_tech'],
+					'timeLeft'  => $timeLeft,
+					'totalTime' => max(1, $totalResearchTime),
+					'elapsed'   => max(0, $totalResearchTime - $timeLeft),
+					'count'     => count($tQueue),
 				);
 			}
 		}

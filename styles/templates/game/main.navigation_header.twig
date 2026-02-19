@@ -414,13 +414,13 @@ var SmartNotif=(function(){
     function initQueues(){
         var Q = [];
         {% if buildQueue.building %}
-        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, _init:{{ buildQueue.building.timeLeft|default(0)|raw }}, mode:'end', cancelUrl:'game.php?page=buildings&mode=cancel'});
+        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, total:{{ buildQueue.building.totalTime|default(1)|raw }}, elapsed:{{ buildQueue.building.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=buildings&mode=cancel'});
         {% endif %}
         {% if buildQueue.research %}
-        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, _init:{{ buildQueue.research.timeLeft|default(0)|raw }}, mode:'end', cancelUrl:'game.php?page=research&mode=cancel'});
+        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, total:{{ buildQueue.research.totalTime|default(1)|raw }}, elapsed:{{ buildQueue.research.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=research&mode=cancel'});
         {% endif %}
         {% if buildQueue.hangar %}
-        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, _init:{{ buildQueue.hangar.totalTime|default(1)|raw }}, total:{{ buildQueue.hangar.totalTime|default(0)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=shipyard&mode=cancel'});
+        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, total:{{ buildQueue.hangar.totalTime|default(1)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=shipyard&mode=cancel'});
         {% endif %}
 
         if(!Q.length) return;
