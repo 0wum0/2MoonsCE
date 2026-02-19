@@ -1,0 +1,16 @@
+{
+    "name": "2moons/2moons",
+    "description": "Online browser game.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jan-Otto Kröpke",
+            "email": "kroepke@outlook.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "twig/twig": "^3.21"
+    }
+}
