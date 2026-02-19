@@ -148,13 +148,23 @@ abstract class AbstractGamePage
 
 		$themeSettings	= $THEME->getStyleSettings();
 
-		// Pre-encode fleet data as safe JSON — avoids Twig HTML escaping breaking JS
+		// Pre-encode fleet data as safe JSON — avoids Twig HTML escaping breaking JS.
+		// Use UTF-8 substitution + fallback to avoid broken header JS when one value has invalid encoding.
 		$fleetMovements = $this->getGlobalFleetMovements();
-		$globalFleetJSON = json_encode(array_values($fleetMovements), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+		$fleetMovementList = array_values($fleetMovements);
+		$globalFleetJSON = json_encode(
+			$fleetMovementList,
+			JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+		);
+		if($globalFleetJSON === false)
+		{
+			$globalFleetJSON = '[]';
+		}
 
 		$this->assign(array(
 			'PlanetSelect'		=> $PlanetSelect,
 			'globalFleetMovements' => $fleetMovements,
+			'globalFleetMovementsList' => $fleetMovementList,
 			'globalFleetJSON'	=> $globalFleetJSON,
 			'new_message' 		=> $USER['messages'],
 			'newMessageCount'	=> (int) $USER['messages'],

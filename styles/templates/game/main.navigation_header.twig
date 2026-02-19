@@ -292,12 +292,17 @@ resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ res
 
 <!-- Fleet data as safe JSON (no JS string escaping issues) -->
 <script type="application/json" id="fleet-json-data">{{ globalFleetJSON|default("[]")|raw }}</script>
+<script>
+window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|json_encode|raw }};
+</script>
 
 <!-- SMARTNOTIF v5 FIXED -->
 <script>
 var SmartNotif=(function(){
     var openPanel=null;
     var panels=['fleets','messages','building','research','hangar','usermenu'];
+    var fleetTickHandle=null;
+    var queueTickHandle=null;
 
     function toggle(p){
         var dd=document.getElementById('notif-'+p+'-dropdown');
@@ -375,10 +380,17 @@ var SmartNotif=(function(){
             console.error('Fleet JSON parse error:', e); 
             fl = []; 
         }
+
+        if((!Array.isArray(fl) || !fl.length) && Array.isArray(window.globalFleetMovementsFallback)) {
+            fl = window.globalFleetMovementsFallback;
+        }
         
-        if(!fl || !fl.length) {
-            // Hide empty fleet badge
+        if(!Array.isArray(fl) || !fl.length) {
             setBadge('fleet-badge', 0);
+            var emptyTarget = document.getElementById('notif-fleets-list');
+            if(emptyTarget) {
+                emptyTarget.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> Keine Flottenbewegungen</div>';
+            }
             return;
         }
 
@@ -391,8 +403,8 @@ var SmartNotif=(function(){
             var f = fl[i];
             if(f.isHostile) atk = true;
             
-            var restTime = Math.max(0, parseInt(f.resttime) || 0);
-            var fleetText = f.text || 'Unbekannte Flotte';
+            var restTime = parseInt(f.resttime) || 0;
+            var fleetText = (typeof f.text === 'string' && f.text.length) ? f.text : 'Unbekannte Flotte';
             
             html += '<div class="notif-fleet-item' + (f.isHostile ? ' hostile' : '') + '">';
             html += '<span class="notif-fleet-timer" id="hft-'+i+'">' + fmt(restTime) + '</span>';
@@ -404,15 +416,59 @@ var SmartNotif=(function(){
         if(atk) toast('Feindliche Flotte im Anflug!', 'exclamation-triangle', '#ef4444');
 
         // Timer update only if we have fleets
-        if(fl.length > 0) {
-            setInterval(function(){
-                for(var i=0; i<fl.length; i++){
-                    fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
-                    var t = document.getElementById('hft-'+i);
-                    if(t) t.textContent = fmt(fl[i].resttime);
-                }
-            }, 1000);
+        if(fleetTickHandle) {
+            clearInterval(fleetTickHandle);
         }
+        fleetTickHandle = setInterval(function(){
+            for(var i=0; i<fl.length; i++){
+                fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
+                var t = document.getElementById('hft-'+i);
+                if(t) t.textContent = fmt(fl[i].resttime);
+            }
+        }, 1000);
+    }
+
+    function findQueueActiveItem(queueId) {
+        var root = document.getElementById('notif-' + queueId + '-dropdown');
+        if(!root) return null;
+        return root.querySelector('.notif-queue-item.nq-active');
+    }
+
+    function mountCancelButton(queueId, cancelUrl) {
+        if(!cancelUrl) return;
+        var item = findQueueActiveItem(queueId);
+        if(!item) return;
+        var header = item.querySelector('.nq-header');
+        if(!header || header.querySelector('.nq-cancel')) return;
+
+        var cancelBtn = document.createElement('button');
+        cancelBtn.className = 'nq-cancel';
+        cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+        cancelBtn.title = 'Abbrechen';
+        cancelBtn.onclick = function() {
+            if(confirm('Bau wirklich abbrechen?')) {
+                window.location.href = cancelUrl;
+            }
+        };
+        header.appendChild(cancelBtn);
+    }
+
+    function updateQueueDom(queueId, leftSeconds, pct) {
+        var timer = document.getElementById('nq-' + queueId + '-timer');
+        var bar   = document.getElementById('nq-' + queueId + '-bar');
+        if(timer) timer.textContent = fmt(leftSeconds);
+        if(bar) bar.style.width = Math.min(100, Math.max(0, pct)).toFixed(1) + '%';
+    }
+
+    function queueProgress(q) {
+        if(q.mode === 'elapsed') {
+            q.elapsed = (q.elapsed||0) + 1;
+            q.left = Math.max(0, (q.total||0) - q.elapsed);
+            return q.total > 0 ? (q.elapsed / q.total * 100) : 100;
+        }
+
+        q.left = Math.max(0, q.left - 1);
+        return q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
     }
 
     /* ===== BUILD QUEUES + PROGRESSBARS ===== */
@@ -430,74 +486,35 @@ var SmartNotif=(function(){
 
         if(!Q.length) return;
 
-        // Add X-Buttons to active queue items — target correct dropdown per queue
         Q.forEach(function(q) {
-            var dropdown = document.getElementById('notif-' + q.id + '-dropdown');
-            if(!dropdown) return;
-            var item = dropdown.querySelector('.nq-active');
-            if(item && q.cancelUrl) {
-                var header = item.querySelector('.nq-header');
-                if(header && !header.querySelector('.nq-cancel')) {
-                    var cancelBtn = document.createElement('button');
-                    cancelBtn.className = 'nq-cancel';
-                    cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    cancelBtn.title = 'Abbrechen';
-                    cancelBtn.onclick = function(e) {
-                        e.stopPropagation();
-                        if(confirm('Bau wirklich abbrechen?')) {
-                            window.location.href = q.cancelUrl;
-                        }
-                    };
-                    header.appendChild(cancelBtn);
-                }
-            }
-            // Sanitize initial values (PHP may deliver NaN or negative)
-            q.left = Math.max(0, parseInt(q.left) || 0);
-            q._init = Math.max(1, parseInt(q._init) || 1);
-            if(q.total !== undefined) q.total = Math.max(0, parseInt(q.total) || 0);
-            if(q.elapsed !== undefined) q.elapsed = Math.max(0, parseInt(q.elapsed) || 0);
+            mountCancelButton(q.id, q.cancelUrl);
         });
 
         var refreshScheduled = false;
         var firstTick = true;
         function tick(){
+            var shouldReload = false;
             for(var i=0; i<Q.length; i++){
                 var q = Q[i];
-                var timer = document.getElementById('nq-' + q.id + '-timer');
-                var bar   = document.getElementById('nq-' + q.id + '-bar');
-                if(!timer) continue;
-
-                var pct;
-                if(q.mode === 'elapsed'){
-                    // Don't increment on very first tick — just display current state
-                    if(!firstTick) q.elapsed = (q.elapsed||0) + 1;
-                    q.left = Math.max(0, (q.total||0) - q.elapsed);
-                    pct = q.total > 0 ? (q.elapsed / q.total * 100) : 100;
-                } else {
-                    if(!firstTick) q.left = Math.max(0, q.left - 1);
-                    pct = q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
-                }
-
-                // NaN protection
-                if(isNaN(q.left) || q.left < 0) q.left = 0;
-                if(isNaN(pct)) pct = 100;
-
-                timer.textContent = fmt(q.left);
-                if(bar) bar.style.width = Math.min(100, pct).toFixed(1) + '%';
+                var pct = queueProgress(q);
+                updateQueueDom(q.id, q.left, pct);
                 
-                // Auto-refresh when complete (only once)
-                if(q.left <= 0 && !refreshScheduled) {
-                    refreshScheduled = true;
-                    timer.textContent = '00:00:00';
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
+                if(q.left <= 0) {
+                    shouldReload = true;
                 }
             }
-            firstTick = false;
+
+            if(shouldReload) {
+                setTimeout(function() {
+                    window.location.reload();
+                }, 2000);
+            }
         }
         tick();
-        setInterval(tick, 1000);
+        if(queueTickHandle) {
+            clearInterval(queueTickHandle);
+        }
+        queueTickHandle = setInterval(tick, 1000);
     }
 
     /* ===== TOAST bei Page Load ===== */
@@ -527,6 +544,9 @@ var SmartNotif=(function(){
     } else {
         document.addEventListener('DOMContentLoaded', doInit);
     }
+    window.addEventListener('load', function() {
+        setTimeout(doInit, 50);
+    });
 
     return {toggle:toggle, closeAll:closeAll, setBadge:setBadge, setAttackMode:setAttackMode, toast:toast};
 })();
