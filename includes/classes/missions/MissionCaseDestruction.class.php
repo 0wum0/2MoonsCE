@@ -43,8 +43,14 @@ class MissionCaseDestruction extends MissionFunctions implements Mission
 			903	=> 0,
 		);
 
-		$debris			= array();
-		$planetDebris	= array();
+		$debris			= array(
+			901	=> 0,
+			902	=> 0,
+		);
+		$planetDebris	= array(
+			901	=> 0,
+			902	=> 0,
+		);
 
 		$debrisResource	= array(901, 902);
 

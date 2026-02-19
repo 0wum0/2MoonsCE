@@ -33,7 +33,7 @@ class MissionCaseStay extends MissionFunctions implements Mission
 		$senderUser['factor']	= getFactors($senderUser, 'basic', $this->_fleet['fleet_start_time']);
 		
 		$fleetArray			= FleetFunctions::unserialize($this->_fleet['fleet_array']);
-		$duration			= $this->_fleet['fleet_start_time'] - $this->_fleet['start_time'];
+		$duration			= (int)$this->_fleet['fleet_start_time'] - (int)$this->_fleet['start_time'];
 
 		$SpeedFactor    	= FleetFunctions::GetGameSpeedFactor();
 		$distance			= FleetFunctions::GetTargetDistance(
