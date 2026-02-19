@@ -255,12 +255,14 @@
         <div class="res-bar-container">
             <div class="res-bar">
                 {% for resourceID, resourceData in resourceTable %}
-                <div class="res-item tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}">
+                <div class="res-item tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
                     <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
                     <div class="res-info">
                         <span class="res-val {% if resourceData.current >= resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
                             {% if shortlyNumber %}{{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}{% else %}{{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}{% endif %}
                         </span>
+                        <div class="res-progress"><div class="res-progress-fill" id="resbar_{{ resourceData.name }}"></div></div>
+                        <span class="res-trend" id="restrend_{{ resourceData.name }}">±0</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -292,12 +294,64 @@ resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ res
 
 <!-- Fleet data as safe JSON (no JS string escaping issues) -->
 <script type="application/json" id="fleet-json-data">{{ globalFleetJSON|default("[]")|raw }}</script>
+<script>
+window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|json_encode|raw }};
+</script>
+
+<script>
+(function(){
+    function applyResourceBars(){
+        var nodes = document.querySelectorAll('.res-item[data-res-current]');
+        nodes.forEach(function(node){
+            var current = Number(node.getAttribute('data-res-current') || 0);
+            var max = Number(node.getAttribute('data-res-max') || 0);
+            var production = Number(node.getAttribute('data-res-production') || 0);
+            var name = node.getAttribute('data-res-name') || '';
+            var fill = name ? document.getElementById('resbar_' + name) : null;
+            var trend = name ? document.getElementById('restrend_' + name) : null;
+            if(!fill) return;
+
+            var pct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+            var visiblePct = pct > 0 ? Math.max(4, pct) : 0;
+            fill.style.width = visiblePct.toFixed(2) + '%';
+            fill.classList.toggle('is-full', pct >= 98);
+            fill.classList.toggle('is-low', pct <= 15);
+            fill.classList.toggle('is-positive', production > 0);
+            fill.classList.toggle('is-negative', production < 0);
+
+            var item = node;
+            item.classList.toggle('res-anim-full', pct >= 98);
+            item.classList.toggle('res-anim-low', pct <= 15);
+            item.classList.toggle('res-anim-negative', production < 0);
+            item.classList.toggle('res-anim-positive', production > 0);
+
+            if (trend) {
+                var absProd = Math.abs(production);
+                var prefix = production > 0 ? '+' : (production < 0 ? '-' : '±');
+                trend.textContent = prefix + Math.round(absProd).toLocaleString('de-DE');
+                trend.classList.toggle('up', production > 0);
+                trend.classList.toggle('down', production < 0);
+                trend.classList.toggle('flat', production === 0);
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyResourceBars);
+    } else {
+        applyResourceBars();
+    }
+    window.setInterval(applyResourceBars, 2000);
+})();
+</script>
 
 <!-- SMARTNOTIF v5 FIXED -->
 <script>
 var SmartNotif=(function(){
     var openPanel=null;
     var panels=['fleets','messages','building','research','hangar','usermenu'];
+    var fleetTickHandle=null;
+    var queueTickHandle=null;
 
     function toggle(p){
         var dd=document.getElementById('notif-'+p+'-dropdown');
@@ -370,10 +424,17 @@ var SmartNotif=(function(){
             console.error('Fleet JSON parse error:', e); 
             fl = []; 
         }
+
+        if((!Array.isArray(fl) || !fl.length) && Array.isArray(window.globalFleetMovementsFallback)) {
+            fl = window.globalFleetMovementsFallback;
+        }
         
-        if(!fl || !fl.length) {
-            // Hide empty fleet badge
+        if(!Array.isArray(fl) || !fl.length) {
             setBadge('fleet-badge', 0);
+            var emptyTarget = document.getElementById('notif-fleets-list');
+            if(emptyTarget) {
+                emptyTarget.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> Keine Flottenbewegungen</div>';
+            }
             return;
         }
 
@@ -387,7 +448,7 @@ var SmartNotif=(function(){
             if(f.isHostile) atk = true;
             
             var restTime = parseInt(f.resttime) || 0;
-            var fleetText = f.text || 'Unbekannte Flotte';
+            var fleetText = (typeof f.text === 'string' && f.text.length) ? f.text : 'Unbekannte Flotte';
             
             html += '<div class="notif-fleet-item' + (f.isHostile ? ' hostile' : '') + '">';
             html += '<span class="notif-fleet-timer" id="hft-'+i+'">' + fmt(restTime) + '</span>';
@@ -399,15 +460,59 @@ var SmartNotif=(function(){
         if(atk) toast('Feindliche Flotte im Anflug!', 'exclamation-triangle', '#ef4444');
 
         // Timer update only if we have fleets
-        if(fl.length > 0) {
-            setInterval(function(){
-                for(var i=0; i<fl.length; i++){
-                    fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
-                    var t = document.getElementById('hft-'+i);
-                    if(t) t.textContent = fmt(fl[i].resttime);
-                }
-            }, 1000);
+        if(fleetTickHandle) {
+            clearInterval(fleetTickHandle);
         }
+        fleetTickHandle = setInterval(function(){
+            for(var i=0; i<fl.length; i++){
+                fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
+                var t = document.getElementById('hft-'+i);
+                if(t) t.textContent = fmt(fl[i].resttime);
+            }
+        }, 1000);
+    }
+
+    function findQueueActiveItem(queueId) {
+        var root = document.getElementById('notif-' + queueId + '-dropdown');
+        if(!root) return null;
+        return root.querySelector('.notif-queue-item.nq-active');
+    }
+
+    function mountCancelButton(queueId, cancelUrl) {
+        if(!cancelUrl) return;
+        var item = findQueueActiveItem(queueId);
+        if(!item) return;
+        var header = item.querySelector('.nq-header');
+        if(!header || header.querySelector('.nq-cancel')) return;
+
+        var cancelBtn = document.createElement('button');
+        cancelBtn.className = 'nq-cancel';
+        cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+        cancelBtn.title = 'Abbrechen';
+        cancelBtn.onclick = function() {
+            if(confirm('Bau wirklich abbrechen?')) {
+                window.location.href = cancelUrl;
+            }
+        };
+        header.appendChild(cancelBtn);
+    }
+
+    function updateQueueDom(queueId, leftSeconds, pct) {
+        var timer = document.getElementById('nq-' + queueId + '-timer');
+        var bar   = document.getElementById('nq-' + queueId + '-bar');
+        if(timer) timer.textContent = fmt(leftSeconds);
+        if(bar) bar.style.width = Math.min(100, Math.max(0, pct)).toFixed(1) + '%';
+    }
+
+    function queueProgress(q) {
+        if(q.mode === 'elapsed') {
+            q.elapsed = (q.elapsed||0) + 1;
+            q.left = Math.max(0, (q.total||0) - q.elapsed);
+            return q.total > 0 ? (q.elapsed / q.total * 100) : 100;
+        }
+
+        q.left = Math.max(0, q.left - 1);
+        return q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
     }
 
     /* ===== BUILD QUEUES + PROGRESSBARS ===== */
@@ -425,56 +530,33 @@ var SmartNotif=(function(){
 
         if(!Q.length) return;
 
-        // Add X-Buttons to active queue items
         Q.forEach(function(q) {
-            var item = document.querySelector('.nq-active');
-            if(item && q.cancelUrl) {
-                var header = item.querySelector('.nq-header');
-                if(header && !header.querySelector('.nq-cancel')) {
-                    var cancelBtn = document.createElement('button');
-                    cancelBtn.className = 'nq-cancel';
-                    cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    cancelBtn.title = 'Abbrechen';
-                    cancelBtn.onclick = function() {
-                        if(confirm('Bau wirklich abbrechen?')) {
-                            window.location.href = q.cancelUrl;
-                        }
-                    };
-                    header.appendChild(cancelBtn);
-                }
-            }
+            mountCancelButton(q.id, q.cancelUrl);
         });
 
         function tick(){
+            var shouldReload = false;
             for(var i=0; i<Q.length; i++){
                 var q = Q[i];
-                var timer = document.getElementById('nq-' + q.id + '-timer');
-                var bar   = document.getElementById('nq-' + q.id + '-bar');
-                if(!timer) continue;
-
-                var pct;
-                if(q.mode === 'elapsed'){
-                    q.elapsed = (q.elapsed||0) + 1;
-                    q.left = Math.max(0, (q.total||0) - q.elapsed);
-                    pct = q.total > 0 ? (q.elapsed / q.total * 100) : 100;
-                } else {
-                    q.left = Math.max(0, q.left - 1);
-                    pct = q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
-                }
-
-                timer.textContent = fmt(q.left);
-                if(bar) bar.style.width = Math.min(100, pct).toFixed(1) + '%';
+                var pct = queueProgress(q);
+                updateQueueDom(q.id, q.left, pct);
                 
-                // Auto-refresh when complete
                 if(q.left <= 0) {
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
+                    shouldReload = true;
                 }
+            }
+
+            if(shouldReload) {
+                setTimeout(function() {
+                    window.location.reload();
+                }, 2000);
             }
         }
         tick();
-        setInterval(tick, 1000);
+        if(queueTickHandle) {
+            clearInterval(queueTickHandle);
+        }
+        queueTickHandle = setInterval(tick, 1000);
     }
 
     /* ===== TOAST bei Page Load ===== */
@@ -504,6 +586,9 @@ var SmartNotif=(function(){
     } else {
         document.addEventListener('DOMContentLoaded', doInit);
     }
+    window.addEventListener('load', function() {
+        setTimeout(doInit, 50);
+    });
 
     return {toggle:toggle, closeAll:closeAll, setBadge:setBadge, setAttackMode:setAttackMode, toast:toast};
 })();

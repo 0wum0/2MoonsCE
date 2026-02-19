@@ -171,4 +171,28 @@ function confirmDemolish(id, name, time) {
     }
 }
 </script>
+<script>
+(function(){
+    var activeTimer = document.querySelector('.queue-item.active-build .timer[data-time]');
+    var progressBar = document.querySelector('.queue-item.active-build .queue-progress-bar');
+    if(!activeTimer || !progressBar) return;
+
+    var endTs = parseInt(activeTimer.getAttribute('data-time'), 10) || 0;
+    var initialLeft = Math.max(0, endTs - Math.floor(Date.now() / 1000));
+    if(initialLeft <= 0) {
+        progressBar.style.width = '100%';
+        return;
+    }
+
+    function tick(){
+        var left = Math.max(0, endTs - Math.floor(Date.now() / 1000));
+        activeTimer.textContent = GetRestTimeFormat(left);
+        var pct = Math.min(100, Math.max(0, ((initialLeft - left) / initialLeft) * 100));
+        progressBar.style.width = pct.toFixed(1) + '%';
+    }
+
+    tick();
+    window.setInterval(tick, 1000);
+})();
+</script>
 {% endblock %}
