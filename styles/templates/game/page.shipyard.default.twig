@@ -22,6 +22,7 @@
                 <span><i class="fas fa-tasks"></i> {{ LNG.bd_production_queue }}</span>
                 <span id="timeleft"></span>
             </div>
+            <div id="bx" class="shipyard-active-timer">--:--:--</div>
             <div class="queue-body">
                 <select name="auftr[]" id="auftr" size="5" multiple class="queue-list">
                     <option>&nbsp;</option>
@@ -70,7 +71,7 @@
                             <div class="msg-box green">{{ LNG.bd_protection_shield_only_one }}</div>
                         {% elseif NotBuilding and Element.buyable %}
                             <div class="input-row">
-                                <input type="number" name="fmenge[{{ ID }}]" id="input_{{ ID }}" value="0" min="0" max="{{ Element.maxBuildable }}" tabindex="{{ loop.index }}" placeholder="0">
+                                <input type="number" name="fmenge[{{ ID }}]" id="input_{{ ID }}" value="" min="1" max="{{ Element.maxBuildable }}" tabindex="{{ loop.index }}" placeholder="0">
                                 {% if Element.maxBuildable %}
                                 <button type="button" class="btn-max" onclick="$('#input_{{ ID }}').val('{{ Element.maxBuildable }}')">MAX</button>
                                 {% endif %}
@@ -91,6 +92,7 @@
             <div class="dock-footer">
                 <button type="submit" class="btn-build-final">{{ LNG.bd_build_ships }}</button>
             </div>
+            <button type="submit" class="btn-build-mobile">{{ LNG.bd_build_ships }}</button>
             {% endif %}
 
         </form>

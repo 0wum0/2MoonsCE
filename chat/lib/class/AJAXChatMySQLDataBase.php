@@ -72,7 +72,7 @@ class AJAXChatDataBaseMySQL {
 	
 	// Method to prevent SQL injections:
 	function makeSafe($value) {
-		return "'".$this->_connectionID->real_escape_string($value)."'";
+		return "'".$this->_connectionID->real_escape_string((string) $value)."'";
 	}
 	
 	// Method to perform SQL queries:
