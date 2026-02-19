@@ -385,12 +385,10 @@ HTML;
 			
 			
 				$debrisResource	= array(901, 902);
-				$debris			= array();
-
-				foreach($debrisResource as $elementID)
-				{
-					$debris[$elementID]			= 0;
-				}
+				$debris			= array(
+					901	=> 0,
+					902	=> 0,
+				);
 				
 				$stealResource	= array(901 => 0, 902 => 0, 903 => 0);
 			
