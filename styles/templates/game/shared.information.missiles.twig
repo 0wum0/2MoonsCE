@@ -1,0 +1,37 @@
+<form action="game.php?page=information&amp;mode=destroyMissiles&amp;elementID={{ elementID }}" method="post">
+<div class="aerospace-missile-card">
+    <div class="missile-header">
+        <i class="fas fa-bomb"></i> {{ LNG.in_missilesamount }}
+    </div>
+
+    <div class="missile-list">
+        <div class="missile-row">
+            <div class="m-icon"><img src="{{ dpath }}gebaeude/503.gif" alt=""></div>
+            <div class="m-info">
+                <span class="m-name">{{ LNG.tech.503 }}</span>
+                <span class="m-count">{{ MissileList.503|number_format }}</span>
+            </div>
+            <div class="m-action">
+                <input class="glass-input" type="number" name="missile[503]" placeholder="0" min="0" max="{{ MissileList.503 }}">
+            </div>
+        </div>
+
+        <div class="missile-row">
+            <div class="m-icon"><img src="{{ dpath }}gebaeude/502.gif" alt=""></div>
+            <div class="m-info">
+                <span class="m-name">{{ LNG.tech.502 }}</span>
+                <span class="m-count">{{ MissileList.502|number_format }}</span>
+            </div>
+            <div class="m-action">
+                <input class="glass-input" type="number" name="missile[502]" placeholder="0" min="0" max="{{ MissileList.502 }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="missile-footer">
+        <button type="submit" class="btn-destroy">
+            <i class="fas fa-trash-alt"></i> {{ LNG.in_destroy }}
+        </button>
+    </div>
+</div>
+</form>

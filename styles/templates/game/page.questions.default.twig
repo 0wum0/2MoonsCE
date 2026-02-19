@@ -1,0 +1,38 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_faq }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="far fa-question-circle"></i> {{ LNG.faq_overview }}</h2>
+        </div>
+
+        <div class="faq-grid">
+            {% for categoryID, categoryRow in LNG.questions %}
+            <div class="faq-card">
+                <div class="faq-header">
+                    <i class="fas fa-folder-open"></i> {{ categoryRow.category }}
+                </div>
+                <div class="faq-list custom-scroll">
+                    <ul>
+                    {% for questionID, questionRow in categoryRow %}
+                    {% if questionID matches '/^\\d+$/' %}
+                        <li>
+                            <a href="game.php?page=questions&amp;mode=single&amp;categoryID={{ categoryID }}&amp;questionID={{ questionID }}">
+                                <i class="fas fa-angle-right"></i> {{ questionRow.title }}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

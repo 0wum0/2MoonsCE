@@ -1,0 +1,63 @@
+{% include "overall_header.twig" %}
+
+<div class="container-fluid p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="dash-header m-0">
+            <h2 class="text-white m-0 h5"><i class="fas fa-shield-alt text-danger"></i> {{ LNG.ad_defenses_title }}</h2>
+        </div>
+        <a href="?page=accounteditor" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
+    </div>
+
+    <form action="" method="post">
+        <div class="card neon-card mb-3">
+            <div class="card-body p-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-12">
+                        <label class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Ziel (ID)</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">#</span>
+                            <input name="id" type="number" value="0" class="form-control bg-dark border-secondary text-white fw-bold" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <button type="submit" name="add" class="btn btn-glass-success w-100 py-2">
+                            <i class="fas fa-plus"></i> {{ LNG.button_add }}
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" name="delete" class="btn btn-glass-danger w-100 py-2">
+                            <i class="fas fa-trash"></i> {{ LNG.button_delete }}
+                        </button>
+                    </div>
+                    <div class="col-12 text-center mt-1">
+                        <button type="reset" class="btn btn-link text-muted btn-sm text-decoration-none" style="font-size: 0.75rem;">Reset Formular</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card neon-card">
+            <div class="card-header border-bottom border-secondary bg-transparent py-2">
+                <span class="text-white small fw-bold"><i class="fas fa-list me-2"></i>Einheiten</span>
+            </div>
+            <div class="card-body p-2">
+                <div class="row g-2">
+                    {% for id, input in inputlist %}
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="p-2 border border-secondary rounded bg-dark bg-opacity-50">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-muted" style="font-size: 0.65rem;">ID:{{ id }}</span>
+                                <i class="fas fa-shield-alt text-secondary" style="font-size: 0.7rem;"></i>
+                            </div>
+                            <div class="text-truncate text-white small mb-1" title="{{ LNG.tech[id] }}">{{ LNG.tech[id] }}</div>
+                            <input name="{{ input.type }}" type="number" value="0" class="form-control form-control-sm bg-black border-secondary text-white text-center font-monospace">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% include "overall_footer.twig" %}

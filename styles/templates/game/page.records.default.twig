@@ -1,0 +1,111 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_records }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-trophy"></i> {{ LNG.lm_records }}</h2>
+            <span class="update-info">{{ LNG.rec_last_update_on }}: {{ update }}</span>
+        </div>
+
+        <div class="records-grid">
+            
+            <div class="record-column">
+                <div class="col-head build"><i class="fas fa-home"></i> {{ LNG.tech.0 }}</div>
+                <div class="record-list custom-scroll">
+                    {% for elementID, elementRow in buildList %}
+                    <div class="rec-item">
+                        <div class="rec-left">
+                            <div class="rec-tech">{{ LNG.tech[elementID] }}</div>
+                            <div class="rec-users">
+                                {% if elementRow %}
+                                    {% for user in elementRow %}
+                                        <a href='#' onclick='return Dialog.Playercard({{ user.userID }});'>{{ user.username }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}-{% endif %}
+                            </div>
+                        </div>
+                        <div class="rec-right">
+                            {% if elementRow %}<span class="rec-val">{{ elementRow[0].level|number_format }}</span>{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="record-column">
+                <div class="col-head tech"><i class="fas fa-flask"></i> {{ LNG.tech.100 }}</div>
+                <div class="record-list custom-scroll">
+                    {% for elementID, elementRow in researchList %}
+                    <div class="rec-item">
+                        <div class="rec-left">
+                            <div class="rec-tech">{{ LNG.tech[elementID] }}</div>
+                            <div class="rec-users">
+                                {% if elementRow %}
+                                    {% for user in elementRow %}
+                                        <a href='#' onclick='return Dialog.Playercard({{ user.userID }});'>{{ user.username }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}-{% endif %}
+                            </div>
+                        </div>
+                        <div class="rec-right">
+                            {% if elementRow %}<span class="rec-val">{{ elementRow[0].level|number_format }}</span>{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="record-column">
+                <div class="col-head fleet"><i class="fas fa-fighter-jet"></i> {{ LNG.tech.200 }}</div>
+                <div class="record-list custom-scroll">
+                    {% for elementID, elementRow in fleetList %}
+                    <div class="rec-item">
+                        <div class="rec-left">
+                            <div class="rec-tech">{{ LNG.tech[elementID] }}</div>
+                            <div class="rec-users">
+                                {% if elementRow %}
+                                    {% for user in elementRow %}
+                                        <a href='#' onclick='return Dialog.Playercard({{ user.userID }});'>{{ user.username }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}-{% endif %}
+                            </div>
+                        </div>
+                        <div class="rec-right">
+                            {% if elementRow %}<span class="rec-val">{{ elementRow[0].level|number_format }}</span>{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="record-column">
+                <div class="col-head def"><i class="fas fa-shield-alt"></i> {{ LNG.tech.400 }}</div>
+                <div class="record-list custom-scroll">
+                    {% for elementID, elementRow in defenseList %}
+                    <div class="rec-item">
+                        <div class="rec-left">
+                            <div class="rec-tech">{{ LNG.tech[elementID] }}</div>
+                            <div class="rec-users">
+                                {% if elementRow %}
+                                    {% for user in elementRow %}
+                                        <a href='#' onclick='return Dialog.Playercard({{ user.userID }});'>{{ user.username }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}-{% endif %}
+                            </div>
+                        </div>
+                        <div class="rec-right">
+                            {% if elementRow %}<span class="rec-val">{{ elementRow[0].level|number_format }}</span>{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

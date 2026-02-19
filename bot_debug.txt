@@ -1,0 +1,1516 @@
+[03:33:36] Cronjob gestartet.
+[03:33:36] PlayerUtil geladen von: PlayerUtil.class.php
+[03:36:14] --- Start Deep Debug ---
+[03:36:14] PlayerUtil::createPlayer erwartet 11 Parameter.
+[03:36:14]  - Parameter: universe (ERFORDERLICH)
+[03:36:14]  - Parameter: userName (ERFORDERLICH)
+[03:36:14]  - Parameter: userPassword (ERFORDERLICH)
+[03:36:14]  - Parameter: userMail (ERFORDERLICH)
+[03:36:14]  - Parameter: userLanguage (optional)
+[03:36:14]  - Parameter: galaxy (optional)
+[03:36:14]  - Parameter: system (optional)
+[03:36:14]  - Parameter: position (optional)
+[03:36:14]  - Parameter: name (optional)
+[03:36:14]  - Parameter: authlevel (optional)
+[03:36:14]  - Parameter: userIpAddress (optional)
+[03:36:23] --- Start Deep Debug ---
+[03:36:23] PlayerUtil::createPlayer erwartet 11 Parameter.
+[03:36:23]  - Parameter: universe (ERFORDERLICH)
+[03:36:23]  - Parameter: userName (ERFORDERLICH)
+[03:36:23]  - Parameter: userPassword (ERFORDERLICH)
+[03:36:23]  - Parameter: userMail (ERFORDERLICH)
+[03:36:23]  - Parameter: userLanguage (optional)
+[03:36:23]  - Parameter: galaxy (optional)
+[03:36:23]  - Parameter: system (optional)
+[03:36:23]  - Parameter: position (optional)
+[03:36:23]  - Parameter: name (optional)
+[03:36:23]  - Parameter: authlevel (optional)
+[03:36:23]  - Parameter: userIpAddress (optional)
+[03:42:50] --- Cronjob Start ---
+[03:42:50] Verwende Universe-ID: 1
+[03:43:47] --- Cronjob Start ---
+[03:43:47] Verwende Universe-ID: 1
+[2026-02-17 04:19:55] --- BotsCronjob Start ---
+[2026-02-17 04:19:55] Verwende Universe-ID: 1
+[2026-02-17 04:19:55] Typ 1: 16 / 16
+[2026-02-17 04:19:55] --- BotsCronjob Ende ---
+[2026-02-17 04:20:17] --- BotsCronjob Start ---
+[2026-02-17 04:20:17] Verwende Universe-ID: 1
+[2026-02-17 04:20:17] Typ 1: 16 / 16
+[2026-02-17 04:20:17] --- BotsCronjob Ende ---
+[2026-02-17 04:20:37] --- BotsCronjob Start ---
+[2026-02-17 04:20:37] Verwende Universe-ID: 1
+[2026-02-17 04:20:37] Typ 1: 16 / 16
+[2026-02-17 04:20:37] --- BotsCronjob Ende ---
+[2026-02-17 04:20:44] --- BotsCronjob Start ---
+[2026-02-17 04:20:44] Verwende Universe-ID: 1
+[2026-02-17 04:20:44] Typ 1: 16 / 16
+[2026-02-17 04:20:44] --- BotsCronjob Ende ---
+[2026-02-17 04:22:38] --- BotsCronjob Start ---
+[2026-02-17 04:22:38] Verwende Universe-ID: 1
+[2026-02-17 04:22:38] Typ 1: 16 / 16
+[2026-02-17 04:22:38] --- BotsCronjob Ende ---
+[2026-02-17 04:25:24] --- BotsCronjob Start ---
+[2026-02-17 04:25:24] Verwende Universe-ID: 1
+[2026-02-17 04:25:24] Typ 1: 16 / 16
+[2026-02-17 04:25:24] --- BotsCronjob Ende ---
+[2026-02-17 04:25:36] --- BotsCronjob Start ---
+[2026-02-17 04:25:36] Verwende Universe-ID: 1
+[2026-02-17 04:25:36] Typ 1: 16 / 16
+[2026-02-17 04:25:36] --- BotsCronjob Ende ---
+[2026-02-17 04:26:02] --- BotsCronjob Start ---
+[2026-02-17 04:26:02] Verwende Universe-ID: 1
+[2026-02-17 04:26:02] Typ 1: 16 / 16
+[2026-02-17 04:26:02] --- BotsCronjob Ende ---
+[2026-02-17 05:29:05] --- BotsCronjob Start ---
+[2026-02-17 05:29:05] Verwende Universe-ID: 1
+[2026-02-17 05:29:05] Typ 1: 16 / 16
+[2026-02-17 05:29:05] --- BotsCronjob Ende ---
+[2026-02-17 05:31:31] --- BotsCronjob Start ---
+[2026-02-17 05:31:31] Verwende Universe-ID: 1
+[2026-02-17 05:31:31] Typ 1: 16 / 16
+[2026-02-17 05:31:31] --- BotsCronjob Ende ---
+[2026-02-17 06:25:46] --- BotsCronjob Start ---
+[2026-02-17 06:25:46] Verwende Universe-ID: 1
+[2026-02-17 06:25:46] Typ 1: 16 / 16
+[2026-02-17 06:25:46] --- BotsCronjob Ende ---
+[2026-02-17 06:26:19] --- BotsCronjob Start ---
+[2026-02-17 06:26:19] Verwende Universe-ID: 1
+[2026-02-17 06:26:19] Typ 1: 16 / 16
+[2026-02-17 06:26:19] --- BotsCronjob Ende ---
+[2026-02-17 06:33:32] --- BotsCronjob Start ---
+[2026-02-17 06:33:32] Verwende Universe-ID: 1
+[2026-02-17 06:33:32] Typ 1: 16 / 16
+[2026-02-17 06:33:32] --- BotsCronjob Ende ---
+[2026-02-17 06:37:22] --- BotsCronjob Start ---
+[2026-02-17 06:37:22] Verwende Universe-ID: 1
+[2026-02-17 06:37:22] Typ 1: 16 / 16
+[2026-02-17 06:37:22] --- BotsCronjob Ende ---
+[2026-02-17 07:32:16] --- BotsCronjob Start ---
+[2026-02-17 07:32:16] Verwende Universe-ID: 1
+[2026-02-17 07:32:16] Typ 1: 16 / 16
+[2026-02-17 07:32:16] --- BotsCronjob Ende ---
+[2026-02-17 07:44:49] --- BotsCronjob Start ---
+[2026-02-17 07:44:49] Verwende Universe-ID: 1
+[2026-02-17 07:44:49] Typ 1: 16 / 16
+[2026-02-17 07:44:49] --- BotsCronjob Ende ---
+[2026-02-17 07:45:02] --- BotsCronjob Start ---
+[2026-02-17 07:45:02] Verwende Universe-ID: 1
+[2026-02-17 07:45:02] Typ 1: 16 / 16
+[2026-02-17 07:45:02] --- BotsCronjob Ende ---
+[2026-02-17 07:45:10] --- BotsCronjob Start ---
+[2026-02-17 07:45:10] Verwende Universe-ID: 1
+[2026-02-17 07:45:10] Typ 1: 16 / 16
+[2026-02-17 07:45:10] --- BotsCronjob Ende ---
+[2026-02-17 07:45:12] --- BotsCronjob Start ---
+[2026-02-17 07:45:12] Verwende Universe-ID: 1
+[2026-02-17 07:45:12] Typ 1: 16 / 16
+[2026-02-17 07:45:12] --- BotsCronjob Ende ---
+[2026-02-17 07:45:13] --- BotsCronjob Start ---
+[2026-02-17 07:45:13] Verwende Universe-ID: 1
+[2026-02-17 07:45:13] Typ 1: 16 / 16
+[2026-02-17 07:45:13] --- BotsCronjob Ende ---
+[2026-02-17 07:45:19] --- BotsCronjob Start ---
+[2026-02-17 07:45:19] Verwende Universe-ID: 1
+[2026-02-17 07:45:19] Typ 1: 16 / 16
+[2026-02-17 07:45:19] --- BotsCronjob Ende ---
+[2026-02-17 07:45:26] --- BotsCronjob Start ---
+[2026-02-17 07:45:26] Verwende Universe-ID: 1
+[2026-02-17 07:45:26] Typ 1: 16 / 16
+[2026-02-17 07:45:26] --- BotsCronjob Ende ---
+[2026-02-17 07:45:32] --- BotsCronjob Start ---
+[2026-02-17 07:45:32] Verwende Universe-ID: 1
+[2026-02-17 07:45:32] Typ 1: 16 / 16
+[2026-02-17 07:45:32] --- BotsCronjob Ende ---
+[2026-02-17 07:45:41] --- BotsCronjob Start ---
+[2026-02-17 07:45:41] Verwende Universe-ID: 1
+[2026-02-17 07:45:41] Typ 1: 16 / 16
+[2026-02-17 07:45:41] --- BotsCronjob Ende ---
+[2026-02-17 07:45:46] --- BotsCronjob Start ---
+[2026-02-17 07:45:46] Verwende Universe-ID: 1
+[2026-02-17 07:45:46] Typ 1: 16 / 16
+[2026-02-17 07:45:46] --- BotsCronjob Ende ---
+[2026-02-17 07:45:59] --- BotsCronjob Start ---
+[2026-02-17 07:45:59] Verwende Universe-ID: 1
+[2026-02-17 07:45:59] Typ 1: 16 / 16
+[2026-02-17 07:45:59] --- BotsCronjob Ende ---
+[2026-02-17 07:46:04] --- BotsCronjob Start ---
+[2026-02-17 07:46:04] Verwende Universe-ID: 1
+[2026-02-17 07:46:04] Typ 1: 16 / 16
+[2026-02-17 07:46:04] --- BotsCronjob Ende ---
+[2026-02-17 07:50:43] --- BotsCronjob Start ---
+[2026-02-17 07:50:43] Verwende Universe-ID: 1
+[2026-02-17 07:50:43] Typ 1: 16 / 16
+[2026-02-17 07:50:43] --- BotsCronjob Ende ---
+[2026-02-17 07:50:45] --- BotsCronjob Start ---
+[2026-02-17 07:50:45] Verwende Universe-ID: 1
+[2026-02-17 07:50:45] Typ 1: 16 / 16
+[2026-02-17 07:50:45] --- BotsCronjob Ende ---
+[2026-02-17 07:50:46] --- BotsCronjob Start ---
+[2026-02-17 07:50:46] Verwende Universe-ID: 1
+[2026-02-17 07:50:46] Typ 1: 16 / 16
+[2026-02-17 07:50:46] --- BotsCronjob Ende ---
+[2026-02-17 07:50:54] --- BotsCronjob Start ---
+[2026-02-17 07:50:54] Verwende Universe-ID: 1
+[2026-02-17 07:50:54] Typ 1: 16 / 16
+[2026-02-17 07:50:54] --- BotsCronjob Ende ---
+[2026-02-17 07:51:01] --- BotsCronjob Start ---
+[2026-02-17 07:51:01] Verwende Universe-ID: 1
+[2026-02-17 07:51:01] Typ 1: 16 / 16
+[2026-02-17 07:51:01] --- BotsCronjob Ende ---
+[2026-02-17 07:55:46] --- BotsCronjob Start ---
+[2026-02-17 07:55:46] Verwende Universe-ID: 1
+[2026-02-17 07:55:46] Typ 1: 16 / 16
+[2026-02-17 07:55:46] --- BotsCronjob Ende ---
+[2026-02-17 07:58:15] --- BotsCronjob Start ---
+[2026-02-17 07:58:15] Verwende Universe-ID: 1
+[2026-02-17 07:58:15] Typ 1: 16 / 16
+[2026-02-17 07:58:15] --- BotsCronjob Ende ---
+[2026-02-17 08:01:03] --- BotsCronjob Start ---
+[2026-02-17 08:01:03] Verwende Universe-ID: 1
+[2026-02-17 08:01:03] Typ 1: 16 / 16
+[2026-02-17 08:01:03] --- BotsCronjob Ende ---
+[2026-02-17 08:09:50] --- BotsCronjob Start ---
+[2026-02-17 08:09:50] Verwende Universe-ID: 1
+[2026-02-17 08:09:50] Typ 1: 16 / 16
+[2026-02-17 08:09:50] --- BotsCronjob Ende ---
+[2026-02-17 08:12:48] --- BotsCronjob Start ---
+[2026-02-17 08:12:48] Verwende Universe-ID: 1
+[2026-02-17 08:12:48] Typ 1: 16 / 16
+[2026-02-17 08:12:48] --- BotsCronjob Ende ---
+[2026-02-17 08:28:00] --- BotsCronjob Start ---
+[2026-02-17 08:28:00] Verwende Universe-ID: 1
+[2026-02-17 08:28:00] Typ 1: 16 / 16
+[2026-02-17 08:28:00] --- BotsCronjob Ende ---
+[2026-02-17 08:33:59] --- BotsCronjob Start ---
+[2026-02-17 08:33:59] Verwende Universe-ID: 1
+[2026-02-17 08:33:59] Typ 1: 16 / 16
+[2026-02-17 08:33:59] --- BotsCronjob Ende ---
+[2026-02-17 08:37:30] --- BotsCronjob Start ---
+[2026-02-17 08:37:30] Verwende Universe-ID: 1
+[2026-02-17 08:37:30] Typ 1: 16 / 16
+[2026-02-17 08:37:30] --- BotsCronjob Ende ---
+[2026-02-17 08:44:07] --- BotsCronjob Start ---
+[2026-02-17 08:44:07] Verwende Universe-ID: 1
+[2026-02-17 08:44:07] Typ 1: 16 / 16
+[2026-02-17 08:44:07] --- BotsCronjob Ende ---
+[2026-02-17 08:47:53] --- BotsCronjob Start ---
+[2026-02-17 08:47:53] Verwende Universe-ID: 1
+[2026-02-17 08:47:53] Typ 1: 16 / 16
+[2026-02-17 08:47:53] --- BotsCronjob Ende ---
+[2026-02-17 09:12:57] --- BotsCronjob Start ---
+[2026-02-17 09:12:57] Verwende Universe-ID: 1
+[2026-02-17 09:12:57] Typ 1: 16 / 16
+[2026-02-17 09:12:57] --- BotsCronjob Ende ---
+[2026-02-17 09:30:35] --- BotsCronjob Start ---
+[2026-02-17 09:30:35] Verwende Universe-ID: 1
+[2026-02-17 09:30:35] Typ 1: 16 / 16
+[2026-02-17 09:30:35] --- BotsCronjob Ende ---
+[2026-02-17 09:30:40] --- BotsCronjob Start ---
+[2026-02-17 09:30:40] Verwende Universe-ID: 1
+[2026-02-17 09:30:40] Typ 1: 16 / 16
+[2026-02-17 09:30:40] --- BotsCronjob Ende ---
+[2026-02-17 09:30:55] --- BotsCronjob Start ---
+[2026-02-17 09:30:55] Verwende Universe-ID: 1
+[2026-02-17 09:30:55] Typ 1: 16 / 16
+[2026-02-17 09:30:55] --- BotsCronjob Ende ---
+[2026-02-17 09:31:02] --- BotsCronjob Start ---
+[2026-02-17 09:31:02] Verwende Universe-ID: 1
+[2026-02-17 09:31:02] Typ 1: 16 / 16
+[2026-02-17 09:31:02] --- BotsCronjob Ende ---
+[2026-02-17 09:37:20] --- BotsCronjob Start ---
+[2026-02-17 09:37:20] Verwende Universe-ID: 1
+[2026-02-17 09:37:20] Typ 1: 16 / 16
+[2026-02-17 09:37:20] --- BotsCronjob Ende ---
+[2026-02-17 10:17:08] --- BotsCronjob Start ---
+[2026-02-17 10:17:08] Verwende Universe-ID: 1
+[2026-02-17 10:17:08] Typ 1: 16 / 16
+[2026-02-17 10:17:08] --- BotsCronjob Ende ---
+[2026-02-17 10:23:36] --- BotsCronjob Start ---
+[2026-02-17 10:23:36] Verwende Universe-ID: 1
+[2026-02-17 10:23:36] Typ 1: 16 / 16
+[2026-02-17 10:23:36] --- BotsCronjob Ende ---
+[2026-02-17 10:27:48] --- BotsCronjob Start ---
+[2026-02-17 10:27:48] Verwende Universe-ID: 1
+[2026-02-17 10:27:48] Typ 1: 16 / 16
+[2026-02-17 10:27:48] --- BotsCronjob Ende ---
+[2026-02-17 10:30:23] --- BotsCronjob Start ---
+[2026-02-17 10:30:23] Verwende Universe-ID: 1
+[2026-02-17 10:30:23] Typ 1: 16 / 16
+[2026-02-17 10:30:23] --- BotsCronjob Ende ---
+[2026-02-17 10:30:35] --- BotsCronjob Start ---
+[2026-02-17 10:30:35] Verwende Universe-ID: 1
+[2026-02-17 10:30:35] Typ 1: 16 / 16
+[2026-02-17 10:30:35] --- BotsCronjob Ende ---
+[2026-02-17 10:33:48] --- BotsCronjob Start ---
+[2026-02-17 10:33:48] Verwende Universe-ID: 1
+[2026-02-17 10:33:48] Typ 1: 16 / 16
+[2026-02-17 10:33:48] --- BotsCronjob Ende ---
+[2026-02-17 10:54:43] --- BotsCronjob Start ---
+[2026-02-17 10:54:43] Verwende Universe-ID: 1
+[2026-02-17 10:54:43] Typ 1: 16 / 16
+[2026-02-17 10:54:43] --- BotsCronjob Ende ---
+[2026-02-17 10:57:50] --- BotsCronjob Start ---
+[2026-02-17 10:57:50] Verwende Universe-ID: 1
+[2026-02-17 10:57:50] Typ 1: 16 / 16
+[2026-02-17 10:57:50] --- BotsCronjob Ende ---
+[2026-02-17 11:09:57] --- BotsCronjob Start ---
+[2026-02-17 11:09:57] Verwende Universe-ID: 1
+[2026-02-17 11:09:57] Typ 1: 16 / 16
+[2026-02-17 11:09:57] --- BotsCronjob Ende ---
+[2026-02-17 11:10:01] --- BotsCronjob Start ---
+[2026-02-17 11:10:01] Verwende Universe-ID: 1
+[2026-02-17 11:10:01] Typ 1: 16 / 16
+[2026-02-17 11:10:01] --- BotsCronjob Ende ---
+[2026-02-17 11:10:06] --- BotsCronjob Start ---
+[2026-02-17 11:10:06] Verwende Universe-ID: 1
+[2026-02-17 11:10:06] Typ 1: 16 / 16
+[2026-02-17 11:10:06] --- BotsCronjob Ende ---
+[2026-02-17 11:10:08] --- BotsCronjob Start ---
+[2026-02-17 11:10:08] Verwende Universe-ID: 1
+[2026-02-17 11:10:08] Typ 1: 16 / 16
+[2026-02-17 11:10:08] --- BotsCronjob Ende ---
+[2026-02-17 11:10:14] --- BotsCronjob Start ---
+[2026-02-17 11:10:14] Verwende Universe-ID: 1
+[2026-02-17 11:10:14] Typ 1: 16 / 16
+[2026-02-17 11:10:14] --- BotsCronjob Ende ---
+[2026-02-17 11:10:16] --- BotsCronjob Start ---
+[2026-02-17 11:10:16] Verwende Universe-ID: 1
+[2026-02-17 11:10:16] Typ 1: 16 / 16
+[2026-02-17 11:10:16] --- BotsCronjob Ende ---
+[2026-02-17 11:10:17] --- BotsCronjob Start ---
+[2026-02-17 11:10:17] Verwende Universe-ID: 1
+[2026-02-17 11:10:17] Typ 1: 16 / 16
+[2026-02-17 11:10:17] --- BotsCronjob Ende ---
+[2026-02-17 11:10:18] --- BotsCronjob Start ---
+[2026-02-17 11:10:18] Verwende Universe-ID: 1
+[2026-02-17 11:10:18] Typ 1: 16 / 16
+[2026-02-17 11:10:18] --- BotsCronjob Ende ---
+[2026-02-17 11:10:21] --- BotsCronjob Start ---
+[2026-02-17 11:10:21] Verwende Universe-ID: 1
+[2026-02-17 11:10:21] Typ 1: 16 / 16
+[2026-02-17 11:10:21] --- BotsCronjob Ende ---
+[2026-02-17 11:13:46] --- BotsCronjob Start ---
+[2026-02-17 11:13:46] Verwende Universe-ID: 1
+[2026-02-17 11:13:46] Typ 1: 16 / 16
+[2026-02-17 11:13:46] --- BotsCronjob Ende ---
+[2026-02-17 11:17:49] --- BotsCronjob Start ---
+[2026-02-17 11:17:49] Verwende Universe-ID: 1
+[2026-02-17 11:17:49] Typ 1: 16 / 16
+[2026-02-17 11:17:49] --- BotsCronjob Ende ---
+[2026-02-17 12:38:02] --- BotsCronjob Start ---
+[2026-02-17 12:38:02] Verwende Universe-ID: 1
+[2026-02-17 12:38:02] Typ 1: 16 / 16
+[2026-02-17 12:38:02] --- BotsCronjob Ende ---
+[2026-02-17 13:22:16] --- BotsCronjob Start ---
+[2026-02-17 13:22:16] Verwende Universe-ID: 1
+[2026-02-17 13:22:16] Typ 1: 16 / 16
+[2026-02-17 13:22:16] --- BotsCronjob Ende ---
+[2026-02-17 16:44:08] --- BotsCronjob Start ---
+[2026-02-17 16:44:08] Verwende Universe-ID: 1
+[2026-02-17 16:44:08] Typ 1: 16 / 16
+[2026-02-17 16:44:08] --- BotsCronjob Ende ---
+[2026-02-17 16:55:16] --- BotsCronjob Start ---
+[2026-02-17 16:55:16] Verwende Universe-ID: 1
+[2026-02-17 16:55:16] Typ 1: 16 / 16
+[2026-02-17 16:55:16] --- BotsCronjob Ende ---
+[2026-02-17 16:55:36] --- BotsCronjob Start ---
+[2026-02-17 16:55:36] Verwende Universe-ID: 1
+[2026-02-17 16:55:36] Typ 1: 16 / 16
+[2026-02-17 16:55:36] --- BotsCronjob Ende ---
+[2026-02-17 16:55:41] --- BotsCronjob Start ---
+[2026-02-17 16:55:41] Verwende Universe-ID: 1
+[2026-02-17 16:55:41] Typ 1: 16 / 16
+[2026-02-17 16:55:41] --- BotsCronjob Ende ---
+[2026-02-17 16:55:48] --- BotsCronjob Start ---
+[2026-02-17 16:55:48] Verwende Universe-ID: 1
+[2026-02-17 16:55:48] Typ 1: 16 / 16
+[2026-02-17 16:55:48] --- BotsCronjob Ende ---
+[2026-02-17 16:55:58] --- BotsCronjob Start ---
+[2026-02-17 16:55:58] Verwende Universe-ID: 1
+[2026-02-17 16:55:58] Typ 1: 16 / 16
+[2026-02-17 16:55:58] --- BotsCronjob Ende ---
+[2026-02-17 16:56:22] --- BotsCronjob Start ---
+[2026-02-17 16:56:22] Verwende Universe-ID: 1
+[2026-02-17 16:56:22] Typ 1: 16 / 16
+[2026-02-17 16:56:22] --- BotsCronjob Ende ---
+[2026-02-17 17:03:05] --- BotsCronjob Start ---
+[2026-02-17 17:03:05] Verwende Universe-ID: 1
+[2026-02-17 17:03:05] Typ 1: 16 / 16
+[2026-02-17 17:03:05] --- BotsCronjob Ende ---
+[2026-02-17 17:06:55] --- BotsCronjob Start ---
+[2026-02-17 17:06:55] Verwende Universe-ID: 1
+[2026-02-17 17:06:55] Typ 1: 16 / 16
+[2026-02-17 17:06:55] --- BotsCronjob Ende ---
+[2026-02-17 17:15:18] --- BotsCronjob Start ---
+[2026-02-17 17:15:18] Verwende Universe-ID: 1
+[2026-02-17 17:15:18] Typ 1: 16 / 16
+[2026-02-17 17:15:18] --- BotsCronjob Ende ---
+[2026-02-17 17:15:20] --- BotsCronjob Start ---
+[2026-02-17 17:15:20] Verwende Universe-ID: 1
+[2026-02-17 17:15:20] Typ 1: 16 / 16
+[2026-02-17 17:15:20] --- BotsCronjob Ende ---
+[2026-02-17 17:15:37] --- BotsCronjob Start ---
+[2026-02-17 17:15:37] Verwende Universe-ID: 1
+[2026-02-17 17:15:37] Typ 1: 16 / 16
+[2026-02-17 17:15:37] --- BotsCronjob Ende ---
+[2026-02-17 17:15:43] --- BotsCronjob Start ---
+[2026-02-17 17:15:43] Verwende Universe-ID: 1
+[2026-02-17 17:15:43] Typ 1: 16 / 16
+[2026-02-17 17:15:43] --- BotsCronjob Ende ---
+[2026-02-17 17:16:05] --- BotsCronjob Start ---
+[2026-02-17 17:16:05] Verwende Universe-ID: 1
+[2026-02-17 17:16:05] Typ 1: 16 / 16
+[2026-02-17 17:16:05] --- BotsCronjob Ende ---
+[2026-02-17 17:20:13] --- BotsCronjob Start ---
+[2026-02-17 17:20:13] Verwende Universe-ID: 1
+[2026-02-17 17:20:13] Typ 1: 16 / 16
+[2026-02-17 17:20:13] --- BotsCronjob Ende ---
+[2026-02-17 17:20:23] --- BotsCronjob Start ---
+[2026-02-17 17:20:23] Verwende Universe-ID: 1
+[2026-02-17 17:20:23] Typ 1: 16 / 16
+[2026-02-17 17:20:23] --- BotsCronjob Ende ---
+[2026-02-17 17:20:41] --- BotsCronjob Start ---
+[2026-02-17 17:20:41] Verwende Universe-ID: 1
+[2026-02-17 17:20:41] Typ 1: 16 / 16
+[2026-02-17 17:20:41] --- BotsCronjob Ende ---
+[2026-02-17 17:20:50] --- BotsCronjob Start ---
+[2026-02-17 17:20:50] Verwende Universe-ID: 1
+[2026-02-17 17:20:50] Typ 1: 16 / 16
+[2026-02-17 17:20:50] --- BotsCronjob Ende ---
+[2026-02-17 17:20:59] --- BotsCronjob Start ---
+[2026-02-17 17:20:59] Verwende Universe-ID: 1
+[2026-02-17 17:20:59] Typ 1: 16 / 16
+[2026-02-17 17:20:59] --- BotsCronjob Ende ---
+[2026-02-17 17:21:43] --- BotsCronjob Start ---
+[2026-02-17 17:21:43] Verwende Universe-ID: 1
+[2026-02-17 17:21:43] Typ 1: 16 / 16
+[2026-02-17 17:21:43] --- BotsCronjob Ende ---
+[2026-02-17 17:22:07] --- BotsCronjob Start ---
+[2026-02-17 17:22:07] Verwende Universe-ID: 1
+[2026-02-17 17:22:07] Typ 1: 16 / 16
+[2026-02-17 17:22:07] --- BotsCronjob Ende ---
+[2026-02-17 17:27:38] --- BotsCronjob Start ---
+[2026-02-17 17:27:38] Verwende Universe-ID: 1
+[2026-02-17 17:27:38] Typ 1: 16 / 16
+[2026-02-17 17:27:38] --- BotsCronjob Ende ---
+[2026-02-17 18:07:48] --- BotsCronjob Start ---
+[2026-02-17 18:07:48] Verwende Universe-ID: 1
+[2026-02-17 18:07:48] Typ 1: 16 / 16
+[2026-02-17 18:07:48] --- BotsCronjob Ende ---
+[2026-02-17 18:26:27] --- BotsCronjob Start ---
+[2026-02-17 18:26:27] Verwende Universe-ID: 1
+[2026-02-17 18:26:27] Typ 1: 16 / 16
+[2026-02-17 18:26:27] --- BotsCronjob Ende ---
+[2026-02-17 18:39:28] --- BotsCronjob Start ---
+[2026-02-17 18:39:28] Verwende Universe-ID: 1
+[2026-02-17 18:39:28] Typ 1: 16 / 16
+[2026-02-17 18:39:28] --- BotsCronjob Ende ---
+[2026-02-17 18:40:05] --- BotsCronjob Start ---
+[2026-02-17 18:40:05] Verwende Universe-ID: 1
+[2026-02-17 18:40:05] Typ 1: 16 / 16
+[2026-02-17 18:40:05] --- BotsCronjob Ende ---
+[2026-02-17 18:40:09] --- BotsCronjob Start ---
+[2026-02-17 18:40:09] Verwende Universe-ID: 1
+[2026-02-17 18:40:09] Typ 1: 16 / 16
+[2026-02-17 18:40:09] --- BotsCronjob Ende ---
+[2026-02-17 18:40:11] --- BotsCronjob Start ---
+[2026-02-17 18:40:11] Verwende Universe-ID: 1
+[2026-02-17 18:40:11] Typ 1: 16 / 16
+[2026-02-17 18:40:11] --- BotsCronjob Ende ---
+[2026-02-17 18:40:14] --- BotsCronjob Start ---
+[2026-02-17 18:40:14] Verwende Universe-ID: 1
+[2026-02-17 18:40:14] Typ 1: 16 / 16
+[2026-02-17 18:40:14] --- BotsCronjob Ende ---
+[2026-02-17 18:40:19] --- BotsCronjob Start ---
+[2026-02-17 18:40:19] Verwende Universe-ID: 1
+[2026-02-17 18:40:19] Typ 1: 16 / 16
+[2026-02-17 18:40:19] --- BotsCronjob Ende ---
+[2026-02-17 18:40:23] --- BotsCronjob Start ---
+[2026-02-17 18:40:23] Verwende Universe-ID: 1
+[2026-02-17 18:40:23] Typ 1: 16 / 16
+[2026-02-17 18:40:23] --- BotsCronjob Ende ---
+[2026-02-17 18:40:28] --- BotsCronjob Start ---
+[2026-02-17 18:40:28] Verwende Universe-ID: 1
+[2026-02-17 18:40:28] Typ 1: 16 / 16
+[2026-02-17 18:40:28] --- BotsCronjob Ende ---
+[2026-02-17 18:40:33] --- BotsCronjob Start ---
+[2026-02-17 18:40:33] Verwende Universe-ID: 1
+[2026-02-17 18:40:33] Typ 1: 16 / 16
+[2026-02-17 18:40:33] --- BotsCronjob Ende ---
+[2026-02-17 18:40:48] --- BotsCronjob Start ---
+[2026-02-17 18:40:48] Verwende Universe-ID: 1
+[2026-02-17 18:40:48] Typ 1: 16 / 16
+[2026-02-17 18:40:48] --- BotsCronjob Ende ---
+[2026-02-17 18:40:52] --- BotsCronjob Start ---
+[2026-02-17 18:40:52] Verwende Universe-ID: 1
+[2026-02-17 18:40:52] Typ 1: 16 / 16
+[2026-02-17 18:40:52] --- BotsCronjob Ende ---
+[2026-02-17 18:40:58] --- BotsCronjob Start ---
+[2026-02-17 18:40:58] Verwende Universe-ID: 1
+[2026-02-17 18:40:58] Typ 1: 16 / 16
+[2026-02-17 18:40:58] --- BotsCronjob Ende ---
+[2026-02-17 18:41:34] --- BotsCronjob Start ---
+[2026-02-17 18:41:34] Verwende Universe-ID: 1
+[2026-02-17 18:41:34] Typ 1: 16 / 16
+[2026-02-17 18:41:34] --- BotsCronjob Ende ---
+[2026-02-17 19:04:30] --- BotsCronjob Start ---
+[2026-02-17 19:04:30] Verwende Universe-ID: 1
+[2026-02-17 19:04:30] Typ 1: 16 / 16
+[2026-02-17 19:04:30] --- BotsCronjob Ende ---
+[2026-02-17 19:07:25] --- BotsCronjob Start ---
+[2026-02-17 19:07:25] Verwende Universe-ID: 1
+[2026-02-17 19:07:25] Typ 1: 16 / 16
+[2026-02-17 19:07:25] --- BotsCronjob Ende ---
+[2026-02-17 19:10:40] --- BotsCronjob Start ---
+[2026-02-17 19:10:40] Verwende Universe-ID: 1
+[2026-02-17 19:10:40] Typ 1: 16 / 16
+[2026-02-17 19:10:40] --- BotsCronjob Ende ---
+[2026-02-17 19:11:06] --- BotsCronjob Start ---
+[2026-02-17 19:11:06] Verwende Universe-ID: 1
+[2026-02-17 19:11:06] Typ 1: 16 / 16
+[2026-02-17 19:11:06] --- BotsCronjob Ende ---
+[2026-02-17 19:18:40] --- BotsCronjob Start ---
+[2026-02-17 19:18:40] Verwende Universe-ID: 1
+[2026-02-17 19:18:40] Typ 1: 16 / 16
+[2026-02-17 19:18:40] --- BotsCronjob Ende ---
+[2026-02-17 19:26:24] --- BotsCronjob Start ---
+[2026-02-17 19:26:24] Verwende Universe-ID: 1
+[2026-02-17 19:26:24] Typ 1: 16 / 16
+[2026-02-17 19:26:24] --- BotsCronjob Ende ---
+[2026-02-17 19:37:01] --- BotsCronjob Start ---
+[2026-02-17 19:37:01] Verwende Universe-ID: 1
+[2026-02-17 19:37:01] Typ 1: 16 / 16
+[2026-02-17 19:37:01] --- BotsCronjob Ende ---
+[2026-02-17 19:40:27] --- BotsCronjob Start ---
+[2026-02-17 19:40:27] Verwende Universe-ID: 1
+[2026-02-17 19:40:27] Typ 1: 16 / 16
+[2026-02-17 19:40:27] --- BotsCronjob Ende ---
+[2026-02-17 19:40:32] --- BotsCronjob Start ---
+[2026-02-17 19:40:32] Verwende Universe-ID: 1
+[2026-02-17 19:40:32] Typ 1: 16 / 16
+[2026-02-17 19:40:32] --- BotsCronjob Ende ---
+[2026-02-17 19:46:34] --- BotsCronjob Start ---
+[2026-02-17 19:46:34] Verwende Universe-ID: 1
+[2026-02-17 19:46:34] Typ 1: 16 / 16
+[2026-02-17 19:46:34] --- BotsCronjob Ende ---
+[2026-02-17 19:50:28] --- BotsCronjob Start ---
+[2026-02-17 19:50:28] Verwende Universe-ID: 1
+[2026-02-17 19:50:28] Typ 1: 16 / 16
+[2026-02-17 19:50:28] --- BotsCronjob Ende ---
+[2026-02-17 19:50:57] --- BotsCronjob Start ---
+[2026-02-17 19:50:57] Verwende Universe-ID: 1
+[2026-02-17 19:50:57] Typ 1: 16 / 16
+[2026-02-17 19:50:57] --- BotsCronjob Ende ---
+[2026-02-17 19:52:32] --- BotsCronjob Start ---
+[2026-02-17 19:52:32] Verwende Universe-ID: 1
+[2026-02-17 19:52:32] Typ 1: 16 / 16
+[2026-02-17 19:52:32] --- BotsCronjob Ende ---
+[2026-02-17 20:01:14] --- BotsCronjob Start ---
+[2026-02-17 20:01:14] Verwende Universe-ID: 1
+[2026-02-17 20:01:14] Typ 1: 16 / 16
+[2026-02-17 20:01:14] --- BotsCronjob Ende ---
+[2026-02-17 20:17:26] --- BotsCronjob Start ---
+[2026-02-17 20:17:26] Verwende Universe-ID: 1
+[2026-02-17 20:17:26] Typ 1: 16 / 16
+[2026-02-17 20:17:26] --- BotsCronjob Ende ---
+[2026-02-17 20:50:23] --- BotsCronjob Start ---
+[2026-02-17 20:50:23] Verwende Universe-ID: 1
+[2026-02-17 20:50:23] Typ 1: 16 / 16
+[2026-02-17 20:50:23] --- BotsCronjob Ende ---
+[2026-02-17 20:50:25] --- BotsCronjob Start ---
+[2026-02-17 20:50:25] Verwende Universe-ID: 1
+[2026-02-17 20:50:25] Typ 1: 16 / 16
+[2026-02-17 20:50:25] --- BotsCronjob Ende ---
+[2026-02-17 20:50:40] --- BotsCronjob Start ---
+[2026-02-17 20:50:40] Verwende Universe-ID: 1
+[2026-02-17 20:50:40] Typ 1: 16 / 16
+[2026-02-17 20:50:40] --- BotsCronjob Ende ---
+[2026-02-17 20:50:52] --- BotsCronjob Start ---
+[2026-02-17 20:50:52] Verwende Universe-ID: 1
+[2026-02-17 20:50:52] Typ 1: 16 / 16
+[2026-02-17 20:50:52] --- BotsCronjob Ende ---
+[2026-02-17 20:50:53] --- BotsCronjob Start ---
+[2026-02-17 20:50:53] Verwende Universe-ID: 1
+[2026-02-17 20:50:53] Typ 1: 16 / 16
+[2026-02-17 20:50:53] --- BotsCronjob Ende ---
+[2026-02-17 20:51:32] --- BotsCronjob Start ---
+[2026-02-17 20:51:32] Verwende Universe-ID: 1
+[2026-02-17 20:51:32] Typ 1: 16 / 16
+[2026-02-17 20:51:32] --- BotsCronjob Ende ---
+[2026-02-17 20:56:46] --- BotsCronjob Start ---
+[2026-02-17 20:56:46] Verwende Universe-ID: 1
+[2026-02-17 20:56:46] Typ 1: 16 / 16
+[2026-02-17 20:56:46] --- BotsCronjob Ende ---
+[2026-02-17 21:17:29] --- BotsCronjob Start ---
+[2026-02-17 21:17:29] Verwende Universe-ID: 1
+[2026-02-17 21:17:29] Typ 1: 16 / 16
+[2026-02-17 21:17:29] --- BotsCronjob Ende ---
+[2026-02-17 21:22:07] --- BotsCronjob Start ---
+[2026-02-17 21:22:07] Verwende Universe-ID: 1
+[2026-02-17 21:22:07] Typ 1: 16 / 16
+[2026-02-17 21:22:07] --- BotsCronjob Ende ---
+[2026-02-17 21:29:54] --- BotsCronjob Start ---
+[2026-02-17 21:29:54] Verwende Universe-ID: 1
+[2026-02-17 21:29:54] Typ 1: 16 / 16
+[2026-02-17 21:29:54] --- BotsCronjob Ende ---
+[2026-02-17 21:36:20] --- BotsCronjob Start ---
+[2026-02-17 21:36:20] Verwende Universe-ID: 1
+[2026-02-17 21:36:20] Typ 1: 16 / 16
+[2026-02-17 21:36:20] --- BotsCronjob Ende ---
+[2026-02-17 21:40:02] --- BotsCronjob Start ---
+[2026-02-17 21:40:02] Verwende Universe-ID: 1
+[2026-02-17 21:40:02] Typ 1: 16 / 16
+[2026-02-17 21:40:02] --- BotsCronjob Ende ---
+[2026-02-17 21:40:05] --- BotsCronjob Start ---
+[2026-02-17 21:40:05] Verwende Universe-ID: 1
+[2026-02-17 21:40:05] Typ 1: 16 / 16
+[2026-02-17 21:40:05] --- BotsCronjob Ende ---
+[2026-02-17 21:43:08] --- BotsCronjob Start ---
+[2026-02-17 21:43:08] Verwende Universe-ID: 1
+[2026-02-17 21:43:08] Typ 1: 16 / 16
+[2026-02-17 21:43:08] --- BotsCronjob Ende ---
+[2026-02-17 21:45:44] --- BotsCronjob Start ---
+[2026-02-17 21:45:44] Verwende Universe-ID: 1
+[2026-02-17 21:45:44] Typ 1: 16 / 16
+[2026-02-17 21:45:44] --- BotsCronjob Ende ---
+[2026-02-17 21:45:44] --- BotsCronjob Start ---
+[2026-02-17 21:45:44] Verwende Universe-ID: 1
+[2026-02-17 21:45:44] Typ 1: 16 / 16
+[2026-02-17 21:45:44] --- BotsCronjob Ende ---
+[2026-02-17 21:45:46] --- BotsCronjob Start ---
+[2026-02-17 21:45:46] Verwende Universe-ID: 1
+[2026-02-17 21:45:46] Typ 1: 16 / 16
+[2026-02-17 21:45:46] --- BotsCronjob Ende ---
+[2026-02-17 21:45:48] --- BotsCronjob Start ---
+[2026-02-17 21:45:48] Verwende Universe-ID: 1
+[2026-02-17 21:45:48] Typ 1: 16 / 16
+[2026-02-17 21:45:48] --- BotsCronjob Ende ---
+[2026-02-17 21:45:51] --- BotsCronjob Start ---
+[2026-02-17 21:45:51] Verwende Universe-ID: 1
+[2026-02-17 21:45:51] Typ 1: 16 / 16
+[2026-02-17 21:45:51] --- BotsCronjob Ende ---
+[2026-02-17 21:45:58] --- BotsCronjob Start ---
+[2026-02-17 21:45:58] Verwende Universe-ID: 1
+[2026-02-17 21:45:58] Typ 1: 16 / 16
+[2026-02-17 21:45:58] --- BotsCronjob Ende ---
+[2026-02-17 21:46:28] --- BotsCronjob Start ---
+[2026-02-17 21:46:28] Verwende Universe-ID: 1
+[2026-02-17 21:46:28] Typ 1: 16 / 16
+[2026-02-17 21:46:28] --- BotsCronjob Ende ---
+[2026-02-17 21:54:20] --- BotsCronjob Start ---
+[2026-02-17 21:54:20] Verwende Universe-ID: 1
+[2026-02-17 21:54:20] Typ 1: 16 / 16
+[2026-02-17 21:54:20] --- BotsCronjob Ende ---
+[2026-02-17 22:07:07] --- BotsCronjob Start ---
+[2026-02-17 22:07:07] Verwende Universe-ID: 1
+[2026-02-17 22:07:07] Typ 1: 16 / 16
+[2026-02-17 22:07:07] --- BotsCronjob Ende ---
+[2026-02-17 22:10:20] --- BotsCronjob Start ---
+[2026-02-17 22:10:20] Verwende Universe-ID: 1
+[2026-02-17 22:10:20] Typ 1: 16 / 16
+[2026-02-17 22:10:20] --- BotsCronjob Ende ---
+[2026-02-17 22:10:34] --- BotsCronjob Start ---
+[2026-02-17 22:10:34] Verwende Universe-ID: 1
+[2026-02-17 22:10:34] Typ 1: 16 / 16
+[2026-02-17 22:10:34] --- BotsCronjob Ende ---
+[2026-02-17 22:11:12] --- BotsCronjob Start ---
+[2026-02-17 22:11:12] Verwende Universe-ID: 1
+[2026-02-17 22:11:12] Typ 1: 16 / 16
+[2026-02-17 22:11:12] --- BotsCronjob Ende ---
+[2026-02-17 22:15:05] --- BotsCronjob Start ---
+[2026-02-17 22:15:05] Verwende Universe-ID: 1
+[2026-02-17 22:15:05] Typ 1: 16 / 16
+[2026-02-17 22:15:05] --- BotsCronjob Ende ---
+[2026-02-17 22:16:35] --- BotsCronjob Start ---
+[2026-02-17 22:16:35] Verwende Universe-ID: 1
+[2026-02-17 22:16:35] Typ 1: 16 / 16
+[2026-02-17 22:16:35] --- BotsCronjob Ende ---
+[2026-02-17 22:46:14] --- BotsCronjob Start ---
+[2026-02-17 22:46:14] Verwende Universe-ID: 1
+[2026-02-17 22:46:14] Typ 1: 16 / 16
+[2026-02-17 22:46:14] --- BotsCronjob Ende ---
+[2026-02-17 22:56:14] --- BotsCronjob Start ---
+[2026-02-17 22:56:14] Verwende Universe-ID: 1
+[2026-02-17 22:56:14] Typ 1: 16 / 16
+[2026-02-17 22:56:14] --- BotsCronjob Ende ---
+[2026-02-17 23:14:15] --- BotsCronjob Start ---
+[2026-02-17 23:14:15] Verwende Universe-ID: 1
+[2026-02-17 23:14:15] Typ 1: 223 / 16
+[2026-02-17 23:14:15] --- BotsCronjob Ende ---
+[2026-02-17 23:35:07] --- BotsCronjob Start ---
+[2026-02-17 23:35:07] Verwende Universe-ID: 1
+[2026-02-17 23:35:07] Typ 1: 16 / 16
+[2026-02-17 23:35:07] --- BotsCronjob Ende ---
+[2026-02-17 23:35:09] --- BotsCronjob Start ---
+[2026-02-17 23:35:09] Verwende Universe-ID: 1
+[2026-02-17 23:35:09] Typ 1: 16 / 16
+[2026-02-17 23:35:09] --- BotsCronjob Ende ---
+[2026-02-17 23:35:15] --- BotsCronjob Start ---
+[2026-02-17 23:35:15] Verwende Universe-ID: 1
+[2026-02-17 23:35:15] Typ 1: 16 / 16
+[2026-02-17 23:35:15] --- BotsCronjob Ende ---
+[2026-02-17 23:35:20] --- BotsCronjob Start ---
+[2026-02-17 23:35:20] Verwende Universe-ID: 1
+[2026-02-17 23:35:20] Typ 1: 16 / 16
+[2026-02-17 23:35:20] --- BotsCronjob Ende ---
+[2026-02-17 23:35:25] --- BotsCronjob Start ---
+[2026-02-17 23:35:25] Verwende Universe-ID: 1
+[2026-02-17 23:35:25] Typ 1: 16 / 16
+[2026-02-17 23:35:25] --- BotsCronjob Ende ---
+[2026-02-17 23:35:31] --- BotsCronjob Start ---
+[2026-02-17 23:35:31] Verwende Universe-ID: 1
+[2026-02-17 23:35:31] Typ 1: 16 / 16
+[2026-02-17 23:35:31] --- BotsCronjob Ende ---
+[2026-02-17 23:57:30] --- BotsCronjob Start ---
+[2026-02-17 23:57:30] Verwende Universe-ID: 1
+[2026-02-17 23:57:30] Typ 1: 16 / 16
+[2026-02-17 23:57:30] --- BotsCronjob Ende ---
+[2026-02-17 23:57:50] --- BotsCronjob Start ---
+[2026-02-17 23:57:50] Verwende Universe-ID: 1
+[2026-02-17 23:57:50] Typ 1: 16 / 16
+[2026-02-17 23:57:50] --- BotsCronjob Ende ---
+[2026-02-18 01:17:06] --- BotsCronjob Start ---
+[2026-02-18 01:17:06] Verwende Universe-ID: 1
+[2026-02-18 01:17:06] Typ 1: 29 / 29
+[2026-02-18 01:17:06] --- BotsCronjob Ende ---
+[2026-02-18 01:28:07] --- BotsCronjob Start ---
+[2026-02-18 01:28:07] Verwende Universe-ID: 1
+[2026-02-18 01:28:07] Typ 1: 29 / 29
+[2026-02-18 01:28:07] --- BotsCronjob Ende ---
+[2026-02-18 02:22:51] --- BotsCronjob Start ---
+[2026-02-18 02:22:51] Verwende Universe-ID: 1
+[2026-02-18 02:22:51] Typ 1: 29 / 29
+[2026-02-18 02:22:51] --- BotsCronjob Ende ---
+[2026-02-18 02:54:07] --- BotsCronjob Start ---
+[2026-02-18 02:54:07] Verwende Universe-ID: 1
+[2026-02-18 02:54:07] Typ 1: 29 / 29
+[2026-02-18 02:54:07] --- BotsCronjob Ende ---
+[2026-02-18 02:55:28] --- BotsCronjob Start ---
+[2026-02-18 02:55:28] Verwende Universe-ID: 1
+[2026-02-18 02:55:28] Typ 1: 29 / 29
+[2026-02-18 02:55:28] --- BotsCronjob Ende ---
+[2026-02-18 02:55:31] --- BotsCronjob Start ---
+[2026-02-18 02:55:31] Verwende Universe-ID: 1
+[2026-02-18 02:55:31] Typ 1: 29 / 29
+[2026-02-18 02:55:31] --- BotsCronjob Ende ---
+[2026-02-18 02:55:37] --- BotsCronjob Start ---
+[2026-02-18 02:55:37] Verwende Universe-ID: 1
+[2026-02-18 02:55:37] Typ 1: 29 / 29
+[2026-02-18 02:55:37] --- BotsCronjob Ende ---
+[2026-02-18 03:09:48] --- BotsCronjob Start ---
+[2026-02-18 03:09:48] Verwende Universe-ID: 1
+[2026-02-18 03:09:48] Typ 1: 29 / 29
+[2026-02-18 03:09:48] --- BotsCronjob Ende ---
+[2026-02-18 03:10:07] --- BotsCronjob Start ---
+[2026-02-18 03:10:07] Verwende Universe-ID: 1
+[2026-02-18 03:10:07] Typ 1: 29 / 29
+[2026-02-18 03:10:07] --- BotsCronjob Ende ---
+[2026-02-18 03:10:13] --- BotsCronjob Start ---
+[2026-02-18 03:10:13] Verwende Universe-ID: 1
+[2026-02-18 03:10:13] Typ 1: 29 / 29
+[2026-02-18 03:10:13] --- BotsCronjob Ende ---
+[2026-02-18 03:10:49] --- BotsCronjob Start ---
+[2026-02-18 03:10:49] Verwende Universe-ID: 1
+[2026-02-18 03:10:49] Typ 1: 29 / 29
+[2026-02-18 03:10:49] --- BotsCronjob Ende ---
+[2026-02-18 03:11:08] --- BotsCronjob Start ---
+[2026-02-18 03:11:08] Verwende Universe-ID: 1
+[2026-02-18 03:11:08] Typ 1: 29 / 29
+[2026-02-18 03:11:08] --- BotsCronjob Ende ---
+[2026-02-18 03:19:48] --- BotsCronjob Start ---
+[2026-02-18 03:19:48] Verwende Universe-ID: 1
+[2026-02-18 03:19:48] Typ 1: 29 / 29
+[2026-02-18 03:19:48] --- BotsCronjob Ende ---
+[2026-02-18 03:20:31] --- BotsCronjob Start ---
+[2026-02-18 03:20:31] Verwende Universe-ID: 1
+[2026-02-18 03:20:31] Typ 1: 29 / 29
+[2026-02-18 03:20:31] --- BotsCronjob Ende ---
+[2026-02-18 03:26:39] --- BotsCronjob Start ---
+[2026-02-18 03:26:39] Verwende Universe-ID: 1
+[2026-02-18 03:26:39] Typ 1: 29 / 29
+[2026-02-18 03:26:39] --- BotsCronjob Ende ---
+[2026-02-18 04:26:14] --- BotsCronjob Start ---
+[2026-02-18 04:26:14] Verwende Universe-ID: 1
+[2026-02-18 04:26:14] Typ 1: 29 / 29
+[2026-02-18 04:26:14] --- BotsCronjob Ende ---
+[2026-02-18 04:33:31] --- BotsCronjob Start ---
+[2026-02-18 04:33:31] Verwende Universe-ID: 1
+[2026-02-18 04:33:31] Typ 1: 29 / 29
+[2026-02-18 04:33:31] --- BotsCronjob Ende ---
+[2026-02-18 04:35:33] --- BotsCronjob Start ---
+[2026-02-18 04:35:33] Verwende Universe-ID: 1
+[2026-02-18 04:35:33] Typ 1: 29 / 29
+[2026-02-18 04:35:33] --- BotsCronjob Ende ---
+[2026-02-18 04:35:36] --- BotsCronjob Start ---
+[2026-02-18 04:35:36] Verwende Universe-ID: 1
+[2026-02-18 04:35:36] Typ 1: 29 / 29
+[2026-02-18 04:35:36] --- BotsCronjob Ende ---
+[2026-02-18 04:35:41] --- BotsCronjob Start ---
+[2026-02-18 04:35:41] Verwende Universe-ID: 1
+[2026-02-18 04:35:41] Typ 1: 29 / 29
+[2026-02-18 04:35:41] --- BotsCronjob Ende ---
+[2026-02-18 04:35:47] --- BotsCronjob Start ---
+[2026-02-18 04:35:47] Verwende Universe-ID: 1
+[2026-02-18 04:35:47] Typ 1: 29 / 29
+[2026-02-18 04:35:47] --- BotsCronjob Ende ---
+[2026-02-18 04:44:12] --- BotsCronjob Start ---
+[2026-02-18 04:44:12] Verwende Universe-ID: 1
+[2026-02-18 04:44:12] Typ 1: 29 / 29
+[2026-02-18 04:44:12] --- BotsCronjob Ende ---
+[2026-02-18 04:46:01] --- BotsCronjob Start ---
+[2026-02-18 04:46:01] Verwende Universe-ID: 1
+[2026-02-18 04:46:01] Typ 1: 29 / 29
+[2026-02-18 04:46:01] --- BotsCronjob Ende ---
+[2026-02-18 05:02:06] --- BotsCronjob Start ---
+[2026-02-18 05:02:06] Verwende Universe-ID: 1
+[2026-02-18 05:02:06] Typ 1: 29 / 29
+[2026-02-18 05:02:06] --- BotsCronjob Ende ---
+[2026-02-18 05:08:52] --- BotsCronjob Start ---
+[2026-02-18 05:08:52] Verwende Universe-ID: 1
+[2026-02-18 05:08:52] Typ 1: 29 / 29
+[2026-02-18 05:08:52] --- BotsCronjob Ende ---
+[2026-02-18 05:10:59] --- BotsCronjob Start ---
+[2026-02-18 05:10:59] Verwende Universe-ID: 1
+[2026-02-18 05:10:59] Typ 1: 29 / 29
+[2026-02-18 05:10:59] --- BotsCronjob Ende ---
+[2026-02-18 05:11:04] --- BotsCronjob Start ---
+[2026-02-18 05:11:04] Verwende Universe-ID: 1
+[2026-02-18 05:11:04] Typ 1: 29 / 29
+[2026-02-18 05:11:04] --- BotsCronjob Ende ---
+[2026-02-18 05:16:11] --- BotsCronjob Start ---
+[2026-02-18 05:16:11] Verwende Universe-ID: 1
+[2026-02-18 05:16:11] Typ 1: 29 / 29
+[2026-02-18 05:16:11] --- BotsCronjob Ende ---
+[2026-02-18 05:43:02] --- BotsCronjob Start ---
+[2026-02-18 05:43:02] Verwende Universe-ID: 1
+[2026-02-18 05:43:02] Typ 1: 29 / 29
+[2026-02-18 05:43:02] --- BotsCronjob Ende ---
+[2026-02-18 05:45:10] --- BotsCronjob Start ---
+[2026-02-18 05:45:10] Verwende Universe-ID: 1
+[2026-02-18 05:45:10] Typ 1: 29 / 29
+[2026-02-18 05:45:10] --- BotsCronjob Ende ---
+[2026-02-18 05:45:28] --- BotsCronjob Start ---
+[2026-02-18 05:45:28] Verwende Universe-ID: 1
+[2026-02-18 05:45:28] Typ 1: 29 / 29
+[2026-02-18 05:45:28] --- BotsCronjob Ende ---
+[2026-02-18 05:54:39] --- BotsCronjob Start ---
+[2026-02-18 05:54:39] Verwende Universe-ID: 1
+[2026-02-18 05:54:39] Typ 1: 29 / 29
+[2026-02-18 05:54:39] --- BotsCronjob Ende ---
+[2026-02-18 06:17:28] --- BotsCronjob Start ---
+[2026-02-18 06:17:28] Verwende Universe-ID: 1
+[2026-02-18 06:17:28] Typ 1: 29 / 29
+[2026-02-18 06:17:28] --- BotsCronjob Ende ---
+[2026-02-18 06:33:46] --- BotsCronjob Start ---
+[2026-02-18 06:33:46] Verwende Universe-ID: 1
+[2026-02-18 06:33:46] Typ 1: 29 / 29
+[2026-02-18 06:33:46] --- BotsCronjob Ende ---
+[2026-02-18 06:37:02] --- BotsCronjob Start ---
+[2026-02-18 06:37:02] Verwende Universe-ID: 1
+[2026-02-18 06:37:02] Typ 1: 29 / 29
+[2026-02-18 06:37:02] --- BotsCronjob Ende ---
+[2026-02-18 06:40:28] --- BotsCronjob Start ---
+[2026-02-18 06:40:28] Verwende Universe-ID: 1
+[2026-02-18 06:40:28] Typ 1: 29 / 29
+[2026-02-18 06:40:28] --- BotsCronjob Ende ---
+[2026-02-18 06:41:32] --- BotsCronjob Start ---
+[2026-02-18 06:41:32] Verwende Universe-ID: 1
+[2026-02-18 06:41:32] Typ 1: 29 / 29
+[2026-02-18 06:41:32] --- BotsCronjob Ende ---
+[2026-02-18 06:46:21] --- BotsCronjob Start ---
+[2026-02-18 06:46:21] Verwende Universe-ID: 1
+[2026-02-18 06:46:21] Typ 1: 29 / 29
+[2026-02-18 06:46:21] --- BotsCronjob Ende ---
+[2026-02-18 07:40:05] --- BotsCronjob Start ---
+[2026-02-18 07:40:05] Verwende Universe-ID: 1
+[2026-02-18 07:40:05] Typ 1: 29 / 29
+[2026-02-18 07:40:05] --- BotsCronjob Ende ---
+[2026-02-18 07:40:06] --- BotsCronjob Start ---
+[2026-02-18 07:40:06] Verwende Universe-ID: 1
+[2026-02-18 07:40:06] Typ 1: 29 / 29
+[2026-02-18 07:40:06] --- BotsCronjob Ende ---
+[2026-02-18 07:40:14] --- BotsCronjob Start ---
+[2026-02-18 07:40:14] Verwende Universe-ID: 1
+[2026-02-18 07:40:14] Typ 1: 29 / 29
+[2026-02-18 07:40:14] --- BotsCronjob Ende ---
+[2026-02-18 07:44:10] --- BotsCronjob Start ---
+[2026-02-18 07:44:10] Verwende Universe-ID: 1
+[2026-02-18 07:44:10] Typ 1: 29 / 29
+[2026-02-18 07:44:10] --- BotsCronjob Ende ---
+[2026-02-18 07:47:23] --- BotsCronjob Start ---
+[2026-02-18 07:47:23] Verwende Universe-ID: 1
+[2026-02-18 07:47:23] Typ 1: 29 / 29
+[2026-02-18 07:47:23] --- BotsCronjob Ende ---
+[2026-02-18 07:51:40] --- BotsCronjob Start ---
+[2026-02-18 07:51:40] Verwende Universe-ID: 1
+[2026-02-18 07:51:40] Typ 1: 29 / 29
+[2026-02-18 07:51:40] --- BotsCronjob Ende ---
+[2026-02-18 07:55:03] --- BotsCronjob Start ---
+[2026-02-18 07:55:03] Verwende Universe-ID: 1
+[2026-02-18 07:55:03] Typ 1: 29 / 29
+[2026-02-18 07:55:03] --- BotsCronjob Ende ---
+[2026-02-18 07:55:12] --- BotsCronjob Start ---
+[2026-02-18 07:55:12] Verwende Universe-ID: 1
+[2026-02-18 07:55:12] Typ 1: 29 / 29
+[2026-02-18 07:55:12] --- BotsCronjob Ende ---
+[2026-02-18 07:55:57] --- BotsCronjob Start ---
+[2026-02-18 07:55:57] Verwende Universe-ID: 1
+[2026-02-18 07:55:57] Typ 1: 29 / 29
+[2026-02-18 07:55:57] --- BotsCronjob Ende ---
+[2026-02-18 08:02:52] --- BotsCronjob Start ---
+[2026-02-18 08:02:52] Verwende Universe-ID: 1
+[2026-02-18 08:02:52] Typ 1: 29 / 29
+[2026-02-18 08:02:52] --- BotsCronjob Ende ---
+[2026-02-18 08:05:35] --- BotsCronjob Start ---
+[2026-02-18 08:05:35] Verwende Universe-ID: 1
+[2026-02-18 08:05:35] Typ 1: 29 / 29
+[2026-02-18 08:05:35] --- BotsCronjob Ende ---
+[2026-02-18 08:05:37] --- BotsCronjob Start ---
+[2026-02-18 08:05:37] Verwende Universe-ID: 1
+[2026-02-18 08:05:37] Typ 1: 29 / 29
+[2026-02-18 08:05:37] --- BotsCronjob Ende ---
+[2026-02-18 08:05:46] --- BotsCronjob Start ---
+[2026-02-18 08:05:46] Verwende Universe-ID: 1
+[2026-02-18 08:05:46] Typ 1: 29 / 29
+[2026-02-18 08:05:46] --- BotsCronjob Ende ---
+[2026-02-18 08:05:56] --- BotsCronjob Start ---
+[2026-02-18 08:05:56] Verwende Universe-ID: 1
+[2026-02-18 08:05:56] Typ 1: 29 / 29
+[2026-02-18 08:05:56] --- BotsCronjob Ende ---
+[2026-02-18 08:12:37] --- BotsCronjob Start ---
+[2026-02-18 08:12:37] Verwende Universe-ID: 1
+[2026-02-18 08:12:37] Typ 1: 29 / 29
+[2026-02-18 08:12:37] --- BotsCronjob Ende ---
+[2026-02-18 08:17:39] --- BotsCronjob Start ---
+[2026-02-18 08:17:39] Verwende Universe-ID: 1
+[2026-02-18 08:17:39] Typ 1: 29 / 29
+[2026-02-18 08:17:39] --- BotsCronjob Ende ---
+[2026-02-18 08:21:10] --- BotsCronjob Start ---
+[2026-02-18 08:21:10] Verwende Universe-ID: 1
+[2026-02-18 08:21:10] Typ 1: 29 / 29
+[2026-02-18 08:21:10] --- BotsCronjob Ende ---
+[2026-02-18 08:30:15] --- BotsCronjob Start ---
+[2026-02-18 08:30:15] Verwende Universe-ID: 1
+[2026-02-18 08:30:15] Typ 1: 29 / 29
+[2026-02-18 08:30:15] --- BotsCronjob Ende ---
+[2026-02-18 08:30:24] --- BotsCronjob Start ---
+[2026-02-18 08:30:24] Verwende Universe-ID: 1
+[2026-02-18 08:30:24] Typ 1: 29 / 29
+[2026-02-18 08:30:24] --- BotsCronjob Ende ---
+[2026-02-18 08:30:28] --- BotsCronjob Start ---
+[2026-02-18 08:30:28] Verwende Universe-ID: 1
+[2026-02-18 08:30:28] Typ 1: 29 / 29
+[2026-02-18 08:30:28] --- BotsCronjob Ende ---
+[2026-02-18 08:30:30] --- BotsCronjob Start ---
+[2026-02-18 08:30:30] Verwende Universe-ID: 1
+[2026-02-18 08:30:30] Typ 1: 29 / 29
+[2026-02-18 08:30:30] --- BotsCronjob Ende ---
+[2026-02-18 08:30:31] --- BotsCronjob Start ---
+[2026-02-18 08:30:31] Verwende Universe-ID: 1
+[2026-02-18 08:30:31] Typ 1: 29 / 29
+[2026-02-18 08:30:31] --- BotsCronjob Ende ---
+[2026-02-18 08:30:32] --- BotsCronjob Start ---
+[2026-02-18 08:30:32] Verwende Universe-ID: 1
+[2026-02-18 08:30:32] Typ 1: 29 / 29
+[2026-02-18 08:30:32] --- BotsCronjob Ende ---
+[2026-02-18 08:34:49] --- BotsCronjob Start ---
+[2026-02-18 08:34:49] Verwende Universe-ID: 1
+[2026-02-18 08:34:49] Typ 1: 29 / 29
+[2026-02-18 08:34:49] --- BotsCronjob Ende ---
+[2026-02-18 08:35:30] --- BotsCronjob Start ---
+[2026-02-18 08:35:30] Verwende Universe-ID: 1
+[2026-02-18 08:35:30] Typ 1: 29 / 29
+[2026-02-18 08:35:30] --- BotsCronjob Ende ---
+[2026-02-18 08:35:32] --- BotsCronjob Start ---
+[2026-02-18 08:35:32] Verwende Universe-ID: 1
+[2026-02-18 08:35:32] Typ 1: 29 / 29
+[2026-02-18 08:35:32] --- BotsCronjob Ende ---
+[2026-02-18 09:00:27] --- BotsCronjob Start ---
+[2026-02-18 09:00:27] Verwende Universe-ID: 1
+[2026-02-18 09:00:27] Typ 1: 29 / 29
+[2026-02-18 09:00:27] --- BotsCronjob Ende ---
+[2026-02-18 09:00:40] --- BotsCronjob Start ---
+[2026-02-18 09:00:40] Verwende Universe-ID: 1
+[2026-02-18 09:00:40] Typ 1: 29 / 29
+[2026-02-18 09:00:40] --- BotsCronjob Ende ---
+[2026-02-18 09:00:41] --- BotsCronjob Start ---
+[2026-02-18 09:00:41] Verwende Universe-ID: 1
+[2026-02-18 09:00:41] Typ 1: 29 / 29
+[2026-02-18 09:00:41] --- BotsCronjob Ende ---
+[2026-02-18 09:01:05] --- BotsCronjob Start ---
+[2026-02-18 09:01:05] Verwende Universe-ID: 1
+[2026-02-18 09:01:05] Typ 1: 29 / 29
+[2026-02-18 09:01:05] --- BotsCronjob Ende ---
+[2026-02-18 09:05:06] --- BotsCronjob Start ---
+[2026-02-18 09:05:06] Verwende Universe-ID: 1
+[2026-02-18 09:05:06] Typ 1: 29 / 29
+[2026-02-18 09:05:06] --- BotsCronjob Ende ---
+[2026-02-18 09:05:15] --- BotsCronjob Start ---
+[2026-02-18 09:05:15] Verwende Universe-ID: 1
+[2026-02-18 09:05:15] Typ 1: 29 / 29
+[2026-02-18 09:05:15] --- BotsCronjob Ende ---
+[2026-02-18 09:05:19] --- BotsCronjob Start ---
+[2026-02-18 09:05:19] Verwende Universe-ID: 1
+[2026-02-18 09:05:19] Typ 1: 29 / 29
+[2026-02-18 09:05:19] --- BotsCronjob Ende ---
+[2026-02-18 09:05:58] --- BotsCronjob Start ---
+[2026-02-18 09:05:58] Verwende Universe-ID: 1
+[2026-02-18 09:05:58] Typ 1: 29 / 29
+[2026-02-18 09:05:58] --- BotsCronjob Ende ---
+[2026-02-18 09:06:01] --- BotsCronjob Start ---
+[2026-02-18 09:06:01] Verwende Universe-ID: 1
+[2026-02-18 09:06:01] Typ 1: 29 / 29
+[2026-02-18 09:06:01] --- BotsCronjob Ende ---
+[2026-02-18 09:15:29] --- BotsCronjob Start ---
+[2026-02-18 09:15:29] Verwende Universe-ID: 1
+[2026-02-18 09:15:29] Typ 1: 29 / 29
+[2026-02-18 09:15:29] --- BotsCronjob Ende ---
+[2026-02-18 09:15:51] --- BotsCronjob Start ---
+[2026-02-18 09:15:51] Verwende Universe-ID: 1
+[2026-02-18 09:15:51] Typ 1: 29 / 29
+[2026-02-18 09:15:51] --- BotsCronjob Ende ---
+[2026-02-18 09:15:59] --- BotsCronjob Start ---
+[2026-02-18 09:15:59] Verwende Universe-ID: 1
+[2026-02-18 09:15:59] Typ 1: 29 / 29
+[2026-02-18 09:15:59] --- BotsCronjob Ende ---
+[2026-02-18 09:16:26] --- BotsCronjob Start ---
+[2026-02-18 09:16:26] Verwende Universe-ID: 1
+[2026-02-18 09:16:26] Typ 1: 29 / 29
+[2026-02-18 09:16:26] --- BotsCronjob Ende ---
+[2026-02-18 09:21:08] --- BotsCronjob Start ---
+[2026-02-18 09:21:08] Verwende Universe-ID: 1
+[2026-02-18 09:21:08] Typ 1: 29 / 29
+[2026-02-18 09:21:08] --- BotsCronjob Ende ---
+[2026-02-18 09:29:17] --- BotsCronjob Start ---
+[2026-02-18 09:29:17] Verwende Universe-ID: 1
+[2026-02-18 09:29:17] Typ 1: 29 / 29
+[2026-02-18 09:29:17] --- BotsCronjob Ende ---
+[2026-02-18 09:59:36] --- BotsCronjob Start ---
+[2026-02-18 09:59:36] Verwende Universe-ID: 1
+[2026-02-18 09:59:36] Typ 1: 29 / 29
+[2026-02-18 09:59:36] --- BotsCronjob Ende ---
+[2026-02-18 10:04:35] --- BotsCronjob Start ---
+[2026-02-18 10:04:35] Verwende Universe-ID: 1
+[2026-02-18 10:04:35] Typ 1: 29 / 29
+[2026-02-18 10:04:35] --- BotsCronjob Ende ---
+[2026-02-18 10:08:57] --- BotsCronjob Start ---
+[2026-02-18 10:08:57] Verwende Universe-ID: 1
+[2026-02-18 10:08:57] Typ 1: 29 / 29
+[2026-02-18 10:08:57] --- BotsCronjob Ende ---
+[2026-02-18 10:10:03] --- BotsCronjob Start ---
+[2026-02-18 10:10:03] Verwende Universe-ID: 1
+[2026-02-18 10:10:03] Typ 1: 29 / 29
+[2026-02-18 10:10:03] --- BotsCronjob Ende ---
+[2026-02-18 10:10:09] --- BotsCronjob Start ---
+[2026-02-18 10:10:09] Verwende Universe-ID: 1
+[2026-02-18 10:10:09] Typ 1: 29 / 29
+[2026-02-18 10:10:09] --- BotsCronjob Ende ---
+[2026-02-18 10:11:12] --- BotsCronjob Start ---
+[2026-02-18 10:11:12] Verwende Universe-ID: 1
+[2026-02-18 10:11:12] Typ 1: 29 / 29
+[2026-02-18 10:11:12] --- BotsCronjob Ende ---
+[2026-02-18 11:10:27] --- BotsCronjob Start ---
+[2026-02-18 11:10:27] Verwende Universe-ID: 1
+[2026-02-18 11:10:27] Typ 1: 29 / 29
+[2026-02-18 11:10:27] --- BotsCronjob Ende ---
+[2026-02-18 11:10:31] --- BotsCronjob Start ---
+[2026-02-18 11:10:31] Verwende Universe-ID: 1
+[2026-02-18 11:10:31] Typ 1: 29 / 29
+[2026-02-18 11:10:31] --- BotsCronjob Ende ---
+[2026-02-18 11:32:52] --- BotsCronjob Start ---
+[2026-02-18 11:32:52] Verwende Universe-ID: 1
+[2026-02-18 11:32:52] Typ 1: 29 / 29
+[2026-02-18 11:32:52] --- BotsCronjob Ende ---
+[2026-02-18 13:05:22] --- BotsCronjob Start ---
+[2026-02-18 13:05:22] Verwende Universe-ID: 1
+[2026-02-18 13:05:22] Typ 1: 29 / 29
+[2026-02-18 13:05:22] --- BotsCronjob Ende ---
+[2026-02-18 13:05:27] --- BotsCronjob Start ---
+[2026-02-18 13:05:27] Verwende Universe-ID: 1
+[2026-02-18 13:05:27] Typ 1: 29 / 29
+[2026-02-18 13:05:27] --- BotsCronjob Ende ---
+[2026-02-18 13:05:29] --- BotsCronjob Start ---
+[2026-02-18 13:05:29] Verwende Universe-ID: 1
+[2026-02-18 13:05:29] Typ 1: 29 / 29
+[2026-02-18 13:05:29] --- BotsCronjob Ende ---
+[2026-02-18 13:05:33] --- BotsCronjob Start ---
+[2026-02-18 13:05:33] Verwende Universe-ID: 1
+[2026-02-18 13:05:33] Typ 1: 29 / 29
+[2026-02-18 13:05:33] --- BotsCronjob Ende ---
+[2026-02-18 13:05:35] --- BotsCronjob Start ---
+[2026-02-18 13:05:35] Verwende Universe-ID: 1
+[2026-02-18 13:05:35] Typ 1: 29 / 29
+[2026-02-18 13:05:35] --- BotsCronjob Ende ---
+[2026-02-18 13:05:37] --- BotsCronjob Start ---
+[2026-02-18 13:05:37] Verwende Universe-ID: 1
+[2026-02-18 13:05:37] Typ 1: 29 / 29
+[2026-02-18 13:05:37] --- BotsCronjob Ende ---
+[2026-02-18 13:05:43] --- BotsCronjob Start ---
+[2026-02-18 13:05:43] Verwende Universe-ID: 1
+[2026-02-18 13:05:43] Typ 1: 29 / 29
+[2026-02-18 13:05:43] --- BotsCronjob Ende ---
+[2026-02-18 13:05:49] --- BotsCronjob Start ---
+[2026-02-18 13:05:49] Verwende Universe-ID: 1
+[2026-02-18 13:05:49] Typ 1: 29 / 29
+[2026-02-18 13:05:49] --- BotsCronjob Ende ---
+[2026-02-18 13:05:52] --- BotsCronjob Start ---
+[2026-02-18 13:05:52] Verwende Universe-ID: 1
+[2026-02-18 13:05:52] Typ 1: 29 / 29
+[2026-02-18 13:05:52] --- BotsCronjob Ende ---
+[2026-02-18 13:06:37] --- BotsCronjob Start ---
+[2026-02-18 13:06:37] Verwende Universe-ID: 1
+[2026-02-18 13:06:37] Typ 1: 29 / 29
+[2026-02-18 13:06:37] --- BotsCronjob Ende ---
+[2026-02-18 13:11:04] --- BotsCronjob Start ---
+[2026-02-18 13:11:04] Verwende Universe-ID: 1
+[2026-02-18 13:11:04] Typ 1: 29 / 29
+[2026-02-18 13:11:04] --- BotsCronjob Ende ---
+[2026-02-18 14:04:27] --- BotsCronjob Start ---
+[2026-02-18 14:04:27] Verwende Universe-ID: 1
+[2026-02-18 14:04:27] Typ 1: 29 / 29
+[2026-02-18 14:04:27] --- BotsCronjob Ende ---
+[2026-02-18 14:05:02] --- BotsCronjob Start ---
+[2026-02-18 14:05:02] Verwende Universe-ID: 1
+[2026-02-18 14:05:02] Typ 1: 29 / 29
+[2026-02-18 14:05:02] --- BotsCronjob Ende ---
+[2026-02-18 14:05:04] --- BotsCronjob Start ---
+[2026-02-18 14:05:04] Verwende Universe-ID: 1
+[2026-02-18 14:05:04] Typ 1: 29 / 29
+[2026-02-18 14:05:04] --- BotsCronjob Ende ---
+[2026-02-18 14:05:10] --- BotsCronjob Start ---
+[2026-02-18 14:05:10] Verwende Universe-ID: 1
+[2026-02-18 14:05:10] Typ 1: 29 / 29
+[2026-02-18 14:05:10] --- BotsCronjob Ende ---
+[2026-02-18 14:05:16] --- BotsCronjob Start ---
+[2026-02-18 14:05:16] Verwende Universe-ID: 1
+[2026-02-18 14:05:16] Typ 1: 29 / 29
+[2026-02-18 14:05:16] --- BotsCronjob Ende ---
+[2026-02-18 14:05:23] --- BotsCronjob Start ---
+[2026-02-18 14:05:23] Verwende Universe-ID: 1
+[2026-02-18 14:05:23] Typ 1: 29 / 29
+[2026-02-18 14:05:23] --- BotsCronjob Ende ---
+[2026-02-18 14:05:30] --- BotsCronjob Start ---
+[2026-02-18 14:05:30] Verwende Universe-ID: 1
+[2026-02-18 14:05:30] Typ 1: 29 / 29
+[2026-02-18 14:05:30] --- BotsCronjob Ende ---
+[2026-02-18 14:05:32] --- BotsCronjob Start ---
+[2026-02-18 14:05:32] Verwende Universe-ID: 1
+[2026-02-18 14:05:32] Typ 1: 29 / 29
+[2026-02-18 14:05:32] --- BotsCronjob Ende ---
+[2026-02-18 14:05:39] --- BotsCronjob Start ---
+[2026-02-18 14:05:39] Verwende Universe-ID: 1
+[2026-02-18 14:05:39] Typ 1: 29 / 29
+[2026-02-18 14:05:39] --- BotsCronjob Ende ---
+[2026-02-18 14:05:55] --- BotsCronjob Start ---
+[2026-02-18 14:05:55] Verwende Universe-ID: 1
+[2026-02-18 14:05:55] Typ 1: 29 / 29
+[2026-02-18 14:05:55] --- BotsCronjob Ende ---
+[2026-02-18 14:06:07] --- BotsCronjob Start ---
+[2026-02-18 14:06:07] Verwende Universe-ID: 1
+[2026-02-18 14:06:07] Typ 1: 29 / 29
+[2026-02-18 14:06:07] --- BotsCronjob Ende ---
+[2026-02-18 15:56:48] --- BotsCronjob Start ---
+[2026-02-18 15:56:48] Verwende Universe-ID: 1
+[2026-02-18 15:56:48] Typ 1: 29 / 29
+[2026-02-18 15:56:48] --- BotsCronjob Ende ---
+[2026-02-18 16:12:44] --- BotsCronjob Start ---
+[2026-02-18 16:12:44] Verwende Universe-ID: 1
+[2026-02-18 16:12:44] Typ 1: 29 / 29
+[2026-02-18 16:12:44] --- BotsCronjob Ende ---
+[2026-02-18 16:53:32] --- BotsCronjob Start ---
+[2026-02-18 16:53:32] Verwende Universe-ID: 1
+[2026-02-18 16:53:32] Typ 1: 29 / 29
+[2026-02-18 16:53:32] --- BotsCronjob Ende ---
+[2026-02-18 17:12:59] --- BotsCronjob Start ---
+[2026-02-18 17:12:59] Verwende Universe-ID: 1
+[2026-02-18 17:12:59] Typ 1: 29 / 29
+[2026-02-18 17:12:59] --- BotsCronjob Ende ---
+[2026-02-18 19:39:40] --- BotsCronjob Start ---
+[2026-02-18 19:39:40] Verwende Universe-ID: 1
+[2026-02-18 19:39:40] Typ 1: 29 / 29
+[2026-02-18 19:39:40] --- BotsCronjob Ende ---
+[2026-02-18 19:40:43] --- BotsCronjob Start ---
+[2026-02-18 19:40:43] Verwende Universe-ID: 1
+[2026-02-18 19:40:43] Typ 1: 29 / 29
+[2026-02-18 19:40:43] --- BotsCronjob Ende ---
+[2026-02-18 19:40:44] --- BotsCronjob Start ---
+[2026-02-18 19:40:44] Verwende Universe-ID: 1
+[2026-02-18 19:40:44] Typ 1: 29 / 29
+[2026-02-18 19:40:44] --- BotsCronjob Ende ---
+[2026-02-18 19:41:08] --- BotsCronjob Start ---
+[2026-02-18 19:41:08] Verwende Universe-ID: 1
+[2026-02-18 19:41:08] Typ 1: 29 / 29
+[2026-02-18 19:41:08] --- BotsCronjob Ende ---
+[2026-02-18 19:52:03] --- BotsCronjob Start ---
+[2026-02-18 19:52:03] Verwende Universe-ID: 1
+[2026-02-18 19:52:03] Typ 1: 29 / 29
+[2026-02-18 19:52:03] --- BotsCronjob Ende ---
+[2026-02-18 20:10:15] --- BotsCronjob Start ---
+[2026-02-18 20:10:15] Verwende Universe-ID: 1
+[2026-02-18 20:10:15] Typ 1: 29 / 29
+[2026-02-18 20:10:15] --- BotsCronjob Ende ---
+[2026-02-18 20:10:18] --- BotsCronjob Start ---
+[2026-02-18 20:10:18] Verwende Universe-ID: 1
+[2026-02-18 20:10:18] Typ 1: 29 / 29
+[2026-02-18 20:10:18] --- BotsCronjob Ende ---
+[2026-02-18 20:13:01] --- BotsCronjob Start ---
+[2026-02-18 20:13:01] Verwende Universe-ID: 1
+[2026-02-18 20:13:01] Typ 1: 29 / 29
+[2026-02-18 20:13:01] --- BotsCronjob Ende ---
+[2026-02-18 20:15:11] --- BotsCronjob Start ---
+[2026-02-18 20:15:11] Verwende Universe-ID: 1
+[2026-02-18 20:15:11] Typ 1: 29 / 29
+[2026-02-18 20:15:11] --- BotsCronjob Ende ---
+[2026-02-18 20:15:12] --- BotsCronjob Start ---
+[2026-02-18 20:15:12] Verwende Universe-ID: 1
+[2026-02-18 20:15:12] Typ 1: 29 / 29
+[2026-02-18 20:15:12] --- BotsCronjob Ende ---
+[2026-02-18 20:17:28] --- BotsCronjob Start ---
+[2026-02-18 20:17:28] Verwende Universe-ID: 1
+[2026-02-18 20:17:28] Typ 1: 29 / 29
+[2026-02-18 20:17:28] --- BotsCronjob Ende ---
+[2026-02-18 20:29:26] --- BotsCronjob Start ---
+[2026-02-18 20:29:26] Verwende Universe-ID: 1
+[2026-02-18 20:29:26] Typ 1: 29 / 29
+[2026-02-18 20:29:26] --- BotsCronjob Ende ---
+[2026-02-18 20:30:06] --- BotsCronjob Start ---
+[2026-02-18 20:30:06] Verwende Universe-ID: 1
+[2026-02-18 20:30:06] Typ 1: 29 / 29
+[2026-02-18 20:30:06] --- BotsCronjob Ende ---
+[2026-02-18 20:30:18] --- BotsCronjob Start ---
+[2026-02-18 20:30:18] Verwende Universe-ID: 1
+[2026-02-18 20:30:18] Typ 1: 29 / 29
+[2026-02-18 20:30:18] --- BotsCronjob Ende ---
+[2026-02-18 20:30:20] --- BotsCronjob Start ---
+[2026-02-18 20:30:20] Verwende Universe-ID: 1
+[2026-02-18 20:30:20] Typ 1: 29 / 29
+[2026-02-18 20:30:20] --- BotsCronjob Ende ---
+[2026-02-18 20:30:29] --- BotsCronjob Start ---
+[2026-02-18 20:30:29] Verwende Universe-ID: 1
+[2026-02-18 20:30:29] Typ 1: 29 / 29
+[2026-02-18 20:30:29] --- BotsCronjob Ende ---
+[2026-02-18 20:30:40] --- BotsCronjob Start ---
+[2026-02-18 20:30:40] Verwende Universe-ID: 1
+[2026-02-18 20:30:40] Typ 1: 29 / 29
+[2026-02-18 20:30:40] --- BotsCronjob Ende ---
+[2026-02-18 20:30:42] --- BotsCronjob Start ---
+[2026-02-18 20:30:42] Verwende Universe-ID: 1
+[2026-02-18 20:30:42] Typ 1: 29 / 29
+[2026-02-18 20:30:42] --- BotsCronjob Ende ---
+[2026-02-18 20:30:45] --- BotsCronjob Start ---
+[2026-02-18 20:30:45] Verwende Universe-ID: 1
+[2026-02-18 20:30:45] Typ 1: 29 / 29
+[2026-02-18 20:30:45] --- BotsCronjob Ende ---
+[2026-02-18 20:33:10] --- BotsCronjob Start ---
+[2026-02-18 20:33:10] Verwende Universe-ID: 1
+[2026-02-18 20:33:10] Typ 1: 29 / 29
+[2026-02-18 20:33:10] --- BotsCronjob Ende ---
+[2026-02-18 20:35:39] --- BotsCronjob Start ---
+[2026-02-18 20:35:39] Verwende Universe-ID: 1
+[2026-02-18 20:35:39] Typ 1: 29 / 29
+[2026-02-18 20:35:39] --- BotsCronjob Ende ---
+[2026-02-18 20:35:46] --- BotsCronjob Start ---
+[2026-02-18 20:35:46] Verwende Universe-ID: 1
+[2026-02-18 20:35:46] Typ 1: 29 / 29
+[2026-02-18 20:35:46] --- BotsCronjob Ende ---
+[2026-02-18 20:35:51] --- BotsCronjob Start ---
+[2026-02-18 20:35:51] Verwende Universe-ID: 1
+[2026-02-18 20:35:51] Typ 1: 29 / 29
+[2026-02-18 20:35:51] --- BotsCronjob Ende ---
+[2026-02-18 20:35:52] --- BotsCronjob Start ---
+[2026-02-18 20:35:52] Verwende Universe-ID: 1
+[2026-02-18 20:35:52] Typ 1: 29 / 29
+[2026-02-18 20:35:52] --- BotsCronjob Ende ---
+[2026-02-18 20:35:55] --- BotsCronjob Start ---
+[2026-02-18 20:35:55] Verwende Universe-ID: 1
+[2026-02-18 20:35:55] Typ 1: 29 / 29
+[2026-02-18 20:35:55] --- BotsCronjob Ende ---
+[2026-02-18 20:36:06] --- BotsCronjob Start ---
+[2026-02-18 20:36:06] Verwende Universe-ID: 1
+[2026-02-18 20:36:06] Typ 1: 29 / 29
+[2026-02-18 20:36:06] --- BotsCronjob Ende ---
+[2026-02-18 20:46:08] --- BotsCronjob Start ---
+[2026-02-18 20:46:08] Verwende Universe-ID: 1
+[2026-02-18 20:46:08] Typ 1: 29 / 29
+[2026-02-18 20:46:08] --- BotsCronjob Ende ---
+[2026-02-18 20:56:32] --- BotsCronjob Start ---
+[2026-02-18 20:56:32] Verwende Universe-ID: 1
+[2026-02-18 20:56:32] Typ 1: 29 / 29
+[2026-02-18 20:56:32] --- BotsCronjob Ende ---
+[2026-02-18 21:10:50] --- BotsCronjob Start ---
+[2026-02-18 21:10:50] Verwende Universe-ID: 1
+[2026-02-18 21:10:50] Typ 1: 29 / 29
+[2026-02-18 21:10:50] --- BotsCronjob Ende ---
+[2026-02-18 21:10:53] --- BotsCronjob Start ---
+[2026-02-18 21:10:53] Verwende Universe-ID: 1
+[2026-02-18 21:10:53] Typ 1: 29 / 29
+[2026-02-18 21:10:53] --- BotsCronjob Ende ---
+[2026-02-18 21:11:14] --- BotsCronjob Start ---
+[2026-02-18 21:11:14] Verwende Universe-ID: 1
+[2026-02-18 21:11:14] Typ 1: 29 / 29
+[2026-02-18 21:11:14] --- BotsCronjob Ende ---
+[2026-02-18 21:15:08] --- BotsCronjob Start ---
+[2026-02-18 21:15:08] Verwende Universe-ID: 1
+[2026-02-18 21:15:08] Typ 1: 29 / 29
+[2026-02-18 21:15:08] --- BotsCronjob Ende ---
+[2026-02-18 21:15:24] --- BotsCronjob Start ---
+[2026-02-18 21:15:24] Verwende Universe-ID: 1
+[2026-02-18 21:15:24] Typ 1: 29 / 29
+[2026-02-18 21:15:24] --- BotsCronjob Ende ---
+[2026-02-18 21:23:22] --- BotsCronjob Start ---
+[2026-02-18 21:23:22] Verwende Universe-ID: 1
+[2026-02-18 21:23:22] Typ 1: 29 / 29
+[2026-02-18 21:23:22] --- BotsCronjob Ende ---
+[2026-02-18 21:27:08] --- BotsCronjob Start ---
+[2026-02-18 21:27:08] Verwende Universe-ID: 1
+[2026-02-18 21:27:08] Typ 1: 29 / 29
+[2026-02-18 21:27:08] --- BotsCronjob Ende ---
+[2026-02-18 21:30:14] --- BotsCronjob Start ---
+[2026-02-18 21:30:14] Verwende Universe-ID: 1
+[2026-02-18 21:30:14] Typ 1: 29 / 29
+[2026-02-18 21:30:14] --- BotsCronjob Ende ---
+[2026-02-18 21:32:10] --- BotsCronjob Start ---
+[2026-02-18 21:32:10] Verwende Universe-ID: 1
+[2026-02-18 21:32:10] Typ 1: 29 / 29
+[2026-02-18 21:32:10] --- BotsCronjob Ende ---
+[2026-02-18 21:52:41] --- BotsCronjob Start ---
+[2026-02-18 21:52:41] Verwende Universe-ID: 1
+[2026-02-18 21:52:41] Typ 1: 29 / 29
+[2026-02-18 21:52:41] --- BotsCronjob Ende ---
+[2026-02-18 21:55:01] --- BotsCronjob Start ---
+[2026-02-18 21:55:01] Verwende Universe-ID: 1
+[2026-02-18 21:55:01] Typ 1: 29 / 29
+[2026-02-18 21:55:01] --- BotsCronjob Ende ---
+[2026-02-18 21:55:06] --- BotsCronjob Start ---
+[2026-02-18 21:55:06] Verwende Universe-ID: 1
+[2026-02-18 21:55:06] Typ 1: 29 / 29
+[2026-02-18 21:55:06] --- BotsCronjob Ende ---
+[2026-02-18 21:55:13] --- BotsCronjob Start ---
+[2026-02-18 21:55:13] Verwende Universe-ID: 1
+[2026-02-18 21:55:13] Typ 1: 29 / 29
+[2026-02-18 21:55:13] --- BotsCronjob Ende ---
+[2026-02-18 21:55:17] --- BotsCronjob Start ---
+[2026-02-18 21:55:17] Verwende Universe-ID: 1
+[2026-02-18 21:55:17] Typ 1: 29 / 29
+[2026-02-18 21:55:17] --- BotsCronjob Ende ---
+[2026-02-18 21:55:19] --- BotsCronjob Start ---
+[2026-02-18 21:55:19] Verwende Universe-ID: 1
+[2026-02-18 21:55:19] Typ 1: 29 / 29
+[2026-02-18 21:55:19] --- BotsCronjob Ende ---
+[2026-02-18 21:55:37] --- BotsCronjob Start ---
+[2026-02-18 21:55:37] Verwende Universe-ID: 1
+[2026-02-18 21:55:37] Typ 1: 29 / 29
+[2026-02-18 21:55:37] --- BotsCronjob Ende ---
+[2026-02-18 21:55:53] --- BotsCronjob Start ---
+[2026-02-18 21:55:53] Verwende Universe-ID: 1
+[2026-02-18 21:55:53] Typ 1: 29 / 29
+[2026-02-18 21:55:53] --- BotsCronjob Ende ---
+[2026-02-18 21:55:54] --- BotsCronjob Start ---
+[2026-02-18 21:55:54] Verwende Universe-ID: 1
+[2026-02-18 21:55:54] Typ 1: 29 / 29
+[2026-02-18 21:55:54] --- BotsCronjob Ende ---
+[2026-02-18 21:56:05] --- BotsCronjob Start ---
+[2026-02-18 21:56:05] Verwende Universe-ID: 1
+[2026-02-18 21:56:05] Typ 1: 29 / 29
+[2026-02-18 21:56:05] --- BotsCronjob Ende ---
+[2026-02-18 22:00:11] --- BotsCronjob Start ---
+[2026-02-18 22:00:11] Verwende Universe-ID: 1
+[2026-02-18 22:00:11] Typ 1: 29 / 29
+[2026-02-18 22:00:11] --- BotsCronjob Ende ---
+[2026-02-18 22:00:20] --- BotsCronjob Start ---
+[2026-02-18 22:00:20] Verwende Universe-ID: 1
+[2026-02-18 22:00:20] Typ 1: 29 / 29
+[2026-02-18 22:00:20] --- BotsCronjob Ende ---
+[2026-02-18 22:00:24] --- BotsCronjob Start ---
+[2026-02-18 22:00:24] Verwende Universe-ID: 1
+[2026-02-18 22:00:24] Typ 1: 29 / 29
+[2026-02-18 22:00:24] --- BotsCronjob Ende ---
+[2026-02-18 22:00:58] --- BotsCronjob Start ---
+[2026-02-18 22:00:58] Verwende Universe-ID: 1
+[2026-02-18 22:00:58] Typ 1: 29 / 29
+[2026-02-18 22:00:58] --- BotsCronjob Ende ---
+[2026-02-18 22:01:04] --- BotsCronjob Start ---
+[2026-02-18 22:01:04] Verwende Universe-ID: 1
+[2026-02-18 22:01:04] Typ 1: 29 / 29
+[2026-02-18 22:01:04] --- BotsCronjob Ende ---
+[2026-02-18 22:05:14] --- BotsCronjob Start ---
+[2026-02-18 22:05:14] Verwende Universe-ID: 1
+[2026-02-18 22:05:14] Typ 1: 29 / 29
+[2026-02-18 22:05:14] --- BotsCronjob Ende ---
+[2026-02-18 22:06:35] --- BotsCronjob Start ---
+[2026-02-18 22:06:35] Verwende Universe-ID: 1
+[2026-02-18 22:06:35] Typ 1: 29 / 29
+[2026-02-18 22:06:35] --- BotsCronjob Ende ---
+[2026-02-18 22:12:55] --- BotsCronjob Start ---
+[2026-02-18 22:12:55] Verwende Universe-ID: 1
+[2026-02-18 22:12:55] Typ 1: 29 / 29
+[2026-02-18 22:12:55] --- BotsCronjob Ende ---
+[2026-02-18 22:15:02] --- BotsCronjob Start ---
+[2026-02-18 22:15:02] Verwende Universe-ID: 1
+[2026-02-18 22:15:02] Typ 1: 29 / 29
+[2026-02-18 22:15:02] --- BotsCronjob Ende ---
+[2026-02-18 22:15:59] --- BotsCronjob Start ---
+[2026-02-18 22:15:59] Verwende Universe-ID: 1
+[2026-02-18 22:15:59] Typ 1: 29 / 29
+[2026-02-18 22:15:59] --- BotsCronjob Ende ---
+[2026-02-18 22:17:00] --- BotsCronjob Start ---
+[2026-02-18 22:17:00] Verwende Universe-ID: 1
+[2026-02-18 22:17:00] Typ 1: 29 / 29
+[2026-02-18 22:17:00] --- BotsCronjob Ende ---
+[2026-02-18 22:20:02] --- BotsCronjob Start ---
+[2026-02-18 22:20:02] Verwende Universe-ID: 1
+[2026-02-18 22:20:02] Typ 1: 29 / 29
+[2026-02-18 22:20:02] --- BotsCronjob Ende ---
+[2026-02-18 22:20:04] --- BotsCronjob Start ---
+[2026-02-18 22:20:04] Verwende Universe-ID: 1
+[2026-02-18 22:20:04] Typ 1: 29 / 29
+[2026-02-18 22:20:04] --- BotsCronjob Ende ---
+[2026-02-18 22:20:12] --- BotsCronjob Start ---
+[2026-02-18 22:20:12] Verwende Universe-ID: 1
+[2026-02-18 22:20:12] Typ 1: 29 / 29
+[2026-02-18 22:20:12] --- BotsCronjob Ende ---
+[2026-02-18 22:22:36] --- BotsCronjob Start ---
+[2026-02-18 22:22:36] Verwende Universe-ID: 1
+[2026-02-18 22:22:36] Typ 1: 29 / 29
+[2026-02-18 22:22:36] --- BotsCronjob Ende ---
+[2026-02-18 22:25:17] --- BotsCronjob Start ---
+[2026-02-18 22:25:17] Verwende Universe-ID: 1
+[2026-02-18 22:25:17] Typ 1: 29 / 29
+[2026-02-18 22:25:17] --- BotsCronjob Ende ---
+[2026-02-18 22:25:22] --- BotsCronjob Start ---
+[2026-02-18 22:25:22] Verwende Universe-ID: 1
+[2026-02-18 22:25:22] Typ 1: 29 / 29
+[2026-02-18 22:25:22] --- BotsCronjob Ende ---
+[2026-02-18 22:25:51] --- BotsCronjob Start ---
+[2026-02-18 22:25:51] Verwende Universe-ID: 1
+[2026-02-18 22:25:51] Typ 1: 29 / 29
+[2026-02-18 22:25:51] --- BotsCronjob Ende ---
+[2026-02-18 22:25:53] --- BotsCronjob Start ---
+[2026-02-18 22:25:53] Verwende Universe-ID: 1
+[2026-02-18 22:25:53] Typ 1: 29 / 29
+[2026-02-18 22:25:53] --- BotsCronjob Ende ---
+[2026-02-18 22:26:08] --- BotsCronjob Start ---
+[2026-02-18 22:26:08] Verwende Universe-ID: 1
+[2026-02-18 22:26:08] Typ 1: 29 / 29
+[2026-02-18 22:26:08] --- BotsCronjob Ende ---
+[2026-02-18 22:35:43] --- BotsCronjob Start ---
+[2026-02-18 22:35:43] Verwende Universe-ID: 1
+[2026-02-18 22:35:43] Typ 1: 29 / 29
+[2026-02-18 22:35:43] --- BotsCronjob Ende ---
+[2026-02-18 22:35:45] --- BotsCronjob Start ---
+[2026-02-18 22:35:45] Verwende Universe-ID: 1
+[2026-02-18 22:35:45] Typ 1: 29 / 29
+[2026-02-18 22:35:45] --- BotsCronjob Ende ---
+[2026-02-18 22:35:47] --- BotsCronjob Start ---
+[2026-02-18 22:35:47] Verwende Universe-ID: 1
+[2026-02-18 22:35:47] Typ 1: 29 / 29
+[2026-02-18 22:35:47] --- BotsCronjob Ende ---
+[2026-02-18 22:35:49] --- BotsCronjob Start ---
+[2026-02-18 22:35:49] Verwende Universe-ID: 1
+[2026-02-18 22:35:49] Typ 1: 29 / 29
+[2026-02-18 22:35:49] --- BotsCronjob Ende ---
+[2026-02-18 22:36:17] --- BotsCronjob Start ---
+[2026-02-18 22:36:17] Verwende Universe-ID: 1
+[2026-02-18 22:36:17] Typ 1: 29 / 29
+[2026-02-18 22:36:17] --- BotsCronjob Ende ---
+[2026-02-18 22:40:01] --- BotsCronjob Start ---
+[2026-02-18 22:40:01] Verwende Universe-ID: 1
+[2026-02-18 22:40:01] Typ 1: 29 / 29
+[2026-02-18 22:40:01] --- BotsCronjob Ende ---
+[2026-02-18 22:40:03] --- BotsCronjob Start ---
+[2026-02-18 22:40:03] Verwende Universe-ID: 1
+[2026-02-18 22:40:03] Typ 1: 29 / 29
+[2026-02-18 22:40:03] --- BotsCronjob Ende ---
+[2026-02-18 22:40:05] --- BotsCronjob Start ---
+[2026-02-18 22:40:05] Verwende Universe-ID: 1
+[2026-02-18 22:40:05] Typ 1: 29 / 29
+[2026-02-18 22:40:05] --- BotsCronjob Ende ---
+[2026-02-18 22:40:07] --- BotsCronjob Start ---
+[2026-02-18 22:40:07] Verwende Universe-ID: 1
+[2026-02-18 22:40:07] Typ 1: 29 / 29
+[2026-02-18 22:40:07] --- BotsCronjob Ende ---
+[2026-02-18 22:40:11] --- BotsCronjob Start ---
+[2026-02-18 22:40:11] Verwende Universe-ID: 1
+[2026-02-18 22:40:11] Typ 1: 29 / 29
+[2026-02-18 22:40:11] --- BotsCronjob Ende ---
+[2026-02-18 22:42:03] --- BotsCronjob Start ---
+[2026-02-18 22:42:03] Verwende Universe-ID: 1
+[2026-02-18 22:42:03] Typ 1: 29 / 29
+[2026-02-18 22:42:03] --- BotsCronjob Ende ---
+[2026-02-18 22:46:39] --- BotsCronjob Start ---
+[2026-02-18 22:46:39] Verwende Universe-ID: 1
+[2026-02-18 22:46:39] Typ 1: 29 / 29
+[2026-02-18 22:46:39] --- BotsCronjob Ende ---
+[2026-02-18 22:57:43] --- BotsCronjob Start ---
+[2026-02-18 22:57:43] Verwende Universe-ID: 1
+[2026-02-18 22:57:43] Typ 1: 29 / 29
+[2026-02-18 22:57:43] --- BotsCronjob Ende ---
+[2026-02-18 23:00:02] --- BotsCronjob Start ---
+[2026-02-18 23:00:02] Verwende Universe-ID: 1
+[2026-02-18 23:00:02] Typ 1: 29 / 29
+[2026-02-18 23:00:02] --- BotsCronjob Ende ---
+[2026-02-18 23:06:58] --- BotsCronjob Start ---
+[2026-02-18 23:06:58] Verwende Universe-ID: 1
+[2026-02-18 23:06:58] Typ 1: 29 / 29
+[2026-02-18 23:06:58] --- BotsCronjob Ende ---
+[2026-02-18 23:11:01] --- BotsCronjob Start ---
+[2026-02-18 23:11:01] Verwende Universe-ID: 1
+[2026-02-18 23:11:01] Typ 1: 29 / 29
+[2026-02-18 23:11:01] --- BotsCronjob Ende ---
+[2026-02-18 23:15:54] --- BotsCronjob Start ---
+[2026-02-18 23:15:54] Verwende Universe-ID: 1
+[2026-02-18 23:15:54] Typ 1: 29 / 29
+[2026-02-18 23:15:54] --- BotsCronjob Ende ---
+[2026-02-18 23:16:03] --- BotsCronjob Start ---
+[2026-02-18 23:16:03] Verwende Universe-ID: 1
+[2026-02-18 23:16:03] Typ 1: 29 / 29
+[2026-02-18 23:16:03] --- BotsCronjob Ende ---
+[2026-02-18 23:23:20] --- BotsCronjob Start ---
+[2026-02-18 23:23:20] Verwende Universe-ID: 1
+[2026-02-18 23:23:20] Typ 1: 29 / 29
+[2026-02-18 23:23:20] --- BotsCronjob Ende ---
+[2026-02-18 23:25:22] --- BotsCronjob Start ---
+[2026-02-18 23:25:22] Verwende Universe-ID: 1
+[2026-02-18 23:25:22] Typ 1: 29 / 29
+[2026-02-18 23:25:22] --- BotsCronjob Ende ---
+[2026-02-18 23:26:46] --- BotsCronjob Start ---
+[2026-02-18 23:26:46] Verwende Universe-ID: 1
+[2026-02-18 23:26:46] Typ 1: 29 / 29
+[2026-02-18 23:26:46] --- BotsCronjob Ende ---
+[2026-02-18 23:33:39] --- BotsCronjob Start ---
+[2026-02-18 23:33:39] Verwende Universe-ID: 1
+[2026-02-18 23:33:39] Typ 1: 29 / 29
+[2026-02-18 23:33:39] --- BotsCronjob Ende ---
+[2026-02-18 23:36:47] --- BotsCronjob Start ---
+[2026-02-18 23:36:47] Verwende Universe-ID: 1
+[2026-02-18 23:36:47] Typ 1: 29 / 29
+[2026-02-18 23:36:47] --- BotsCronjob Ende ---
+[2026-02-18 23:40:11] --- BotsCronjob Start ---
+[2026-02-18 23:40:11] Verwende Universe-ID: 1
+[2026-02-18 23:40:11] Typ 1: 29 / 29
+[2026-02-18 23:40:11] --- BotsCronjob Ende ---
+[2026-02-18 23:40:19] --- BotsCronjob Start ---
+[2026-02-18 23:40:19] Verwende Universe-ID: 1
+[2026-02-18 23:40:19] Typ 1: 29 / 29
+[2026-02-18 23:40:19] --- BotsCronjob Ende ---
+[2026-02-18 23:40:33] --- BotsCronjob Start ---
+[2026-02-18 23:40:33] Verwende Universe-ID: 1
+[2026-02-18 23:40:33] Typ 1: 29 / 29
+[2026-02-18 23:40:33] --- BotsCronjob Ende ---
+[2026-02-18 23:40:35] --- BotsCronjob Start ---
+[2026-02-18 23:40:35] Verwende Universe-ID: 1
+[2026-02-18 23:40:35] Typ 1: 29 / 29
+[2026-02-18 23:40:35] --- BotsCronjob Ende ---
+[2026-02-18 23:44:00] --- BotsCronjob Start ---
+[2026-02-18 23:44:00] Verwende Universe-ID: 1
+[2026-02-18 23:44:00] Typ 1: 29 / 29
+[2026-02-18 23:44:00] --- BotsCronjob Ende ---
+[2026-02-18 23:59:08] --- BotsCronjob Start ---
+[2026-02-18 23:59:08] Verwende Universe-ID: 1
+[2026-02-18 23:59:08] Typ 1: 29 / 29
+[2026-02-18 23:59:08] --- BotsCronjob Ende ---
+[2026-02-19 00:00:06] --- BotsCronjob Start ---
+[2026-02-19 00:00:06] Verwende Universe-ID: 1
+[2026-02-19 00:00:06] Typ 1: 29 / 29
+[2026-02-19 00:00:06] --- BotsCronjob Ende ---

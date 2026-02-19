@@ -1,0 +1,88 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-handshake"></i> {{ LNG.al_manage_diplo }}</h2>
+        <a href="#" onclick="return Dialog.open('game.php?page=alliance&mode=admin&action=diplomacyCreate&ajax=1', 600, 400);" class="btn-action-glow small">
+            <i class="fas fa-plus"></i> {{ LNG.al_circular_send_ciruclar }}
+        </a>
+    </div>
+
+    <div class="diplomacy-grid">
+        
+        <div class="glass-panel">
+            <div class="panel-header"><i class="fas fa-link"></i> {{ LNG.al_diplo_info }}</div>
+            {% for diploMode, diploAlliances in diploList.0 %}
+                <div class="diplo-group">
+                    <h4 class="diplo-type-title">{{ LNG.al_diplo_level[diploMode] }}</h4>
+                    {% if diploAlliances %}
+                        <div class="diplo-list">
+                        {% for diploID, diploName in diploAlliances %}
+                            <div class="diplo-tag">
+                                <span>{{ diploName }}</span>
+                                <a href="game.php?page=alliance&amp;mode=admin&amp;action=diplomacyDelete&amp;id={{ diploID }}" onclick="return confirm('{{ LNG.al_diplo_confirm_delete }}');" class="delete-x"><i class="fas fa-times"></i></a>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <span class="text-muted small">- {{ LNG.al_diplo_no_entry }} -</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="glass-panel">
+            <div class="panel-header"><i class="fas fa-paper-plane"></i> {{ LNG.al_diplo_accept_send }}</div>
+            {% if diploList.1|length > 0 %}
+                {% for diploMode, diploAlliances in diploList.1 %}
+                   {% if diploAlliances %}
+                       <div class="diplo-group">
+                           <h4 class="diplo-type-title">{{ LNG.al_diplo_level[diploMode] }}</h4>
+                           <div class="diplo-list">
+                           {% for diploID, diploName in diploAlliances %}
+                               <div class="diplo-tag pending">
+                                   <span>{{ diploName }}</span>
+                                   <a href="game.php?page=alliance&amp;mode=admin&amp;action=diplomacyDelete&amp;id={{ diploID }}" class="delete-x"><i class="fas fa-times"></i></a>
+                               </div>
+                           {% endfor %}
+                           </div>
+                       </div>
+                   {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">{{ LNG.al_diplo_no_accept }}</div>
+            {% endif %}
+        </div>
+
+        <div class="glass-panel">
+            <div class="panel-header"><i class="fas fa-inbox"></i> {{ LNG.al_diplo_accept }}</div>
+            {% if diploList.2|length > 0 %}
+                {% for diploMode, diploAlliances in diploList.2 %}
+                    {% if diploAlliances %}
+                        <div class="diplo-group">
+                           <h4 class="diplo-type-title">{{ LNG.al_diplo_level[diploMode] }}</h4>
+                           <div class="diplo-list-requests">
+                           {% for diploID, diploName in diploAlliances %}
+                               <div class="diplo-request-card">
+                                   <span class="req-name">{{ diploName }}</span>
+                                   <div class="req-actions">
+                                       <a href="game.php?page=alliance&amp;mode=admin&amp;action=diplomacyAccept&amp;id={{ diploID }}" class="btn-icon-success"><i class="fas fa-check"></i></a>
+                                       <a href="game.php?page=alliance&amp;mode=admin&amp;action=diplomacyDelete&amp;id={{ diploID }}" class="btn-icon-danger"><i class="fas fa-times"></i></a>
+                                   </div>
+                               </div>
+                           {% endfor %}
+                           </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                 <div class="empty-state">{{ LNG.al_diplo_no_accept }}</div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "layout.ajax.twig" %}
+
+{% block content %}
+<div class="result-list">
+    <div class="result-header-row">
+        <div class="col name">{{ LNG.sh_name }}</div>
+        <div class="col actions"></div>
+        <div class="col ally">{{ LNG.sh_alliance }}</div>
+        <div class="col planet">{{ LNG.sh_planet }}</div>
+        <div class="col coords">{{ LNG.sh_coords }}</div>
+        <div class="col rank">{{ LNG.sh_position }}</div>
+    </div>
+
+    {% for searchRow in searchList %}
+    <div class="result-row">
+        <div class="col name">
+            <a href="#" onclick="return Dialog.Playercard({{ searchRow.userid }});" class="user-link">{{ searchRow.username }}</a>
+        </div>
+        <div class="col actions">
+            <a href="#" onclick="return Dialog.PM({{ searchRow.userid }});" class="btn-icon" title="{{ LNG.sh_write_message }}">
+                <i class="far fa-envelope"></i>
+            </a>
+            <a href="#" onclick="return Dialog.Buddy({{ searchRow.userid }});" class="btn-icon" title="{{ LNG.sh_buddy_request }}">
+                <i class="far fa-handshake"></i>
+            </a>
+        </div>
+        <div class="col ally">
+            {% if searchRow.allyname %}
+                <a href="game.php?page=alliance&amp;mode=info&amp;id={{ searchRow.allyid }}">{{ searchRow.allyname }}</a>
+            {% else %}<span class="text-muted">-</span>{% endif %}
+        </div>
+        <div class="col planet">{{ searchRow.planetname }}</div>
+        <div class="col coords">
+            <a href="game.php?page=galaxy&amp;galaxy={{ searchRow.galaxy }}&amp;system={{ searchRow.system }}" class="coord-link">
+                [{{ searchRow.galaxy }}:{{ searchRow.system }}:{{ searchRow.planet }}]
+            </a>
+        </div>
+        <div class="col rank">#{{ searchRow.rank }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

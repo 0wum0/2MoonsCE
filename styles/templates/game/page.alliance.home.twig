@@ -1,0 +1,119 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    
+    <div class="glass-panel ally-home-header">
+        <div class="ally-banner">
+            {% if ally_image %}
+                <img src="{{ ally_image }}" alt="{{ ally_tag }}" class="ally-img-banner">
+            {% else %}
+                <div class="ally-placeholder-banner"><i class="fas fa-users"></i></div>
+            {% endif %}
+            
+            <div class="ally-title-overlay">
+                <h1 class="ally-name">{{ ally_name }} <span class="ally-tag">[{{ ally_tag }}]</span></h1>
+                
+                <div class="ally-meta-actions">
+                    {% if rights.ADMIN %}
+                        <a href="game.php?page=alliance&amp;mode=admin" class="btn-action-glow small"><i class="fas fa-cogs"></i> {{ LNG.al_manage_alliance }}</a>
+                    {% endif %}
+                    {% if rights.MEMBERLIST %}
+                        <a href="game.php?page=alliance&amp;mode=memberList" class="btn-ghost small"><i class="fas fa-list"></i> {{ LNG.al_user_list }}</a>
+                    {% endif %}
+                    
+                    {% if isModuleAvailable(constant('MODULE_CHAT')) %}
+                        <a href="#" onclick="return Dialog.AllianceChat();" class="btn-ghost small"><i class="fas fa-comments"></i> {{ LNG.lm_chat }}</a>
+                    {% endif %}
+                    
+                    {% if rights.ROUNDMAIL %}
+                        <a href="#" onclick="return Dialog.open('game.php?page=alliance&mode=circular&ajax=1', 800, 450);" class="btn-ghost small"><i class="fas fa-envelope-open-text"></i> {{ LNG.al_circular_message }}</a>
+                    {% endif %}
+                     <a href="game.php?page=alliance&amp;mode=close" onclick="return confirm('{{ LNG.al_leave_ally }}');" class="btn-icon-danger small" title="{{ LNG.al_leave_alliance }}"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ally-grid">
+        
+        <div class="ally-col-left">
+            
+            <div class="glass-panel">
+                <div class="panel-header"><i class="fas fa-bullhorn"></i> {{ LNG.al_inside_text }}</div>
+                <div class="ally-text-content">
+                    {{ ally_description|raw }}
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-header"><i class="fas fa-handshake"></i> {{ LNG.al_diplo }}</div>
+                <div class="diplo-content">
+                    {% if DiploInfo %}
+                        {% if DiploInfo.0 %}<div class="diplo-category"><strong>{{ LNG.al_diplo_level.0 }}:</strong> {% for PaktInfo in DiploInfo.0 %}<a href="?page=alliance&mode=info&amp;id={{ PaktInfo.1 }}">{{ PaktInfo.0 }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+                        {% if DiploInfo.1 %}<div class="diplo-category"><strong>{{ LNG.al_diplo_level.1 }}:</strong> {% for PaktInfo in DiploInfo.1 %}<a href="?page=alliance&mode=info&amp;id={{ PaktInfo.1 }}">{{ PaktInfo.0 }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+                        {% if DiploInfo.2 %}<div class="diplo-category"><strong>{{ LNG.al_diplo_level.2 }}:</strong> {% for PaktInfo in DiploInfo.2 %}<a href="?page=alliance&mode=info&amp;id={{ PaktInfo.1 }}">{{ PaktInfo.0 }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+                        {% if DiploInfo.3 %}<div class="diplo-category"><strong>{{ LNG.al_diplo_level.3 }}:</strong> {% for PaktInfo in DiploInfo.3 %}<a href="?page=alliance&mode=info&amp;id={{ PaktInfo.1 }}">{{ PaktInfo.0 }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+                        {% if DiploInfo.4 %}<div class="diplo-category"><strong>{{ LNG.al_diplo_level.4 }}:</strong> {% for PaktInfo in DiploInfo.4 %}<a href="?page=alliance&mode=info&amp;id={{ PaktInfo.1 }}">{{ PaktInfo.0 }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+                    {% else %}
+                         <span class="text-muted">{{ LNG.al_no_diplo }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ally-col-right">
+            
+            <div class="glass-panel stats-panel">
+                 <div class="panel-header"><i class="fas fa-chart-pie"></i> {{ LNG.pl_fightstats }}</div>
+                 <div class="stats-list">
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_totalfight }}</span>
+                         <span class="text-highlight">{{ totalfight|number_format }}</span>
+                     </div>
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_fightwon }}</span>
+                         <span class="text-success">{{ fightwon|number_format }} {% if totalfight %}({{ (fightwon / totalfight * 100)|round(1) }}%){% endif %}</span>
+                     </div>
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_fightlose }}</span>
+                         <span class="text-danger">{{ fightlose|number_format }} {% if totalfight %}({{ (fightlose / totalfight * 100)|round(1) }}%){% endif %}</span>
+                     </div>
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_fightdraw }}</span>
+                         <span class="text-warning">{{ fightdraw|number_format }} {% if totalfight %}({{ (fightdraw / totalfight * 100)|round(1) }}%){% endif %}</span>
+                     </div>
+                 </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="info-list">
+                    <div class="info-row">
+                        <span>{{ LNG.al_ally_info_members }}</span>
+                        <span>{{ ally_max_members }} / {{ ally_members }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.al_rank }}</span>
+                        <span>{{ rankName }}</span>
+                    </div>
+                    {% if ally_web %}
+                    <div class="info-row">
+                         <span>{{ LNG.al_web_site }}</span>
+                         <a href="{{ ally_web }}" target="_blank"><i class="fas fa-external-link-alt"></i> Link</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+             {% if requests > 0 %}
+             <a href="game.php?page=alliance&amp;mode=admin&amp;action=mangeApply" class="glass-panel notify-panel">
+                 <i class="fas fa-user-plus"></i> {{ requests }} {{ LNG.al_new_requests }}
+             </a>
+             {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

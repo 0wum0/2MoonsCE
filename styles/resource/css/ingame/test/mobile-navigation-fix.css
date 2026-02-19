@@ -1,0 +1,420 @@
+/**
+ * SmartMoons - Mobile Navigation Fix
+ * Enhanced styles for burger menu and mobile navigation
+ */
+
+/* ============================================
+   MOBILE NAVIGATION MENU
+   ============================================ */
+.mobile-nav,
+.nav-menu,
+#leftmenu .menu_content_left {
+    display: none; /* Hidden by default */
+}
+
+/* When sidebar is active, show navigation items */
+#leftmenu.active .menu_content_left,
+.sidebar-nav.active .sidebar-content {
+    display: block !important;
+}
+
+/* Mobile Navigation Items Container */
+@media (max-width: 768px) {
+    /* Navigation container when active */
+    #leftmenu.active,
+    .sidebar-nav.active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        background: linear-gradient(135deg, #0a0e1a 0%, #151c2b 100%) !important;
+        z-index: 9999 !important;
+        transform: translateX(0) !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow-y: auto !important;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    /* Navigation content */
+    #leftmenu.active .menu_content_left,
+    .sidebar-nav.active .sidebar-content {
+        padding: 70px 20px 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    /* Close button for mobile nav */
+    #leftmenu.active::before,
+    .sidebar-nav.active::before {
+        content: '✕';
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 10001;
+        transition: all 0.3s ease;
+    }
+    
+    #leftmenu.active:hover::before,
+    .sidebar-nav.active:hover::before {
+        background: rgba(239, 68, 68, 0.3);
+        border-color: rgba(239, 68, 68, 0.5);
+        transform: rotate(90deg);
+    }
+    
+    /* Navigation Links */
+    #leftmenu.active a,
+    .sidebar-nav.active a,
+    .mobile-nav a,
+    .nav-menu a {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 14px 16px !important;
+        margin: 0 0 4px 0 !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid transparent !important;
+        border-radius: 8px !important;
+        color: #e2e8f0 !important;
+        text-decoration: none !important;
+        font-size: 0.9375rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+        min-height: 48px !important;
+    }
+    
+    /* Link hover state */
+    #leftmenu.active a:hover,
+    .sidebar-nav.active a:hover {
+        background: rgba(0, 243, 255, 0.15) !important;
+        border-color: rgba(0, 243, 255, 0.3) !important;
+        color: #00f3ff !important;
+        padding-left: 20px !important;
+        transform: translateX(4px);
+    }
+    
+    /* Active link state */
+    #leftmenu.active a.active,
+    .sidebar-nav.active a.active {
+        background: linear-gradient(90deg, rgba(0, 243, 255, 0.2), transparent) !important;
+        border-left: 3px solid #00f3ff !important;
+        color: #00f3ff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Icons in navigation */
+    #leftmenu.active a i,
+    .sidebar-nav.active a i {
+        font-size: 1.125rem !important;
+        width: 24px !important;
+        text-align: center !important;
+        flex-shrink: 0 !important;
+        color: inherit !important;
+    }
+    
+    /* Section Headers */
+    .nav-section-title {
+        color: #64748b !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1.5px !important;
+        margin: 20px 0 10px 8px !important;
+        padding-top: 20px !important;
+        border-top: 1px solid rgba(100, 116, 139, 0.2) !important;
+    }
+    
+    .nav-section-title:first-child {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: none !important;
+    }
+}
+
+/* ============================================
+   BURGER MENU BUTTON ENHANCEMENTS
+   ============================================ */
+/* #sidebar-toggle removed - using #burgerMenu instead */
+.burger-menu {
+    position: relative !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important; /* Ensure visible; media queries may hide on desktop */
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    background: rgba(0, 15, 30, 0.95) !important;
+    border: 2px solid rgba(0, 243, 255, 0.4) !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 10001 !important;
+    margin-right: 12px !important;
+}
+
+/* Show burger menu on mobile */
+@media (max-width: 768px) {
+    /* #sidebar-toggle removed - using #burgerMenu instead */
+    .burger-menu {
+        display: flex !important;
+    }
+}
+
+/* #sidebar-toggle removed */
+.burger-menu:hover {
+    background: rgba(0, 243, 255, 0.15) !important;
+    border-color: #00f3ff !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.5) !important;
+}
+
+/* #sidebar-toggle removed */
+.burger-menu:active {
+    transform: scale(0.95) !important;
+}
+
+/* Burger lines with better visibility */
+.burger-line {
+    width: 26px !important;
+    height: 3px !important;
+    background: #00f3ff !important;
+    border-radius: 2px !important;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    box-shadow: 0 0 5px rgba(0, 243, 255, 0.5) !important;
+}
+
+/* Active state animation */
+/* #sidebar-toggle removed */
+.burger-menu.active .burger-line:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px) !important;
+}
+
+/* #sidebar-toggle removed */
+.burger-menu.active .burger-line:nth-child(2) {
+    opacity: 0 !important;
+    transform: translateX(-10px) !important;
+}
+
+/* #sidebar-toggle removed */
+.burger-menu.active .burger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px) !important;
+}
+
+/* ============================================
+   OVERLAY WITH BLUR EFFECT
+   ============================================ */
+#sidebar-overlay,
+.sidebar-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 9998 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+#sidebar-overlay.active,
+.sidebar-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* ============================================
+   ENSURE VISIBILITY OF MENU ITEMS
+   ============================================ */
+@media (max-width: 768px) {
+    /* Force visibility of all menu items when sidebar is active */
+    #leftmenu.active *,
+    .sidebar-nav.active * {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure text is readable */
+    #leftmenu.active a span,
+    .sidebar-nav.active a span {
+        color: #e2e8f0 !important;
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+    
+    /* Make sure links are clickable */
+    #leftmenu.active a,
+    .sidebar-nav.active a {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+    
+    /* Scrollbar styling for mobile menu */
+    #leftmenu.active::-webkit-scrollbar,
+    .sidebar-nav.active::-webkit-scrollbar {
+        width: 6px !important;
+    }
+    
+    #leftmenu.active::-webkit-scrollbar-track,
+    .sidebar-nav.active::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    #leftmenu.active::-webkit-scrollbar-thumb,
+    .sidebar-nav.active::-webkit-scrollbar-thumb {
+        background: rgba(0, 243, 255, 0.3) !important;
+        border-radius: 3px !important;
+    }
+    
+    #leftmenu.active::-webkit-scrollbar-thumb:hover,
+    .sidebar-nav.active::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 243, 255, 0.5) !important;
+    }
+}
+
+/* ============================================
+   HEADER ADJUSTMENTS FOR MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+    #top-header,
+    .sci-fi-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9997 !important;
+        background: rgba(10, 14, 26, 0.98) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    /* Adjust content for fixed header */
+    #content,
+    .main-content-wrapper {
+        padding-top: 70px !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Apply animation to active sidebar */
+@media (max-width: 768px) {
+    #leftmenu.active,
+    .sidebar-nav.active {
+        animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    }
+    
+    #sidebar-overlay.active,
+    .sidebar-overlay.active {
+        animation: fadeIn 0.3s ease forwards !important;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+/* #sidebar-toggle removed */
+.burger-menu:focus {
+    outline: 3px solid #00f3ff !important;
+    outline-offset: 2px !important;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* ============================================
+   PREVENT BODY SCROLL WHEN MENU IS OPEN
+   ============================================ */
+body.sidebar-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+}
+
+/* ============================================
+   TOUCH OPTIMIZATION
+   ============================================ */
+@media (max-width: 768px) {
+    /* Remove tap highlight */
+    * {
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    /* Smooth scrolling on iOS */
+    #leftmenu.active,
+    .sidebar-nav.active {
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Prevent text selection during swipe */
+    #leftmenu.active,
+    .sidebar-nav.active {
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+    }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

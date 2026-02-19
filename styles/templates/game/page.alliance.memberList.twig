@@ -1,0 +1,80 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-users"></i> {{ al_users_list }}</h2>
+        <a href="game.php?page=alliance" class="btn-ghost small">{{ LNG.al_back }}</a>
+    </div>
+
+    <div class="glass-panel table-panel">
+        <div class="table-responsive">
+            <table id="memberList" class="glass-table full-width tablesorter">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ LNG.al_member }}</th>
+                        <th>{{ LNG.al_message }}</th>
+                        <th>{{ LNG.al_position }}</th>
+                        <th>{{ LNG.al_points }}</th>
+                        <th>{{ LNG.al_coords }}</th>
+                        <th>{{ LNG.al_member_since }}</th>
+                        <th>{{ LNG.al_estate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for userID, memberListRow in memberList %}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td>
+                            <a href="#" onclick="return Dialog.Playercard({{ userID }}, '{{ memberListRow.username }}');" class="text-highlight">
+                                {{ memberListRow.username }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" onclick="return Dialog.PM({{ userID }});" class="icon-btn">
+                                <i class="far fa-envelope"></i>
+                            </a>
+                        </td>
+                        <td>{{ memberListRow.rankName }}</td>
+                        <td class="text-primary">{{ memberListRow.points|number_format }}</td>
+                        <td>
+                            <a href="game.php?page=galaxy&amp;galaxy={{ memberListRow.galaxy }}&amp;system={{ memberListRow.system }}" class="coord-link">
+                                [{{ memberListRow.galaxy }}:{{ memberListRow.system }}:{{ memberListRow.planet }}]
+                            </a>
+                        </td>
+                        <td class="text-muted small">{{ memberListRow.register_time }}</td>
+                        <td>
+                            {% if rights.ONLINESTATE %}
+                                {% if memberListRow.onlinetime < 4 %}
+                                    <span class="status-dot online" title="{{ LNG.al_memberlist_on }}"></span>
+                                {% elseif memberListRow.onlinetime <= 15 %}
+                                    <span class="status-dot away" title="{{ memberListRow.onlinetime }} {{ LNG.al_memberlist_min }}"></span>
+                                {% else %}
+                                    <span class="status-dot offline" title="{{ LNG.al_memberlist_off }}"></span>
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="scripts/base/jquery.tablesorter.js"></script>
+<script>
+$(function() {
+    $("#memberList").tablesorter({
+        headers: { 0: { sorter: false }, 2: { sorter: false }, 7: { sorter: false } },
+        debug: false
+    });
+});
+</script>
+{% endblock %}

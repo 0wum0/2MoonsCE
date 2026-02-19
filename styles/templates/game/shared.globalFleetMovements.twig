@@ -1,0 +1,52 @@
+{% if globalFleetMovements is defined and globalFleetMovements|length > 0 %}
+<div id="global-fleet-bar" class="glass-panel global-fleet-bar">
+    <div class="global-fleet-bar-head">
+        <div class="global-fleet-title">
+            <i class="fas fa-space-shuttle"></i> {{ LNG.ov_fleet_movements }}
+        </div>
+        <a href="game.php?page=fleetTable" class="global-fleet-link">{{ LNG.lm_fleet }}</a>
+    </div>
+
+    <div class="global-fleet-list">
+        {% for fleet in globalFleetMovements %}
+        <div class="global-fleet-row">
+            <span class="global-fleet-time" data-time="{{ fleet.resttime|default(0) + 0 }}">00:00:00</span>
+            <span class="global-fleet-text">{{ fleet.text|raw }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+(function() {
+    if (document.documentElement.dataset.globalFleetTimersBound === '1') {
+        return;
+    }
+    document.documentElement.dataset.globalFleetTimersBound = '1';
+
+    var timers = document.querySelectorAll('#global-fleet-bar .global-fleet-time');
+    if (!timers.length) {
+        return;
+    }
+
+    function formatTime(seconds) {
+        var totalSeconds = Math.max(0, parseInt(seconds, 10) || 0);
+        var hours = Math.floor(totalSeconds / 3600);
+        var minutes = Math.floor((totalSeconds % 3600) / 60);
+        var secs = totalSeconds % 60;
+        return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    }
+
+    function tick() {
+        timers.forEach(function(timer) {
+            var rest = parseInt(timer.getAttribute('data-time'), 10) || 0;
+            timer.textContent = formatTime(rest);
+            timer.setAttribute('data-time', Math.max(rest - 1, 0));
+        });
+    }
+
+    tick();
+    window.setInterval(tick, 1000);
+})();
+</script>
+{% endif %}

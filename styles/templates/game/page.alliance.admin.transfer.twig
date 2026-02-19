@@ -1,0 +1,22 @@
+{% extends "layout.full.twig" %}
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+<div class="aerospace-container">
+    <div class="glass-panel center-panel danger-border">
+        <div class="panel-header text-danger"><i class="fas fa-exchange-alt"></i> {{ LNG.al_transfer_alliance }}</div>
+        
+        <form action="game.php?page=alliance&amp;mode=admin&amp;action=transfer" method="post">
+            <div class="form-group">
+                <label>{{ LNG.al_transfer_to }}</label>
+                <div class="glass-select-wrapper">
+                    {{ transferUserList|raw }}
+                </div>
+            </div>
+            <div class="action-bar-bottom">
+                <a href="game.php?page=alliance&amp;mode=admin" class="btn-ghost">{{ LNG.al_back }}</a>
+                <input type="submit" value="{{ LNG.al_transfer_submit }}" class="btn-icon-danger full-width-btn">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

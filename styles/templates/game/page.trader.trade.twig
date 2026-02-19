@@ -1,0 +1,59 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_trader }}{% endblock %}
+{% block content %}
+<form id="trader" action="" method="post">
+	<input type="hidden" name="mode" value="send">
+	<input type="hidden" name="resource" value="{{ tradeResourceID }}">
+
+	<div class="content_page">
+		<div class="aerospace-wrapper centered-view">
+			
+			<div class="trader-terminal glass-panel">
+				<div class="terminal-header">
+					<h2><i class="fas fa-hand-holding-usd"></i> {{ LNG.tr_sell }} {{ LNG.tech[tradeResourceID] }}</h2>
+				</div>
+
+				<div class="trade-grid">
+					
+					<div class="trade-row header">
+						<div class="col">{{ LNG.tr_resource }}</div>
+						<div class="col amount">{{ LNG.tr_amount }}</div>
+						<div class="col rate">{{ LNG.tr_quota_exchange }}</div>
+					</div>
+
+					<div class="trade-row highlight">
+						<div class="col name">{{ LNG.tech[tradeResourceID] }}</div>
+						<div class="col amount"><span id="ress" class="val-highlight">0</span></div>
+						<div class="col rate">1</div>
+					</div>
+
+					{% for tradeResource in tradeResources %}
+					<div class="trade-row">
+						<div class="col name"><label for="resource{{ tradeResource }}">{{ LNG.tech[tradeResource] }}</label></div>
+						<div class="col amount">
+							<input name="trade[{{ tradeResource }}]" id="resource{{ tradeResource }}" class="glass-input trade_input" type="text" value="0" data-resource="{{ tradeResource }}">
+							<div class="short-val" id="resource{{ tradeResource }}Shortly"></div>
+						</div>
+						<div class="col rate">{{ charge[tradeResource] }}</div>
+					</div>
+					{% endfor %}
+
+				</div>
+
+				<div class="terminal-footer">
+					<button type="submit" class="btn-trade">{{ LNG.tr_exchange }}</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+var charge = {{ charge|json_encode|raw }};
+</script>
+<script src="scripts/game/trader.js"></script>
+{% endblock %}

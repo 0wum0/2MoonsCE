@@ -1,0 +1,85 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_banned }}{% endblock %}
+
+{% block content %}
+<div class="aerospace-container">
+    
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-ban"></i> {{ LNG.bn_players_banned_list }}</h2>
+    </div>
+
+    <div class="glass-panel table-panel">
+        
+        {% if banCount %}
+        <div class="pagination-wrapper">
+            <span class="page-label">{{ LNG.mg_page }}:</span>
+            <div class="pagination-controls">
+                {% if page != 1 %}
+                    <a href="game.php?page=banList&amp;side={{ page - 1 }}" class="page-btn"><i class="fas fa-chevron-left"></i></a> 
+                {% endif %}
+                
+                {% for site in range(1, maxPage + 1) %}
+                    <a href="game.php?page=banList&amp;side={{ site }}" class="page-btn {% if site == page %}active{% endif %}">
+                        {{ site }}
+                    </a>
+                {% endfor %}
+                
+                {% if page != maxPage %} 
+                    <a href="game.php?page=banList&amp;side={{ page + 1 }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="glass-table full-width">
+                <thead>
+                    <tr>
+                        <th>{{ LNG.bn_from }}</th>
+                        <th>{{ LNG.bn_until }}</th>
+                        <th>{{ LNG.bn_player }}</th>
+                        <th>{{ LNG.bn_by }}</th>
+                        <th>{{ LNG.bn_reason }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for banRow in banList %}
+                    <tr>
+                        <td class="text-muted">{{ banRow.from }}</td>
+                        <td class="text-muted">{{ banRow.to }}</td>
+                        <td class="text-highlight">{{ banRow.player }}</td>
+                        <td>
+                            <a href="mailto:{{ banRow.mail }}" class="admin-link" title="{{ banRow.info }}">
+                                <i class="fas fa-user-shield"></i> {{ banRow.admin }}
+                            </a>
+                        </td>
+                        <td class="text-danger">{{ banRow.theme }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">{{ LNG.bn_no_players_banned }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if banCount > 10 %} <div class="pagination-wrapper mt-3">
+            <div class="pagination-controls">
+                {% if page != 1 %}
+                    <a href="game.php?page=banList&amp;side={{ page - 1 }}" class="page-btn"><i class="fas fa-chevron-left"></i></a> 
+                {% endif %}
+                {% for site in range(1, maxPage + 1) %}
+                    <a href="game.php?page=banList&amp;side={{ site }}" class="page-btn {% if site == page %}active{% endif %}">{{ site }}</a>
+                {% endfor %}
+                {% if page != maxPage %} 
+                    <a href="game.php?page=banList&amp;side={{ page + 1 }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

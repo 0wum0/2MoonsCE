@@ -1,0 +1,858 @@
+/**
+ * SmartMoons - Responsive Browser Game Interface
+ * Fully responsive design for all screen sizes
+ * Version: 4.0
+ */
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+:root {
+    /* Breakpoints */
+    --breakpoint-xs: 320px;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-xxl: 1400px;
+    
+    /* Layout Variables */
+    --sidebar-width: 240px;
+    --header-height: 60px;
+    --topnav-height: 50px;
+    --mobile-nav-height: 56px;
+}
+
+/* ============================================
+   BASE RESPONSIVE LAYOUT
+   ============================================ */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#page {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    margin-top: var(--topnav-height);
+}
+
+#leftmenu {
+    width: var(--sidebar-width);
+    position: fixed;
+    left: 0;
+    top: var(--topnav-height);
+    bottom: 0;
+    background: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-border-primary);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: var(--z-dropdown);
+    transition: transform var(--transition-base);
+}
+
+#content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: var(--spacing-lg);
+    min-height: calc(100vh - var(--topnav-height));
+    width: calc(100% - var(--sidebar-width));
+}
+
+/* ============================================
+   MOBILE HAMBURGER MENU
+   ============================================ */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-blue));
+    border: none;
+    box-shadow: var(--glow-cyan), 0 4px 20px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    z-index: calc(var(--z-dropdown) + 10);
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.mobile-menu-toggle i {
+    font-size: 1.5rem;
+    color: var(--color-bg-primary);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 14, 26, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: calc(var(--z-dropdown) + 5);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.mobile-menu-overlay.active {
+    opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVE RESOURCE HEADER
+   ============================================ */
+#header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: calc(var(--z-dropdown) + 1);
+    background: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-border-primary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#headerTable {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    align-items: center;
+    justify-content: center;
+}
+
+.bar-main-container {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.heder_res_921 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-primary);
+}
+
+/* ============================================
+   RESPONSIVE TOP NAVIGATION
+   ============================================ */
+#main_header {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    height: var(--topnav-height);
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-md);
+    z-index: var(--z-dropdown);
+    gap: var(--spacing-md);
+}
+
+.main_list_left,
+.main_list_right {
+    display: flex;
+    align-items: center;
+}
+
+.main_list_left ul,
+.main_list_right ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--spacing-xs);
+}
+
+.main_list_left li a,
+.main_list_right li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm);
+    min-width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-primary);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.main_list_left li a:hover,
+.main_list_right li a:hover {
+    border-color: var(--color-accent-cyan);
+    box-shadow: var(--glow-cyan);
+    transform: translateY(-2px);
+}
+
+#newmes {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--color-accent-red);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}
+
+#planetSelectorWrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex: 1;
+    max-width: 400px;
+    justify-content: center;
+}
+
+#planetSelector {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+#planetSelector:hover,
+#planetSelector:focus {
+    border-color: var(--color-accent-cyan);
+    box-shadow: var(--glow-cyan);
+    outline: none;
+}
+
+.servertime-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--color-accent-cyan);
+}
+
+/* ============================================
+   RESPONSIVE GRID SYSTEM
+   ============================================ */
+.sci-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.sci-grid--1 {
+    grid-template-columns: 1fr;
+}
+
+.sci-grid--2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.sci-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.sci-grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.sci-grid--auto {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+.sci-flex {
+    display: flex;
+}
+
+.sci-flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sci-flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sci-gap-sm { gap: var(--spacing-sm); }
+.sci-gap-md { gap: var(--spacing-md); }
+.sci-gap-lg { gap: var(--spacing-lg); }
+
+.sci-mb-sm { margin-bottom: var(--spacing-sm); }
+.sci-mb-md { margin-bottom: var(--spacing-md); }
+.sci-mb-lg { margin-bottom: var(--spacing-lg); }
+.sci-mt-lg { margin-top: var(--spacing-lg); }
+
+.sci-text-center { text-align: center; }
+.sci-text-left { text-align: left; }
+.sci-text-right { text-align: right; }
+
+/* ============================================
+   NOTIFICATION SYSTEM
+   ============================================ */
+.game-notification {
+    position: fixed;
+    top: calc(var(--header-height) + var(--topnav-height) + var(--spacing-md));
+    right: var(--spacing-md);
+    max-width: 400px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-primary);
+    border-left: 4px solid var(--color-accent-cyan);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), var(--glow-cyan);
+    z-index: var(--z-notification);
+    animation: slideInRight 0.3s ease-out;
+}
+
+.game-notification--success {
+    border-left-color: var(--color-accent-green);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), var(--glow-green);
+}
+
+.game-notification--error {
+    border-left-color: var(--color-accent-red);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.game-notification__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+    color: var(--color-accent-cyan);
+}
+
+.game-notification__body {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   FLEET MISSION CARDS
+   ============================================ */
+.fleet-mission-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.fleet-mission-card:hover {
+    border-color: var(--color-accent-cyan);
+    box-shadow: var(--glow-cyan);
+    transform: translateX(4px);
+}
+
+.fleet-mission-card__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-blue));
+    border-radius: var(--radius-md);
+    color: var(--color-bg-primary);
+    font-size: 1.25rem;
+}
+
+.fleet-mission-card__content {
+    flex: 1;
+}
+
+.fleet-mission-card__timer {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: var(--color-accent-cyan);
+    font-size: 1.125rem;
+}
+
+/* ============================================
+   BUILD QUEUE COMPONENT
+   ============================================ */
+.build-queue-item {
+    position: relative;
+    padding: var(--spacing-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.build-queue-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--color-accent-cyan), var(--color-accent-blue));
+}
+
+.build-queue-item__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.build-queue-item__title {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.build-queue-item__level {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(0, 243, 255, 0.1);
+    border: 1px solid var(--color-accent-cyan);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--color-accent-cyan);
+}
+
+.build-queue-item__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+/* ============================================
+   PLANET OVERVIEW CARD
+   ============================================ */
+.planet-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.planet-card__background {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.7);
+    transition: transform var(--transition-slow);
+}
+
+.planet-card:hover .planet-card__background {
+    transform: scale(1.05);
+}
+
+.planet-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(10, 14, 26, 0.8),
+        rgba(10, 14, 26, 0.4)
+    );
+}
+
+.planet-card__content {
+    position: relative;
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 300px;
+    z-index: 1;
+}
+
+.planet-card__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(
+        circle,
+        rgba(0, 243, 255, 0.2),
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: pulse-glow 3s infinite;
+}
+
+/* ============================================
+   RESPONSIVE: TABLET (768px - 991px)
+   ============================================ */
+@media (max-width: 991px) {
+    :root {
+        --sidebar-width: 200px;
+    }
+    
+    #content {
+        padding: var(--spacing-md);
+    }
+    
+    .sci-grid--2,
+    .sci-grid--3,
+    .sci-grid--4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .bar-main-container {
+        min-width: 120px;
+        max-width: 150px;
+    }
+    
+    #planetSelectorWrapper {
+        max-width: 300px;
+    }
+    
+    .main_list_left ul,
+    .main_list_right ul {
+        gap: 2px;
+    }
+    
+    .main_list_left li a,
+    .main_list_right li a {
+        min-width: 36px;
+        height: 36px;
+        padding: var(--spacing-xs);
+    }
+}
+
+/* ============================================
+   RESPONSIVE: MOBILE (max-width: 767px)
+   ============================================ */
+@media (max-width: 767px) {
+    :root {
+        --header-height: auto;
+        --topnav-height: 50px;
+    }
+    
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    /* Hide sidebar by default, show on toggle */
+    #leftmenu {
+        transform: translateX(-100%);
+    }
+    
+    #leftmenu.active {
+        transform: translateX(0);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    #content {
+        margin-left: 0;
+        width: 100%;
+        padding: var(--spacing-sm);
+    }
+    
+    /* Responsive Header */
+    #headerTable {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs);
+    }
+    
+    .bar-main-container {
+        flex: 1 1 calc(50% - var(--spacing-xs));
+        min-width: 140px;
+        max-width: none;
+    }
+    
+    .heder_res_921 {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+    
+    /* Compact Top Navigation */
+    #main_header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: var(--spacing-sm);
+    }
+    
+    .main_list_left,
+    .main_list_right {
+        flex: 1;
+    }
+    
+    .main_list_left ul {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .main_list_right ul {
+        justify-content: flex-end;
+    }
+    
+    #planetSelectorWrapper {
+        order: 3;
+        flex: 1 1 100%;
+        max-width: none;
+        margin-top: var(--spacing-xs);
+    }
+    
+    /* Hide some secondary nav items on mobile */
+    .main_list_left li:nth-child(n+5),
+    .main_list_right li:nth-child(n+4) {
+        display: none;
+    }
+    
+    /* Responsive Grid */
+    .sci-grid--2,
+    .sci-grid--3,
+    .sci-grid--4,
+    .sci-grid--auto {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    /* Responsive Cards */
+    .sci-card {
+        padding: var(--spacing-md);
+    }
+    
+    /* Responsive Tables */
+    .sci-table {
+        font-size: 0.875rem;
+    }
+    
+    .sci-table th,
+    .sci-table td {
+        padding: var(--spacing-sm);
+    }
+    
+    /* Stack flex containers on mobile */
+    .sci-flex-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    /* Notifications */
+    .game-notification {
+        left: var(--spacing-sm);
+        right: var(--spacing-sm);
+        max-width: none;
+    }
+    
+    /* Planet Card */
+    .planet-card__content {
+        padding: var(--spacing-md);
+        min-height: 250px;
+    }
+    
+    .planet-card__glow {
+        width: 150px;
+        height: 150px;
+    }
+    
+    /* Fleet Mission Cards */
+    .fleet-mission-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    /* Page adjustments */
+    #page {
+        margin-top: calc(var(--header-height) + var(--topnav-height));
+    }
+}
+
+/* ============================================
+   RESPONSIVE: SMALL MOBILE (max-width: 575px)
+   ============================================ */
+@media (max-width: 575px) {
+    .bar-main-container {
+        flex: 1 1 100%;
+    }
+    
+    .main_list_left li:nth-child(n+4),
+    .main_list_right li:nth-child(n+3) {
+        display: none;
+    }
+    
+    .servertime-badge {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    
+    .sci-btn {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+}
+
+/* ============================================
+   LANDSCAPE MOBILE OPTIMIZATION
+   ============================================ */
+@media (max-width: 767px) and (orientation: landscape) {
+    #leftmenu {
+        width: 180px;
+    }
+    
+    .planet-card__content {
+        min-height: 200px;
+    }
+}
+
+/* ============================================
+   TOUCH OPTIMIZATIONS
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .sci-btn,
+    .main_list_left li a,
+    .main_list_right li a {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .sci-btn:hover,
+    .sci-card:hover,
+    .main_list_left li a:hover,
+    .main_list_right li a:hover {
+        transform: none;
+    }
+    
+    /* Add active states instead */
+    .sci-btn:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    
+    .sci-card:active {
+        transform: scale(0.99);
+    }
+    
+    /* Prevent text selection on UI elements */
+    .sci-btn,
+    .main_list_left li a,
+    .main_list_right li a {
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    #leftmenu,
+    #main_header,
+    #header,
+    .mobile-menu-toggle,
+    .sci-btn {
+        display: none !important;
+    }
+    
+    #content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .sci-card {
+        break-inside: avoid;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes pulse-glow {
+    0%, 100% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes scanline {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 200%;
+    }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .planet-card__background {
+        transition: none;
+    }
+}

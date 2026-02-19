@@ -1,0 +1,19 @@
+{% extends "layout.full.twig" %}
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+<div class="aerospace-container">
+    <div class="glass-panel center-panel">
+        <div class="panel-header">{{ LNG.al_name }} {{ LNG.al_change_title }}</div>
+        <form action="game.php?page=alliance&amp;mode=admin&amp;action=changeName" method="post">
+            <div class="form-group">
+                <label>{{ LNG.al_new_name }}</label>
+                <input type="text" name="newname" class="glass-input full-width">
+            </div>
+            <div class="action-bar-bottom">
+                <a href="game.php?page=alliance&amp;mode=admin" class="btn-ghost">{{ LNG.al_back }}</a>
+                <input type="submit" value="{{ LNG.al_change_submit }}" class="btn-action-glow">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

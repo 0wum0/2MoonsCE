@@ -1,0 +1,44 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="glass-panel popup-panel">
+    <div class="panel-header">
+        <i class="fas fa-user-clock"></i> {{ LNG.al_request_from }} {{ applyDetail.username }}
+    </div>
+
+    <div class="apply-grid">
+        <div class="apply-info">
+            <div class="info-row">
+                <span class="label">{{ LNG.pl_homeplanet }}:</span>
+                <span class="value">{{ applyDetail.name }} [{{ applyDetail.coordinates }}]</span>
+            </div>
+            <div class="info-row">
+                <span class="label">{{ LNG.al_request_date }}:</span>
+                <span class="value">{{ apply_time }}</span>
+            </div>
+        </div>
+
+        <div class="apply-message-box">
+             <div class="message-content">{{ text|nl2br }}</div>
+        </div>
+    </div>
+
+    <form action="game.php?page=alliance&amp;mode=admin&amp;action=sendAnswer&amp;id={{ applyID }}" method="post" class="apply-form">
+        <div class="form-group">
+            <label>{{ LNG.al_reply_to_request }}</label>
+            <textarea name="text" id="text" class="glass-textarea full-width" rows="5"></textarea>
+        </div>
+        
+        <div class="apply-actions">
+            <button type="submit" name="answer" value="yes" class="btn-success">
+                <i class="fas fa-check"></i> {{ LNG.al_acept_request }}
+            </button>
+            <button type="submit" name="answer" value="no" class="btn-danger">
+                <i class="fas fa-times"></i> {{ LNG.al_decline_request }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

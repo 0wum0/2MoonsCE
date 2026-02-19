@@ -1,0 +1,245 @@
+/**
+ * SmartMoons Header Fix
+ * Entfernt störende Streifen und stellt Burger-Menü-Sichtbarkeit sicher
+ * Version: 1.0
+ * Date: 2025-10-05
+ */
+
+/* ============================================
+   ENTFERNUNG STÖRENDER HEADER-STREIFEN
+   ============================================ */
+
+/* Entferne alle störenden Pseudo-Elemente und überflüssige Hintergründe */
+.header::before,
+.header::after,
+.topbar::before,
+.topbar::after,
+.main-header::before,
+.main-header::after,
+.header-bg,
+.navbar-bg,
+.nav-bg,
+#header::before,
+#header::after,
+header::before,
+header::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+/* Stelle sicher, dass der Header direkt am oberen Rand beginnt */
+header, 
+.main-header,
+.topbar,
+#header {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  top: 0 !important;
+}
+
+/* Entferne störende Body-Pseudo-Elemente */
+body::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Main Content sollte keinen störenden Block haben */
+.main-content::before,
+.main-content::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Resource Bar sollte direkt am Header anschließen */
+.resource-bar {
+  margin-top: 0 !important;
+  border-top: none !important;
+}
+
+/* ============================================
+   BURGER-MENÜ SICHTBARKEIT FIX
+   ============================================ */
+
+/* Basis-Styles für Burger-Menü */
+.burger-menu,
+#burgerMenu {
+  overflow: visible !important;
+  z-index: 10002 !important;
+}
+
+/* Stelle sicher, dass die Burger-Linien IMMER sichtbar sind */
+.burger-menu span,
+#burgerMenu span,
+.burger span {
+  display: block !important;
+  width: 24px !important;
+  height: 3px !important;
+  background-color: #00bfff !important;
+  margin: 5px auto !important;
+  border-radius: 3px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 1 !important;
+  box-shadow: 0 0 5px rgba(0, 191, 255, 0.6) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Alternative: Falls Pseudo-Elemente für Burger verwendet werden */
+.burger::before,
+.burger::after,
+.burger-menu::before,
+.burger-menu::after {
+  content: '' !important;
+  display: block !important;
+  width: 24px !important;
+  height: 3px !important;
+  background-color: #00bfff !important;
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border-radius: 3px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: 0 0 5px rgba(0, 191, 255, 0.6) !important;
+}
+
+.burger::before,
+.burger-menu::before {
+  top: -8px !important;
+}
+
+.burger::after,
+.burger-menu::after {
+  bottom: -8px !important;
+}
+
+/* Falls ein SVG-Icon verwendet wird */
+.burger-menu svg,
+#burgerMenu svg,
+.burger svg {
+  fill: #00bfff !important;
+  stroke: #00bfff !important;
+  color: #00bfff !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Falls ein Font-Awesome Icon verwendet wird */
+.burger-menu i,
+#burgerMenu i,
+.burger i,
+.burger-menu .fa-bars,
+#burgerMenu .fa-bars {
+  color: #00bfff !important;
+  font-size: 24px !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: 0 0 5px rgba(0, 191, 255, 0.6) !important;
+}
+
+/* Hover-Effekt für bessere Sichtbarkeit */
+.burger-menu:hover span,
+#burgerMenu:hover span,
+.burger:hover span {
+  background-color: #33ccff !important;
+  box-shadow: 0 0 10px rgba(51, 204, 255, 0.8) !important;
+}
+
+/* Active State Animation */
+.burger-menu.active span:nth-child(1),
+#burgerMenu.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px) !important;
+  background-color: #ff4444 !important;
+}
+
+.burger-menu.active span:nth-child(2),
+#burgerMenu.active span:nth-child(2) {
+  opacity: 0 !important;
+}
+
+.burger-menu.active span:nth-child(3),
+#burgerMenu.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px) !important;
+  background-color: #ff4444 !important;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+  /* Stelle sicher, dass Burger-Menü auf Mobile sichtbar ist */
+  .burger-menu,
+  #burgerMenu {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+  }
+  
+  /* Verstecke Desktop-Navigation */
+  .desktop-nav {
+    display: none !important;
+  }
+}
+
+@media (min-width: 993px) {
+  /* Verstecke Burger-Menü auf Desktop */
+  .burger-menu,
+  #burgerMenu {
+    display: none !important;
+  }
+  
+  /* Zeige Desktop-Navigation */
+  .desktop-nav {
+    display: flex !important;
+  }
+}
+
+/* ============================================
+   Z-INDEX HIERARCHIE FÜR KORREKTE LAYERING
+   ============================================ */
+.main-header,
+header {
+  z-index: 999 !important;
+}
+
+.resource-bar {
+  z-index: 998 !important;
+}
+
+.burger-menu,
+#burgerMenu {
+  z-index: 10002 !important;
+}
+
+.mobile-nav,
+#mobileNav {
+  z-index: 9999 !important;
+}
+
+.nav-overlay,
+#navOverlay {
+  z-index: 9998 !important;
+}
+
+/* ============================================
+   DEBUGGING HELPER (kann später entfernt werden)
+   ============================================ */
+/* Temporär: Macht Burger sichtbar mit rotem Rahmen zum Testen
+.burger-menu,
+#burgerMenu {
+  border: 2px solid red !important;
+}
+*/
+
+/* Ende der Header-Fix Styles */

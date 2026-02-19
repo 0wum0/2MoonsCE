@@ -1,0 +1,474 @@
+/**
+ * SmartMoons - Page-Specific Styles
+ * Futuristic Sci-Fi Design for Individual Pages
+ */
+
+/* ============================================
+   OVERVIEW PAGE
+   ============================================ */
+#contentPlanet {
+	position: relative;
+	overflow: hidden;
+}
+
+#namePlanet a {
+	transition: all var(--transition-base);
+}
+
+#namePlanet a:hover {
+	text-shadow: 0 0 30px rgba(0, 243, 255, 1);
+	transform: scale(1.05);
+}
+
+#listDetailPlanet {
+	animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Fleet movements */
+.fleets {
+	font-weight: 600;
+	color: var(--color-accent-green);
+}
+
+/* ============================================
+   BUILDINGS PAGE
+   ============================================ */
+.build_form {
+	display: inline-block;
+	margin: 0;
+}
+
+.build_submit {
+	max-width: 100%;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+.construct_button,
+.construct_button_lost {
+	width: 100%;
+	text-align: center;
+	padding: var(--spacing-md);
+	border-radius: var(--radius-md);
+	font-weight: 600;
+}
+
+.construct_button {
+	background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-blue));
+	border: 1px solid var(--color-accent-cyan);
+	color: var(--color-bg-primary);
+	cursor: pointer;
+	transition: all var(--transition-base);
+}
+
+.construct_button:hover {
+	box-shadow: var(--glow-cyan);
+	transform: translateY(-2px);
+}
+
+.construct_button_lost {
+	background: rgba(239, 68, 68, 0.2);
+	border: 1px solid var(--color-accent-red);
+	color: var(--color-accent-red);
+}
+
+/* ============================================
+   RESEARCH PAGE
+   ============================================ */
+.main_construct {
+	margin-bottom: var(--spacing-md);
+}
+
+.block_construct {
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+	transition: all var(--transition-base);
+}
+
+.block_construct:hover {
+	border-color: var(--color-accent-cyan);
+	box-shadow: var(--glow-cyan);
+	transform: translateY(-2px);
+}
+
+.block_construct_desc {
+	padding: var(--spacing-md);
+	display: flex;
+	justify-content: space-between;
+	gap: var(--spacing-lg);
+	flex-wrap: wrap;
+}
+
+.block_construct_desc_list {
+	flex: 1;
+	min-width: 200px;
+}
+
+/* ============================================
+   GALAXY PAGE
+   ============================================ */
+.galaxy-row {
+	transition: all var(--transition-fast);
+}
+
+.galaxy-row:hover {
+	background: rgba(0, 243, 255, 0.1);
+	box-shadow: inset 2px 0 0 var(--color-accent-cyan);
+}
+
+.galaxy-planet {
+	position: relative;
+	padding: var(--spacing-sm);
+	border-radius: var(--radius-md);
+	background: var(--color-bg-elevated);
+	border: 1px solid var(--color-border-primary);
+	transition: all var(--transition-fast);
+}
+
+.galaxy-planet:hover {
+	border-color: var(--color-accent-cyan);
+	box-shadow: var(--glow-cyan);
+	transform: scale(1.05);
+}
+
+/* ============================================
+   FLEET PAGE
+   ============================================ */
+.fleet-container {
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border-accent);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-lg);
+	margin-bottom: var(--spacing-md);
+	box-shadow: var(--glow-cyan);
+}
+
+.fleet-mission-selector {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: var(--spacing-sm);
+	margin: var(--spacing-md) 0;
+}
+
+.fleet-mission-btn {
+	padding: var(--spacing-md);
+	background: var(--color-bg-elevated);
+	border: 2px solid var(--color-border-primary);
+	border-radius: var(--radius-md);
+	color: var(--color-text-primary);
+	cursor: pointer;
+	transition: all var(--transition-base);
+	text-align: center;
+	font-weight: 600;
+}
+
+.fleet-mission-btn:hover,
+.fleet-mission-btn.active {
+	border-color: var(--color-accent-cyan);
+	background: rgba(0, 243, 255, 0.1);
+	box-shadow: var(--glow-cyan);
+	transform: translateY(-2px);
+}
+
+.fleet-mission-btn i {
+	display: block;
+	font-size: 1.5rem;
+	margin-bottom: var(--spacing-sm);
+	color: var(--color-accent-cyan);
+}
+
+/* ============================================
+   ALLIANCE PAGE
+   ============================================ */
+.alliance-header {
+	background: linear-gradient(135deg, var(--color-bg-secondary), var(--color-bg-tertiary));
+	border: 2px solid var(--color-border-accent);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-xl);
+	margin-bottom: var(--spacing-lg);
+	text-align: center;
+	box-shadow: var(--glow-cyan);
+}
+
+.alliance-tag {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--color-accent-cyan);
+	text-shadow: var(--glow-cyan);
+	margin-bottom: var(--spacing-md);
+}
+
+.alliance-name {
+	font-size: 1.5rem;
+	color: var(--color-text-primary);
+	margin-bottom: var(--spacing-sm);
+}
+
+.alliance-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: var(--spacing-md);
+	margin-top: var(--spacing-lg);
+}
+
+.alliance-stat-item {
+	padding: var(--spacing-md);
+	background: rgba(0, 243, 255, 0.05);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-md);
+	text-align: center;
+}
+
+.alliance-stat-value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var(--color-accent-cyan);
+	display: block;
+	margin-bottom: var(--spacing-xs);
+}
+
+.alliance-stat-label {
+	font-size: 0.875rem;
+	color: var(--color-text-secondary);
+}
+
+/* ============================================
+   STATISTICS PAGE
+   ============================================ */
+.stats-leaderboard {
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+}
+
+.stats-rank-1 {
+	background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.1));
+	border-left: 4px solid var(--color-accent-yellow);
+}
+
+.stats-rank-2 {
+	background: linear-gradient(135deg, rgba(156, 163, 175, 0.2), rgba(107, 114, 128, 0.1));
+	border-left: 4px solid #9ca3af;
+}
+
+.stats-rank-3 {
+	background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(180, 83, 9, 0.1));
+	border-left: 4px solid #d97706;
+}
+
+/* ============================================
+   TRADER PAGE
+   ============================================ */
+.trader_col {
+	margin: 0 var(--spacing-sm);
+	float: left;
+	min-width: 120px;
+}
+
+.trader_col label {
+	cursor: pointer;
+	transition: color var(--transition-fast);
+}
+
+.trader_col label:hover {
+	color: var(--color-accent-cyan);
+}
+
+#traderContainer {
+	margin-top: var(--spacing-md);
+	padding: var(--spacing-lg);
+	background: var(--color-bg-elevated);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-lg);
+}
+
+/* ============================================
+   PLANET ACTIONS
+   ============================================ */
+.planet-action-menu {
+	background: var(--color-bg-elevated);
+	border: 2px solid var(--color-accent-cyan);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-md);
+	box-shadow: var(--glow-cyan), 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.planet-action-btn {
+	display: block;
+	width: 100%;
+	padding: var(--spacing-md);
+	margin-bottom: var(--spacing-sm);
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-md);
+	color: var(--color-text-primary);
+	text-decoration: none;
+	text-align: left;
+	transition: all var(--transition-fast);
+}
+
+.planet-action-btn:hover {
+	border-color: var(--color-accent-cyan);
+	background: rgba(0, 243, 255, 0.1);
+	box-shadow: var(--glow-cyan);
+	transform: translateX(5px);
+}
+
+.planet-action-btn i {
+	margin-right: var(--spacing-sm);
+	color: var(--color-accent-cyan);
+	width: 20px;
+	text-align: center;
+}
+
+/* ============================================
+   BATTLE SIMULATOR
+   ============================================ */
+.battle-sim-team {
+	background: var(--color-bg-elevated);
+	border: 2px solid var(--color-border-primary);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-lg);
+	margin-bottom: var(--spacing-md);
+}
+
+.battle-sim-team.attackers {
+	border-color: var(--color-accent-red);
+	box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.battle-sim-team.defenders {
+	border-color: var(--color-accent-green);
+	box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.battle-sim-result {
+	background: linear-gradient(135deg, var(--color-bg-secondary), var(--color-bg-tertiary));
+	border: 2px solid var(--color-accent-cyan);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-xl);
+	text-align: center;
+	box-shadow: var(--glow-cyan);
+	margin-top: var(--spacing-lg);
+}
+
+.battle-sim-winner {
+	font-size: 2rem;
+	font-weight: 700;
+	color: var(--color-accent-cyan);
+	text-shadow: var(--glow-cyan);
+	margin-bottom: var(--spacing-md);
+}
+
+/* ============================================
+   NOTES / NOTEPAD
+   ============================================ */
+.notes-editor {
+	background: var(--color-bg-elevated);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-md);
+}
+
+.notes-editor textarea {
+	width: 100%;
+	min-height: 300px;
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--radius-md);
+	color: var(--color-text-primary);
+	padding: var(--spacing-md);
+	font-family: 'Courier New', monospace;
+	resize: vertical;
+}
+
+.notes-editor textarea:focus {
+	border-color: var(--color-accent-cyan);
+	box-shadow: var(--glow-cyan);
+}
+
+/* ============================================
+   RESPONSIVE TABLES
+   ============================================ */
+@media screen and (max-width: 768px) {
+	.sci-table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+	
+	.sci-table thead {
+		display: none;
+	}
+	
+	.sci-table tbody,
+	.sci-table tr,
+	.sci-table td {
+		display: block;
+		width: 100%;
+	}
+	
+	.sci-table tr {
+		margin-bottom: var(--spacing-md);
+		background: var(--color-bg-elevated);
+		border: 1px solid var(--color-border-primary);
+		border-radius: var(--radius-md);
+		padding: var(--spacing-md);
+	}
+	
+	.sci-table td {
+		border: none;
+		position: relative;
+		padding-left: 50%;
+		text-align: right;
+	}
+	
+	.sci-table td::before {
+		content: attr(data-label);
+		position: absolute;
+		left: var(--spacing-md);
+		top: var(--spacing-md);
+		font-weight: 600;
+		color: var(--color-accent-cyan);
+		text-align: left;
+	}
+}
+
+/* ============================================
+   ANIMATIONS FOR PAGE LOAD
+   ============================================ */
+@keyframes slideInFromTop {
+	from {
+		opacity: 0;
+		transform: translateY(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideInFromLeft {
+	from {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.sci-card {
+	animation: fadeIn 0.4s ease-in-out;
+}
+
+.sci-card:nth-child(1) { animation-delay: 0.05s; }
+.sci-card:nth-child(2) { animation-delay: 0.1s; }
+.sci-card:nth-child(3) { animation-delay: 0.15s; }
+.sci-card:nth-child(4) { animation-delay: 0.2s; }
+.sci-card:nth-child(5) { animation-delay: 0.25s; }
+.sci-card:nth-child(6) { animation-delay: 0.3s; }

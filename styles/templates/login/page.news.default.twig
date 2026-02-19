@@ -1,0 +1,25 @@
+{% extends "layout.light.twig" %}
+
+{% block title %}{{ LNG.siteTitleNews }}{% endblock %}
+{% block content %}
+    <div class="container" style="margin-top: 80px;">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">{{ LNG.siteTitleNews }}</div>
+                    {% for newsRow in newsList %}
+                        <div class="panel-body">
+                            <h1 class="page-header">{{ newsRow.title }}</h1>
+                            <div class="info">{{ newsRow.from }}</div>
+                            <p>{{ newsRow.text|raw }}</p>
+                        </div>
+                        {% else %}
+                        <div class="panel-body">
+                            <h3 class="page-header">{{ LNG.news_does_not_exist }}</h3>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

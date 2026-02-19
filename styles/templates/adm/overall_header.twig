@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('de') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default('SmartMoons Admin') }}</title>
+    <meta name="generator" content="SmartMoons {{ VERSION|default('3.1.0') }}">
+    {% if goto is defined and goto %}
+    <meta http-equiv="refresh" content="{{ gotoinsec|default(3) }};URL={{ goto }}">
+    {% endif %}
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./styles/resource/css/admin/main.css?v=1">
+    <style>
+        /* Inline critical styles to prevent FOUC */
+        body { background: #0a0e17; color: #e2e8f0; margin: 0; }
+    </style>
+    {% if scripts is defined %}
+    {% for scriptname in scripts %}
+    <script src="./scripts/game/{{ scriptname }}.js?v={{ REV|default('3100') }}"></script>
+    {% endfor %}
+    {% endif %}
+    {% if execscript is defined and execscript %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {{ execscript|raw }}
+    });
+    </script>
+    {% endif %}
+</head>
+<body class="admin-dashboard" id="{{ GET.page|default('overview')|e }}">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">&#9733;</div>
+            <div class="sidebar-brand-text"><span>Smart</span>Moons</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Dashboard</div>
+            <a href="admin.php?page=overview" class="sidebar-link{% if GET.page is not defined or GET.page == 'overview' or GET.page == '' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#9632;</span> Dashboard
+            </a>
+            {% if allowedTo('ShowInformationPage') %}
+            <a href="admin.php?page=infos" class="sidebar-link{% if GET.page is defined and GET.page == 'infos' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#8505;</span> Informationen
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label">Spieler</div>
+            {% if allowedTo('ShowSearchPage') %}
+            <a href="admin.php?page=search&amp;search=online&amp;minimize=on" class="sidebar-link{% if GET.page is defined and GET.page == 'search' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128269;</span> Suche / Online
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowAccountEditorPage') %}
+            <a href="admin.php?page=accounteditor" class="sidebar-link{% if GET.page is defined and GET.page == 'accounteditor' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#9998;</span> Account Editor
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowAccountDataPage') %}
+            <a href="admin.php?page=accountdata" class="sidebar-link{% if GET.page is defined and GET.page == 'accountdata' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128100;</span> Account-Info
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowCreatorPage') %}
+            <a href="admin.php?page=create" class="sidebar-link{% if GET.page is defined and GET.page == 'create' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#10010;</span> Erstellen
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowBanPage') %}
+            <a href="admin.php?page=bans" class="sidebar-link{% if GET.page is defined and GET.page == 'bans' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128683;</span> Ban-Panel
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowActivePage') %}
+            <a href="admin.php?page=active" class="sidebar-link{% if GET.page is defined and GET.page == 'active' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#10004;</span> Aktive User
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label">Monitoring</div>
+            {% if allowedTo('ShowFlyingFleetPage') %}
+            <a href="admin.php?page=fleets" class="sidebar-link{% if GET.page is defined and GET.page == 'fleets' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128640;</span> Fliegende Flotten
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowMessageListPage') %}
+            <a href="admin.php?page=messagelist" class="sidebar-link{% if GET.page is defined and GET.page == 'messagelist' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#9993;</span> Nachrichten
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowMultiIPPage') %}
+            <a href="admin.php?page=multiips" class="sidebar-link{% if GET.page is defined and GET.page == 'multiips' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128279;</span> MultiIP
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowNewsPage') %}
+            <a href="admin.php?page=news" class="sidebar-link{% if GET.page is defined and GET.page == 'news' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128240;</span> News
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowSupportPage') %}
+            <a href="admin.php?page=support" class="sidebar-link{% if GET.page is defined and GET.page == 'support' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#127919;</span> Support-Tickets
+                {% if supportTicketCount is defined and supportTicketCount > 0 %}
+                <span class="sidebar-link-badge">{{ supportTicketCount }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label">Administration</div>
+            {% if authlevel is defined and authlevel == constant('AUTH_ADM') %}
+            <a href="admin.php?page=universe" class="sidebar-link{% if GET.page is defined and GET.page == 'universe' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#127760;</span> Universen
+            </a>
+            <a href="admin.php?page=rights&amp;mode=rights" class="sidebar-link{% if GET.page is defined and GET.page == 'rights' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128274;</span> Rechte
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label">Konfiguration</div>
+            {% if allowedTo('ShowConfigBasicPage') %}
+            <a href="admin.php?page=config" class="sidebar-link{% if GET.page is defined and GET.page == 'config' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#9881;</span> Server Config
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowConfigUniPage') %}
+            <a href="admin.php?page=configuni" class="sidebar-link{% if GET.page is defined and GET.page == 'configuni' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#127760;</span> Uni Config
+            </a>
+            {% endif %}
+            
+            {% if allowedTo('ShowEditBotsPage') %}
+            <a href="admin.php?page=EditBots" class="sidebar-link{% if GET.page is defined and GET.page == 'EditBots' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#129302;</span> Edit Bots
+            </a>
+            {% endif %}
+            
+            {% if allowedTo('ShowConfigModsPage') %}
+            <a href="admin.php?page=configmods" class="sidebar-link{% if GET.page is defined and GET.page == 'configmods' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128295;</span> Mod Config
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowModulePage') %}
+            <a href="admin.php?page=module" class="sidebar-link{% if GET.page is defined and GET.page == 'module' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128230;</span> Module
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowStatsPage') %}
+            <a href="admin.php?page=statsconf" class="sidebar-link{% if GET.page is defined and GET.page == 'statsconf' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128200;</span> Statistik Config
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowDisclamerPage') %}
+            <a href="admin.php?page=disclamer" class="sidebar-link{% if GET.page is defined and GET.page == 'disclamer' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128220;</span> Impressum
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label">Tools</div>
+            {% if allowedTo('ShowLogPage') %}
+            <a href="admin.php?page=log" class="sidebar-link{% if GET.page is defined and GET.page == 'log' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128203;</span> Admin-Log
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowSendMessagesPage') %}
+            <a href="admin.php?page=globalmessage" class="sidebar-link{% if GET.page is defined and GET.page == 'globalmessage' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128227;</span> Globale Nachricht
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowCronjobPage') %}
+            <a href="admin.php?page=cronjob" class="sidebar-link{% if GET.page is defined and GET.page == 'cronjob' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#9200;</span> Cronjobs
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowDumpPage') %}
+            <a href="admin.php?page=dump" class="sidebar-link{% if GET.page is defined and GET.page == 'dump' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128190;</span> DB Backup
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowPassEncripterPage') %}
+            <a href="admin.php?page=password" class="sidebar-link{% if GET.page is defined and GET.page == 'password' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128273;</span> PW Generator
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowStatUpdatePage') %}
+            <a href="admin.php?page=statsupdate" class="sidebar-link{% if GET.page is defined and GET.page == 'statsupdate' %} active{% endif %}" onclick="return confirm('{{ LNG.mu_mpu_confirmation|default('Stats manuell aktualisieren?') }}');">
+                <span class="sidebar-link-icon">&#128200;</span> Stats Update
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowClearCachePage') %}
+            <a href="admin.php?page=clearcache" class="sidebar-link{% if GET.page is defined and GET.page == 'clearcache' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128465;</span> Cache leeren
+            </a>
+            {% endif %}
+            {% if allowedTo('ShowGiveawayPage') %}
+            <a href="admin.php?page=giveaway" class="sidebar-link{% if GET.page is defined and GET.page == 'giveaway' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#127873;</span> Giveaway
+            </a>
+            {% endif %}
+            {% if authlevel is defined and authlevel == constant('AUTH_ADM') and currentUser is defined and currentUser.id == 1 %}
+            <a href="admin.php?page=reset" class="sidebar-link{% if GET.page is defined and GET.page == 'reset' %} active{% endif %}" style="color:var(--adm-neon-red);">
+                <span class="sidebar-link-icon">&#9888;</span> Reset Universe
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label" style="margin-top:16px;"></div>
+            <a href="admin.php?page=logout" class="sidebar-link" style="color:var(--adm-neon-red);">
+                <span class="sidebar-link-icon">&#10060;</span> Zum Spiel / Logout
+            </a>
+        </nav>
+    </aside>
+
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+        <header class="admin-topbar">
+            <button class="topbar-hamburger" id="hamburgerBtn" aria-label="Menu">&#9776;</button>
+            <div class="topbar-search">
+                <span class="topbar-search-icon">&#128269;</span>
+                <input type="text" id="globalSearch" placeholder="Spieler / Planet / Allianz suchen..." autocomplete="off">
+            </div>
+            <div class="topbar-actions">
+                {% if authlevel is defined and authlevel == constant('AUTH_ADM') and AvailableUnis is defined %}
+                <select id="universe" class="topbar-btn" onchange="window.location.href='admin.php?page={{ GET.page|default('overview') }}&uni='+this.value">
+                    {% for key, value in AvailableUnis %}
+                    <option value="{{ key }}"{% if key == UNI|default(1) %} selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+                <a href="game.php" class="topbar-btn">Zum Spiel</a>
+                {% if currentUser is defined %}
+                <div class="topbar-user">
+                    <div class="topbar-user-avatar">{{ currentUser.username|default('A')|first|upper }}</div>
+                    <span class="topbar-user-name">{{ currentUser.username|default('Admin') }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <div class="legacy-content">

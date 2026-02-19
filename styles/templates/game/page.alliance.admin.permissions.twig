@@ -1,0 +1,112 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-user-lock"></i> {{ LNG.al_configura_ranks }}</h2>
+        <button id="create_new_alliance_rank" class="btn-action-glow small"><i class="fas fa-plus"></i> {{ LNG.al_create_new_rank }}</button>
+    </div>
+
+    <div class="glass-panel table-panel">
+        <form action="game.php?page=alliance&amp;mode=admin&amp;action=permissionsSend" method="post">
+        <input type="hidden" value="1" name="send">
+        
+        <div class="table-responsive custom-scrollbar">
+            <table class="glass-table permission-table">
+                <thead>
+                    <tr>
+                        <th class="sticky-col action-col">{{ LNG.al_dlte }}</th>
+                        <th class="sticky-col name-col">{{ LNG.al_rank_name }}</th>
+                        {% for rankName in availableRanks %}
+                        <th class="rotate-header">
+                            <div><span><img src="styles/resource/images/alliance/{{ rankName }}.png" alt="" width="16" height="16"></span></div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rowId, rankRow in rankList %}
+                    <tr>
+                        <td class="sticky-col action-col">
+                            <a href="game.php?page=alliance&amp;mode=admin&amp;action=permissionsSend&amp;deleteRank={{ rowId }}" class="btn-icon-danger">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </td>
+                        <td class="sticky-col name-col">
+                            <input type="text" name="rank[{{ rowId }}][rankName]" value="{{ rankRow.rankName }}" class="glass-input compact">
+                        </td>
+                        {% for rankId, rankName in availableRanks %}
+                        <td class="check-col">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="rank[{{ rowId }}][{{ rankId }}]" value="1" {% if rankRow[rankId] %}checked{% endif %}>
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="action-bar-bottom">
+            <a href="game.php?page=alliance&amp;mode=admin" class="btn-ghost">{{ LNG.al_back }}</a>
+            <button type="submit" class="btn-action-glow">{{ LNG.al_save }}</button>
+        </div>
+        </form>
+    </div>
+
+    <div class="glass-panel info-panel mt-3">
+        <div class="panel-header small">{{ LNG.gl_legend }}</div>
+        <div class="legend-grid">
+            {% for rankName in availableRanks %}
+            <div class="legend-item">
+                <img src="styles/resource/images/alliance/{{ rankName }}.png" alt="">
+                <span>{{ LNG.al_rank_desc[rankName] }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<div id="new_alliance_rank" title="{{ LNG.al_create_new_rank }}" style="display:none;">
+    <form action="game.php?page=alliance&amp;mode=admin&amp;action=permissionsSend" method="post">
+        <div class="form-group">
+            <label>{{ LNG.al_rank_name }}</label>
+            <input type="text" name="newrank[rankName]" class="glass-input full-width" maxlength="32" required>
+        </div>
+        <div class="rank-grid-modal">
+            {% for rankId, rankName in availableRanks %}
+            <label class="rank-option">
+                <input type="checkbox" name="newrank[{{ rankId }}]" value="1">
+                <span class="rank-label">
+                    <img src="styles/resource/images/alliance/{{ rankName }}.png" width="16" height="16"> {{ LNG.al_rank_desc[rankName] }}
+                </span>
+            </label>
+            {% endfor %}
+        </div>
+        <div class="modal-actions">
+            <button type="submit" class="btn-action-glow">{{ LNG.al_create }}</button>
+        </div>
+    </form>
+</div>
+<script>
+$(function() {
+    $('#create_new_alliance_rank').click(function() {
+        $('#new_alliance_rank').dialog({
+            draggable: false,
+            resizable: false,
+            modal: true,
+            width: 400,
+            classes: {
+                "ui-dialog": "aerospace-dialog"
+            }
+        });
+        return false;
+    });
+});
+</script>
+{% endblock %}

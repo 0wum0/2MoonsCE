@@ -1,0 +1,27 @@
+{% include "ins_header.twig" %}
+
+<div class="step-description">
+	<p>{{ LNG.intro_text|raw }}</p>
+</div>
+
+<div class="d-grid gap-3">
+	<a href="index.php?mode=install&amp;step=2" class="btn btn-primary btn-lg">
+		🚀 {{ LNG.intro_install }}
+	</a>
+</div>
+
+{% if canUpgrade %}
+<div class="mt-4">
+	<h3 class="text-center mb-3">{{ LNG.menu_upgrade }}</h3>
+	<div class="step-description">
+		<p>{{ LNG.intro_upgrade_text|raw }}</p>
+	</div>
+	<div class="d-grid gap-3">
+		<a href="index.php?mode=upgrade" class="btn btn-secondary btn-lg">
+			⬆️ {{ LNG.continueUpgrade }}
+		</a>
+	</div>
+</div>
+{% endif %}
+
+{% include "ins_footer.twig" %}

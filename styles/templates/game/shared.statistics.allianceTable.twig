@@ -1,0 +1,23 @@
+{% for RangeInfo in RangeList %}
+<tr class="{% if RangeInfo.id == CUser_ally %}my-rank{% endif %}">
+    <td>
+        {{ RangeInfo.rank }}
+        {% if RangeInfo.ranking < 0 %}
+            <span style="color:#e74c3c; font-size:0.8em">▼{{ RangeInfo.ranking|abs }}</span>
+        {% elseif RangeInfo.ranking > 0 %}
+            <span style="color:#2ecc71; font-size:0.8em">▲{{ RangeInfo.ranking }}</span>
+        {% endif %}
+    </td>
+    <td>
+        <a href="game.php?page=alliance&amp;mode=info&amp;id={{ RangeInfo.id }}" target="ally">
+            {{ RangeInfo.name }}
+        </a>
+        {% if RangeInfo.allytag %}
+            <span style="color:#888; font-size:0.9em; margin-left:5px;">[{{ RangeInfo.allytag }}]</span>
+        {% endif %}
+    </td>
+    <td style="text-align: center;">{{ RangeInfo.members }}</td>
+    <td>{{ RangeInfo.points }}</td>
+    <td style="text-align: center;">{{ RangeInfo.mppoints }}</td>
+</tr>
+{% endfor %}

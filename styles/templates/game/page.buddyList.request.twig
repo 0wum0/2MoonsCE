@@ -1,0 +1,37 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_buddylist }}{% endblock %}
+{% block content %}
+
+<div class="glass-panel popup-panel">
+    <div class="panel-header">
+        <i class="fas fa-user-plus"></i> {{ LNG.bu_request_message }}
+    </div>
+
+    <form name="buddy" id="buddy" action="game.php?page=buddyList&amp;mode=send&amp;ajax=1" method="post">
+        <input type="hidden" name="id" value="{{ id }}">
+        
+        <div class="form-group">
+            <label class="form-label">{{ LNG.bu_player }}</label>
+            <div class="readonly-field">
+                <i class="fas fa-user"></i> {{ username }} <span class="text-muted">[{{ galaxy }}:{{ system }}:{{ planet }}]</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                {{ LNG.bu_request_text }}
+                <span class="char-count">(<span id="cntChars">0</span> / 5000)</span>
+            </label>
+            <textarea name="text" id="text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" onclick="window.close();" class="btn-ghost">{{ LNG.bu_cancel }}</button>
+            <button type="submit" class="btn-action-glow">
+                <i class="fas fa-paper-plane"></i> {{ LNG.bu_send }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

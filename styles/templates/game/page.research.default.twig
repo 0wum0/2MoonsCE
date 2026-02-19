@@ -1,0 +1,74 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_research }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-flask"></i> {{ LNG.lm_research }}</h2>
+        </div>
+
+        <div class="build-grid">
+            {% for ID, Element in ResearchList %}
+            <div class="build-card {% if not Element.buyable %}locked{% endif %}">
+                
+                <div class="card-visual">
+                    <img src="{{ dpath }}gebaeude/{{ ID }}.gif" class="tech-img" alt="{{ LNG.tech[ID] }}" onclick="return Dialog.info({{ ID }})">
+                    <div class="level-badge">{{ Element.level }}</div>
+                </div>
+
+                <div class="card-info">
+                    <div class="card-header">
+                        <div class="tech-name" onclick="return Dialog.info({{ ID }})">{{ LNG.tech[ID] }}</div>
+                        {% if Element.maxLevel != 255 %}
+                        <div class="max-lvl">Max: {{ Element.maxLevel }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="resource-cost">
+                        {% for RessID, RessAmount in Element.costResources %}
+                        <div class="res-item {% if Element.costOverflow[RessID] == 0 %}ok{% else %}missing{% endif %}">
+                            <img src="{{ dpath }}images/{{ RessID }}.gif" alt="">
+                            <span>{{ RessAmount|number_format }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="build-time">
+                        <i class="far fa-clock"></i> {{ Element.elementTime|time }}
+                    </div>
+
+                    <div class="card-action">
+                        {% if Element.maxLevel == Element.levelToBuild %}
+                            <span class="status-done">{{ LNG.bd_maxlevel }}</span>
+                        {% elseif IsLabinBuild or IsResearchInProgress %}
+                             {% if IsLabinBuild %}
+                                <span class="status-warn">{{ LNG.bd_building_lab }}</span>
+                             {% else %}
+                                <span class="status-warn">{{ LNG.bd_working }}</span>
+                             {% endif %}
+                        {% elseif Element.buyable %}
+                            <form action="game.php?page=research" method="post" class="build-form">
+                                <input type="hidden" name="cmd" value="insert">
+                                <input type="hidden" name="tech" value="{{ ID }}">
+                                <button type="submit" class="btn-build">
+                                    {% if Element.level == 0 %}
+                                        {{ LNG.bd_research }}
+                                    {% else %}
+                                        {{ LNG.bd_research_next_level }} {{ Element.levelToBuild + 1 }}
+                                    {% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="status-locked">{{ LNG.bd_tech_blocked }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

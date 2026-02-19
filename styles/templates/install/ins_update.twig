@@ -1,0 +1,22 @@
+{% include "ins_header.twig" %}
+<tr>
+	<td colspan="2">
+		<div id="main">
+			<h2 class="left">{{ LNG.upgrade_intro_welcome }}</h2>
+			{% if updates %}
+				<form action="?mode=doupgrade" method="POST">
+					<p class="left">{{ LNG.upgrade_available|format(sql_revision, file_revision)|raw }}</p>
+
+					{% for file, content in updates %}
+						<div><p class="left">{{ file }}</p><div style="border: 1px solid #1C1F23; padding: 5px 10px; margin: 5px 10px;" class="left">{{ content|raw }}</div></div>
+					{% endfor %}
+					<p><input type="submit" value="{{ LNG.continue }}"></p>
+				</form>
+			{% else %}
+				<p class="left">{{ LNG.upgrade_notavailable|format(sql_revision)|raw }}</p>
+				<p><a href="index.php"><button style="cursor: pointer;">{{ LNG.upgrade_back }}</button></a></p>
+			{% endif %}
+		</div>
+	</td>
+</tr>
+{% include "ins_footer.twig" %}

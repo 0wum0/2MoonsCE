@@ -1,0 +1,36 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_options }}{% endblock %}
+{% block content %}
+<form action="game.php?page=settings&amp;mode=send" method="post">
+
+<div class="content_page">
+    <div class="aerospace-wrapper" style="display: flex; justify-content: center;">
+        
+        <div class="glass-panel vacation-card">
+            <div class="vac-header">
+                <i class="fas fa-umbrella-beach"></i>
+                <h2>{{ LNG.op_vacation_mode_active_message }}</h2>
+            </div>
+            
+            <div class="vac-date">{{ vacationUntil }}</div>
+            
+            <div class="vac-actions">
+                <div class="vac-row">
+                    <label>{{ LNG.op_end_vacation_mode }}</label>
+                    <input name="vacation" type="checkbox" value="1" {% if canVacationDisbaled %}disabled{% endif %}>
+                </div>
+                
+                <div class="vac-row danger">
+                    <label>{{ LNG.op_dlte_account }}</label>
+                    <input name="delete" type="checkbox" value="1" {% if delete > 0 %}checked="checked"{% endif %}>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save-vac">{{ LNG.op_save_changes }}</button>
+        </div>
+
+    </div>
+</div>
+</form>
+{% endblock %}

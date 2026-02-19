@@ -1,0 +1,62 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="glass-panel popup-panel">
+    <div class="panel-header">
+        <i class="fas fa-mail-bulk"></i> {{ LNG.al_circular_send_ciruclar }}
+    </div>
+
+    <form name="message" id="message">
+        
+        <div class="form-group">
+            <label class="form-label">{{ LNG.al_receiver }}</label>
+            <div class="glass-select-wrapper">
+                <select name="rankID" class="glass-select full-width">
+                    {{ r_list|raw }}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">{{ LNG.mg_subject }}</label>
+            <input type="text" name="subject" id="subject" class="glass-input full-width" maxlength="40" value="{{ LNG.mg_no_subject }}">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                {{ LNG.al_message }} 
+                <span class="char-count">(<span id="cntChars">0</span> / 5000)</span>
+            </label>
+            <textarea name="text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button type="reset" class="btn-ghost">{{ LNG.al_circular_reset }}</button>
+            <button type="button" onClick="return check();" class="btn-action-glow">
+                <i class="fas fa-paper-plane"></i> {{ LNG.al_circular_send_submit }}
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script type="text/javascript">
+function check(){
+    if(document.message.text.value == '') {
+        alert('{{ LNG.mg_empty_text }}');
+        return false;
+    } else {
+        $.post('game.php?page=alliance&mode=circular&action=send&ajax=1', $('#message').serialize(), function(data){
+            alert(data.message);
+            if(!data.error) {
+                window.parent.location.reload(); 
+                window.close();
+            }
+        }, 'json');
+        return true;
+    }
+}
+</script>
+{% endblock %}

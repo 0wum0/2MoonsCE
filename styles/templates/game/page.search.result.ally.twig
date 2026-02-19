@@ -1,0 +1,25 @@
+{% extends "layout.ajax.twig" %}
+
+{% block content %}
+<div class="result-list">
+    <div class="result-header-row">
+        <div class="col tag">{{ LNG.sh_tag }}</div>
+        <div class="col name">{{ LNG.sh_name }}</div>
+        <div class="col members">{{ LNG.sh_members }}</div>
+        <div class="col points">{{ LNG.sh_points }}</div>
+    </div>
+
+    {% for searchRow in searchList %}
+    <div class="result-row">
+        <div class="col tag">
+            <a href="game.php?page=alliance&amp;mode=info&amp;tag={{ searchRow.allytag }}" class="ally-link">
+                [{{ searchRow.allytag }}]
+            </a>
+        </div>
+        <div class="col name">{{ searchRow.allyname }}</div>
+        <div class="col members">{{ searchRow.allymembers }}</div>
+        <div class="col points">{{ searchRow.allypoints }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

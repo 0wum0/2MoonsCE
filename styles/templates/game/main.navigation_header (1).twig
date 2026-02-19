@@ -1,0 +1,318 @@
+<!-- ============================================================
+     SMARTMOONS GAME HEADER v2
+     Fixed 2-Row: Row1=Nav+Notifications | Row2=Resources
+     ============================================================ -->
+
+<header class="game-header" id="game-header">
+    <!-- ROW 1: Navigation + Notifications -->
+    <div class="header-row-main">
+        
+        <!-- Burger Menu (immer sichtbar) -->
+        <button id="sidebar-toggle"
+            class="sidebar-menu-toggle burger-menu mobile-menu-toggle"
+            type="button"
+            aria-label="{{ LNG.lm_navigation|default('Menu') }}"
+            aria-controls="leftmenu"
+            aria-expanded="false">
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+        </button>
+
+        <!-- Logo (Desktop only) -->
+        <a href="game.php?page=overview" class="header-logo desktop-only" title="{{ game_name|default('SmartMoons') }}">
+            <i class="fas fa-moon"></i>
+            <span class="logo-label">{{ game_name|default('SM') }}</span>
+        </a>
+
+        <!-- Planet Select (Desktop only) -->
+        <div class="planet-select-wrapper desktop-only">
+            <div class="sci-select-container">
+                <i class="fas fa-globe-americas select-icon"></i>
+                <select id="planetSelector" class="sci-select" onchange="window.location.href='?cp='+this.value;">
+                    {% for key, value in PlanetSelect %}
+                    <option value="{{ key }}"{% if key == current_pid %} selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <i class="fas fa-caret-down select-arrow"></i>
+            </div>
+        </div>
+
+        <!-- Spacer -->
+        <div class="header-spacer"></div>
+
+        <!-- NOTIFICATION ICONS -->
+        <div class="header-notifications">
+
+            <!-- ATTACK WARNING -->
+            <div class="notif-icon-wrap" id="attack-indicator" style="display:none;">
+                <div class="attack-pulse-ring"></div>
+                <button class="notif-btn attack-btn" aria-label="Attack Warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </button>
+            </div>
+
+            <!-- FLEET MOVEMENTS -->
+            <div class="notif-icon-wrap" id="notif-fleets-wrap">
+                <button class="notif-btn" id="notif-fleets-btn" aria-label="Fleets" onclick="SmartNotif.toggle('fleets')">
+                    <i class="fas fa-rocket"></i>
+                    <span class="notif-badge" id="fleet-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-fleets-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-rocket"></i> {{ LNG.ov_fleet_movements|default('Flottenbewegungen') }}</span>
+                        <a href="game.php?page=fleetTable" class="notif-header-link">{{ LNG.lm_fleet|default('Alle') }} <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="notif-dropdown-body" id="notif-fleets-list">
+                        <div class="notif-empty"><i class="fas fa-check-circle"></i>         {% include "shared.globalFleetMovements.twig" %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MESSAGES -->
+            <div class="notif-icon-wrap" id="notif-messages-wrap">
+                <button class="notif-btn" id="notif-messages-btn" aria-label="Messages" onclick="SmartNotif.toggle('messages')">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notif-badge" id="msg-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-messages-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-envelope"></i> {{ LNG.lm_messages|default('Nachrichten') }}</span>
+                        <div class="notif-header-actions">
+                            <a href="game.php?page=messages" class="notif-header-link">{{ LNG.lm_messages|default('Alle') }} <i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <div class="notif-dropdown-body" id="notif-messages-list">
+                        <div class="notif-empty"><i class="fas fa-check-circle"></i> {{ LNG.mg_no_new|default('Keine neuen Nachrichten') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORUM (Prepared) -->
+            <div class="notif-icon-wrap" id="notif-forum-wrap">
+                <button class="notif-btn" id="notif-forum-btn" aria-label="Forum" onclick="SmartNotif.toggle('forum')">
+                    <i class="fas fa-comments"></i>
+                    <span class="notif-badge" id="forum-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-forum-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-comments"></i> Forum</span>
+                    </div>
+                    <div class="notif-dropdown-body" id="notif-forum-list">
+                        <div class="notif-empty"><i class="fas fa-tools"></i> {{ LNG.forum_coming_soon|default('Forum kommt bald...') }}</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ROW 2: Resource Bar (fixed) -->
+    <div class="res-bar-row" id="res-bar-row">
+        <div class="res-bar-container">
+            <div class="res-bar">
+                {% for resourceID, resourceData in resourceTable %}
+                <div class="res-item tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}<br>{{ resourceData.current|default(0)|number_format }} / {{ resourceData.max|default(0)|number_format }}">
+                    <div class="res-icon">
+                        <img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}">
+                    </div>
+                    <div class="res-info">
+                        <span class="res-val {% if resourceData.current >= resourceData.max %}text-danger{% endif %}" 
+                              id="current_{{ resourceData.name }}" 
+                              data-real="{{ resourceData.current|default(resourceData.max + resourceData.used) }}">
+                            {% if shortlyNumber %}
+                                {{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}
+                            {% else %}
+                                {{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}
+                            {% endif %}
+                        </span>
+                        {% if resourceID != 921 %}
+                        <div class="res-limit-bar">
+                            {% set percentage = (resourceData.max > 0) ? (resourceData.current / resourceData.max * 100) : 100 %}
+                            <div class="res-progress" style="width: {{ (percentage > 100) ? 100 : percentage }}%;"></div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+<!-- ======== SIDEBAR TOGGLE ======== -->
+<script type="text/javascript">
+(function() {
+    var toggle = document.getElementById('sidebar-toggle');
+    var sidebar = document.getElementById('leftmenu') || document.querySelector('.sidebar-nav');
+    var overlay = document.getElementById('sidebar-overlay') || document.querySelector('.sidebar-overlay');
+    if (!toggle || !sidebar || toggle.dataset.sidebarBound === '1') return;
+    toggle.dataset.sidebarBound = '1';
+
+    function setState(open) {
+        sidebar.classList.toggle('active', open);
+        sidebar.classList.toggle('collapsed', !open);
+        toggle.classList.toggle('active', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        document.documentElement.classList.toggle('sidebar-open', open);
+        document.body.classList.toggle('sidebar-open', open);
+        if (overlay) { overlay.classList.toggle('active', open); overlay.setAttribute('aria-hidden', open ? 'false' : 'true'); }
+    }
+    toggle.addEventListener('click', function(e) { e.preventDefault(); e.stopImmediatePropagation(); setState(!sidebar.classList.contains('active')); }, true);
+    if (overlay) overlay.addEventListener('click', function(e) { e.preventDefault(); setState(false); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') setState(false); });
+    if (window.matchMedia('(max-width: 992px)').matches) setState(false);
+    sidebar.querySelectorAll('a.sidebar-link').forEach(function(link) {
+        link.addEventListener('click', function() { if (window.matchMedia('(max-width: 992px)').matches) setState(false); });
+    });
+})();
+</script>
+
+<!-- ======== TOUCH TOOLTIPS ======== -->
+<script type="text/javascript">
+(function() {
+    var tip = document.getElementById('tooltip');
+    if (!tip || document.documentElement.dataset.resourceTipBound === '1') return;
+    if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+    document.documentElement.dataset.resourceTipBound = '1';
+    var items = document.querySelectorAll('.res-item.tooltip'), ht = null;
+    function hide() { if (tip) tip.style.display = 'none'; }
+    items.forEach(function(el) {
+        el.addEventListener('click', function() {
+            var c = el.getAttribute('data-tooltip-content');
+            if (!c) { hide(); return; }
+            tip.innerHTML = c; tip.style.display = 'block';
+            tip.style.top = 'calc(env(safe-area-inset-top) + 12px)'; tip.style.left = '50%'; tip.style.transform = 'translateX(-50%)';
+            if (ht) clearTimeout(ht); ht = setTimeout(hide, 1500);
+        });
+    });
+    document.addEventListener('touchstart', function(e) { if (!e.target.closest('.res-item.tooltip')) hide(); }, { passive: true });
+})();
+</script>
+
+<!-- ======== RESOURCE TICKER ======== -->
+{% if not vmode %}
+<script type="text/javascript">
+var viewShortlyNumber = {{ shortlyNumber|json_encode }};
+var vacation = {{ vmode }};
+$(function() {
+    {% for resourceID, resourceData in resourceTable %}
+    {% if resourceData.production is defined %}
+    resourceTicker({
+        available: {{ resourceData.current|json_encode }},
+        limit: [0, {{ resourceData.max|json_encode }}],
+        production: {{ resourceData.production|json_encode }},
+        valueElem: "current_{{ resourceData.name }}"
+    }, true);
+    {% endif %}
+    {% endfor %}
+});
+</script>
+{% endif %}
+
+<!-- ============================================================
+     SMARTNOTIF - Notification System
+     ============================================================ -->
+<script type="text/javascript">
+var SmartNotif = (function() {
+    var openPanel = null;
+
+    function toggle(panel) {
+        var dd = document.getElementById('notif-' + panel + '-dropdown');
+        if (!dd) return;
+        // Close other
+        if (openPanel && openPanel !== panel) {
+            var prev = document.getElementById('notif-' + openPanel + '-dropdown');
+            if (prev) prev.classList.remove('open');
+        }
+        var isOpen = dd.classList.toggle('open');
+        openPanel = isOpen ? panel : null;
+    }
+
+    function closeAll() {
+        ['fleets','messages','forum'].forEach(function(p) {
+            var d = document.getElementById('notif-' + p + '-dropdown');
+            if (d) d.classList.remove('open');
+        });
+        openPanel = null;
+    }
+
+    document.addEventListener('click', function(e) { if (!e.target.closest('.notif-icon-wrap')) closeAll(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAll(); });
+
+    function setBadge(id, count) {
+        var b = document.getElementById(id);
+        if (!b) return;
+        if (count > 0) { b.textContent = count > 99 ? '99+' : count; b.style.display = 'flex'; }
+        else { b.style.display = 'none'; }
+    }
+
+    function setAttackMode(on) {
+        var ind = document.getElementById('attack-indicator');
+        var hdr = document.getElementById('game-header');
+        if (ind) ind.style.display = on ? 'flex' : 'none';
+        if (hdr) { if (on) hdr.classList.add('under-attack'); else hdr.classList.remove('under-attack'); }
+    }
+
+    /* ---- Init Fleet Data (from Twig) ---- */
+    function initFleets() {
+        var el = document.getElementById('notif-fleets-list');
+        if (!el) return;
+
+        {% if globalFleetMovements is defined and globalFleetMovements|length > 0 %}
+        var fleets = [
+            {% for key, fleet in globalFleetMovements %}
+            { resttime: {{ fleet.resttime|default(0) }}, text: {{ fleet.text|json_encode|raw }}, hostile: {{ fleet.isHostile|default(0) }} }{% if not loop.last %},{% endif %}
+
+            {% endfor %}
+        ];
+
+        if (fleets.length) {
+            setBadge('fleet-badge', fleets.length);
+            var html = '', hasAttack = false;
+            fleets.forEach(function(f, i) {
+                if (f.hostile) hasAttack = true;
+                html += '<div class="notif-fleet-item' + (f.hostile ? ' hostile' : '') + '">' +
+                    '<span class="notif-fleet-timer" id="hft-' + i + '" data-time="' + Math.max(0, f.resttime) + '">00:00:00</span>' +
+                    '<span class="notif-fleet-text">' + f.text + '</span></div>';
+            });
+            el.innerHTML = html;
+            setAttackMode(hasAttack);
+
+            // Countdown timers
+            function tick() {
+                fleets.forEach(function(f, i) {
+                    var t = document.getElementById('hft-' + i);
+                    if (!t) return;
+                    var r = parseInt(t.getAttribute('data-time'), 10) || 0;
+                    var h = Math.floor(r/3600), m = Math.floor((r%3600)/60), s = r%60;
+                    t.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+                    t.setAttribute('data-time', Math.max(r - 1, 0));
+                });
+            }
+            tick(); setInterval(tick, 1000);
+        }
+        {% endif %}
+    }
+
+    /* ---- Init Messages Badge ---- */
+    function initMessages() {
+        {% if newMessageCount is defined and newMessageCount > 0 %}
+        setBadge('msg-badge', {{ newMessageCount }});
+        var el = document.getElementById('notif-messages-list');
+        if (el) {
+            el.innerHTML = '<a href="game.php?page=messages" class="notif-msg-item unread">' +
+                '<div class="notif-msg-from"><i class="fas fa-envelope"></i> {{ newMessageCount }} {{ LNG.ov_have_new_message_short|default("neue Nachricht(en)") }}</div>' +
+                '<div class="notif-msg-subject">{{ LNG.mg_click_to_view|default("Klicke um Nachrichten zu lesen") }}</div>' +
+                '</a>';
+        }
+        {% endif %}
+    }
+
+    $(function() { initFleets(); initMessages(); });
+
+    return { toggle: toggle, closeAll: closeAll, setBadge: setBadge, setAttackMode: setAttackMode };
+})();
+</script>

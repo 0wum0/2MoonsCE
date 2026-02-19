@@ -1,0 +1,146 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_statistics }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-chart-line"></i> {{ LNG.st_statistics }}</h2>
+            <div class="update-info">{{ LNG.st_updated }}: {{ stat_date }}</div>
+        </div>
+
+        <div class="glass-panel filter-panel">
+            <form name="stats" id="stats" method="post" action="">
+                <div class="filter-group">
+                    <label>{{ LNG.st_show }}</label>
+                    <select name="who" class="glass-select" onchange="$('#stats').submit();">
+                        {% for key, val in Selectors.who %}
+                            <option value="{{ key }}" {% if key == who %}selected{% endif %}>{{ val }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>{{ LNG.st_per }}</label>
+                    <select name="type" class="glass-select" onchange="$('#stats').submit();">
+                        {% for key, val in Selectors.type %}
+                            <option value="{{ key }}" {% if key == type %}selected{% endif %}>{{ val }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>{{ LNG.st_in_the_positions }}</label>
+                    <select name="range" class="glass-select" onchange="$('#stats').submit();">
+                        {% for key, val in Selectors.range %}
+                            <option value="{{ key }}" {% if key == range %}selected{% endif %}>{{ val }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        {# DESKTOP: Tabelle #}
+        <div class="glass-panel list-container stat-desktop-view">
+            <table class="stat-table">
+                <thead>
+                    <tr>
+                        {% if who == 1 %}
+                            <th class="col-rank">#</th>
+                            <th class="col-name">{{ LNG.st_player }}</th>
+                            <th class="col-msg"></th>
+                            <th class="col-ally">{{ LNG.st_alliance }}</th>
+                            <th class="col-points">{{ LNG.st_points }}</th>
+                        {% elseif who == 2 %}
+                            <th class="col-rank">#</th>
+                            <th class="col-name">{{ LNG.st_alliance }}</th>
+                            <th class="col-members">{{ LNG.st_members }}</th>
+                            <th class="col-points">{{ LNG.st_points }}</th>
+                            <th class="col-avg">{{ LNG.st_per_member }}</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if who == 1 %}
+                        {% include "shared.statistics.playerTable.twig" %}
+                    {% elseif who == 2 %}
+                        {% include "shared.statistics.allianceTable.twig" %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {# MOBILE: Cards #}
+        <div class="stat-mobile-view">
+            {% if who == 1 %}
+                {% for RangeInfo in RangeList %}
+                <div class="stat-card {% if RangeInfo.id == CUser_id %}stat-card-me{% endif %}">
+                    <div class="stat-card-rank">
+                        <span class="rank-num">#{{ RangeInfo.rank }}</span>
+                        {% if RangeInfo.ranking < 0 %}
+                            <span class="rank-change rank-down">▼{{ RangeInfo.ranking|abs }}</span>
+                        {% elseif RangeInfo.ranking > 0 %}
+                            <span class="rank-change rank-up">▲{{ RangeInfo.ranking }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="stat-card-body">
+                        <div class="stat-card-name">
+                            <a href="#" onclick="return Dialog.Playercard({{ RangeInfo.id }}, '{{ RangeInfo.name }}');">{{ RangeInfo.name }}</a>
+                            {% if RangeInfo.id != CUser_id %}
+                                <a href="#" onclick="return Dialog.PM({{ RangeInfo.id }});" class="stat-card-pm"><i class="far fa-envelope"></i></a>
+                            {% endif %}
+                        </div>
+                        <div class="stat-card-ally">
+                            {% if RangeInfo.allyid != 0 %}
+                                <a href="game.php?page=alliance&amp;mode=info&amp;id={{ RangeInfo.allyid }}">
+                                    {% if RangeInfo.allyid == CUser_ally %}<span style="color:#33CCFF">{{ RangeInfo.allyname }}</span>{% else %}{{ RangeInfo.allyname }}{% endif %}
+                                </a>
+                            {% else %}<span class="no-ally">-</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="stat-card-points">{{ RangeInfo.points }}</div>
+                </div>
+                {% endfor %}
+            {% elseif who == 2 %}
+                {% for RangeInfo in RangeList %}
+                <div class="stat-card {% if RangeInfo.id == CUser_ally %}stat-card-me{% endif %}">
+                    <div class="stat-card-rank">
+                        <span class="rank-num">#{{ RangeInfo.rank }}</span>
+                        {% if RangeInfo.ranking < 0 %}
+                            <span class="rank-change rank-down">▼{{ RangeInfo.ranking|abs }}</span>
+                        {% elseif RangeInfo.ranking > 0 %}
+                            <span class="rank-change rank-up">▲{{ RangeInfo.ranking }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="stat-card-body">
+                        <div class="stat-card-name">
+                            <a href="game.php?page=alliance&amp;mode=info&amp;id={{ RangeInfo.id }}">{{ RangeInfo.name }}</a>
+                            {% if RangeInfo.allytag %}<span class="ally-tag">[{{ RangeInfo.allytag }}]</span>{% endif %}
+                        </div>
+                        <div class="stat-card-meta">
+                            <span><i class="fas fa-users"></i> {{ RangeInfo.members }}</span>
+                            <span><i class="fas fa-chart-bar"></i> ∅ {{ RangeInfo.mppoints }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-points">{{ RangeInfo.points }}</div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.stat-table a').each(function() {
+        if($(this).attr('onclick')) return;
+        var href = $(this).attr('href');
+        if(href && href.includes('page=playerCard')) {
+            var id = href.match(/id=(\d+)/)[1];
+            $(this).attr('onclick', 'return Dialog.Playercard('+id+');').attr('href', '#');
+        }
+    });
+});
+</script>
+{% endblock %}

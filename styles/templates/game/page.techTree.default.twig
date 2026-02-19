@@ -1,0 +1,46 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_technology }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-sitemap"></i> {{ LNG.lm_technology }}</h2>
+        </div>
+
+        <div class="techtree-container">
+            {% for elementID, requireList in TechTreeList %}
+            <div class="tech-node glass-panel">
+                
+                <div class="node-head" onclick="return Dialog.info({{ elementID }})">
+                    <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" class="node-img">
+                    <span class="node-title">{{ LNG.tech[elementID] }}</span>
+                </div>
+
+                <div class="node-requirements">
+                    {% if requireList is iterable %}
+                        {% for requireID, NeedLevel in requireList %}
+                        <div class="req-item" onclick="return Dialog.info({{ requireID }})">
+                            <div class="req-status {% if NeedLevel.own >= NeedLevel.count %}met{% else %}unmet{% endif %}">
+                                <i class="fas {% if NeedLevel.own >= NeedLevel.count %}fa-check{% else %}fa-times{% endif %}"></i>
+                            </div>
+                            <div class="req-info">
+                                <span class="req-name">{{ LNG.tech[requireID] }}</span>
+                                <span class="req-lvl">Lvl {{ NeedLevel.own }} / {{ NeedLevel.count }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="req-none">{{ LNG.tt_requirements }}</div>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_notes }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-form-wrapper">
+    <div class="form-header">
+        <i class="far fa-edit"></i>
+        {% if noteDetail.id == 0 %}{{ LNG.nt_create_note }}{% else %}{{ LNG.nt_edit_note }}{% endif %}
+    </div>
+
+    <form action="?page=notes&amp;mode=insert" method="post">
+        <input type="hidden" name="id" value="{{ noteDetail.id }}">
+        
+        <div class="form-group">
+            <label>{{ LNG.nt_priority }}</label>
+            <div class="priority-selector">
+                <input type="radio" name="priority" id="p2" value="2" {% if noteDetail.priority == 2 %}checked{% endif %}>
+                <label for="p2" class="prio-btn danger">Wichtig</label>
+
+                <input type="radio" name="priority" id="p1" value="1" {% if noteDetail.priority == 1 %}checked{% endif %}>
+                <label for="p1" class="prio-btn warning">Normal</label>
+
+                <input type="radio" name="priority" id="p0" value="0" {% if noteDetail.priority == 0 or noteDetail.priority is not defined %}checked{% endif %}>
+                <label for="p0" class="prio-btn success">Unwichtig</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="title">{{ LNG.nt_subject_note }}</label>
+            <input type="text" id="title" name="title" class="glass-input" maxlength="30" value="{{ noteDetail.title }}" placeholder="Betreff eingeben...">
+        </div>
+
+        <div class="form-group">
+            <label for="text">
+                {{ LNG.nt_note }} 
+                <span class="char-counter">(<span id="cntChars">0</span> / 5.000)</span>
+            </label>
+            <textarea name="text" id="text" class="glass-textarea custom-scroll" rows="10" onkeyup="$('#cntChars').text($(this).val().length);">{{ noteDetail.text }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <input type="reset" value="{{ LNG.nt_reset }}" class="btn-reset">
+            <input type="submit" value="{{ LNG.nt_save }}" class="btn-save">
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    // Initiale Zeichenzählung
+    $(document).ready(function(){
+        $('#cntChars').text($('#text').val().length);
+    });
+</script>
+{% endblock %}

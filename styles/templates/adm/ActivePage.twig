@@ -1,0 +1,81 @@
+{% include "overall_header.twig" %}
+
+<div class="container-fluid p-4">
+    
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3><i class="fas fa-user-check text-success"></i> {{ LNG.ap_nicht_aktivierte_user }}</h3>
+        </div>
+    </div>
+
+    <div class="card bg-dark border-secondary shadow-sm">
+        <div class="card-body p-0">
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover align-middle mb-0 text-nowrap">
+                    <thead>
+                        <tr class="border-bottom border-secondary">
+                            <th class="p-3">ID</th>
+                            <th class="p-3">{{ LNG.ap_username }}</th>
+                            <th class="p-3">{{ LNG.ap_datum }}</th>
+                            <th class="p-3">{{ LNG.ap_email }}</th>
+                            <th class="p-3">{{ LNG.ap_ip }}</th>
+                            <th class="p-3 text-center">{{ LNG.ap_status }}</th>
+                            <th class="p-3 text-end">{{ LNG.ap_del }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if Users is empty %}
+                        <tr>
+                            <td colspan="7" class="text-center p-5 text-muted">
+                                Keine offenen Freischaltungen gefunden.
+                            </td>
+                        </tr>
+                        {% else %}
+                            {% for User in Users %}
+                            <tr>
+                                <td class="p-3">#{{ User.id }}</td>
+                                <td class="p-3 fw-bold">{{ User.name }}</td>
+                                <td class="p-3 small text-muted">{{ User.date }}</td>
+                                <td class="p-3">
+                                    <a href="mailto:{{ User.email }}" class="text-info text-decoration-none">{{ User.email }}</a>
+                                </td>
+                                <td class="p-3 font-monospace small">{{ User.ip }}</td>
+                                <td class="p-3 text-center">
+                                    <button type="button" class="btn btn-success btn-sm" onclick="return activeUser({{ User.id }},'{{ User.validationKey }}');">
+                                        <i class="fas fa-check"></i> {{ LNG.ap_aktivieren }}
+                                    </button>
+                                </td>
+                                <td class="p-3 text-end">
+                                    <a href="?page=active&amp;action=delete&id={{ User.id }}" class="btn btn-danger btn-sm" onclick="return confirm('{{ LNG.ap_sicher }} {{ User.username }} {{ LNG.ap_entfernen }}');">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+        
+        {% if Users is not empty %}
+        <div class="card-footer bg-dark border-top border-secondary text-muted small">
+            {{ LNG.ap_insgesamt }} <strong>{{ Users|length }}</strong> {{ LNG.ap_nicht_aktivierte }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script type="text/javascript">
+function activeUser(validationID, validationKey) {
+    $.getJSON('index.php?page=vertify&mode=json&i='+validationID+'&k='+validationKey, function(data){
+        alert(data); 
+        window.location.reload(); 
+    });
+    return false;
+}
+</script>
+
+{% include "overall_footer.twig" %}

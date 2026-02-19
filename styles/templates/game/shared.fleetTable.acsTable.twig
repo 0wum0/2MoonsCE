@@ -1,0 +1,59 @@
+<form action="?page=fleetTable&amp;action=acs" method="post" class="acs-form">
+<input name="fleetID" value="{{ acsData.mainFleetID }}" type="hidden">
+
+<div class="aerospace-acs-card">
+    <div class="acs-header">
+        <i class="fas fa-users-cog"></i>
+        <span>{{ LNG.fl_sac_of_fleet }}</span>
+    </div>
+
+    <div class="acs-body">
+        
+        <div class="acs-section">
+            <div class="section-label">
+                {{ LNG.fl_modify_sac_name }}
+                <a href="javascript:Rename();" class="btn-icon-small" title="{{ LNG.fl_acs_change }}">
+                    <i class="fas fa-pen"></i>
+                </a>
+            </div>
+            <div class="acs-name-display" id="acsName">{{ acsData.acsName }}</div>
+        </div>
+
+        <div class="acs-section">
+            <div class="section-title">{{ LNG.fl_members_invited }}</div>
+            
+            <div class="invite-box">
+                {% if acsData.statusMessage %}
+                    <div class="status-msg">{{ acsData.statusMessage }}</div>
+                {% endif %}
+
+                <select size="5" class="glass-select-multi">
+                    {% for key, val in acsData.invitedUsers %}
+                        <option value="{{ key }}">{{ val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="acs-section">
+            <div class="section-title">{{ LNG.fl_invite_members }}</div>
+            <div class="invite-input-group">
+                <input name="username" type="text" class="glass-input" placeholder="Spielername...">
+                <button type="submit" class="btn-invite">{{ LNG.fl_continue }}</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+</form>
+
+<script type="text/javascript">
+function Rename(){
+    var Name = prompt('{{ LNG.fl_acs_change_name }}', $('#acsName').text());
+    if(Name == null || Name == "") { return; }
+    
+    $.getJSON('game.php?page=fleetTable&action=acs&mode=name&fleetID={{ acsData.mainFleetID }}&acsName='+Name, function(data){
+        $('#acsName').text(data);
+    });
+}
+</script>

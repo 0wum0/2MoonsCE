@@ -1,0 +1,148 @@
+{% extends "layout.full.twig" %}
+{% block title %}{{ LNG.lm_overview }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+<div class="aerospace-wrapper overview-page">
+
+    {% if is_news %}
+    <div class="glass-panel news-ticker-wrap">
+        <div class="news-label"><i class="fas fa-bullhorn"></i> {{ LNG.ov_news }}</div>
+        <div class="news-marquee">
+            <marquee behavior="scroll" direction="left" scrollamount="6" onmouseover="this.stop();" onmouseout="this.start();">
+                {{ news|raw }}
+            </marquee>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="overview-grid">
+
+        <div class="glass-panel planet-profile-card">
+            
+            <div class="planet-visual-box">
+                <img src="{{ dpath }}planeten/{{ planetimage }}.jpg" class="planet-img" alt="{{ planetname }}">
+            </div>
+            
+            <div class="planet-name-row">
+                <a href="#" onclick="return Dialog.PlanetAction();" title="{{ LNG.ov_planetmenu }}" style="color:#fff; font-weight:bold; font-size:1.2rem; text-decoration:none;">
+                    {{ LNG["type_planet_" ~ planet_type] }} "<span class="planetname">{{ planetname }}</span>" <i class="fas fa-pen" style="font-size:0.8rem; color:#888; margin-left:5px;"></i>
+                </a>
+            </div>
+
+            {% if planet_type == 1 %}
+            <div style="text-align:center; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                {% if Moon %}
+                    <a href="game.php?page=overview&amp;cp={{ Moon.id }}&amp;re=0" title="{{ Moon.name }}" style="color:#f1c40f;">
+                        <i class="fas fa-moon"></i> {{ Moon.name }} ({{ LNG.fcm_moon }})
+                    </a>
+                {% else %}
+                    <span style="color:#666;"><i class="far fa-moon"></i> {{ LNG.ov_create_moon }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="planet-data-list">
+                
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-user"></i> {{ LNG.ov_online_user }}</span>
+                    <span class="data-value" style="font-weight: bold; color: lime;">{{ onlineUser|number_format }}</span>
+                </div>
+
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-users-cog"></i> {{ LNG.ov_admins_online }}</span>
+                    <span class="data-value">
+                        {% if AdminsOnline %}
+                            {% for ID, Name in AdminsOnline %}
+                                <a href="#" onclick="return Dialog.PM({{ ID }});" style="color:#e74c3c; font-weight:bold;">{{ Name }}</a>{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <span style="color:#888;">{{ LNG.ov_no_admins_online }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-headset"></i> Support</span>
+                    <span class="data-value">
+                        <a href="game.php?page=ticket" style="color:#00f3ff;">{{ LNG.ov_ticket }}</a>
+                    </span>
+                </div>
+
+                <div style="border-bottom:1px solid rgba(255,255,255,0.1); margin: 5px 0;"></div>
+
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-chart-line"></i> {{ LNG.ov_points }}</span>
+                    <span class="data-value">{{ rankInfo|raw }}</span>
+                </div>
+
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-arrows-alt-h"></i> {{ LNG.ov_diameter }}</span>
+                    <span class="data-value">{{ planet_diameter }} {{ LNG.ov_distance_unit }} ({{ planet_field_current }} / {{ planet_field_max }})</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-thermometer-half"></i> {{ LNG.ov_temperature }}</span>
+                    <span class="data-value">{{ planet_temp_min }}{{ LNG.ov_temp_unit }} {{ LNG.ov_to }} {{ planet_temp_max }}{{ LNG.ov_temp_unit }}</span>
+                </div>
+                
+                <div class="data-row">
+                    <span class="data-label"><i class="fas fa-map-marker-alt"></i> {{ LNG.ov_position }}</span>
+                    <span class="data-value">
+                        <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}">[ {{ galaxy }}:{{ system }}:{{ planet }} ]</a>
+                    </span>
+                </div>
+            </div>
+
+            {% if GalaxyRows %}
+            <div class="debris-box">
+                <i class="fas fa-recycle"></i> {{ LNG.ov_debris_field }}: {{ GalaxyRows.debris.metal|number_format }} M / {{ GalaxyRows.debris.crystal|number_format }} K
+                <span class="debris-actions">
+                    <a href="game.php?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1&target_mission=8">{{ LNG.ov_harvest }}</a>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="overview-dashboard">
+
+            {% if ref_active %}
+            <div class="glass-panel ref-box"> <div style="font-weight:bold; color:#f1c40f; margin-bottom:10px; text-transform: uppercase;">{{ LNG.ov_reflink }}</div>
+                
+                {% if isModuleAvailable(constant('MODULE_BANNER')) %}
+                <div class="banner-preview">
+                    <img src="userpic.php?id={{ userid }}" alt="User Banner" style="max-width: 100%; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                </div>
+                
+                <div class="banner-codes">
+                    <div class="banner-label">HTML:</div>
+                    <input type="text" value='<a href="{{ path }}{% if ref_active %}index.php?ref={{ userid }}{% endif %}"><img src="{{ path }}userpic.php?id={{ userid }}"></a>' readonly class="banner-input" onclick="this.select()">
+                    
+                    <div class="banner-label">BBCode:</div>
+                    <input type="text" value="[url={{ path }}{% if ref_active %}index.php?ref={{ userid }}{% endif %}][img]{{ path }}userpic.php?id={{ userid }}[/img][/url]" readonly class="banner-input" onclick="this.select()">
+                </div>
+                {% endif %}
+
+                <table style="width:100%; margin-top:10px; font-size:0.85rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                {% for RefID, RefLink in RefLinks %}
+                    <tr>
+                        <td style="text-align:left; padding: 5px;"><a href="#" onclick="return Dialog.Playercard({{ RefID }}, '{{ RefLink.username }}');">{{ RefLink.username }}</a></td>
+                        <td style="text-align:right; padding: 5px; color:#2ecc71;">{{ RefLink.points|number }} / {{ ref_minpoints|number }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="2" style="color:#888; padding: 10px;">{{ LNG.ov_noreflink }}</td></tr>
+                {% endfor %}
+                </table>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="scripts/game/overview.js"></script>
+{% endblock %}

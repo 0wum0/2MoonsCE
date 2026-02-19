@@ -1,0 +1,109 @@
+/* ==========================================================================
+   AEROSPACE THEME - MASTER CSS
+   Version: RESTORED
+   ========================================================================== */
+:root {
+    --color-primary: #00f3ff;
+    --color-secondary: #0072ff;
+    --color-success: #2ecc71;
+    --color-danger: #e74c3c;
+    --color-warning: #f1c40f;
+    --bg-dark: #0d111a;
+    --bg-panel: rgba(16, 20, 28, 0.95);
+    --glass-border: rgba(0, 243, 255, 0.25);
+    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body { font-family: var(--font-main); color: #ccc; background-color: var(--bg-dark); margin: 0; }
+a { text-decoration: none; color: #fff; transition: 0.2s; }
+a:hover { color: var(--color-primary); text-shadow: 0 0 8px var(--color-primary); }
+
+/* LAYOUT & PANELS */
+.aerospace-wrapper { width: 100%; max-width: 1600px; margin: 0 auto; padding: 15px; box-sizing: border-box; padding-bottom: 100px; }
+.glass-panel { background: var(--bg-panel); border: 1px solid var(--glass-border); border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+.header-panel { display: flex; justify-content: center; align-items: center; padding: 20px; margin-bottom: 25px; background: rgba(16, 20, 28, 0.85); border: 1px solid var(--glass-border); border-radius: 8px; position: relative; }
+.page-title { margin: 0; color: #fff; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+.update-info { position: absolute; right: 20px; font-size: 0.85rem; color: #888; }
+
+/* INPUTS & BUTTONS */
+.glass-input, .glass-select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 12px; border-radius: 4px; outline: none; font-family: inherit; }
+.glass-input:focus, .glass-select:focus { border-color: var(--color-primary); box-shadow: 0 0 8px rgba(0, 243, 255, 0.2); }
+.glass-select option { background: #111; color: #fff; }
+.btn-action { background: linear-gradient(45deg, var(--color-primary), var(--color-secondary)); border: none; color: #000; font-weight: bold; padding: 10px 20px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+
+/* SHIPYARD (Schiffswerft) */
+.queue-panel { margin-bottom: 20px; background: #111; padding: 10px; border: 1px solid #333; border-radius: 5px; }
+.queue-header { display: flex; justify-content: space-between; color: var(--color-primary); margin-bottom: 10px; font-weight: bold; }
+.queue-body { display: flex; gap: 10px; }
+.queue-list { flex: 1; background: #000; border: 1px solid #444; color: #ccc; padding: 5px; height: 60px; }
+.btn-cancel { background: var(--color-danger); border: none; color: #fff; padding: 0 15px; cursor: pointer; font-weight: bold; border-radius: 3px; }
+.status-alert { background: rgba(241, 196, 15, 0.2); color: var(--color-warning); padding: 10px; text-align: center; margin-bottom: 15px; border: 1px solid var(--color-warning); }
+
+/* Ship Cards Container */
+.ship-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; }
+.ship-card-item { background: #151921; border: 1px solid #2c3e50; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; transition: 0.2s; position: relative; width: 100%; }
+
+@media (min-width: 600px) { .ship-card-item { width: calc(50% - 10px); } }
+@media (min-width: 900px) { .ship-card-item { width: calc(33.333% - 10px); } }
+@media (min-width: 1200px) { .ship-card-item { width: calc(25% - 12px); } }
+
+.ship-card-item:hover { border-color: var(--color-primary); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.ship-img-box { position: relative; width: 100%; height: 130px; background: #000; overflow: hidden; border-bottom: 1px solid #2c3e50; cursor: pointer; }
+.ship-img-box img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.3s; }
+.ship-card-item:hover .ship-img-box img { opacity: 1; transform: scale(1.05); }
+.count-tag { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.85); color: var(--color-primary); padding: 2px 6px; font-size: 0.8rem; border-radius: 3px; border: 1px solid var(--color-primary); font-weight: bold; }
+.ship-details { padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.s-title { font-weight: bold; color: #fff; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.s-time { font-size: 0.8rem; color: #888; }
+.s-costs { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 5px; }
+.cost-badge { display: flex; align-items: center; gap: 3px; background: #222; padding: 2px 5px; border-radius: 3px; font-size: 0.75rem; color: #ccc; border: 1px solid #333; }
+.cost-badge.red { border-color: var(--color-danger); color: var(--color-danger); }
+.ship-actions { padding: 10px; background: #0e1116; border-top: 1px solid #2c3e50; margin-top: auto; }
+.input-row { display: flex; width: 100%; }
+.input-row input { flex: 1; background: #222; border: 1px solid #444; color: #fff; padding: 6px; text-align: center; font-weight: bold; border-radius: 3px 0 0 3px; width: 50px; }
+.input-row input:focus { outline: none; border-color: var(--color-primary); }
+.btn-max { background: rgba(0, 243, 255, 0.1); color: var(--color-primary); font-weight: bold; border: 1px solid var(--color-primary); border-left: none; padding: 0 10px; cursor: pointer; border-radius: 0 3px 3px 0; font-size: 0.75rem; transition: 0.2s; }
+.btn-max:hover { background: var(--color-primary); color: #000; }
+.max-txt { text-align: center; font-size: 0.7rem; color: #666; margin-top: 4px; cursor: pointer; }
+.msg-box { font-size: 0.8rem; text-align: center; padding: 5px; border-radius: 3px; }
+.msg-box.green { background: rgba(46, 204, 113, 0.1); color: var(--color-success); }
+.msg-box.red { background: rgba(231, 76, 60, 0.1); color: var(--color-danger); }
+.dock-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(16, 20, 28, 0.95); border-top: 1px solid var(--color-primary); padding: 15px; text-align: center; z-index: 1000; backdrop-filter: blur(10px); }
+.btn-build-final { background: var(--color-primary); color: #000; border: none; padding: 12px 50px; font-weight: bold; font-size: 1.1rem; border-radius: 30px; cursor: pointer; box-shadow: 0 0 20px rgba(0,243,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+.btn-build-final:hover { background: #fff; box-shadow: 0 0 30px rgba(0,243,255,0.8); transform: scale(1.05); }
+
+/* STATISTICS (Clean List) */
+.filter-panel { background: rgba(22, 27, 38, 0.9); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+#stats { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+.filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 180px; }
+.filter-group label { font-size: 0.8rem; color: var(--color-primary); font-weight: bold; }
+.list-container { background: rgba(22, 27, 38, 0.9); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; }
+.stat-table { width: 100%; border-collapse: collapse; }
+.stat-table th { background: rgba(0, 243, 255, 0.1); color: var(--color-primary); padding: 15px; text-align: left; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; border-bottom: 1px solid rgba(0, 243, 255, 0.2); }
+.stat-table td { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; font-size: 0.95rem; }
+.stat-table tr:hover { background: rgba(0, 243, 255, 0.05); }
+.col-rank { width: 60px; text-align: center !important; font-weight: bold; color: #aaa; }
+.stat-table td:nth-child(1) { text-align: center; } 
+.col-name { width: 35%; color: #fff; font-weight: bold; }
+.col-points { width: 20%; text-align: right !important; }
+.stat-table td:last-child { text-align: right; font-family: monospace; color: var(--color-success); font-size: 1.1rem; }
+.my-rank { background: rgba(0, 243, 255, 0.15) !important; border-left: 3px solid var(--color-primary); }
+
+/* SHARED POPUPS */
+.aerospace-popup, .aerospace-info-table, .aerospace-spy, .aerospace-gate-modal, .aerospace-acs-card { background: #0d111a; color: #ccc; padding: 15px; font-family: var(--font-main); box-sizing: border-box; }
+.glass-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.glass-table th { background: rgba(0, 243, 255, 0.1); padding: 8px; color: var(--color-primary); text-align: left; }
+.glass-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.spy-head { border-bottom: 1px solid rgba(0,243,255,0.3); padding-bottom: 10px; margin-bottom: 15px; font-size: 1.1rem; text-align: center; }
+.spy-group { margin-bottom: 10px; background: rgba(255,255,255,0.02); padding: 5px; border-radius: 4px; }
+.group-title { color: #fff; font-weight: bold; margin-bottom: 5px; border-left: 2px solid var(--color-primary); padding-left: 5px; }
+.spy-item { display: flex; justify-content: space-between; padding: 2px 5px; font-size: 0.85rem; }
+.battle-report { background: #05080e; padding: 15px; }
+.battle-header { text-align: center; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid transparent; }
+.battle-header.win { background: rgba(46,204,113,0.1); border-color: var(--color-success); }
+.battle-header.lose { background: rgba(231,76,60,0.1); border-color: var(--color-danger); }
+.round-box { background: rgba(255,255,255,0.02); margin-bottom: 15px; border-radius: 6px; overflow: hidden; }
+.round-title { background: rgba(0,243,255,0.1); color: var(--color-primary); text-align: center; padding: 5px; font-weight: bold; }
+.fleets-grid { display: grid; grid-template-columns: 1fr 40px 1fr; }
+.side { padding: 10px; }
+.side.attacker { border-right: 1px solid rgba(255,255,255,0.05); }

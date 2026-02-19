@@ -1,0 +1,15 @@
+{% include "main.header.twig" %}
+
+<div class="game-wrapper">
+
+    {% include "main.navigation.twig" %}
+
+    <div class="content-wrapper">
+        
+        {% include "main.navigation_header.twig" %}
+
+        <div id="page-content" class="container-fluid">
+            {% block content %}{% endblock %}
+        </div>
+
+{% include "main.footer.twig" %}

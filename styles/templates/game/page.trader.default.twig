@@ -1,0 +1,43 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_trader }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper centered-view">
+        
+        <div class="trader-terminal glass-panel">
+            <div class="terminal-header">
+                <h2><i class="fas fa-exchange-alt"></i> {{ LNG.tr_call_trader }}</h2>
+                <p>{{ LNG.tr_call_trader_who_buys }}</p>
+            </div>
+
+            {% if requiredDarkMatter %}
+            <div class="cost-alert">
+                <i class="fas fa-exclamation-circle"></i> {{ requiredDarkMatter }}
+            </div>
+            {% endif %}
+
+            <div class="resource-selection">
+                {% for resourceID, chageData in charge %}
+                <form action="game.php?page=trader" method="post" class="res-option-form">
+                    <input type="hidden" name="mode" value="trade">
+                    <input type="hidden" name="resource" value="{{ resourceID }}">
+                    
+                    <button type="submit" class="res-btn-card">
+                        <img src="{{ dpath }}images/{{ resource[resourceID] }}.gif" alt="{{ LNG.tech[resourceID] }}">
+                        <span class="res-name">{{ LNG.tech[resourceID] }}</span>
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+
+            <div class="terminal-footer">
+                <div class="dm-info">{{ tr_cost_dm_trader }}</div>
+                <div class="quota-info">{{ LNG.tr_exchange_quota }}: {{ charge[901][903] }}/{{ charge[902][903] }}/{{ charge[903][903] }}</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "layout.ajax.twig" %}
+
+{% block content %}
+<form action="game.php?page=messages" method="post">
+    <input type="hidden" name="mode" value="action">
+    <input type="hidden" name="ajax" value="1">
+    <input type="hidden" name="messcat" value="{{ MessID }}">
+    <input type="hidden" name="page" value="{{ page }}">
+
+    <div class="msg-viewer">
+        {% if messagesDebug is defined and messagesDebug.enabled %}
+        <div class="glass-panel msg-debug">
+            DEBUG messages: table={{ messagesDebug.table }}, rawFilter={{ messagesDebug.rawCategory|default('null') }}, category={{ messagesDebug.category }}, page={{ messagesDebug.page }}, dbRows={{ messagesDebug.dbRows }}, twigCount={{ messagesDebug.twigCount }}, legacyDeletedNullCount={{ messagesDebug.legacyCount }}, activeCount={{ messagesDebug.activeCount }}
+        </div>
+        {% endif %}
+
+        {% if MessID != 999 %}
+        <div class="msg-toolbar glass-panel">
+            <div class="toolbar-title">{{ LNG.mg_message_title }}</div>
+            <div class="toolbar-actions">
+                <select name="actionTop" class="glass-select">
+                    <option value="readmarked">{{ LNG.mg_read_marked }}</option>
+                    <option value="readtypeall">{{ LNG.mg_read_type_all }}</option>
+                    <option value="readall">{{ LNG.mg_read_all }}</option>
+                    <option value="deletemarked">{{ LNG.mg_delete_marked }}</option>
+                    <option value="deleteunmarked">{{ LNG.mg_delete_unmarked }}</option>
+                    <option value="deletetypeall">{{ LNG.mg_delete_type_all }}</option>
+                    <option value="deleteall">{{ LNG.mg_delete_all }}</option>
+                </select>
+                <button type="submit" name="submitTop" class="btn-action-small">{{ LNG.mg_confirm }}</button>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="msg-feed">
+            {% for Message in MessageList %}
+            {% set cleanText = Message.text|striptags %}
+            {% set answerSubject = LNG.mg_answer_to ~ " " ~ (Message.subject|default(LNG.mg_no_subject)|striptags) %}
+            <details class="msg-item message_{{ Message.id }}{% if Message.unread %} is-unread{% endif %}">
+                <summary class="msg-header">
+                    {% if MessID != 999 %}
+                    <label class="msg-checkbox" for="msg_{{ Message.id }}" onclick="event.stopPropagation();">
+                        <input type="checkbox" name="messageID[{{ Message.id }}]" id="msg_{{ Message.id }}" value="{{ Message.id }}">
+                    </label>
+                    {% else %}
+                    <span class="msg-checkbox placeholder"></span>
+                    {% endif %}
+
+                    <div class="msg-meta">
+                        <span class="msg-date"><i class="far fa-clock"></i> {{ Message.time }}</span>
+                        <span class="msg-sender">
+                            {% if MessID == 999 %}{{ LNG.mg_to }}{% else %}{{ LNG.mg_from }}{% endif %}:
+                            {% if Message.sender == -1 %}
+                                <span class="system-sender">{{ LNG.mg_system }}</span>
+                            {% else %}
+                                {{ Message.from }}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="msg-subject-wrap">
+                        <div class="msg-subject">
+                            {% if Message.subject %}
+                                {{ Message.subject|raw }}
+                            {% else %}
+                                {{ LNG.mg_no_subject }}
+                            {% endif %}
+                        </div>
+                        <div class="msg-preview">{{ cleanText|slice(0, 160) }}{% if cleanText|length > 160 %}...{% endif %}</div>
+                    </div>
+
+                    <div class="msg-controls">
+                        {% if MessID != 999 and Message.sender != -1 %}
+                        <a href="#" onclick="event.preventDefault();event.stopPropagation();return Dialog.PM({{ Message.sender }}, '{{ answerSubject|e('js') }}');" class="btn-icon reply" title="{{ LNG.mg_answer_to }}">
+                            <i class="fas fa-reply"></i>
+                        </a>
+                        {% endif %}
+                        {% if MessID != 999 %}
+                        <a href="#" onclick="event.preventDefault();event.stopPropagation();return Message.forwardMessage('{{ (Message.subject|default(LNG.mg_no_subject)|striptags)|e('js') }}');" class="btn-icon" title="Weiterleiten">
+                            <i class="fas fa-share"></i>
+                        </a>
+                        {% endif %}
+                        {% if MessID != 999 %}
+                        <a href="#" onclick="event.preventDefault();event.stopPropagation();return Message.deleteMessage({{ Message.id }}, {{ MessID }}, {{ page }});" class="btn-icon delete" title="{{ LNG.mg_delete_marked }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </summary>
+
+                <div class="msg-body">
+                    <div class="msg-body-meta">
+                        <div><strong>{{ LNG.mg_subject }}:</strong> {% if Message.subject %}{{ Message.subject|raw }}{% else %}{{ LNG.mg_no_subject }}{% endif %}</div>
+                        <div><strong>{% if MessID == 999 %}{{ LNG.mg_to }}{% else %}{{ LNG.mg_from }}{% endif %}:</strong> {% if Message.sender == -1 %}{{ LNG.mg_system }}{% else %}{{ Message.from }}{% endif %}</div>
+                        <div><strong>{{ LNG.mg_date }}:</strong> {{ Message.time }}</div>
+                    </div>
+                    <div class="msg-body-content">{{ Message.text|raw }}</div>
+                </div>
+            </details>
+            {% else %}
+            <div class="glass-panel text-center text-muted">Keine Nachrichten vorhanden.</div>
+            {% endfor %}
+        </div>
+
+        <div class="msg-pagination glass-panel">
+            <div class="pagination-label">{{ LNG.mg_page }}:</div>
+            <div class="pagination-links">
+                {% if page != 1 %}
+                    <a href="#" onclick="Message.getMessages({{ MessID }}, 1);return false;" class="page-link">&laquo;</a>
+                {% endif %}
+
+                {% for site in range(1, maxPage) %}
+                    <a href="#" onclick="Message.getMessages({{ MessID }}, {{ site }});return false;" class="page-link {% if site == page %}active{% endif %}">
+                        {{ site }}
+                    </a>
+                {% endfor %}
+
+                {% if page != maxPage %}
+                    <a href="#" onclick="Message.getMessages({{ MessID }}, {{ maxPage }});return false;" class="page-link">&raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

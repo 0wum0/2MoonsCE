@@ -1,0 +1,103 @@
+{% block content %}
+<div class="aerospace-battle-log">
+    
+    <div class="battle-result {% if Raport.result == "a" %}win{% elseif Raport.result == "r" %}lose{% else %}draw{% endif %}">
+        <div class="result-title">
+            {% if Raport.result == "a" %}{{ LNG.sys_attacker_won }}
+            {% elseif Raport.result == "r" %}{{ LNG.sys_defender_won }}
+            {% else %}{{ LNG.sys_both_won }}{% endif %}
+        </div>
+        <div class="result-time">{{ Raport.time }}</div>
+    </div>
+
+    {% for Round, RoundInfo in Raport.rounds %}
+    <div class="battle-round">
+        <div class="round-header">Runde {{ Round }}</div>
+        
+        <div class="fleet-block attacker">
+            {% for Player in RoundInfo.attacker %}
+            {% set PlayerInfo = Raport.players[Player.userID] %}
+            <div class="player-fleet">
+                <div class="player-name">{{ PlayerInfo.name }} <span class="coords">[{{ PlayerInfo.koords[0] }}:{{ PlayerInfo.koords[1] }}:{{ PlayerInfo.koords[2] }}]</span></div>
+                <div class="player-tech">Weap: {{ PlayerInfo.tech[0] }}% | Shld: {{ PlayerInfo.tech[1] }}% | Armr: {{ PlayerInfo.tech[2] }}%</div>
+                
+                {% if Player.ships %}
+                <table class="fleet-table">
+                    <tr><th>Typ</th><th>Anzahl</th><th>Waffen</th><th>Schild</th><th>Hülle</th></tr>
+                    {% for ShipID, ShipData in Player.ships %}
+                    <tr>
+                        <td>{{ LNG.shortNames[ShipID] }}</td>
+                        <td>{{ ShipData[0]|number_format }}</td>
+                        <td>{{ ShipData[1]|number_format }}</td>
+                        <td>{{ ShipData[2]|number_format }}</td>
+                        <td>{{ ShipData[3]|number_format }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <div class="destroyed">{{ LNG.sys_destroyed }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="vs-divider">VS</div>
+
+        <div class="fleet-block defender">
+            {% for Player in RoundInfo.defender %}
+            {% set PlayerInfo = Raport.players[Player.userID] %}
+            <div class="player-fleet">
+                <div class="player-name">{{ PlayerInfo.name }} <span class="coords">[{{ PlayerInfo.koords[0] }}:{{ PlayerInfo.koords[1] }}:{{ PlayerInfo.koords[2] }}]</span></div>
+                <div class="player-tech">Weap: {{ PlayerInfo.tech[0] }}% | Shld: {{ PlayerInfo.tech[1] }}% | Armr: {{ PlayerInfo.tech[2] }}%</div>
+                
+                {% if Player.ships %}
+                <table class="fleet-table">
+                    <tr><th>Typ</th><th>Anzahl</th><th>Waffen</th><th>Schild</th><th>Hülle</th></tr>
+                    {% for ShipID, ShipData in Player.ships %}
+                    <tr>
+                        <td>{{ LNG.shortNames[ShipID] }}</td>
+                        <td>{{ ShipData[0]|number_format }}</td>
+                        <td>{{ ShipData[1]|number_format }}</td>
+                        <td>{{ ShipData[2]|number_format }}</td>
+                        <td>{{ ShipData[3]|number_format }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <div class="destroyed">{{ LNG.sys_destroyed }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="battle-footer glass-panel">
+        {% if Raport.result == "a" %}
+        <div class="loot-section">
+            <h4>{{ LNG.sys_stealed_ressources }}</h4>
+            <div class="res-list">
+                {% for elementID, amount in Raport.steal %}
+                <span class="res-loot"><img src="{{ dpath }}images/{{ elementID }}.gif" width="20"> {{ amount|number_format }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="debris-section">
+            <h4>{{ LNG.debree_field_1 }}</h4>
+            <div class="res-list">
+                {% for elementID, amount in Raport.debris %}
+                <span class="res-loot"><img src="{{ dpath }}images/{{ elementID }}.gif" width="20"> {{ amount|number_format }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="losses-section">
+            <div>{{ LNG.sys_attacker_lostunits }}: <span class="red">{{ Raport['units'][0]|number_format }}</span></div>
+            <div>{{ LNG.sys_defender_lostunits }}: <span class="red">{{ Raport['units'][1]|number_format }}</span></div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

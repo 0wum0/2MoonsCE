@@ -1,0 +1,35 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.fcm_info }}{% endblock %}
+
+{% block content %}
+<div class="error-page-wrapper">
+    
+    <div class="glass-panel error-card">
+        
+        <div class="error-icon-box">
+            <i class="fas fa-exclamation-triangle fa-beat-fade"></i>
+        </div>
+
+        <h2 class="error-title">{{ LNG.fcm_info }}</h2>
+        
+        <div class="error-message">
+            {{ message|raw }}
+        </div>
+
+        <div class="error-actions">
+            {% if redirectButtons %}
+                {% for button in redirectButtons %}
+                <a href="{{ button.url }}" class="btn-action-glow">{{ button.label }}</a>
+                {% endfor %}
+            {% else %}
+                <a href="game.php?page=overview" class="btn-action-glow btn-back">
+                    <i class="fas fa-home"></i> {{ LNG.lm_overview }}
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

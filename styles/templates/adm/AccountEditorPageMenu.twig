@@ -1,0 +1,145 @@
+{% include "overall_header.twig" %}
+
+<div class="container-fluid p-4">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dash-header">
+                <h1><i class="fas fa-edit"></i> {{ LNG.ad_editor_title }}</h1>
+                <p class="text-muted">Wähle einen Bereich zum Bearbeiten</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=buildings" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-warning">
+                            <i class="fas fa-industry fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_buildings }}</h5>
+                        <p class="card-text text-muted small">Minen & Anlagen</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=ships" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-info">
+                            <i class="fas fa-fighter-jet fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_ships }}</h5>
+                        <p class="card-text text-muted small">Kampf- & Zivilschiffe</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=defenses" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-danger">
+                            <i class="fas fa-shield-alt fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_defenses }}</h5>
+                        <p class="card-text text-muted small">Geschütze & Schildkuppeln</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=researchs" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-primary">
+                            <i class="fas fa-flask fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_researchs }}</h5>
+                        <p class="card-text text-muted small">Technologien & Antriebe</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=officiers" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-success">
+                            <i class="fas fa-user-tie fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_officiers }}</h5>
+                        <p class="card-text text-muted small">DM-Offiziere & Boni</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=resources" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-warning">
+                            <i class="fas fa-cubes fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_resources }}</h5>
+                        <p class="card-text text-muted small">Met/Kris/Deut & DM</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=planets" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-success">
+                            <i class="fas fa-globe fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_planets }}</h5>
+                        <p class="card-text text-muted small">Felder, Namen & Löschen</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=alliances" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-info">
+                            <i class="fas fa-users fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_alliances }}</h5>
+                        <p class="card-text text-muted small">Mitglieder & Texte</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <a href="?page=accounteditor&edit=personal" class="text-decoration-none">
+                <div class="card neon-card h-100 card-hover">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3 text-danger">
+                            <i class="fas fa-user-edit fa-3x"></i>
+                        </div>
+                        <h5 class="card-title text-white mb-1">{{ LNG.ad_editor_personal }}</h5>
+                        <p class="card-text text-muted small">Email, Passwort & Namen</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% include "overall_footer.twig" %}

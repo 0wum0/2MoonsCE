@@ -1,0 +1,104 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-users"></i> {{ al_users_list }}</h2>
+        <a href="game.php?page=alliance&amp;mode=admin" class="btn-ghost small"><i class="fas fa-arrow-left"></i> {{ LNG.al_back }}</a>
+    </div>
+
+    <div class="glass-panel table-panel">
+        <form action="game.php?page=alliance&amp;mode=admin&amp;action=membersSave" method="post">
+            <div class="table-responsive">
+                <table id="memberList" class="glass-table full-width tablesorter">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ LNG.al_member }}</th>
+                        <th>{{ LNG.al_message }}</th>
+                        <th>{{ LNG.al_position }}</th>
+                        <th>{{ LNG.al_points }}</th>
+                        <th>{{ LNG.al_coords }}</th>
+                        <th>{{ LNG.al_member_since }}</th>
+                        <th>{{ LNG.al_estate }}</th>
+                        <th>{{ LNG.al_actions }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for userID, memberListRow in memberList %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <a href="#" onclick="return Dialog.Playercard({{ userID }},'{{ memberListRow.username }}');" class="text-highlight">
+                                    {{ memberListRow.username }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="#" onclick="return Dialog.PM({{ userID }});" class="icon-btn">
+                                    <i class="far fa-envelope"></i>
+                                </a>
+                            </td>
+                            <td>
+                                {% if memberListRow.rankID == -1 %}
+                                    <span class="founder-badge">{{ founder }}</span>
+                                {% elseif rankSelectList %}
+                                    {{ rankList[memberListRow.rankID] }} 
+                                {% else %}
+                                    {{ rankList[memberListRow.rankID] }}
+                                {% endif %}
+                            </td>
+                            <td><span class="text-highlight">{{ memberListRow.points|number_format }}</span></td>
+                            <td>
+                                <a href="game.php?page=galaxy&amp;galaxy={{ memberListRow.galaxy }}&amp;system={{ memberListRow.system }}" class="coord-link">
+                                    [{{ memberListRow.galaxy }}:{{ memberListRow.system }}:{{ memberListRow.planet }}]
+                                </a>
+                            </td>
+                            <td class="text-muted">{{ memberListRow.register_time }}</td>
+                            <td>
+                                {% if rights.ONLINESTATE %}
+                                    {% if memberListRow.onlinetime < 4 %}
+                                        <span class="status-dot online" title="{{ LNG.al_memberlist_on }}"></span>
+                                    {% elseif memberListRow.onlinetime >= 4 and memberListRow.onlinetime <= 15 %}
+                                        <span class="status-dot away" title="{{ memberListRow.onlinetime }} {{ LNG.al_memberlist_min }}"></span>
+                                    {% else %}
+                                        <span class="status-dot offline" title="{{ LNG.al_memberlist_off }}"></span>
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if memberListRow.rankID != -1 and canKick %}
+                                    <a href="game.php?page=alliance&amp;mode=admin&amp;action=membersKick&amp;id={{ userID }}" 
+                                       onclick="return confirm('{{ memberListRow.kickQuestion }}');" 
+                                       class="btn-icon-danger" title="Kick">
+                                        <i class="fas fa-user-times"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script src="scripts/base/jquery.tablesorter.js"></script>
+    <script>$(function() {
+            $("#memberList").tablesorter({
+                headers: { 0: { sorter: false }, 2: { sorter: false }, 8: { sorter: false } },
+                debug: false
+            });
+            $('.rankSelect').on('change', function () {
+                $.post('game.php?page=alliance&mode=admin&action=rank&ajax=1', $(this).serialize(), function (data) {
+                    NotifyBox(data);
+                }, 'json');
+            });
+        });
+    </script>
+{% endblock %}

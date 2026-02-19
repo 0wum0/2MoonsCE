@@ -1,0 +1,845 @@
+[2026-02-17 23:56:00] Generator START
+Amount: 5, Planets: 1
+Calling createBots()...
+createBots() SUCCESS!
+[2026-02-18 00:06:16] Generator START
+Amount: 5, Planets: 1
+Calling createBots()...
+Names loaded: 16529
+Bot types found: 1
+Creating bot 1/5...
+Name: Williwaw555, Type: 1
+Universe: 1
+CATCH ERROR Bot 1: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'lang' cannot be null<br>
+<br>
+Query-Code:INSERT INTO uni3_users SET
+		username		= Williwaw555,
+		email			= Williwaw555@bot.game,
+		email_2			= Williwaw555@bot.game2,
+		authlevel		= 0,
+		universe		= 1,
+		lang			= ,
+		ip_at_reg		= 127.0.0.1,
+		onlinetime		= 1771369576,
+		register_time	= 1771369576,
+		password		= dd4e4c714a49aef927349b9915c5cc02,
+		dpath			= gow,
+		timezone		= Europe/Berlin,
+		uctime			= 0,
+		darkmatter		= 0;
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/Database.class.php:169
+Creating bot 2/5...
+Name: Quantz353, Type: 1
+Universe: 1
+CATCH ERROR Bot 2: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'lang' cannot be null<br>
+<br>
+Query-Code:INSERT INTO uni3_users SET
+		username		= Quantz353,
+		email			= Quantz353@bot.game,
+		email_2			= Quantz353@bot.game2,
+		authlevel		= 0,
+		universe		= 1,
+		lang			= ,
+		ip_at_reg		= 127.0.0.1,
+		onlinetime		= 1771369576,
+		register_time	= 1771369576,
+		password		= 91cc3a226a0132ee29742e8f1ce42b3f,
+		dpath			= gow,
+		timezone		= Europe/Berlin,
+		uctime			= 0,
+		darkmatter		= 0;
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/Database.class.php:169
+Creating bot 3/5...
+Name: Miyama559, Type: 1
+Universe: 1
+CATCH ERROR Bot 3: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'lang' cannot be null<br>
+<br>
+Query-Code:INSERT INTO uni3_users SET
+		username		= Miyama559,
+		email			= Miyama559@bot.game,
+		email_2			= Miyama559@bot.game2,
+		authlevel		= 0,
+		universe		= 1,
+		lang			= ,
+		ip_at_reg		= 127.0.0.1,
+		onlinetime		= 1771369576,
+		register_time	= 1771369576,
+		password		= 4ac3cad47460a811dbd4b3944536f40a,
+		dpath			= gow,
+		timezone		= Europe/Berlin,
+		uctime			= 0,
+		darkmatter		= 0;
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/Database.class.php:169
+Creating bot 4/5...
+Name: Fragaria848, Type: 1
+Universe: 1
+CATCH ERROR Bot 4: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'lang' cannot be null<br>
+<br>
+Query-Code:INSERT INTO uni3_users SET
+		username		= Fragaria848,
+		email			= Fragaria848@bot.game,
+		email_2			= Fragaria848@bot.game2,
+		authlevel		= 0,
+		universe		= 1,
+		lang			= ,
+		ip_at_reg		= 127.0.0.1,
+		onlinetime		= 1771369576,
+		register_time	= 1771369576,
+		password		= c68d26434f889b7f680946b347ff2382,
+		dpath			= gow,
+		timezone		= Europe/Berlin,
+		uctime			= 0,
+		darkmatter		= 0;
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/Database.class.php:169
+Creating bot 5/5...
+Name: Wickramasekara809, Type: 1
+Universe: 1
+CATCH ERROR Bot 5: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'lang' cannot be null<br>
+<br>
+Query-Code:INSERT INTO uni3_users SET
+		username		= Wickramasekara809,
+		email			= Wickramasekara809@bot.game,
+		email_2			= Wickramasekara809@bot.game2,
+		authlevel		= 0,
+		universe		= 1,
+		lang			= ,
+		ip_at_reg		= 127.0.0.1,
+		onlinetime		= 1771369576,
+		register_time	= 1771369576,
+		password		= a3edcecc04be78727b4126803d4c01a1,
+		dpath			= gow,
+		timezone		= Europe/Berlin,
+		uctime			= 0,
+		darkmatter		= 0;
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/Database.class.php:169
+All bots processed. Running contingent calculation...
+createBots() SUCCESS!
+[2026-02-18 00:08:13] Generator START
+Amount: 110, Planets: 1
+Calling createBots()...
+Names loaded: 16529
+Bot types found: 1
+Creating bot 1/110...
+Name: Babuska964, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 228, PlanetID: 22
+Inserted into bots table
+is_bot flag set
+Bot 1 COMPLETE!
+Creating bot 2/110...
+Name: Pedroduque619, Type: 1
+Universe: 1
+CATCH ERROR Bot 2: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 3/110...
+Name: Schoenobaenus985, Type: 1
+Universe: 1
+CATCH ERROR Bot 3: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 4/110...
+Name: Hamura688, Type: 1
+Universe: 1
+CATCH ERROR Bot 4: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 5/110...
+Name: Arbesfeld337, Type: 1
+Universe: 1
+CATCH ERROR Bot 5: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 6/110...
+Name: Corduba347, Type: 1
+Universe: 1
+CATCH ERROR Bot 6: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 7/110...
+Name: Dunkerley431, Type: 1
+Universe: 1
+CATCH ERROR Bot 7: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 8/110...
+Name: Bogatikov766, Type: 1
+Universe: 1
+CATCH ERROR Bot 8: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 9/110...
+Name: Oicles625, Type: 1
+Universe: 1
+CATCH ERROR Bot 9: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 10/110...
+Name: Eger749, Type: 1
+Universe: 1
+CATCH ERROR Bot 10: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 11/110...
+Name: Sebastiana636, Type: 1
+Universe: 1
+CATCH ERROR Bot 11: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 12/110...
+Name: Limdarren657, Type: 1
+Universe: 1
+CATCH ERROR Bot 12: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 13/110...
+Name: Floirac909, Type: 1
+Universe: 1
+CATCH ERROR Bot 13: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 14/110...
+Name: Deikoon950, Type: 1
+Universe: 1
+CATCH ERROR Bot 14: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 15/110...
+Name: Sasandford524, Type: 1
+Universe: 1
+CATCH ERROR Bot 15: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 16/110...
+Name: Righini517, Type: 1
+Universe: 1
+CATCH ERROR Bot 16: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 17/110...
+Name: Cavadore511, Type: 1
+Universe: 1
+CATCH ERROR Bot 17: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 18/110...
+Name: Williamcooke489, Type: 1
+Universe: 1
+CATCH ERROR Bot 18: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 19/110...
+Name: Joeferguson102, Type: 1
+Universe: 1
+CATCH ERROR Bot 19: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 20/110...
+Name: Baltuck541, Type: 1
+Universe: 1
+CATCH ERROR Bot 20: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 21/110...
+Name: Bartolucci222, Type: 1
+Universe: 1
+CATCH ERROR Bot 21: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 22/110...
+Name: Seanokeefe529, Type: 1
+Universe: 1
+CATCH ERROR Bot 22: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 23/110...
+Name: Chleborad881, Type: 1
+Universe: 1
+CATCH ERROR Bot 23: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 24/110...
+Name: Turku625, Type: 1
+Universe: 1
+CATCH ERROR Bot 24: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 25/110...
+Name: Golovyno429, Type: 1
+Universe: 1
+CATCH ERROR Bot 25: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 26/110...
+Name: Saddlemyer606, Type: 1
+Universe: 1
+CATCH ERROR Bot 26: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 27/110...
+Name: Hammurabi968, Type: 1
+Universe: 1
+CATCH ERROR Bot 27: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 28/110...
+Name: Samadhi505, Type: 1
+Universe: 1
+CATCH ERROR Bot 28: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 29/110...
+Name: Vilen408, Type: 1
+Universe: 1
+CATCH ERROR Bot 29: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 30/110...
+Name: Loczy512, Type: 1
+Universe: 1
+CATCH ERROR Bot 30: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 31/110...
+Name: Margo144, Type: 1
+Universe: 1
+CATCH ERROR Bot 31: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 32/110...
+Name: Tripuraneni765, Type: 1
+Universe: 1
+CATCH ERROR Bot 32: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 33/110...
+Name: Kleczek894, Type: 1
+Universe: 1
+CATCH ERROR Bot 33: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 34/110...
+Name: Suleika737, Type: 1
+Universe: 1
+CATCH ERROR Bot 34: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 35/110...
+Name: Buzios305, Type: 1
+Universe: 1
+CATCH ERROR Bot 35: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 36/110...
+Name: Valeska340, Type: 1
+Universe: 1
+CATCH ERROR Bot 36: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 37/110...
+Name: Flammario827, Type: 1
+Universe: 1
+CATCH ERROR Bot 37: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 38/110...
+Name: Osaki512, Type: 1
+Universe: 1
+CATCH ERROR Bot 38: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 39/110...
+Name: Polyxenos520, Type: 1
+Universe: 1
+CATCH ERROR Bot 39: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 40/110...
+Name: Pansecchi543, Type: 1
+Universe: 1
+CATCH ERROR Bot 40: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 41/110...
+Name: Tedesco655, Type: 1
+Universe: 1
+CATCH ERROR Bot 41: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 42/110...
+Name: Ericpearce352, Type: 1
+Universe: 1
+CATCH ERROR Bot 42: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 43/110...
+Name: Funada501, Type: 1
+Universe: 1
+CATCH ERROR Bot 43: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 44/110...
+Name: Bretagnon242, Type: 1
+Universe: 1
+CATCH ERROR Bot 44: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 45/110...
+Name: Imperatrix775, Type: 1
+Universe: 1
+CATCH ERROR Bot 45: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 46/110...
+Name: Minsk270, Type: 1
+Universe: 1
+CATCH ERROR Bot 46: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 47/110...
+Name: Nguyen-McCarty715, Type: 1
+Universe: 1
+CATCH ERROR Bot 47: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 48/110...
+Name: Aurora866, Type: 1
+Universe: 1
+CATCH ERROR Bot 48: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 49/110...
+Name: Wenchang927, Type: 1
+Universe: 1
+CATCH ERROR Bot 49: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 50/110...
+Name: Werntz985, Type: 1
+Universe: 1
+CATCH ERROR Bot 50: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 51/110...
+Name: Brecht122, Type: 1
+Universe: 1
+CATCH ERROR Bot 51: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 52/110...
+Name: Fahrenheit294, Type: 1
+Universe: 1
+CATCH ERROR Bot 52: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 53/110...
+Name: Lidov617, Type: 1
+Universe: 1
+CATCH ERROR Bot 53: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 54/110...
+Name: Markporter635, Type: 1
+Universe: 1
+CATCH ERROR Bot 54: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 55/110...
+Name: Ostro679, Type: 1
+Universe: 1
+CATCH ERROR Bot 55: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 56/110...
+Name: Kolokolova230, Type: 1
+Universe: 1
+CATCH ERROR Bot 56: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 57/110...
+Name: Dudleymoore579, Type: 1
+Universe: 1
+CATCH ERROR Bot 57: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 58/110...
+Name: Graubunden303, Type: 1
+Universe: 1
+CATCH ERROR Bot 58: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 59/110...
+Name: Vecernicek202, Type: 1
+Universe: 1
+CATCH ERROR Bot 59: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 60/110...
+Name: Ookuninushi705, Type: 1
+Universe: 1
+CATCH ERROR Bot 60: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 61/110...
+Name: Steina560, Type: 1
+Universe: 1
+CATCH ERROR Bot 61: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 62/110...
+Name: Ubuntu749, Type: 1
+Universe: 1
+CATCH ERROR Bot 62: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 63/110...
+Name: Kiriko Matsuri662, Type: 1
+Universe: 1
+CATCH ERROR Bot 63: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 64/110...
+Name: Martha832, Type: 1
+Universe: 1
+CATCH ERROR Bot 64: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 65/110...
+Name: Peltan362, Type: 1
+Universe: 1
+CATCH ERROR Bot 65: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 66/110...
+Name: Jodiefoster924, Type: 1
+Universe: 1
+CATCH ERROR Bot 66: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 67/110...
+Name: Fennimore508, Type: 1
+Universe: 1
+CATCH ERROR Bot 67: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 68/110...
+Name: Allanrahill312, Type: 1
+Universe: 1
+CATCH ERROR Bot 68: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 69/110...
+Name: Talich674, Type: 1
+Universe: 1
+CATCH ERROR Bot 69: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 70/110...
+Name: Burroughs414, Type: 1
+Universe: 1
+CATCH ERROR Bot 70: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 71/110...
+Name: Patrice189, Type: 1
+Universe: 1
+CATCH ERROR Bot 71: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 72/110...
+Name: Dewar741, Type: 1
+Universe: 1
+CATCH ERROR Bot 72: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 73/110...
+Name: Izsak141, Type: 1
+Universe: 1
+CATCH ERROR Bot 73: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 74/110...
+Name: Comello551, Type: 1
+Universe: 1
+CATCH ERROR Bot 74: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 75/110...
+Name: Toyako860, Type: 1
+Universe: 1
+CATCH ERROR Bot 75: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 76/110...
+Name: Magoeba162, Type: 1
+Universe: 1
+CATCH ERROR Bot 76: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 77/110...
+Name: Qiujun987, Type: 1
+Universe: 1
+CATCH ERROR Bot 77: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 78/110...
+Name: Chaokuangpiu414, Type: 1
+Universe: 1
+CATCH ERROR Bot 78: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 79/110...
+Name: Ararat513, Type: 1
+Universe: 1
+CATCH ERROR Bot 79: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 80/110...
+Name: La Canada108, Type: 1
+Universe: 1
+CATCH ERROR Bot 80: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 81/110...
+Name: Drewpinsky865, Type: 1
+Universe: 1
+CATCH ERROR Bot 81: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 82/110...
+Name: Jindrasilhan948, Type: 1
+Universe: 1
+CATCH ERROR Bot 82: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 83/110...
+Name: Tetsuya264, Type: 1
+Universe: 1
+CATCH ERROR Bot 83: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 84/110...
+Name: Janesick219, Type: 1
+Universe: 1
+CATCH ERROR Bot 84: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 85/110...
+Name: Roser195, Type: 1
+Universe: 1
+CATCH ERROR Bot 85: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 86/110...
+Name: Fernandus790, Type: 1
+Universe: 1
+CATCH ERROR Bot 86: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 87/110...
+Name: Astropis897, Type: 1
+Universe: 1
+CATCH ERROR Bot 87: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 88/110...
+Name: Ebella248, Type: 1
+Universe: 1
+CATCH ERROR Bot 88: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 89/110...
+Name: Shanghai582, Type: 1
+Universe: 1
+CATCH ERROR Bot 89: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 90/110...
+Name: MacPherson571, Type: 1
+Universe: 1
+CATCH ERROR Bot 90: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 91/110...
+Name: Lucieconstant847, Type: 1
+Universe: 1
+CATCH ERROR Bot 91: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 92/110...
+Name: Hirayama747, Type: 1
+Universe: 1
+CATCH ERROR Bot 92: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 93/110...
+Name: Csere360, Type: 1
+Universe: 1
+CATCH ERROR Bot 93: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 94/110...
+Name: Helwerthia299, Type: 1
+Universe: 1
+CATCH ERROR Bot 94: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 95/110...
+Name: Hirayama919, Type: 1
+Universe: 1
+CATCH ERROR Bot 95: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 96/110...
+Name: Larissa826, Type: 1
+Universe: 1
+CATCH ERROR Bot 96: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 97/110...
+Name: Luneburg224, Type: 1
+Universe: 1
+CATCH ERROR Bot 97: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 98/110...
+Name: Josefhlavka682, Type: 1
+Universe: 1
+CATCH ERROR Bot 98: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 99/110...
+Name: Puranik196, Type: 1
+Universe: 1
+CATCH ERROR Bot 99: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 100/110...
+Name: Shor441, Type: 1
+Universe: 1
+CATCH ERROR Bot 100: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 101/110...
+Name: Rogeria324, Type: 1
+Universe: 1
+CATCH ERROR Bot 101: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 102/110...
+Name: Ramakrishna763, Type: 1
+Universe: 1
+CATCH ERROR Bot 102: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 103/110...
+Name: Abigreene213, Type: 1
+Universe: 1
+CATCH ERROR Bot 103: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 104/110...
+Name: Tubbiolo131, Type: 1
+Universe: 1
+CATCH ERROR Bot 104: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 105/110...
+Name: Bitias943, Type: 1
+Universe: 1
+CATCH ERROR Bot 105: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 106/110...
+Name: Kyrobinson347, Type: 1
+Universe: 1
+CATCH ERROR Bot 106: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 107/110...
+Name: Turnera303, Type: 1
+Universe: 1
+CATCH ERROR Bot 107: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 108/110...
+Name: De Martin178, Type: 1
+Universe: 1
+CATCH ERROR Bot 108: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 109/110...
+Name: Ayyubguliev277, Type: 1
+Universe: 1
+CATCH ERROR Bot 109: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+Creating bot 110/110...
+Name: Yocum164, Type: 1
+Universe: 1
+CATCH ERROR Bot 110: Division by zero
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:249
+All bots processed. Running contingent calculation...
+createBots() SUCCESS!
+[2026-02-18 00:18:59] Generator START
+Amount: 5, Planets: 1
+Calling createBots()...
+Names loaded: 16529
+Bot types found: 1
+Creating bot 1/5...
+Name: Susanruder114, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 338, PlanetID: 23
+Inserted into bots table
+is_bot flag set
+Bot 1 COMPLETE!
+Creating bot 2/5...
+Name: Puntel521, Type: 1
+Universe: 1
+CATCH ERROR Bot 2: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 3/5...
+Name: Khvorostovsky694, Type: 1
+Universe: 1
+CATCH ERROR Bot 3: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 4/5...
+Name: Grebenikov683, Type: 1
+Universe: 1
+CATCH ERROR Bot 4: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 5/5...
+Name: Kittisvaara979, Type: 1
+Universe: 1
+CATCH ERROR Bot 5: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+All bots processed. Running contingent calculation...
+createBots() SUCCESS!
+[2026-02-18 00:29:00] Generator START
+Amount: 10, Planets: 1
+Calling createBots()...
+Names loaded: 16529
+Bot types found: 1
+Creating bot 1/10...
+Name: Gleason355, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 343, PlanetID: 24
+Inserted into bots table
+is_bot flag set
+Bot 1 COMPLETE!
+Creating bot 2/10...
+Name: Gase266, Type: 1
+Universe: 1
+CATCH ERROR Bot 2: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 3/10...
+Name: Ndola375, Type: 1
+Universe: 1
+CATCH ERROR Bot 3: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 4/10...
+Name: Woomera213, Type: 1
+Universe: 1
+CATCH ERROR Bot 4: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 5/10...
+Name: Grantham616, Type: 1
+Universe: 1
+CATCH ERROR Bot 5: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 6/10...
+Name: Bartolomeo860, Type: 1
+Universe: 1
+CATCH ERROR Bot 6: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 7/10...
+Name: Nishiyamahiro446, Type: 1
+Universe: 1
+CATCH ERROR Bot 7: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 8/10...
+Name: Gide486, Type: 1
+Universe: 1
+CATCH ERROR Bot 8: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 9/10...
+Name: Tvashtri758, Type: 1
+Universe: 1
+CATCH ERROR Bot 9: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+Creating bot 10/10...
+Name: Hokutosei511, Type: 1
+Universe: 1
+CATCH ERROR Bot 10: PlanetData is empty! Cannot create planet.
+File: /home/u772175418/domains/sm.makeit.uno/public_html/includes/classes/PlayerUtil.class.php:255
+All bots processed. Running contingent calculation...
+createBots() SUCCESS!
+[2026-02-18 00:34:19] Generator START
+Amount: 10, Planets: 1
+Calling createBots()...
+Names loaded: 16529
+Bot types found: 1
+Creating bot 1/10...
+Name: Credo439, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 353, PlanetID: 25
+Inserted into bots table
+is_bot flag set
+Bot 1 COMPLETE!
+Creating bot 2/10...
+Name: Bertelli713, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 354, PlanetID: 26
+Inserted into bots table
+is_bot flag set
+Bot 2 COMPLETE!
+Creating bot 3/10...
+Name: Russ502, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 355, PlanetID: 27
+Inserted into bots table
+is_bot flag set
+Bot 3 COMPLETE!
+Creating bot 4/10...
+Name: Lick239, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 356, PlanetID: 28
+Inserted into bots table
+is_bot flag set
+Bot 4 COMPLETE!
+Creating bot 5/10...
+Name: Manning868, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 357, PlanetID: 29
+Inserted into bots table
+is_bot flag set
+Bot 5 COMPLETE!
+Creating bot 6/10...
+Name: Luginbuhl525, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 358, PlanetID: 30
+Inserted into bots table
+is_bot flag set
+Bot 6 COMPLETE!
+Creating bot 7/10...
+Name: Georgealexander560, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 359, PlanetID: 31
+Inserted into bots table
+is_bot flag set
+Bot 7 COMPLETE!
+Creating bot 8/10...
+Name: Castalia467, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 360, PlanetID: 32
+Inserted into bots table
+is_bot flag set
+Bot 8 COMPLETE!
+Creating bot 9/10...
+Name: Andranada171, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 361, PlanetID: 33
+Inserted into bots table
+is_bot flag set
+Bot 9 COMPLETE!
+Creating bot 10/10...
+Name: Luneburg752, Type: 1
+Universe: 1
+PlayerUtil::createPlayer SUCCESS! UserID: 362, PlanetID: 34
+Inserted into bots table
+is_bot flag set
+Bot 10 COMPLETE!
+All bots processed. Running contingent calculation...
+createBots() SUCCESS!

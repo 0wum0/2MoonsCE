@@ -1,0 +1,85 @@
+{% include "overall_header.twig" %}
+
+<div class="container-fluid p-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="dash-header m-0">
+            <h1><i class="fas fa-industry"></i> {{ LNG.ad_buildings_title }}</h1>
+            <p class="text-muted">Gebäudestufen manipulieren</p>
+        </div>
+        <a href="?page=accounteditor" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> {{ LNG.ad_back_to_menu }}
+        </a>
+    </div>
+
+    <form action="" method="post">
+        <div class="row g-4">
+            
+            <div class="col-12 col-xl-3">
+                <div class="sticky-xl-top" style="top: 20px; z-index: 1;">
+                    
+                    <div class="card neon-card mb-3">
+                        <div class="card-header text-accent">
+                            <i class="fas fa-crosshairs me-2"></i> Ziel
+                        </div>
+                        <div class="card-body">
+                            <label class="form-label text-muted small text-uppercase">{{ LNG.input_id_p_m }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text glass-input border-end-0 text-accent">#</span>
+                                <input name="id" type="number" value="0" class="form-control glass-input border-start-0" placeholder="ID" required>
+                            </div>
+                            <div class="form-text text-muted">Gib die Planeten- oder Mond-ID ein.</div>
+                        </div>
+                    </div>
+
+                    <div class="card neon-card border-accent" style="border-color: rgba(56, 189, 248, 0.3) !important;">
+                        <div class="card-header text-white">
+                            <i class="fas fa-cogs me-2"></i> Aktionen
+                        </div>
+                        <div class="card-body d-grid gap-2">
+                            <button type="submit" name="add" class="btn btn-success fw-bold">
+                                <i class="fas fa-plus-circle me-2"></i> {{ LNG.button_add }}
+                            </button>
+                            
+                            <button type="submit" name="delete" class="btn btn-danger fw-bold">
+                                <i class="fas fa-trash-alt me-2"></i> {{ LNG.button_delete }}
+                            </button>
+                            
+                            <hr class="border-secondary opacity-25 my-2">
+                            
+                            <button type="reset" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-undo me-2"></i> {{ LNG.button_reset }}
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-9">
+                <div class="card neon-card">
+                    <div class="card-header">
+                        <i class="fas fa-cubes me-2"></i> {{ LNG.ad_buildings }} & {{ LNG.ad_levels }}
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            {% for id, input in inputlist %}
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-text glass-input col-8 text-start text-truncate" title="{{ LNG.tech[id] }}">
+                                        <small class="text-muted me-2">ID:{{ id }}</small> {{ LNG.tech[id] }}
+                                    </span>
+                                    <input name="{{ input.type }}" type="number" value="0" class="form-control glass-input text-center text-accent fw-bold">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+{% include "overall_footer.twig" %}

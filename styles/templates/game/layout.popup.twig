@@ -1,0 +1,87 @@
+{% include "main.header.twig" with {'bodyclass': 'popup-window'} %}
+
+<script type="text/javascript">
+(function() {
+    try {
+        if (window.parent && window.parent.document) {
+            // Wir erstellen einen neuen Style-Block für das Eltern-Fenster
+            var styleElement = window.parent.document.createElement('style');
+            styleElement.type = 'text/css';
+            styleElement.id = 'aerospace-fancybox-override';
+            
+            // CSS, das den weißen Kasten unsichtbar macht
+            var cssCode = `
+                /* 1. Den äußeren Rahmen unsichtbar machen */
+                #fancybox-outer {
+                    background: transparent !important;
+                    box-shadow: none !important;
+                    -moz-box-shadow: none !important;
+                    -webkit-box-shadow: none !important;
+                }
+                
+                /* 2. Den Inhalts-Container unsichtbar machen (nur den Hintergrund/Rahmen) */
+                #fancybox-content {
+                    background: transparent !important;
+                    border: none !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    box-shadow: none !important;
+                }
+
+                /* 3. Die Schatten-Grafiken von Fancybox ausblenden */
+                .fancybox-bg {
+                    display: none !important;
+                }
+
+                /* 4. Das Standard-X ausblenden */
+                #fancybox-close {
+                    display: none !important;
+                }
+                
+                /* 5. Sicherstellen, dass kein weißer Hintergrund durchscheint */
+                .fancybox-inner {
+                    background: transparent !important;
+                }
+            `;
+
+            // Style einfügen
+            if (styleElement.styleSheet) {
+                styleElement.styleSheet.cssText = cssCode; // IE
+            } else {
+                styleElement.appendChild(window.parent.document.createTextNode(cssCode)); // Andere
+            }
+            
+            // Alten Style entfernen falls vorhanden, um Duplikate zu vermeiden
+            var oldStyle = window.parent.document.getElementById('aerospace-fancybox-override');
+            if (oldStyle) oldStyle.remove();
+
+            window.parent.document.getElementsByTagName('head')[0].appendChild(styleElement);
+        }
+    } catch(e) {
+        console.log("Access denied to parent window styling: " + e);
+    }
+})();
+</script>
+
+<div class="aerospace-modal-wrapper">
+    
+    <div class="modal-close-btn" onclick="parent.$.fancybox.close();">
+        <i class="fas fa-times"></i>
+    </div>
+
+    <div class="modal-content custom-scroll">
+        {% block content %}{% endblock %}
+    </div>
+
+</div>
+
+<script type="text/javascript">
+var LoginConfig = {
+    'isMultiUniverse': {{ isMultiUniverse|json_encode|raw }},
+    'unisWildcast': {{ unisWildcast|json_encode|raw }},
+    'referralEnable' : {{ referralEnable|json_encode|raw }},
+    'basePath' : {{ basepath|json_encode|raw }}
+};
+</script>
+</body>
+</html>

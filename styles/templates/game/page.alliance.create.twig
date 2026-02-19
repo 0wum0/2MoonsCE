@@ -1,0 +1,38 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel center-panel">
+        <div class="panel-header">
+            <i class="fas fa-users"></i> {{ LNG.al_make_alliance }}
+        </div>
+
+        <form action="game.php?page=alliance&amp;mode=create&amp;action=send" method="POST">
+            <div class="form-group">
+                <label>{{ LNG.al_make_ally_tag_required }}</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-tag"></i>
+                    <input type="text" name="atag" size="8" maxlength="8" class="glass-input" placeholder="TAG">
+                </div>
+                <small class="form-text text-muted">Max. 8 Zeichen</small>
+            </div>
+
+            <div class="form-group">
+                <label>{{ LNG.al_make_ally_name_required }}</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-signature"></i>
+                    <input type="text" name="aname" size="20" maxlength="30" class="glass-input" placeholder="Allianz Name">
+                </div>
+                <small class="form-text text-muted">Max. 30 Zeichen</small>
+            </div>
+
+            <div class="action-bar-bottom">
+                <a href="game.php?page=alliance" class="btn-ghost">{{ LNG.al_back }}</a>
+                <button type="submit" class="btn-action-glow">{{ LNG.al_make_submit }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" class="no-js">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+	<title>{% block title %} - {{ uni_name }} - {{ game_name }}{% endblock %}</title>
+	<meta name="generator" content="SmartMoons {{ VERSION }}">
+	<meta name="theme-color" content="#0a0e1a"> 
+    {% if goto %}
+	<meta http-equiv="refresh" content="{{ gotoinsec }};URL={{ goto }}">
+	{% endif %}
+
+	<link rel="stylesheet" type="text/css" href="styles/theme/smartmoons.css?v=3.1.0.4">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	
+    <link rel="stylesheet" type="text/css" href="styles/resource/css/base/jquery.fancybox.css">
+	<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+
+	<script type="text/javascript">
+	var ServerTimezoneOffset = {{ Offset }};
+	var serverTime 	= new Date({{ date.0 }}, {{ date.1 - 1 }}, {{ date.2 }}, {{ date.3 }}, {{ date.4 }}, {{ date.5 }});
+	var startTime	= serverTime.getTime();
+	var localTime 	= serverTime;
+	var localTS 	= startTime;
+	var Gamename	= document.title;
+	var Ready		= "{{ LNG.ready }}";
+	var Skin		= "{{ dpath }}";
+	var Lang		= "{{ lang }}";
+	var head_info	= "{{ LNG.fcm_info }}";
+	var auth		= {{ authlevel|default("0") }};
+	var days 		= {{ LNG.week_day|json_encode|raw|default("[]") }};
+	var months 		= {{ LNG.months|json_encode|raw|default("[]") }};
+	var tdformat	= "{{ LNG.js_tdformat }}";
+	var queryString	= {{ queryString|json_encode|raw }};
+	var isPlayerCardActive	= {{ isPlayerCardActive|json_encode|raw }};
+
+	setInterval(function() {
+		serverTime.setSeconds(serverTime.getSeconds()+1);
+	}, 1000);
+	</script>
+	
+	<script src="scripts/base/jquery.js?v={{ REV }}"></script>
+	<script src="scripts/base/jquery.ui.js?v={{ REV }}"></script>
+	<script src="scripts/base/jquery.cookie.js?v={{ REV }}"></script>
+	<script src="scripts/base/jquery.fancybox.js?v={{ REV }}"></script>
+	<script src="scripts/base/jquery.validationEngine.js?v={{ REV }}"></script>
+	<script src="scripts/l18n/validationEngine/jquery.validationEngine-{{ lang }}.js?v={{ REV }}"></script>
+	<script src="scripts/base/tooltip.js?v={{ REV }}"></script>
+	<script src="scripts/game/base.js?v={{ REV }}"></script>
+	
+	{% for scriptname in scripts %}
+	{% set scriptVersion = REV %}
+	{% if scriptname starts with 'fleet' or scriptname starts with 'galaxy' or scriptname == 'flotten' %}
+		{% set scriptVersion = '3.1.0' %}
+	{% elseif scriptname == 'message' %}
+		{% set scriptVersion = '3.1.0.3' %}
+	{% endif %}
+	<script src="scripts/game/{{ scriptname }}.js?v={{ scriptVersion }}"></script>
+	{% endfor %}
+	
+	{% block script %}{% endblock %}
+	
+	<script type="text/javascript">
+	$(function() {
+		{{ execscript|raw }}
+	});
+	</script>
+
+</head>
+<body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }} aerospace-theme">
+	<div id="tooltip" class="tip"></div>

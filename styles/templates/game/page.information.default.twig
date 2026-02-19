@@ -1,0 +1,90 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_info }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-info">
+
+    <div class="info-header glass-panel">
+        <div class="header-visual">
+            <div class="glow-ring">
+                <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" alt="" class="tech-img">
+            </div>
+        </div>
+        <div class="header-data">
+            <h2 class="tech-title">{{ LNG.tech[elementID] }}</h2>
+            <div class="tech-desc custom-scroll">
+                {{ LNG.longDescription[elementID] }}
+            </div>
+        </div>
+    </div>
+
+    <div class="info-grid">
+
+        {% if Bonus %}
+        <div class="info-card">
+            <div class="card-head"><i class="fas fa-star"></i> {{ LNG.in_bonus }}</div>
+            <div class="bonus-list">
+                {% for BonusName, elementBouns in Bonus %}
+                <div class="list-row">
+                    <span class="label">{{ LNG.bonus[BonusName] }}</span>
+                    <span class="value {% if elementBouns[0] < 0 %}neg{% else %}pos{% endif %}">
+                        {% if elementBouns[0] >= 0 %}+{% endif %}{% if elementBouns[1] == 0 %}{{ (elementBouns[0] * 100)|abs }}%{% else %}{{ elementBouns[0] }}{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if FleetInfo %}
+            {% if FleetInfo.rapidfire.to or FleetInfo.rapidfire.from %}
+            <div class="info-card wide">
+                <div class="card-head"><i class="fas fa-crosshairs"></i> Kampfdaten</div>
+                <div class="rf-flex">
+                    {% if FleetInfo.rapidfire.to %}
+                    <div class="rf-box">
+                        <div class="rf-label pos">Stark gegen</div>
+                        {% for rapidfireID, shoots in FleetInfo.rapidfire.to %}
+                        <div class="rf-row">
+                            <span>{{ LNG.tech[rapidfireID] }}</span>
+                            <span class="pos">{{ shoots|number_format }}x</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if FleetInfo.rapidfire.from %}
+                    <div class="rf-box">
+                        <div class="rf-label neg">Schwach gegen</div>
+                        {% for rapidfireID, shoots in FleetInfo.rapidfire.from %}
+                        <div class="rf-row">
+                            <span>{{ LNG.tech[rapidfireID] }}</span>
+                            <span class="neg">{{ shoots|number_format }}x</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        {% if productionTable.production %}
+            <div class="info-card wide">
+                {% include "shared.information.production.twig" %}
+            </div>
+        {% endif %}
+        
+        {% if productionTable.storage %}
+            <div class="info-card wide">
+                {% include "shared.information.storage.twig" %}
+            </div>
+        {% endif %}
+
+        {% if GateData %}<div class="info-card wide">{% include "shared.information.gate.twig" %}</div>{% endif %}
+        {% if MissileList %}<div class="info-card wide">{% include "shared.information.missiles.twig" %}</div>{% endif %}
+
+    </div>
+</div>
+{% endblock %}

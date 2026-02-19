@@ -1,0 +1,463 @@
+<!-- SMARTMOONS HEADER v8 -->
+<header class="game-header" id="game-header">
+    <div class="header-row-main">
+        <!-- BURGER -->
+        <button id="sidebar-toggle" class="sidebar-menu-toggle burger-menu mobile-menu-toggle" type="button" aria-label="Menu" aria-controls="leftmenu" aria-expanded="false">
+            <span class="burger-line"></span><span class="burger-line"></span><span class="burger-line"></span>
+        </button>
+
+        <!-- LOGO -->
+        <a href="game.php?page=overview" class="header-logo">
+            <i class="fas fa-moon"></i> <span class="logo-text">{{ game_name|default('2Moons') }}</span>
+        </a>
+
+        <!-- PLANET SELECT -->
+        <div class="planet-select-wrapper">
+            <div class="sci-select-container">
+                <i class="fas fa-globe-americas select-icon"></i>
+                <select id="planetSelector" class="sci-select" onchange="window.location.href='?cp='+this.value;">
+                    {% for key, value in PlanetSelect %}
+                        <option value="{{ key }}"{% if key == current_pid %} selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <i class="fas fa-caret-down select-arrow"></i>
+            </div>
+        </div>
+
+        <div class="header-spacer"></div>
+
+        <!-- NOTIFICATION ICONS -->
+        <div class="header-notifications">
+            <!-- ATTACK -->
+            <div class="notif-icon-wrap" id="attack-indicator" style="display:none;">
+                <div class="attack-pulse-ring"></div>
+                <button class="notif-btn attack-btn"><i class="fas fa-exclamation-triangle"></i></button>
+            </div>
+
+            <!-- GEBÄUDE -->
+            <div class="notif-icon-wrap">
+                <button class="notif-btn{% if buildQueue.building %} notif-btn-active{% endif %}" onclick="SmartNotif.toggle('building')">
+                    <i class="fas fa-building"></i>{% if buildQueue.building %}<span class="notif-badge">{{ buildQueue.building.count }}</span>{% endif %}
+                </button>
+                <div class="notif-dropdown" id="notif-building-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-building"></i> Gebäude</span>
+                        <a href="game.php?page=buildings" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="notif-dropdown-body">
+                        {% if buildQueue.building %}
+                            {% for item in buildQueue.building.items %}
+                                <div class="notif-queue-item{% if loop.first %} nq-active{% endif %}">
+                                    <div class="nq-header">
+                                        <span class="nq-name">{{ item.name }}</span>
+                                        <span class="nq-level">Lv. {{ item.level }}</span>
+                                    </div>
+                                    {% if loop.first %}
+                                        <div class="nq-progress-wrap">
+                                            <div class="nq-progress-bar"><div class="nq-progress-fill" id="nq-building-bar"></div></div>
+                                            <span class="nq-timer" id="nq-building-timer">--:--:--</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="nq-queued"><i class="fas fa-clock"></i> In Warteschlange</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Frei</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORSCHUNG -->
+            <div class="notif-icon-wrap">
+                <button class="notif-btn{% if buildQueue.research %} notif-btn-active{% endif %}" onclick="SmartNotif.toggle('research')">
+                    <i class="fas fa-flask"></i>{% if buildQueue.research %}<span class="notif-badge">{{ buildQueue.research.count }}</span>{% endif %}
+                </button>
+                <div class="notif-dropdown" id="notif-research-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-flask"></i> Forschung</span>
+                        <a href="game.php?page=research" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="notif-dropdown-body">
+                        {% if buildQueue.research %}
+                            {% for item in buildQueue.research.items %}
+                                <div class="notif-queue-item{% if loop.first %} nq-active{% endif %}">
+                                    <div class="nq-header">
+                                        <span class="nq-name">{{ item.name }}</span>
+                                        <span class="nq-level">Lv. {{ item.level }}</span>
+                                    </div>
+                                    {% if loop.first %}
+                                        <div class="nq-progress-wrap">
+                                            <div class="nq-progress-bar"><div class="nq-progress-fill nq-fill-purple" id="nq-research-bar"></div></div>
+                                            <span class="nq-timer" id="nq-research-timer">--:--:--</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="nq-queued"><i class="fas fa-clock"></i> In Warteschlange</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Frei</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- WERFT -->
+            <div class="notif-icon-wrap">
+                <button class="notif-btn{% if buildQueue.hangar %} notif-btn-active{% endif %}" onclick="SmartNotif.toggle('hangar')">
+                    <i class="fas fa-hammer"></i>{% if buildQueue.hangar %}<span class="notif-badge">{{ buildQueue.hangar.totalItems }}</span>{% endif %}
+                </button>
+                <div class="notif-dropdown" id="notif-hangar-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-hammer"></i> Werft</span>
+                        <a href="game.php?page=shipyard" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="notif-dropdown-body">
+                        {% if buildQueue.hangar %}
+                            {% for item in buildQueue.hangar.items %}
+                                <div class="notif-queue-item{% if loop.first %} nq-active{% endif %}">
+                                    <div class="nq-header">
+                                        <span class="nq-name">{{ item.name }}</span>
+                                        <span class="nq-level">&times; {{ item.count }}</span>
+                                    </div>
+                                    {% if loop.first %}
+                                        <div class="nq-progress-wrap">
+                                            <div class="nq-progress-bar"><div class="nq-progress-fill nq-fill-green" id="nq-hangar-bar"></div></div>
+                                            <span class="nq-timer" id="nq-hangar-timer">--:--:--</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="nq-queued"><i class="fas fa-clock"></i> Warteschlange</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Frei</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- FLOTTEN -->
+            <div class="notif-icon-wrap">
+                <button class="notif-btn" onclick="SmartNotif.toggle('fleets')">
+                    <i class="fas fa-rocket"></i><span class="notif-badge" id="fleet-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-fleets-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-rocket"></i> Flotten</span>
+                        <a href="game.php?page=fleetTable" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="notif-dropdown-body" id="notif-fleets-list">
+                        <div class="notif-empty"><i class="fas fa-check-circle"></i> Keine Flottenbewegungen</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NACHRICHTEN -->
+            <div class="notif-icon-wrap">
+                <button class="notif-btn{% if new_message > 0 %} notif-btn-active{% endif %}" onclick="SmartNotif.toggle('messages')">
+                    <i class="fas fa-envelope"></i>{% if new_message > 0 %}<span class="notif-badge">{{ new_message }}</span>{% endif %}
+                </button>
+                <div class="notif-dropdown" id="notif-messages-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-envelope"></i> Nachrichten</span>
+                        <a href="game.php?page=messages" class="notif-header-link">Alle <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    <div class="notif-dropdown-body">
+                        {% if recentMessages is defined and recentMessages|length > 0 %}
+                            {% for msg in recentMessages %}
+                                <a href="game.php?page=messages&id={{ msg.id }}" class="notif-msg-item unread">
+                                    <div class="notif-msg-from"><i class="fas fa-envelope-open-text"></i> {{ msg.subject|default('(Kein Betreff)') }}</div>
+                                    <div class="notif-msg-preview">{{ msg.preview }}</div>
+                                    <div class="notif-msg-time">{{ msg.time|date('d.m.Y H:i') }}</div>
+                                </a>
+                            {% endfor %}
+                            {% if new_message > recentMessages|length %}
+                                <a href="game.php?page=messages" class="notif-msg-more">+{{ new_message - recentMessages|length }} weitere</a>
+                            {% endif %}
+                        {% elseif new_message > 0 %}
+                            <a href="game.php?page=messages" class="notif-msg-item unread">
+                                <div class="notif-msg-from"><i class="fas fa-envelope-open-text"></i> {{ new_message }} neue Nachricht(en)</div>
+                            </a>
+                        {% else %}
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Keine neuen Nachrichten</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======== USER AVATAR MENU ======== -->
+            <div class="notif-icon-wrap user-avatar-wrap">
+                <button class="user-avatar-btn" type="button" onclick="SmartNotif.toggle('usermenu')" aria-label="Profil" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user"></i>
+                    {% if new_message > 0 %}<span class="avatar-dot"></span>{% endif %}
+                </button>
+
+                <div class="notif-dropdown user-menu-dropdown" id="notif-usermenu-dropdown" role="menu" aria-label="Benutzermenü">
+                    <div class="user-menu-header">
+                        <div class="user-menu-avatar"><i class="fas fa-user-astronaut"></i></div>
+                        <div class="user-menu-info">
+                            <div class="user-menu-name">{{ username }}</div>
+                            <div class="user-menu-planet">{{ PlanetSelect[current_pid]|default('') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="user-menu-body">
+
+                        <a href="game.php?page=messages&category=100&side=1" class="user-menu-item">
+                            <i class="fas fa-envelope"></i><span>{{ LNG.lm_messages|default('Nachrichten') }}</span>
+                            {% if new_message > 0 %}<span class="user-menu-badge">{{ new_message }}</span>{% endif %}
+                        </a>
+
+                        <a href="game.php?page=buddyList" class="user-menu-item"><i class="fas fa-user-friends"></i><span>{{ LNG.lm_buddylist|default('Buddyliste') }}</span></a>
+                        <a href="game.php?page=statistics" class="user-menu-item"><i class="fas fa-chart-line"></i><span>{{ LNG.lm_statistics|default('Statistiken') }}</span></a>
+                        <a href="game.php?page=alliance" class="user-menu-item"><i class="fas fa-users"></i><span>{{ LNG.lm_alliance|default('Allianz') }}</span></a>
+
+                        {% if authlevel > 0 %}
+                            <a href="./admin.php" class="user-menu-item user-menu-admin"><i class="fas fa-user-shield"></i><span>{{ LNG.lm_administration|default('Administration') }}</span></a>
+                        {% endif %}
+
+                        <a href="game.php?page=settings" class="user-menu-item"><i class="fas fa-cog"></i><span>{{ LNG.lm_settings|default('Einstellungen') }}</span></a>
+                                            <div class="user-menu-divider"></div>
+                        {% if isModuleAvailable(constant('MODULE_SEARCH')) %}
+                            <a href="game.php?page=search" class="user-menu-item"><i class="fas fa-search"></i><span>{{ LNG.lm_search }}</span></a>
+                        {% endif %}
+                        {% if isModuleAvailable(constant('MODULE_BANLIST')) %}
+                            <a href="game.php?page=banList" class="user-menu-item"><i class="fas fa-user-slash"></i><span>{{ LNG.lm_banned }}</span></a>
+                        {% endif %}
+                        {% if isModuleAvailable(constant('MODULE_BATTLEHALL')) %}
+                            <a href="game.php?page=battleHall" class="user-menu-item"><i class="fas fa-trophy"></i><span>{{ LNG.lm_topkb }}</span></a>
+                        {% endif %}
+                        {% if isModuleAvailable(constant('MODULE_RECORDS')) %}
+                            <a href="game.php?page=records" class="user-menu-item"><i class="fas fa-medal"></i><span>{{ LNG.lm_records }}</span></a>
+                        {% endif %}
+                        {% if isModuleAvailable(constant('MODULE_SIMULATOR')) %}
+                            <a href="game.php?page=battleSimulator" class="user-menu-item"><i class="fas fa-chess-knight"></i><span>{{ LNG.lm_battlesim }}</span></a>
+                        {% endif %}
+                        {% if isModuleAvailable(constant('MODULE_NOTICE')) %}
+                            <a href="#" onclick="Dialog.open('game.php?page=notes', 720, 300); return false;" class="user-menu-item"><i class="fas fa-sticky-note"></i><span>{{ LNG.lm_notes|default('Notizen') }}</span></a>
+                        {% endif %}
+                        <a href="index.php?page=rules" target="rules" class="user-menu-item"><i class="fas fa-gavel"></i><span>{{ LNG.lm_rules }}</span></a>
+
+                        <div class="user-menu-divider"></div>
+
+                        <a href="game.php?page=logout" class="user-menu-item user-menu-logout"><i class="fas fa-power-off"></i><span>{{ LNG.lm_logout|default('Logout') }}</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESOURCE BAR (eigene Zeile, NICHT im header-row-main!) -->
+    <div class="res-bar-row">
+        <div class="res-bar-container">
+            <div class="res-bar">
+                {% for resourceID, resourceData in resourceTable %}
+                <div class="res-item tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}">
+                    <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
+                    <div class="res-info">
+                        <span class="res-val {% if resourceData.current >= resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
+                            {% if shortlyNumber %}{{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}{% else %}{{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+<div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+<!-- SIDEBAR TOGGLE -->
+<script>
+(function(){var t=document.getElementById('sidebar-toggle'),s=document.getElementById('leftmenu')||document.querySelector('.sidebar-nav'),o=document.getElementById('sidebar-overlay');if(!t||!s||t.dataset.sidebarBound==='1')return;t.dataset.sidebarBound='1';function set(open){s.classList.toggle('active',open);s.classList.toggle('collapsed',!open);t.classList.toggle('active',open);t.setAttribute('aria-expanded',open);document.body.classList.toggle('sidebar-open',open);if(o)o.classList.toggle('active',open);}t.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();set(!s.classList.contains('active'));},true);if(o)o.addEventListener('click',function(){set(false);});document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false);});if(window.matchMedia('(max-width:992px)').matches)set(false);s.querySelectorAll('a.sidebar-link').forEach(function(l){l.addEventListener('click',function(){if(window.matchMedia('(max-width:992px)').matches)set(false);});});})();
+</script>
+
+<!-- RESOURCE TICKER -->
+{% if not vmode %}
+<script>
+var viewShortlyNumber={{ shortlyNumber|json_encode }};var vacation={{ vmode }};
+$(function(){
+{% for resourceID, resourceData in resourceTable %}{% if resourceData.production is defined %}
+resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ resourceData.max|json_encode }}],production:{{ resourceData.production|json_encode }},valueElem:"current_{{ resourceData.name }}"},true);
+{% endif %}{% endfor %}
+});
+</script>
+{% endif %}
+
+<!-- Fleet data as safe JSON (no JS string escaping issues) -->
+<script type="application/json" id="fleet-json-data">{{ globalFleetJSON|default("[]")|raw }}</script>
+
+<!-- SMARTNOTIF v5 FIXED -->
+<script>
+var SmartNotif=(function(){
+    var openPanel=null;
+    var panels=['fleets','messages','building','research','hangar','usermenu'];
+
+    function toggle(p){
+        var dd=document.getElementById('notif-'+p+'-dropdown');
+        if(!dd) return;
+        if(openPanel && openPanel!==p){
+            var prev=document.getElementById('notif-'+openPanel+'-dropdown');
+            if(prev) prev.classList.remove('open');
+        }
+        openPanel = dd.classList.toggle('open') ? p : null;
+    }
+
+    function closeAll(){
+        panels.forEach(function(p){
+            var d=document.getElementById('notif-'+p+'-dropdown');
+            if(d) d.classList.remove('open');
+        });
+        openPanel=null;
+    }
+
+    document.addEventListener('click', function(e){
+        if(!e.target.closest('.notif-icon-wrap') && !e.target.closest('.user-avatar-wrap')) closeAll();
+    });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAll(); });
+
+    function setBadge(id,n){
+        var b=document.getElementById(id);
+        if(!b) return;
+        if(n>0){ b.textContent = n>99 ? '99+' : n; b.style.display='flex'; }
+        else { b.style.display='none'; }
+    }
+
+    function setAttackMode(on){
+        var i=document.getElementById('attack-indicator');
+        var h=document.getElementById('game-header');
+        if(i) i.style.display = on ? 'flex' : 'none';
+        if(h){ if(on) h.classList.add('under-attack'); else h.classList.remove('under-attack'); }
+    }
+
+    function fmt(s){
+        s=Math.max(0, Math.floor(s));
+        var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sc=s%60;
+        return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0');
+    }
+
+    /* TOAST NOTIFICATIONS */
+    function toast(msg, icon, color){
+        var c=document.getElementById('toast-container');
+        if(!c) return;
+        var t=document.createElement('div');
+        t.className='sm-toast';
+        t.style.borderLeftColor = color || '#00f3ff';
+        t.innerHTML='<i class="fas fa-'+(icon||'bell')+'" style="color:'+(color||'#00f3ff')+'"></i><span>'+msg+'</span>';
+        c.appendChild(t);
+        requestAnimationFrame(function(){ t.classList.add('show'); });
+        setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 400); }, 4000);
+    }
+
+    /* ===== FLOTTEN via sicheres JSON (script tag, kein Escape-Problem) ===== */
+    function initFleets(){
+        var fl = [];
+        try {
+            var jsonEl = document.getElementById('fleet-json-data');
+            if(jsonEl) fl = JSON.parse(jsonEl.textContent || '[]');
+        } catch(e) { console.error('Fleet JSON parse error:', e); fl = []; }
+        if(!fl || !fl.length) return;
+
+        var el = document.getElementById('notif-fleets-list');
+        if(!el) return;
+        setBadge('fleet-badge', fl.length);
+
+        var html='', atk=false;
+        for(var i=0; i<fl.length; i++){
+            var f = fl[i];
+            if(f.isHostile) atk = true;
+            html += '<div class="notif-fleet-item' + (f.isHostile ? ' hostile' : '') + '">';
+            html += '<span class="notif-fleet-timer" id="hft-'+i+'">' + fmt(f.resttime||0) + '</span>';
+            html += '<span class="notif-fleet-text">' + (f.text||'') + '</span>';
+            html += '</div>';
+        }
+        el.innerHTML = html;
+        setAttackMode(atk);
+        if(atk) toast('Feindliche Flotte im Anflug!', 'exclamation-triangle', '#ef4444');
+
+        setInterval(function(){
+            for(var i=0; i<fl.length; i++){
+                fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
+                var t = document.getElementById('hft-'+i);
+                if(t) t.textContent = fmt(fl[i].resttime);
+            }
+        }, 1000);
+    }
+
+    /* ===== BUILD QUEUES + PROGRESSBARS ===== */
+    function initQueues(){
+        var Q = [];
+        {% if buildQueue.building %}
+        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, _init:{{ buildQueue.building.timeLeft|default(0)|raw }}, mode:'end'});
+        {% endif %}
+        {% if buildQueue.research %}
+        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, _init:{{ buildQueue.research.timeLeft|default(0)|raw }}, mode:'end'});
+        {% endif %}
+        {% if buildQueue.hangar %}
+        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, _init:{{ buildQueue.hangar.timeLeft|default(1)|raw }}, total:{{ buildQueue.hangar.totalTime|default(0)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed'});
+        {% endif %}
+
+        if(!Q.length) return;
+
+        function tick(){
+            for(var i=0; i<Q.length; i++){
+                var q = Q[i];
+                var timer = document.getElementById('nq-' + q.id + '-timer');
+                var bar   = document.getElementById('nq-' + q.id + '-bar');
+                if(!timer) continue;
+
+                var pct;
+                if(q.mode === 'elapsed'){
+                    q.elapsed = (q.elapsed||0) + 1;
+                    q.left = Math.max(0, (q.total||0) - q.elapsed);
+                    pct = q.total > 0 ? (q.elapsed / q.total * 100) : 100;
+                } else {
+                    q.left = Math.max(0, q.left - 1);
+                    pct = q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
+                }
+
+                timer.textContent = fmt(q.left);
+                if(bar) bar.style.width = Math.min(100, pct).toFixed(1) + '%';
+            }
+        }
+        tick();
+        setInterval(tick, 1000);
+    }
+
+    /* ===== TOAST bei Page Load ===== */
+    function initToasts(){
+        {% if new_message is defined and new_message > 0 %}
+        toast('{{ new_message }} neue Nachricht(en)', 'envelope', '#00f3ff');
+        {% endif %}
+        {% if buildQueue.building is defined and buildQueue.building %}
+        toast('Bau: {{ buildQueue.building.items[0].name|default("?")|e("js") }} Lv.{{ buildQueue.building.items[0].level|default("?") }}', 'building', '#3b82f6');
+        {% endif %}
+        {% if buildQueue.research is defined and buildQueue.research %}
+        toast('Forschung: {{ buildQueue.research.items[0].name|default("?")|e("js") }} Lv.{{ buildQueue.research.items[0].level|default("?") }}', 'flask', '#a855f7');
+        {% endif %}
+    }
+
+    /* ===== INIT — jQuery oder Vanilla ===== */
+    function doInit(){
+        try { initFleets(); } catch(e){ console.error('SmartNotif fleets error:', e); }
+        try { initQueues(); } catch(e){ console.error('SmartNotif queues error:', e); }
+        setTimeout(function(){
+            try { initToasts(); } catch(e){ console.error('SmartNotif toasts error:', e); }
+        }, 800);
+    }
+
+    if(typeof jQuery !== 'undefined'){
+        jQuery(doInit);
+    } else {
+        document.addEventListener('DOMContentLoaded', doInit);
+    }
+
+    return {toggle:toggle, closeAll:closeAll, setBadge:setBadge, setAttackMode:setAttackMode, toast:toast};
+})();
+</script>

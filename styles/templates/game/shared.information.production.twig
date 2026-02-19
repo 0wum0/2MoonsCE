@@ -1,0 +1,25 @@
+<div class="aerospace-info-table">
+    <table class="glass-table">
+        <thead>
+            <tr>
+                <th>{{ LNG.in_level }}</th>
+                {% for resourceID in productionTable.usedResource %}
+                <th>{{ LNG.tech[resourceID] }}</th>
+                <th>Diff</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for elementLevel, productionData in productionTable.production %}
+            <tr {% if CurrentLevel == elementLevel %}class="current-level"{% endif %}>
+                <td class="lvl">{{ elementLevel }}</td>
+                {% for resourceID, production in productionData %}
+                {% set productionDiff = production - productionTable.production[CurrentLevel][resourceID] %}
+                <td class="{% if production > 0 %}pos{% elseif production < 0 %}neg{% endif %}">{{ production|number_format }}</td>
+                <td class="diff {% if productionDiff > 0 %}pos{% elseif productionDiff < 0 %}neg{% endif %}">{{ productionDiff|number_format }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

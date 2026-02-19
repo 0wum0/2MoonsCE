@@ -1,0 +1,138 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_resources }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper resources-page">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-industry"></i> {{ header }}</h2>
+        </div>
+
+        <form action="game.php?page=resources" method="post">
+            <input type="hidden" name="mode" value="send">
+
+            <div class="res-dashboard-grid">
+                
+                <div class="res-stat-card" style="border-bottom-color: #8e44ad;">
+                    <i class="fas fa-cube res-stat-icon c-901"></i>
+                    <span class="res-stat-value {{ totalProduction.901 > 0 ? 'text-green' : 'text-red' }}">
+                        {{ totalProduction.901|shortly_number }}
+                    </span>
+                    <span class="res-stat-label">{{ LNG.tech.901 }} / Std</span>
+                    <div style="font-size:0.7rem; color:#666; margin-top:5px;">
+                        Lager: {{ storage.901|shortly_number }}
+                    </div>
+                </div>
+
+                <div class="res-stat-card" style="border-bottom-color: #2ecc71;">
+                    <i class="fas fa-gem res-stat-icon c-902"></i>
+                    <span class="res-stat-value {{ totalProduction.902 > 0 ? 'text-green' : 'text-red' }}">
+                        {{ totalProduction.902|shortly_number }}
+                    </span>
+                    <span class="res-stat-label">{{ LNG.tech.902 }} / Std</span>
+                    <div style="font-size:0.7rem; color:#666; margin-top:5px;">
+                        Lager: {{ storage.902|shortly_number }}
+                    </div>
+                </div>
+
+                <div class="res-stat-card" style="border-bottom-color: #3498db;">
+                    <i class="fas fa-flask res-stat-icon c-903"></i>
+                    <span class="res-stat-value {{ totalProduction.903 > 0 ? 'text-green' : 'text-red' }}">
+                        {{ totalProduction.903|shortly_number }}
+                    </span>
+                    <span class="res-stat-label">{{ LNG.tech.903 }} / Std</span>
+                    <div style="font-size:0.7rem; color:#666; margin-top:5px;">
+                        Lager: {{ storage.903|shortly_number }}
+                    </div>
+                </div>
+
+                <div class="res-stat-card" style="border-bottom-color: #f1c40f;">
+                    <i class="fas fa-bolt res-stat-icon c-911"></i>
+                    <span class="res-stat-value {{ totalProduction.911 >= 0 ? 'text-green' : 'text-red' }}">
+                        {{ totalProduction.911|shortly_number }}
+                    </span>
+                    <span class="res-stat-label">{{ LNG.tech.911 }} Netto</span>
+                </div>
+            </div>
+
+            <div class="glass-panel" style="margin-bottom: 20px; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="color: #aaa; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> {{ LNG.rs_basic_income }}: 
+                    <span class="text-green">{{ basicProduction.901 }}</span> / 
+                    <span class="text-green">{{ basicProduction.902 }}</span> / 
+                    <span class="text-green">{{ basicProduction.903 }}</span>
+                </div>
+                <button type="submit" class="btn-action-glow">
+                    <i class="fas fa-calculator"></i> {{ LNG.rs_calculate }}
+                </button>
+            </div>
+
+            <div class="glass-panel header-panel" style="margin-top: 30px; border-left-color: #e67e22;">
+                <h3 style="margin: 0; color: #fff; font-size: 1.2rem;">Infrastructure Control</h3>
+            </div>
+
+            <div class="res-building-grid">
+                {% for productionID, productionRow in productionList %}
+                <div class="b-card">
+                    <div class="b-card-header">
+                        <div class="b-name">{{ LNG.tech[productionID] }}</div>
+                        <div class="b-level">Lv {{ productionRow.elementLevel }}</div>
+                    </div>
+
+                    <div class="b-body">
+                        {% if productionRow.production.901 != 0 %}
+                        <div class="b-prod-row">
+                            <span class="c-901"><i class="fas fa-cube"></i> {{ LNG.tech.901 }}</span>
+                            <span class="{{ productionRow.production.901 > 0 ? 'text-green' : 'text-red' }}">
+                                {{ productionRow.production.901|number_format }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if productionRow.production.902 != 0 %}
+                        <div class="b-prod-row">
+                            <span class="c-902"><i class="fas fa-gem"></i> {{ LNG.tech.902 }}</span>
+                            <span class="{{ productionRow.production.902 > 0 ? 'text-green' : 'text-red' }}">
+                                {{ productionRow.production.902|number_format }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if productionRow.production.903 != 0 %}
+                        <div class="b-prod-row">
+                            <span class="c-903"><i class="fas fa-flask"></i> {{ LNG.tech.903 }}</span>
+                            <span class="{{ productionRow.production.903 > 0 ? 'text-green' : 'text-red' }}">
+                                {{ productionRow.production.903|number_format }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if productionRow.production.911 != 0 %}
+                        <div class="b-prod-row">
+                            <span class="c-911"><i class="fas fa-bolt"></i> {{ LNG.tech.911 }}</span>
+                            <span class="{{ productionRow.production.911 > 0 ? 'text-green' : 'text-red' }}">
+                                {{ productionRow.production.911|number_format }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="b-footer">
+                        <span style="font-size: 0.8rem; color: #666;">Leistung</span>
+                        <select name="prod[{{ productionID }}]" class="glass-select" style="width: 80px; padding: 2px;">
+                            {% for i in 0..10 %}
+                                {% set val = i * 10 %}
+                                <option value="{{ val }}" {% if val == productionRow.prodLevel %}selected{% endif %}>{{ val }}%</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

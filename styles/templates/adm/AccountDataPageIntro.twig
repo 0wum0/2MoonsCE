@@ -1,0 +1,69 @@
+{% include "overall_header.twig" %}
+
+<div class="container-fluid p-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-6">
+            
+            <div class="dash-header text-center mb-4">
+                <h1><i class="fas fa-users-cog"></i> {{ ac_enter_user_id }}</h1>
+                <p class="text-muted">Wähle einen Spieler aus der Liste oder suche direkt.</p>
+            </div>
+
+            <form action="" method="POST" name="users">
+                <div class="card neon-card">
+                    <div class="card-body p-4">
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text glass-input border-end-0 text-accent">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="regexp" class="form-control glass-input border-start-0" 
+                                   placeholder="{{ bo_select_title }}..." 
+                                   onKeyUp="UserList.set(this.value)" 
+                                   autocomplete="off">
+                            <button type="button" class="btn btn-outline-secondary" onClick="UserList.reset();this.form.regexp.value=''">
+                                <i class="fas fa-times"></i> {{ button_deselect }}
+                            </button>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-1 justify-content-center mb-3 filter-bar">
+                            {% set letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'] %}
+                            {% for char in letters %}
+                                <button type="button" class="btn btn-sm btn-glass" onclick="UserList.set('^{{ char }}')">{{ char }}</button>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-4">
+                            <select name="id_u" size="15" class="form-select glass-select w-100 user-select-box" style="height: 300px; overflow-y: auto;">
+                                {{ Userlist|raw }}
+                            </select>
+                        </div>
+
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="text-muted small mb-1">{{ ac_select_id_num }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text glass-input text-muted">#</span>
+                                    <input type="number" name="id_u2" class="form-control glass-input" placeholder="ID">
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-check-circle me-2"></i> {{ button_submit }}
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var UserList = new filterlist(document.users.id_u);
+</script>
+
+{% include "overall_footer.twig" %}

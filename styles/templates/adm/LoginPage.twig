@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('de') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default('SmartMoons Admin Login') }}</title>
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #0a0e17;
+            color: #e2e8f0;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: #1a1f2e;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+        .login-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .login-brand-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #38bdf8, #a78bfa);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        .login-brand h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .login-brand h1 span { color: #38bdf8; }
+        .login-brand p { color: #64748b; font-size: 14px; margin-top: 4px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.1); }
+        .form-group input[readonly] { opacity: 0.7; cursor: not-allowed; }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: #0a0e17;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+        }
+        .login-btn:hover { box-shadow: 0 0 20px rgba(56,189,248,0.3); }
+        .login-hint {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="login-brand-icon">&#9733;</div>
+            <h1><span>Smart</span>Moons</h1>
+            <p>{{ LNG.adm_password_info|default('Admin Login') }}</p>
+        </div>
+        <form action="" method="POST">
+            <div class="form-group">
+                <label>{{ LNG.adm_username|default('Username') }}</label>
+                <input type="text" readonly value="{{ username }}">
+            </div>
+            <div class="form-group">
+                <label>{{ LNG.adm_password|default('Passwort') }}</label>
+                <input type="password" name="admin_pw" autofocus>
+            </div>
+            <button type="submit" class="login-btn">{{ LNG.adm_absenden|default('Login') }}</button>
+        </form>
+        <div class="login-hint">SmartMoons Administration</div>
+    </div>
+</body>
+</html>

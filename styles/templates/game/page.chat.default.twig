@@ -1,0 +1,21 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_chat }}{% endblock %}
+
+{% block content %}
+<div class="aerospace-container">
+    
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-comments"></i> {{ LNG.lm_chat }}</h2>
+    </div>
+
+    <div class="glass-panel chat-panel" style="padding: 0; overflow: hidden; height: 800px;">
+        <iframe src="./chat/index.php?action={{ GET.action|default('')|e('html') }}" 
+                class="chat-iframe"
+                style="width: 100%; height: 100%; border: none; background: transparent;" 
+                allowtransparency="true">
+        </iframe>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,673 @@
+{# OverviewBody.twig — NUR der Dashboard-Body #}
+
+<style>
+.admin-content > .legacy-content.is-dashboard{
+  background: transparent;
+  border: none;
+  padding: 0;
+  overflow: visible;
+}
+
+/* --- CHART FIX: Canvas braucht echte Höhe --- */
+.charts-grid .chart-card{
+  min-height: 340px;
+}
+.charts-grid .chart-container{
+  height: 260px;
+  position: relative;
+}
+.charts-grid canvas{
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* --- EXTRA DASH BOXES --- */
+.dashboard-grid{
+  display:grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.dash-box{
+  grid-column: span 6;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px;
+}
+.dash-box.full{ grid-column: 1 / -1; }
+.dash-box-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-weight:700;
+  color:#e2e8f0;
+  margin-bottom: 10px;
+}
+.dash-box-sub{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top: -6px;
+  margin-bottom: 12px;
+}
+.dash-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.dash-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.dash-row-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color:#e2e8f0;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.badge.ok{ background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.28); color:#34d399; }
+.badge.warn{ background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.28); color:#fbbf24; }
+.badge.err{ background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.28); color:#f87171; }
+
+.dash-name{
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#e2e8f0;
+  font-weight: 600;
+}
+.dash-meta{
+  color:#94a3b8;
+  font-size:12px;
+  white-space:nowrap;
+}
+.quick-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.qa{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  color:#e2e8f0;
+  text-decoration:none;
+  font-size: 13px;
+}
+.qa:hover{
+  border-color: rgba(56,189,248,0.35);
+  background: rgba(56,189,248,0.08);
+}
+
+/* responsive */
+@media (max-width: 1100px){
+  .dash-box{ grid-column: 1 / -1; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const legacy = document.querySelector('.legacy-content');
+  if(legacy) legacy.classList.add('is-dashboard');
+});
+</script>
+
+<div class="dash-header">
+  <h1>Dashboard</h1>
+  <p>SmartMoons Administrationszentrum &mdash; Uni {{ uniName|default('1') }}</p>
+</div>
+
+<div class="period-tabs">
+  <button class="period-tab{% if period == 'day' %} active{% endif %}" data-period="day">Tag</button>
+  <button class="period-tab{% if period == 'week' %} active{% endif %}" data-period="week">Woche</button>
+  <button class="period-tab{% if period == 'month' %} active{% endif %}" data-period="month">Monat</button>
+  <button class="period-tab{% if period == 'year' %} active{% endif %}" data-period="year">Jahr</button>
+</div>
+
+{% if Messages is defined and Messages is not empty %}
+  <div style="background:rgba(248,113,113,0.1);border:1px solid var(--adm-neon-red);border-radius:var(--adm-radius);padding:16px;margin-bottom:24px;">
+    {% for Message in Messages %}
+      <div style="color:var(--adm-neon-red);font-size:13px;margin-bottom:4px;">&#9888; {{ Message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{# ---- KPI Flipcards (wie bei dir) ---- #}
+<div class="flipcards-grid">
+  <div class="flipcard" data-color="blue">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Spieler Online</span>
+          <div class="flipcard-icon">&#128101;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-online">
+            {{ report.players_online.online|default(0) }} <span class="sub">/ {{ report.players_online.total|default(0) }}</span>
+          </div>
+          <div class="flipcard-trend neutral">Online / Gesamt</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Details</div>
+        <div class="flipcard-back-item"><span>Online (15 Min)</span><span class="flipcard-back-item-value">{{ report.players_online.online|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>Gesamt registriert</span><span class="flipcard-back-item-value">{{ report.players_online.total|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>Gesperrt</span><span class="flipcard-back-item-value">{{ report.banned_players.count|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>Offene Tickets</span><span class="flipcard-back-item-value">{{ report.open_tickets.count|default(0) }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="green">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Registrierungen</span>
+          <div class="flipcard-icon">&#128100;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-registrations">{{ report.registrations.count|default(0) }}</div>
+          <div class="flipcard-trend neutral">Im Zeitraum</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Registrierungen</div>
+        <div class="flipcard-back-item"><span>Neue Spieler</span><span class="flipcard-back-item-value">{{ report.registrations.count|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>Zeitraum</span><span class="flipcard-back-item-value">{{ period|default('day') }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="purple">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Flotten gesendet</span>
+          <div class="flipcard-icon">&#128640;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-fleets">
+            {% if report.fleets_sent.count is defined and report.fleets_sent.count >= 0 %}{{ report.fleets_sent.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
+          </div>
+          <div class="flipcard-trend neutral">Im Zeitraum</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Flotten Info</div>
+        <div class="flipcard-back-item"><span>Gesendet</span><span class="flipcard-back-item-value">{% if report.fleets_sent.count is defined and report.fleets_sent.count >= 0 %}{{ report.fleets_sent.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-item"><span>Aktuell fliegend</span><span class="flipcard-back-item-value">{% if report.flying_fleets.count is defined and report.flying_fleets.count >= 0 %}{{ report.flying_fleets.count }}{% else %}n/a{% endif %}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="cyan">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Neue Allianzen</span>
+          <div class="flipcard-icon">&#127942;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-alliances">
+            {% if report.alliances_founded.count is defined and report.alliances_founded.count >= 0 %}{{ report.alliances_founded.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
+          </div>
+          <div class="flipcard-trend neutral">Gegr&uuml;ndet</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Allianzen</div>
+        <div class="flipcard-back-item"><span>Neue im Zeitraum</span><span class="flipcard-back-item-value">{% if report.alliances_founded.count is defined and report.alliances_founded.count >= 0 %}{{ report.alliances_founded.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-item"><span>Gesamt</span><span class="flipcard-back-item-value">{% if report.alliances_total.count is defined and report.alliances_total.count >= 0 %}{{ report.alliances_total.count }}{% else %}n/a{% endif %}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="red">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">K&auml;mpfe</span>
+          <div class="flipcard-icon">&#9876;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-combats">
+            {% if report.combats.count is defined and report.combats.count >= 0 %}{{ report.combats.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
+          </div>
+          <div class="flipcard-trend neutral">Im Zeitraum</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Kampf-Details</div>
+        <div class="flipcard-back-item"><span>K&auml;mpfe</span><span class="flipcard-back-item-value">{% if report.combats.count is defined and report.combats.count >= 0 %}{{ report.combats.count }}{% else %}n/a{% endif %}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="yellow">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Nachrichten</span>
+          <div class="flipcard-icon">&#9993;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-messages">
+            {% if report.messages.count is defined and report.messages.count >= 0 %}{{ report.messages.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
+          </div>
+          <div class="flipcard-trend neutral">Im Zeitraum</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Nachrichten</div>
+        <div class="flipcard-back-item"><span>Gesendet</span><span class="flipcard-back-item-value">{% if report.messages.count is defined and report.messages.count >= 0 %}{{ report.messages.count }}{% else %}n/a{% endif %}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="orange">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Multi-Verdacht</span>
+          <div class="flipcard-icon">&#128279;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-multi">
+            {% if report.multiaccount_flags.flagged_ips is defined %}{{ report.multiaccount_flags.flagged_ips|default(0) }}{% else %}<span class="na-value">n/a</span>{% endif %}
+          </div>
+          <div class="flipcard-trend neutral">Geteilte IPs</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Multiaccount</div>
+        <div class="flipcard-back-item"><span>Geteilte IPs</span><span class="flipcard-back-item-value">{{ report.multiaccount_flags.flagged_ips|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>Betroffene User</span><span class="flipcard-back-item-value">{{ report.multiaccount_flags.flagged_users|default(0) }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="pink">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Planeten</span>
+          <div class="flipcard-icon">&#127759;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-planets">
+            {% if report.planets_total.count is defined %}{{ report.planets_total.count|default(0) }}{% else %}<span class="na-value">n/a</span>{% endif %}
+          </div>
+          <div class="flipcard-trend neutral">Gesamt</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Planeten</div>
+        <div class="flipcard-back-item"><span>Gesamt</span><span class="flipcard-back-item-value">{{ report.planets_total.count|default(0) }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flipcard" data-color="teal">
+    <div class="flipcard-inner">
+      <div class="flipcard-front">
+        <div class="flipcard-front-top">
+          <span class="flipcard-label">Bots aktiv</span>
+          <div class="flipcard-icon">&#129302;</div>
+        </div>
+        <div>
+          <div class="flipcard-value" id="kpi-bots">{{ report.bot_activity.active_last_15m|default(0) }}</div>
+          <div class="flipcard-trend neutral">Letzte 15 Minuten</div>
+        </div>
+      </div>
+      <div class="flipcard-back">
+        <div class="flipcard-back-title">Bot-Details</div>
+        <div class="flipcard-back-item"><span>Aktiv (15 Min)</span><span class="flipcard-back-item-value">{{ report.bot_activity.active_last_15m|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>Letzter Tick</span><span class="flipcard-back-item-value">{{ report.bot_activity.last_tick_human|default('n/a') }}</span></div>
+        <div class="flipcard-back-item"><span>Log Pfad</span><span class="flipcard-back-item-value" style="font-size:11px;opacity:.8;">{{ report.bot_activity.log_path|default('nicht gefunden') }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---- EXTRA BOXES (die dir fehlen) ---- #}
+<div class="dashboard-grid">
+
+  <div class="dash-box">
+    <div class="dash-box-title">
+      <span>&#127942; Top Spieler</span>
+      <span class="dash-meta">Top 5 (Punkte)</span>
+    </div>
+    <div class="dash-box-sub">Highscore im Universum</div>
+
+    {% set topPlayers = report.top_players|default([]) %}
+    {% if topPlayers is not empty %}
+      <div class="dash-list">
+        {% for p in topPlayers %}
+          <div class="dash-row">
+            <div class="dash-row-left">
+              <span class="badge">{{ loop.index }}</span>
+              <span class="dash-name">{{ p.username|default('Unbekannt') }}</span>
+            </div>
+            <div class="dash-meta">{{ p.points|default(0) }} Pkt</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="no-data">Keine Top-Spieler Daten verf&uuml;gbar</div>
+    {% endif %}
+  </div>
+
+  <div class="dash-box">
+    <div class="dash-box-title">
+      <span>&#128293; Aktive Spieler</span>
+      <span class="dash-meta">Top 5</span>
+    </div>
+    <div class="dash-box-sub">Zuletzt aktiv / Online</div>
+
+    {% set activePlayers = report.active_players|default([]) %}
+    {% if activePlayers is not empty %}
+      <div class="dash-list">
+        {% for p in activePlayers %}
+          <div class="dash-row">
+            <div class="dash-row-left">
+              <span class="badge">{{ loop.index }}</span>
+              <span class="dash-name">{{ p.username|default('Unbekannt') }}</span>
+            </div>
+            <div class="dash-meta">online</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="no-data">Keine Aktivit&auml;tsdaten verf&uuml;gbar</div>
+    {% endif %}
+  </div>
+
+  <div class="dash-box">
+    <div class="dash-box-title">
+      <span>&#128279; Multi-IP Details</span>
+      <span class="dash-meta">{{ report.multiaccount_flags.flagged_ips|default(0) }} IPs</span>
+    </div>
+    <div class="dash-box-sub">Verd&auml;chtige Logins nach IP (Zusammenfassung)</div>
+
+    <div class="dash-list">
+      <div class="dash-row">
+        <div class="dash-row-left">
+          <span class="badge warn">IPs</span>
+          <span class="dash-name">Geteilte IPs</span>
+        </div>
+        <div class="dash-meta">{{ report.multiaccount_flags.flagged_ips|default(0) }}</div>
+      </div>
+      <div class="dash-row">
+        <div class="dash-row-left">
+          <span class="badge warn">User</span>
+          <span class="dash-name">Betroffene User</span>
+        </div>
+        <div class="dash-meta">{{ report.multiaccount_flags.flagged_users|default(0) }}</div>
+      </div>
+      <a class="qa" href="admin.php?page=multiips" style="margin-top:10px;">
+        &#128269; Multi-IP Seite &ouml;ffnen
+      </a>
+    </div>
+  </div>
+
+  <div class="dash-box">
+    <div class="dash-box-title">
+      <span>&#9881; Quick Actions</span>
+      <span class="dash-meta">Admin Tools</span>
+    </div>
+    <div class="dash-box-sub">Schnellzugriffe (damit du nicht suchen musst)</div>
+
+    <div class="quick-actions">
+      <a class="qa" href="admin.php?page=clearcache">&#128465; Cache leeren</a>
+      <a class="qa" href="admin.php?page=log">&#128203; Admin-Log</a>
+      <a class="qa" href="admin.php?page=fleets">&#128640; Flotten</a>
+      <a class="qa" href="admin.php?page=messagelist">&#9993; Nachrichten</a>
+      <a class="qa" href="admin.php?page=EditBots">&#129302; Bots</a>
+    </div>
+  </div>
+
+</div>
+
+{# ---- Charts (wie bei dir) ---- #}
+<div class="charts-grid">
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">Aktivit&auml;t / Online Verlauf</div>
+        <div class="chart-card-subtitle">Aktive Spieler im Zeitraum</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartActivity"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">Registrierungen</div>
+        <div class="chart-card-subtitle">Neue Spieler im Zeitraum</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartRegistrations"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">Flottenstarts</div>
+        <div class="chart-card-subtitle">Gestartete Flotten im Zeitraum</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartFleets"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">K&auml;mpfe</div>
+        <div class="chart-card-subtitle">Kampfberichte im Zeitraum</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartCombats"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">Bots</div>
+        <div class="chart-card-subtitle">Bot-Ticks im Zeitraum</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartBots"></canvas></div>
+  </div>
+</div>
+
+{# ---- Bot Log Section (wie bei dir) ---- #}
+<div class="report-section">
+  <div class="report-section-title">&#128202; Bilanz &mdash; {{ periodLabel|default('Heute') }}</div>
+
+  <div class="report-grid">
+    <div class="report-card" style="grid-column: 1 / -1;">
+      <div class="report-card-title">&#129302; Bot-Aktivit&auml;t (Live Log)</div>
+
+      {% set botEvents = report.bot_activity.events|default([]) %}
+      {% if botEvents is not empty %}
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          {% for e in botEvents %}
+            <div style="display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;">
+              <div style="min-width:140px;color:#94a3b8;font-size:12px;">{{ e.time|default('-') }}</div>
+              <div style="min-width:140px;">
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                  <span style="font-size:12px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;">
+                    #{{ e.bot_id|default(0) }}
+                  </span>
+                  <span style="color:#e2e8f0;font-weight:600;">{{ e.bot_name|default('Bot') }}</span>
+                </span>
+              </div>
+              <div style="min-width:90px;">
+                {% set st = e.status|default('info') %}
+                {% if st == 'ok' %}
+                  <span class="badge ok">OK</span>
+                {% elseif st == 'error' %}
+                  <span class="badge err">ERROR</span>
+                {% else %}
+                  <span class="badge">INFO</span>
+                {% endif %}
+              </div>
+              <div style="flex:1;color:#e2e8f0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                {{ e.message|default('-') }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-data">Keine Bot-Events verf&uuml;gbar</div>
+        <div style="margin-top:8px;color:#94a3b8;font-size:12px;">
+          Erwartet Log-Datei unter: <code>bot_actions_debug.txt</code> oder <code>cache/bot_actions_debug.txt</code> oder <code>includes/bot_actions_debug.txt</code>.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<script>
+window.adminDashboardData = {
+  charts: {{ chartData|json_encode|raw }},
+  report: {{ report|json_encode|raw }}
+};
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const data = window.adminDashboardData || {};
+  const charts = data.charts || {};
+
+  const toArray = (v) => Array.isArray(v) ? v : (v && typeof v === 'object' ? Object.values(v) : []);
+  const labels = toArray(charts.labels);
+
+  const series = {
+    activity: toArray(charts.activity),
+    registrations: toArray(charts.registrations),
+    fleets: toArray(charts.fleets),
+    combats: toArray(charts.combats),
+    bots: toArray(charts.bots),
+  };
+
+  const ensureLen = (arr, len) => {
+    arr = Array.isArray(arr) ? arr.slice(0, len) : [];
+    while (arr.length < len) arr.push(0);
+    return arr;
+  };
+
+  const L = labels.length;
+  series.activity      = ensureLen(series.activity, L);
+  series.registrations = ensureLen(series.registrations, L);
+  series.fleets        = ensureLen(series.fleets, L);
+  series.combats       = ensureLen(series.combats, L);
+  series.bots          = ensureLen(series.bots, L);
+
+  const ctxOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } }, beginAtZero: true }
+    },
+    elements: { line: { tension: 0.35, borderWidth: 2 }, point: { radius: 0, hitRadius: 10 } }
+  };
+
+  const mkChart = (id, cfg) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (typeof Chart === 'undefined') return;
+    try { new Chart(el, cfg); } catch(e) {}
+  };
+
+  mkChart('chartActivity', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Aktivität', data: series.activity, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.12)', fill: true },
+      { label: 'Bots',      data: series.bots,     borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,0.10)', fill: true }
+    ]},
+    options: Object.assign({}, ctxOpts, { plugins: { legend: { display: true, labels: { color: '#94a3b8' } } } })
+  });
+
+  mkChart('chartRegistrations', {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Registrierungen', data: series.registrations, backgroundColor: '#34d399', borderRadius: 4 }
+    ]},
+    options: ctxOpts
+  });
+
+  mkChart('chartFleets', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Flotten', data: series.fleets, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.12)', fill: true }
+    ]},
+    options: ctxOpts
+  });
+
+  mkChart('chartCombats', {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Kämpfe', data: series.combats, backgroundColor: '#f87171', borderRadius: 4 }
+    ]},
+    options: ctxOpts
+  });
+
+  mkChart('chartBots', {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Bot-Ticks', data: series.bots, backgroundColor: '#2dd4bf', borderRadius: 4 }
+    ]},
+    options: ctxOpts
+  });
+
+  function buildPeriodUrl(period){
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+    params.set('period', period);
+    if (!params.get('page')) params.set('page', 'overview');
+    url.search = params.toString();
+    return url.toString();
+  }
+
+  document.querySelectorAll('.period-tab').forEach(btn => {
+    btn.addEventListener('click', () => { window.location.href = buildPeriodUrl(btn.dataset.period); });
+  });
+
+  document.querySelectorAll('.flipcard').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+});
+</script>

@@ -1,0 +1,452 @@
+/**
+ * SmartMoons Header Cleanup & Burger Button Fix
+ * Entfernt alle störenden Header-Overlays und stellt saubere Burger-Button-Darstellung sicher
+ * Version: 2.0
+ * Date: 2025-10-05
+ */
+
+/* ============================================
+   KRITISCHE ENTFERNUNG ALLER STÖRENDER ELEMENTE
+   ============================================ */
+
+/* Entferne ALLE möglichen störenden Pseudo-Elemente und Overlays */
+.topbar-bg,
+.header::before,
+.header::after,
+.navbar::before,
+.navbar::after,
+.header-bg,
+.nav-bg,
+.burger-container,
+.header-overlay,
+.topbar::before,
+.topbar::after,
+.main-header::before,
+.main-header::after,
+#header::before,
+#header::after,
+header::before,
+header::after,
+body::before,
+body::after,
+.main-content::before,
+.main-content::after,
+.resource-bar::before,
+.resource-bar::after,
+.app-container::before,
+.app-container::after,
+.navigation::before,
+.navigation::after,
+.nav-wrapper::before,
+.nav-wrapper::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
+
+/* Entferne alle leeren Container die Platz einnehmen könnten */
+div:empty:not([class*="icon"]):not([class*="badge"]):not([id]) {
+  display: none !important;
+}
+
+/* ============================================
+   HEADER MUSS BÜNDIG AM OBEREN RAND SEIN
+   ============================================ */
+
+/* Body und HTML ohne margins/paddings */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Body darf keinen top-offset haben */
+body {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  position: relative !important;
+}
+
+/* Zusätzliche Sicherheit: Entferne alle möglichen Top-Abstände */
+body > *:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Falls irgendwo ein fixed/absolute Element mit top > 0 existiert */
+body > div[style*="position: fixed"],
+body > div[style*="position: absolute"] {
+  top: auto !important;
+}
+
+/* App Container beginnt direkt oben */
+.app-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  position: relative !important;
+}
+
+/* Header MUSS am oberen Rand kleben
+   WICHTIG: Keine globalen position-Overrides, sonst brechen moderne Layouts (z.B. .game-header). */
+#header,
+.main-header,
+.topbar,
+.navbar {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  top: 0 !important;
+}
+
+/* Stelle sicher dass der erste sichtbare Header ganz oben ist */
+.main-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: linear-gradient(180deg, rgba(5,10,25,0.95), rgba(5,10,25,0.85)) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Resource Bar direkt unter Header ohne Lücke */
+.resource-bar {
+  margin-top: 0 !important;
+  padding-top: 8px !important;
+  border-top: none !important;
+  background: linear-gradient(135deg, 
+    rgba(15, 20, 35, 0.9) 0%, 
+    rgba(20, 25, 40, 0.85) 100%) !important;
+  backdrop-filter: blur(8px) !important;
+  position: relative !important;
+  z-index: 99 !important;
+}
+
+/* Main Content ohne unnötigen Abstand */
+.main-content {
+  margin-top: 0 !important;
+  padding-top: 20px !important;
+  position: relative !important;
+}
+
+/* ============================================
+   BURGER BUTTON PERFEKTE DARSTELLUNG
+   ============================================ */
+
+/* Basis Burger Button Container */
+.burger-menu,
+#burgerMenu {
+  display: flex !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  background: rgba(0, 15, 30, 0.8) !important;
+  border: 1px solid rgba(0, 191, 255, 0.3) !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  position: relative !important;
+  z-index: 10002 !important;
+  transition: all 0.3s ease !important;
+  overflow: visible !important;
+}
+
+/* Burger Button Hover Effect */
+.burger-menu:hover,
+#burgerMenu:hover {
+  background: rgba(0, 191, 255, 0.1) !important;
+  border-color: #00bfff !important;
+  transform: scale(1.05) !important;
+}
+
+/* Die drei Burger-Linien - SICHTBAR UND LEUCHTEND */
+.burger-menu span,
+#burgerMenu span {
+  display: block !important;
+  width: 22px !important;
+  height: 3px !important;
+  background: #00bfff !important;
+  border-radius: 3px !important;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  margin: 0 !important;
+  box-shadow: 0 0 8px rgba(0, 191, 255, 0.6) !important;
+}
+
+/* Explizit drei Linien sicherstellen */
+.burger-menu span:nth-child(1),
+#burgerMenu span:nth-child(1) {
+  transform: translateY(-4px) !important;
+}
+
+.burger-menu span:nth-child(2),
+#burgerMenu span:nth-child(2) {
+  transform: translateY(0) !important;
+}
+
+.burger-menu span:nth-child(3),
+#burgerMenu span:nth-child(3) {
+  transform: translateY(4px) !important;
+}
+
+/* Hover-Effekt für die Linien */
+.burger-menu:hover span,
+#burgerMenu:hover span {
+  background: #33ccff !important;
+  box-shadow: 0 0 12px rgba(51, 204, 255, 0.8) !important;
+}
+
+/* Active/Open State Animation */
+.burger-menu.active span:nth-child(1),
+#burgerMenu.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px) !important;
+  background: #ff4444 !important;
+}
+
+.burger-menu.active span:nth-child(2),
+#burgerMenu.active span:nth-child(2) {
+  opacity: 0 !important;
+  transform: translateX(-20px) !important;
+}
+
+.burger-menu.active span:nth-child(3),
+#burgerMenu.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px) !important;
+  background: #ff4444 !important;
+}
+
+/* Alternative für Pseudo-Element basierte Burger Buttons */
+.burger::before,
+.burger::after,
+.burger-menu::before,
+.burger-menu::after {
+  content: '' !important;
+  display: block !important;
+  width: 22px !important;
+  height: 3px !important;
+  background: #00bfff !important;
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border-radius: 3px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 0 8px rgba(0, 191, 255, 0.6) !important;
+}
+
+.burger::before,
+.burger-menu::before {
+  top: 10px !important;
+}
+
+.burger::after,
+.burger-menu::after {
+  bottom: 10px !important;
+}
+
+/* Mittlere Linie für Pseudo-Element Burger */
+.burger span,
+.burger-menu span {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* SVG Icon Support falls verwendet */
+.burger-menu svg,
+#burgerMenu svg {
+  fill: #00bfff !important;
+  stroke: #00bfff !important;
+  width: 24px !important;
+  height: 24px !important;
+  filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.6)) !important;
+}
+
+/* Font Awesome Icon Support */
+.burger-menu i,
+#burgerMenu i,
+.burger-menu .fa-bars,
+#burgerMenu .fa-bars {
+  color: #00bfff !important;
+  font-size: 24px !important;
+  text-shadow: 0 0 8px rgba(0, 191, 255, 0.6) !important;
+}
+
+/* ============================================
+   MOBILE NAVIGATION DRAWER
+   ============================================ */
+
+/* Mobile Nav muss über allem sein außer Burger */
+.mobile-nav,
+#mobileNav {
+  z-index: 9999 !important;
+}
+
+/* Nav Overlay */
+.nav-overlay,
+#navOverlay {
+  z-index: 9998 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+/* ============================================
+   RESPONSIVE ANPASSUNGEN
+   ============================================ */
+
+/* Mobile: Burger sichtbar */
+@media (max-width: 992px) {
+  .burger-menu,
+  #burgerMenu {
+    display: flex !important;
+  }
+  
+  .desktop-nav {
+    display: none !important;
+  }
+  
+  /* Kompaktere Header auf Mobile */
+  .main-header {
+    padding: 8px 10px !important;
+  }
+  
+  .resource-bar {
+    padding: 6px 8px !important;
+  }
+}
+
+/* Desktop: Burger versteckt */
+@media (min-width: 993px) {
+  .burger-menu,
+  #burgerMenu {
+    display: none !important;
+  }
+  
+  .desktop-nav {
+    display: flex !important;
+  }
+}
+
+/* Sehr kleine Geräte */
+@media (max-width: 480px) {
+  .burger-menu,
+  #burgerMenu {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  
+  .burger-menu span,
+  #burgerMenu span {
+    width: 20px !important;
+    height: 2px !important;
+  }
+}
+
+/* ============================================
+   Z-INDEX HIERARCHIE SICHERSTELLUNG
+   ============================================ */
+
+body {
+  z-index: 0 !important;
+}
+
+.app-container {
+  z-index: 1 !important;
+}
+
+.main-content {
+  z-index: 10 !important;
+}
+
+.resource-bar {
+  z-index: 99 !important;
+}
+
+.main-header,
+header {
+  z-index: 100 !important;
+}
+
+.header-content {
+  z-index: 101 !important;
+}
+
+.burger-menu,
+#burgerMenu {
+  z-index: 10002 !important;
+}
+
+.mobile-nav,
+#mobileNav {
+  z-index: 9999 !important;
+}
+
+.nav-overlay,
+#navOverlay {
+  z-index: 9998 !important;
+}
+
+/* ============================================
+   ADDITIONAL CLEANUP - SEHR WICHTIG
+   ============================================ */
+
+/* Entferne alle möglichen transparenten Container über dem Header */
+.phantom-block,
+.ghost-header,
+.invisible-header,
+.transparent-overlay,
+.header-spacer,
+.top-spacer,
+.navbar-spacer,
+[class*="header-placeholder"],
+[class*="navbar-placeholder"] {
+  display: none !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Stelle sicher dass nichts über dem Header schwebt
+   (früher global per inline-style gefiltert; das war zu aggressiv und hat moderne Header/Overlays beschädigt) */
+
+/* ============================================
+   DEBUG HELPERS (können später entfernt werden)
+   ============================================ */
+
+/* Temporär zum Debugging - zeigt wo der Burger Button ist
+.burger-menu,
+#burgerMenu {
+  border: 2px solid red !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+*/
+
+/* ============================================
+   FORCE OVERRIDE - ABSOLUTE PRIORITY
+   ============================================ */
+
+/* Diese Regeln haben absolute Priorität und überschreiben ALLES */
+html body .topbar-bg,
+html body .header::before,
+html body .header::after,
+html body .navbar::before,
+html body .navbar::after,
+html body .header-bg,
+html body .nav-bg,
+html body .burger-container,
+html body .header-overlay {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+/* Ende der Header Cleanup Styles */

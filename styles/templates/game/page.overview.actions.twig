@@ -1,0 +1,39 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_overview }}{% endblock %}
+{% block content %}
+
+<div class="glass-card" style="margin: 0;">
+    <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="$('#tab-rename').show(); $('#tab-delete').hide();" class="btn btn-primary btn-sm">{{ LNG.ov_planet_rename }}</button>
+            <button onclick="$('#tab-rename').hide(); $('#tab-delete').show();" class="btn btn-danger btn-sm">{{ LNG.ov_delete_planet }}</button>
+        </div>
+    </div>
+
+    <!-- Rename Tab -->
+    <div id="tab-rename">
+        <h4 style="text-align: center; margin-bottom: 20px;">{{ LNG.ov_planet_rename }}</h4>
+        <div class="form-group">
+            <label class="form-label">{{ LNG.ov_rename_label }}</label>
+            <input type="text" name="name" id="name" maxlength="20" class="form-control" autocomplete="off">
+        </div>
+        <button type="button" onclick="checkrename()" class="btn btn-success" style="width: 100%;">{{ LNG.ov_planet_rename }}</button>
+    </div>
+
+    <!-- Delete Tab -->
+    <div id="tab-delete" style="display: none;">
+        <h4 style="text-align: center; color: var(--danger); margin-bottom: 10px;">{{ LNG.ov_security_request }}</h4>
+        <p style="text-align: center; margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">{{ LNG.ov_security_confirm }}</p>
+        <div class="form-group">
+            <label class="form-label">{{ LNG.ov_password }}</label>
+            <input type="password" name="password" id="password" class="form-control" autocomplete="off">
+        </div>
+        <button type="button" onclick="checkcancel()" class="btn btn-danger" style="width: 100%;">{{ LNG.ov_delete_planet }}</button>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script src="scripts/game/overview.actions.js"></script>
+{% endblock %}

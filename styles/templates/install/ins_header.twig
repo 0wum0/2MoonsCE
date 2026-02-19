@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7 ]> <html lang="{{ lang }}" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="{{ lang }}" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="{{ lang }}" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="{{ lang }}" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="{{ lang }}" class="no-js"> <!--<![endif]-->
+<head>
+	<title>{{ title }}</title>
+	<meta name="generator" content="SmartMoons">
+	<!-- 
+		This website is powered by SmartMoons
+		SmartMoons is a modern fork of 2Moons, a free Space Browsergame initially created by Jan-Otto Kröpke and licensed under MIT.
+		Original 2Moons is copyright 2009-2016 of Jan-Otto Kröpke. SmartMoons modernization by 0wum0.
+		Information and contribution at https://github.com/0wum0/SmartMoons-v3.0/
+	-->
+	{% if goto %}
+	<meta http-equiv="refresh" content="{{ gotoinsec }};URL={{ goto }}">
+	{% endif %}
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- Modern Dark Sci-Fi Theme -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../styles/resource/css/install/modern.css">
+	<link rel="stylesheet" type="text/css" href="../styles/resource/css/base/jquery.css">
+	<link rel="stylesheet" type="text/css" href="../styles/resource/css/base/jquery.fancybox.css">
+	<link rel="stylesheet" type="text/css" href="../styles/resource/css/base/validationEngine.jquery.css">
+	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+	<!-- Modern JavaScript Libraries -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+	<script type="text/javascript" src="../scripts/base/jquery.js"></script>
+	<script type="text/javascript" src="../scripts/base/jquery.ui.js"></script>
+	<script type="text/javascript" src="../scripts/base/jquery.cookie.js"></script>
+	<script type="text/javascript" src="../scripts/base/jquery.fancybox.js"></script>
+	<script type="text/javascript" src="../scripts/base/jquery.validationEngine.js"></script>
+	<script type="text/javascript" src="../scripts/l18n/validationEngine/jquery.validationEngine-{{ lang }}.js"></script>
+	<script type="text/javascript" src="../scripts/base/tooltip.js"></script>
+	<script type="text/javascript" src="../styles/resource/js/install/modern.js"></script>
+	{% for scriptname in scripts %}
+	<script type="text/javascript" src="../scripts/game/{{ scriptname }}.js"></script>
+	{% endfor %}
+	{% block script %}{% endblock %}
+	<script type="text/javascript">
+	$(function() {
+		{{ execscript|raw }}
+	});
+	</script>
+</head>
+<body id="step{% if GET.step is defined %}{{ GET.step|default("intro") }}{% else %}intro{% endif %}">
+<div id="tooltip" class="tip"></div>
+
+<!-- Modern Installer Container -->
+<div class="installer-container">
+	<div class="installer-header">
+		<div class="installer-logo">🌌 SmartMoons</div>
+		<div class="installer-subtitle">Futuristic Sci-Fi Browsergame</div>
+		<div class="installer-version">v3.2.5 - Modern Installer</div>
+	</div>
+
+	<!-- Progress Bar -->
+	<div class="progress-container">
+		<div class="progress-bar">
+			<div class="progress-fill" style="width: 12.5%"></div>
+		</div>
+		<div class="progress-text">Step 1 of 8</div>
+	</div>
+
+	<!-- Step Navigation -->
+	<div class="step-nav">
+		<div class="step-item active">1</div>
+		<div class="step-item">2</div>
+		<div class="step-item">3</div>
+		<div class="step-item">4</div>
+		<div class="step-item">5</div>
+		<div class="step-item">6</div>
+		<div class="step-item">7</div>
+		<div class="step-item">8</div>
+	</div>
+
+	<!-- Language Selector -->
+	<div class="language-selector">
+		<select id="lang" name="lang" onchange="document.location = '?lang='+this.value;">
+			{% for key, value in Selector %}
+			<option value="{{ key }}"{% if key == lang %} selected{% endif %}>{{ value }}</option>
+			{% endfor %}
+		</select>
+	</div>
+
+	<!-- Step Content -->
+	<div class="step-content">
+		<h2 class="step-title">{{ header }}</h2>

@@ -1,0 +1,280 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_overview }}{% endblock %}
+{% block content %}
+
+<!-- Overview Page with Modern Cards -->
+<div class="overview-content">
+	
+	<!-- Top Stats Bar -->
+	<div class="game-card mb-4">
+		<div class="card-body">
+			<div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 1rem;">
+				<div class="flex items-center gap-3">
+					<div class="stat-item">
+						<i class="fas fa-users text-cyan"></i>
+						<span>{{ LNG.ov_online_user }}: <strong class="text-cyan">{{ onlineUser|number_format }}</strong></span>
+					</div>
+				</div>
+				
+				<div class="flex items-center gap-3">
+					<span class="text-sm">
+						<i class="fas fa-user-shield text-purple"></i>
+						{{ LNG.ov_admins_online }}:
+						{% for ID, Name in AdminsOnline %}
+							{% if not loop.first %} • {% endif %}
+							<a href="#" onclick="return Dialog.PM({{ ID }})" class="text-purple">{{ Name }}</a>
+						{% else %}
+							<span class="text-muted">{{ LNG.ov_no_admins_online }}</span>
+						{% endfor %}
+					</span>
+				</div>
+				
+				<a href="game.php?page=ticket" class="btn-action">
+					<i class="fas fa-ticket-alt"></i>
+					<span>{{ LNG.ov_ticket }}</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Fleet Movements -->
+	{% if fleets %}
+	<div class="game-card mb-4">
+		<div class="card-header">
+			<div class="card-title">
+				<i class="fas fa-space-shuttle"></i>
+				{{ LNG.ov_fleet_movements }}
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="fleet-list">
+				{% for index, fleet in fleets %}
+				<div class="fleet-item">
+					<div class="fleet-timer">
+						<span class="timer-badge" id="fleettime_{{ index }}" 
+							  data-fleet-end-time="{{ fleet.returntime }}" 
+							  data-time="{{ fleet.resttime }}">
+							{pretty_fly_time({{ fleet.resttime }})}
+						</span>
+					</div>
+					<div class="fleet-info">
+						{{ fleet.text|raw }}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	
+	<!-- Main Content Grid -->
+	<div class="card-grid card-grid-2" data-columns="2">
+		
+		<!-- Planet Card -->
+		<div class="game-card">
+			<div class="card-header">
+				<div class="card-title">
+					<i class="fas fa-globe"></i>
+					{{ planetname }} [{{ galaxy }}:{{ system }}:{{ planet }}]
+				</div>
+				<div class="card-actions">
+					<button class="card-action-btn" onclick="return Dialog.PlanetAction();" title="{{ LNG.ov_planetmenu }}">
+						<i class="fas fa-cog"></i>
+					</button>
+				</div>
+			</div>
+			<div class="card-body">
+				<!-- Planet Visual -->
+				<div class="planet-visual">
+					<div class="planet-image" style="background-image: url({{ dpath }}planeten/{{ planetimage }}.jpg);">
+						<div class="planet-glow"></div>
+					</div>
+				</div>
+				
+				<!-- Planet Stats -->
+				<div class="stats-grid mt-3">
+					<div class="stat-row">
+						<span class="stat-label">{{ LNG.ov_diameter }}:</span>
+						<span class="stat-value">{{ planet_diameter|number_format }} km</span>
+					</div>
+					<div class="stat-row">
+						<span class="stat-label">{{ LNG.ov_fields }}:</span>
+						<span class="stat-value">
+							<span{% if planet_field_current >= planet_field_max * 0.9 %} class="text-red"{% endif %}>
+								{{ planet_field_current }} / {{ planet_field_max }}
+							</span>
+						</span>
+					</div>
+					<div class="stat-row">
+						<span class="stat-label">{{ LNG.ov_temperature }}:</span>
+						<span class="stat-value">{{ planet_temp_min }}°C - {{ planet_temp_max }}°C</span>
+					</div>
+					
+					{% if Moon %}
+					<div class="stat-row">
+						<span class="stat-label">{{ LNG.fcm_moon }}:</span>
+						<span class="stat-value">
+							<a href="game.php?page=overview&cp={{ Moon }}" class="text-cyan">
+								<i class="fas fa-moon"></i> {{ LNG.fcm_moon }}
+							</a>
+						</span>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		
+		<!-- Resources Production Card -->
+		<div class="game-card">
+			<div class="card-header">
+				<div class="card-title">
+					<i class="fas fa-chart-line"></i>
+					{{ LNG.ov_production }}
+				</div>
+			</div>
+			<div class="card-body">
+				{% for resourceID in [901, 902, 903, 911] %}
+				{% if resourceTable[resourceID] is defined %}
+				<div class="resource-production mb-3">
+					<div class="resource-header">
+						<img src="{{ dpath }}images/{{ resourceTable[resourceID].name }}.gif" alt="{{ LNG.tech[resourceID] }}" width="16" height="16">
+						<span class="resource-name">{{ LNG.tech[resourceID] }}</span>
+						<span class="resource-prod-value">
+							+{{ resourceTable[resourceID].production|number_format }}/h
+						</span>
+					</div>
+					<div class="progress-bar-container">
+						<div class="progress-bar">
+							<div class="progress-bar-fill" 
+								 style="width: {{ (resourceTable[resourceID].max > 0) ? min(resourceTable[resourceID].current / resourceTable[resourceID].max * 100, 100) : 0 }}%"
+								 data-resource="{{ resourceID }}">
+							</div>
+						</div>
+						<div class="progress-bar-label">
+							<span>{{ resourceTable[resourceID].current|number_format }}</span>
+							<span>{{ resourceTable[resourceID].max|number_format }}</span>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+		
+		<!-- Buildings in Progress -->
+		{% if buildInfo %}
+		<div class="game-card">
+			<div class="card-header">
+				<div class="card-title">
+					<i class="fas fa-hammer"></i>
+					{{ LNG.tech[buildInfo.id] }}
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="build-progress">
+					<div class="build-info">
+						<span>{{ LNG.ov_lvl }} {{ buildInfo.level }}</span>
+						<span id="buildtime" class="timer-badge" data-time="{{ buildInfo.endtime }}">
+							{pretty_time({{ buildInfo.resttime }})}
+						</span>
+					</div>
+					<div class="progress-bar-container mt-2">
+						<div class="progress-bar">
+							<div class="progress-bar-fill pulse" style="width: 0%" id="build-progress"></div>
+						</div>
+					</div>
+					<button class="btn-action btn-small mt-2" onclick="cancelbuilding({{ buildInfo.id }});">
+						<i class="fas fa-times"></i> {{ LNG.ov_cancel }}
+					</button>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+		
+		<!-- Research in Progress -->
+		{% if researchInfo %}
+		<div class="game-card">
+			<div class="card-header">
+				<div class="card-title">
+					<i class="fas fa-flask"></i>
+					{{ LNG.tech[researchInfo.id] }}
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="research-progress">
+					<div class="research-info">
+						<span>{{ LNG.ov_lvl }} {{ researchInfo.level }}</span>
+						<span id="researchtime" class="timer-badge" data-time="{{ researchInfo.endtime }}">
+							{pretty_time({{ researchInfo.resttime }})}
+						</span>
+					</div>
+					<div class="progress-bar-container mt-2">
+						<div class="progress-bar">
+							<div class="progress-bar-fill pulse" style="width: 0%" id="research-progress"></div>
+						</div>
+					</div>
+					<button class="btn-action btn-small mt-2" onclick="cancelresearch({{ researchInfo.id }});">
+						<i class="fas fa-times"></i> {{ LNG.ov_cancel }}
+					</button>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+	
+	<!-- Messages & Events -->
+	{% if new_message > 0 %}
+	<div class="game-card mt-4">
+		<div class="card-header">
+			<div class="card-title">
+				<i class="fas fa-envelope"></i>
+				{{ LNG.ov_messages }}
+			</div>
+			<div class="card-actions">
+				<span class="badge">{{ new_message }}</span>
+			</div>
+		</div>
+		<div class="card-body">
+			<a href="game.php?page=messages" class="btn-action btn-block">
+				<i class="fas fa-envelope-open"></i>
+				{{ LNG.ov_have_new_messages }}
+			</a>
+		</div>
+	</div>
+	{% endif %}
+</div>
+<script>
+// Update build/research progress bars
+document.addEventListener('DOMContentLoaded', function() {
+	// Build progress
+	const buildProgress = document.getElementById('build-progress');
+	const buildTime = document.getElementById('buildtime');
+	if (buildProgress && buildTime) {
+		const updateBuildProgress = function() {
+			const totalTime = parseInt(buildTime.dataset.totalTime || 100);
+			const remainingTime = parseInt(buildTime.dataset.time || 0);
+			const progress = ((totalTime - remainingTime) / totalTime) * 100;
+			buildProgress.style.width = Math.min(progress, 100) + '%';
+		};
+		updateBuildProgress();
+		setInterval(updateBuildProgress, 1000);
+	}
+	
+	// Research progress
+	const researchProgress = document.getElementById('research-progress');
+	const researchTime = document.getElementById('researchtime');
+	if (researchProgress && researchTime) {
+		const updateResearchProgress = function() {
+			const totalTime = parseInt(researchTime.dataset.totalTime || 100);
+			const remainingTime = parseInt(researchTime.dataset.time || 0);
+			const progress = ((totalTime - remainingTime) / totalTime) * 100;
+			researchProgress.style.width = Math.min(progress, 100) + '%';
+		};
+		updateResearchProgress();
+		setInterval(updateResearchProgress, 1000);
+	}
+});
+</script>
+
+{% endblock %}

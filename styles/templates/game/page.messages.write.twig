@@ -1,0 +1,89 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.write_message }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-popup">
+    
+    <div class="popup-header">
+        <i class="far fa-edit"></i> {{ LNG.mg_send_new }}
+    </div>
+
+    <form name="message" id="message" action="javascript:void(0);">
+        <input type="hidden" name="id" value="{{ id }}">
+
+        <div class="form-group">
+            <label>{{ LNG.mg_send_to }}</label>
+            {% if allowFreeRecipient %}
+            <input type="text" name="to" id="to" class="glass-input" maxlength="32" value="{{ OwnerRecord.username|default('') }}" placeholder="{{ LNG.mg_send_to }}">
+            {% else %}
+            <input type="text" name="to" id="to" class="glass-input" value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]" readonly>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label>{{ LNG.mg_subject }}</label>
+            <input type="text" name="subject" id="subject" class="glass-input" maxlength="40" value="{% if subject %}{{ subject }}{% else %}{{ LNG.mg_no_subject }}{% endif %}">
+        </div>
+
+        <div class="form-group">
+            <label>
+                {{ LNG.mg_message }} 
+                <span class="char-count">(<span id="cntChars">0</span> / 5.000)</span>
+            </label>
+            <textarea name="text" id="text" class="glass-textarea" rows="10" onkeyup="$('#cntChars').text($(this).val().length);">{{ message|default('') }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <input id="submit" type="button" onClick="check();" class="btn-send" value="{{ LNG.mg_send }}">
+        </div>
+    </form>
+
+</div>
+
+<script type="text/javascript">
+function check(){
+    {% if allowFreeRecipient %}
+    if($('#to').val().trim().length === 0) {
+        alert('{{ LNG.mg_error }}');
+        return false;
+    }
+    {% endif %}
+
+    if($('#text').val().length == 0) {
+        alert('{{ LNG.mg_empty_text }}');
+        return false;
+    } else {
+        $('#submit').prop('disabled', true);
+        $.post("game.php?page=messages&mode=send&ajax=1", $('#message').serialize(), function(data){
+            var message = '';
+            if (typeof data === 'string') {
+                message = data;
+            } else if (data && typeof data.message === 'string') {
+                message = data.message;
+            } else {
+                message = '{{ LNG.mg_message_send|e('js') }}';
+            }
+            alert(message);
+            if (window.parent && typeof window.parent.Message !== 'undefined') {
+                window.parent.Message.getMessages(window.parent.Message.MessID || 100, 1);
+            }
+            if (window.parent && window.parent.$ && window.parent.$.fancybox) {
+                window.parent.$.fancybox.close();
+            } else {
+                window.close();
+            }
+        }, 'json').fail(function() {
+            alert('{{ LNG.mg_error }}');
+            $('#submit').prop('disabled', false);
+        });
+        return true;
+    }
+}
+</script>
+<script type="text/javascript">
+$(function() {
+    $('#cntChars').text($('#text').val().length);
+});
+</script>
+{% endblock %}

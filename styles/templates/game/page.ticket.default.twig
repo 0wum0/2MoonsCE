@@ -1,0 +1,46 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_support }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-headset"></i> {{ LNG.ti_header }}</h2>
+            <a href="game.php?page=ticket&amp;mode=create" class="btn-new-ticket">
+                <i class="fas fa-plus"></i> {{ LNG.ti_new }}
+            </a>
+        </div>
+
+        <div class="ticket-list">
+            <div class="ticket-head-row">
+                <div class="col id">ID</div>
+                <div class="col sub">{{ LNG.ti_subject }}</div>
+                <div class="col ans">{{ LNG.ti_answers }}</div>
+                <div class="col date">{{ LNG.ti_date }}</div>
+                <div class="col stat">{{ LNG.ti_status }}</div>
+            </div>
+
+            {% for TicketID, TicketInfo in ticketList %}    
+            <div class="ticket-row" onclick="window.location.href='game.php?page=ticket&amp;mode=view&amp;id={{ TicketID }}'">
+                <div class="col id">#{{ TicketID }}</div>
+                <div class="col sub">{{ TicketInfo.subject }}</div>
+                <div class="col ans">{{ TicketInfo.answer - 1 }}</div>
+                <div class="col date">{{ TicketInfo.time }}</div>
+                <div class="col stat">
+                    {% if TicketInfo.status == 0 %}
+                        <span class="badge open">{{ LNG.ti_status_open }}</span>
+                    {% elseif TicketInfo.status == 1 %}
+                        <span class="badge answer">{{ LNG.ti_status_answer }}</span>
+                    {% else %}
+                        <span class="badge closed">{{ LNG.ti_status_closed }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

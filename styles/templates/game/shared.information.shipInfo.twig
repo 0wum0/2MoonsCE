@@ -1,0 +1,28 @@
+<div class="ship-info-card">
+    <div class="info-grid">
+        <div class="info-row">
+            <span class="label">{{ LNG.in_struct_pt }}</span>
+            <span class="val">{{ FleetInfo.structure|number_format }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">{{ LNG.in_attack_pt }}</span>
+            <span class="val red">{{ FleetInfo.attack|number_format }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">{{ LNG.in_shield_pt }}</span>
+            <span class="val blue">{{ FleetInfo.shield|number_format }}</span>
+        </div>
+        {% if FleetInfo.capacity %}
+        <div class="info-row">
+            <span class="label">{{ LNG.in_capacity }}</span>
+            <span class="val">{{ FleetInfo.capacity|number_format }}</span>
+        </div>
+        {% endif %}
+        {% if FleetInfo.speed1 %}
+        <div class="info-row">
+            <span class="label">{{ LNG.in_base_speed }}</span>
+            <span class="val">{{ FleetInfo.speed1|number_format }} {% if FleetInfo.speed1 != FleetInfo.speed2 %}<span class="bonus">({{ FleetInfo.speed2|number_format }})</span>{% endif %}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>

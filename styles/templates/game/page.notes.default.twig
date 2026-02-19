@@ -1,0 +1,48 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_notes|default('Notizen') }}{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="margin: 0; max-height: 75vh; display: flex; flex-direction: column;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px;">
+        <h4 style="margin: 0; color: #fff;"><i class="fas fa-sticky-note" style="color: var(--color-accent-cyan);"></i> {{ LNG.nt_title|default('Notizen') }}</h4>
+        <a href="game.php?page=notes&mode=detail" class="btn btn-primary btn-sm" style="font-size: 0.8rem;">
+            <i class="fas fa-plus"></i> {{ LNG.nt_s_new|default('Neue Notiz') }}
+        </a>
+    </div>
+
+    <form action="game.php?page=notes&mode=delete" method="post" id="notes-form">
+    <div id="note-list" style="flex: 1; overflow-y: auto;">
+        {% if notesList is defined and notesList|length > 0 %}
+            {% for noteID, Note in notesList %}
+            <div class="note-item" style="padding: 8px 10px; margin-bottom: 6px; background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 3px solid {% if Note.priority == 2 %}#e74c3c{% elseif Note.priority == 1 %}#2ecc71{% else %}#555{% endif %}; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="delmes[{{ noteID }}]" value="1" style="accent-color: #e74c3c; flex-shrink: 0;">
+                <div style="flex: 1; min-width: 0;">
+                    <a href="game.php?page=notes&mode=detail&id={{ noteID }}" style="color: #fff; font-weight: bold; font-size: 0.9rem; text-decoration: none;">
+                        {{ Note.title|default(LNG.nt_no_title|default('Ohne Titel')) }}
+                    </a>
+                    <div style="display: flex; gap: 10px; font-size: 0.75rem; color: #666; margin-top: 2px;">
+                        <span>{{ Note.time }}</span>
+                        <span>{{ Note.size }} {{ LNG.nt_characters|default('Zeichen') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div style="padding: 10px 0; display: flex; gap: 8px;">
+                <button type="submit" class="btn btn-danger btn-sm" style="font-size: 0.8rem;">
+                    <i class="fas fa-trash"></i> {{ LNG.nt_s_delete|default('Markierte löschen') }}
+                </button>
+            </div>
+        {% else %}
+            <div style="text-align: center; color: #555; padding: 30px;">
+                <i class="fas fa-sticky-note" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                {{ LNG.nt_no_notes|default('Keine Notizen vorhanden') }}
+            </div>
+        {% endif %}
+    </div>
+    </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.lm_playercard }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-popup">
+    
+    <div class="player-header">
+        <div class="avatar-circle">
+            <i class="fas fa-user-astronaut"></i>
+        </div>
+        <div class="player-info">
+            <h2 class="player-name">{{ name }}</h2>
+            <div class="player-meta">
+                {% if allyname %}
+                    <span class="meta-item">
+                        <i class="fas fa-users"></i> 
+                        <a href="#" onclick="window.opener.location.href = 'game.php?page=alliance&mode=info&id={{ allyid }}'; window.close(); return false;">
+                            {{ allyname }}
+                        </a>
+                    </span>
+                {% else %}
+                    <span class="meta-item text-muted"><i class="fas fa-users-slash"></i> -</span>
+                {% endif %}
+                
+                <span class="meta-item">
+                    <i class="fas fa-globe"></i> 
+                    <a href="#" onclick="window.opener.location.href = 'game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}'; window.close(); return false;">
+                        {{ homeplanet }} [{{ galaxy }}:{{ system }}:{{ planet }}]
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="player-grid">
+        
+        <div class="glass-card">
+            <div class="card-title"><i class="fas fa-chart-line"></i> {{ LNG.pl_overview }}</div>
+            <div class="stats-list">
+                <div class="stat-row head">
+                    <span>{{ LNG.pl_points }}</span>
+                    <span class="text-right">{{ LNG.pl_range }}</span>
+                </div>
+                
+                <div class="stat-row">
+                    <span class="label">{{ LNG.pl_builds }}</span>
+                    <span class="val">{{ build_points }}</span>
+                    <span class="rank">#{{ build_rank }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">{{ LNG.pl_tech }}</span>
+                    <span class="val">{{ tech_points }}</span>
+                    <span class="rank">#{{ tech_rank }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">{{ LNG.pl_fleet }}</span>
+                    <span class="val">{{ fleet_points }}</span>
+                    <span class="rank">#{{ fleet_rank }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">{{ LNG.pl_def }}</span>
+                    <span class="val">{{ defs_points }}</span>
+                    <span class="rank">#{{ defs_rank }}</span>
+                </div>
+                <div class="stat-row highlight">
+                    <span class="label">{{ LNG.pl_total }}</span>
+                    <span class="val">{{ total_points }}</span>
+                    <span class="rank">#{{ total_rank }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="card-title"><i class="fas fa-crosshairs"></i> {{ LNG.pl_fightstats }}</div>
+            <div class="combat-stats">
+                
+                <div class="combat-row">
+                    <div class="c-label">{{ LNG.pl_fightwon }} ({{ siegprozent }}%)</div>
+                    <div class="progress-bar">
+                        <div class="fill win" style="width: {{ siegprozent }}%"></div>
+                    </div>
+                    <div class="c-val">{{ wons }}</div>
+                </div>
+
+                <div class="combat-row">
+                    <div class="c-label">{{ LNG.pl_fightdraw }} ({{ drawsprozent }}%)</div>
+                    <div class="progress-bar">
+                        <div class="fill draw" style="width: {{ drawsprozent }}%"></div>
+                    </div>
+                    <div class="c-val">{{ draws }}</div>
+                </div>
+
+                <div class="combat-row">
+                    <div class="c-label">{{ LNG.pl_fightlose }} ({{ loosprozent }}%)</div>
+                    <div class="progress-bar">
+                        <div class="fill lose" style="width: {{ loosprozent }}%"></div>
+                    </div>
+                    <div class="c-val">{{ loos }}</div>
+                </div>
+
+                <div class="total-fights">
+                    {{ LNG.pl_totalfight }}: <span class="text-white">{{ totalfights }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card full-width">
+            <div class="card-title"><i class="fas fa-skull-crossbones"></i> {{ playerdestory }}</div>
+            <div class="destruct-grid">
+                <div class="destruct-item">
+                    <span class="d-label">{{ LNG.pl_unitsshot }}</span>
+                    <span class="d-val text-success">{{ desunits }}</span>
+                </div>
+                <div class="destruct-item">
+                    <span class="d-label">{{ LNG.pl_unitslose }}</span>
+                    <span class="d-val text-danger">{{ lostunits }}</span>
+                </div>
+                <div class="destruct-item">
+                    <span class="d-label">{{ LNG.pl_dermetal }}</span>
+                    <span class="d-val">{{ kbmetal }}</span>
+                </div>
+                <div class="destruct-item">
+                    <span class="d-label">{{ LNG.pl_dercrystal }}</span>
+                    <span class="d-val">{{ kbcrystal }}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

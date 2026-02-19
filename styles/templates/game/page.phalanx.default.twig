@@ -1,0 +1,48 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.gl_phalanx }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-phalanx">
+
+    <div class="phalanx-header">
+        <div class="radar-visual">
+            <div class="radar-sweep"></div>
+            <div class="radar-dot"></div>
+        </div>
+        <div class="header-info">
+            <h2 class="scan-title">{{ LNG.px_scan_position }} [{{ galaxy }}:{{ system }}:{{ planet }}]</h2>
+            <div class="scan-target">
+                <i class="fas fa-globe"></i> {{ name }}
+            </div>
+        </div>
+    </div>
+
+    <div class="fleet-monitor">
+        <div class="monitor-label">{{ LNG.px_fleet_movement }}</div>
+        
+        <div class="fleet-list custom-scroll">
+            {% for index, fleet in fleetTable %}
+            <div class="fleet-row">
+                <div class="fleet-timer">
+                    <i class="far fa-clock"></i>
+                    <span id="fleettime_{{ index }}" class="fleets" data-fleet-end-time="{{ fleet.returntime }}" data-fleet-time="{{ fleet.resttime }}">
+                        00:00:00
+                    </span>
+                </div>
+                
+                <div class="fleet-details">
+                    {{ fleet.text|raw }}
+                </div>
+            </div>
+            {% else %}
+            <div class="no-activity">
+                <i class="fas fa-wifi-slash"></i>
+                <span>{{ LNG.px_no_fleet }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

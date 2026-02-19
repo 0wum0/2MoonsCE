@@ -1,0 +1,137 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_fleet }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-map-marker-alt"></i> {{ LNG.fl_destiny }}</h2>
+    </div>
+
+    <form action="game.php?page=fleetStep2" method="post" onsubmit="return CheckTarget()" id="form">
+        <input type="hidden" name="token" value="{{ token }}">
+        <input type="hidden" name="fleet_group" value="0">
+        <input type="hidden" name="target_mission" value="{{ mission }}">
+
+        <div class="fleet-step-grid">
+            
+            <div class="glass-panel target-panel">
+                <div class="panel-header"><i class="fas fa-crosshairs"></i> {{ LNG.fl_coords }}</div>
+                
+                <div class="coords-input-group">
+                    <div class="coord-field">
+                        <label>{{ LNG.fl_galaxy }}</label>
+                        <input type="text" id="galaxy" name="galaxy" size="3" maxlength="2" onkeyup="updateVars()" value="{{ galaxy }}" class="glass-input text-center">
+                    </div>
+                    <div class="coord-field">
+                        <label>{{ LNG.fl_system }}</label>
+                        <input type="text" id="system" name="system" size="3" maxlength="3" onkeyup="updateVars()" value="{{ system }}" class="glass-input text-center">
+                    </div>
+                    <div class="coord-field">
+                        <label>{{ LNG.fl_planet }}</label>
+                        <input type="text" id="planet" name="planet" size="3" maxlength="2" onkeyup="updateVars()" value="{{ planet }}" class="glass-input text-center">
+                    </div>
+                </div>
+
+                <div class="target-type-selector">
+                    <label>{{ LNG.type_mission.3 }}</label>
+                    <div class="glass-select-wrapper">
+                        <select id="type" name="type" onchange="updateVars()" class="glass-select full-width">
+                            {% for key, value in typeSelect %}
+                                <option value="{{ key }}"{% if key == type %} selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="fleet-status-info">
+                    <div class="info-row">
+                        <span>{{ LNG.fl_distance }}</span>
+                        <span id="distance" class="text-highlight">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.fl_duration }}</span>
+                        <span id="duration" class="text-highlight">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.fl_flying_arrival }}</span>
+                        <span id="arrival" class="text-highlight">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.fl_flying_return }}</span>
+                        <span id="return" class="text-muted">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.fl_max_speed }}</span>
+                        <span id="maxspeed" class="text-highlight">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.fl_fuel_consumption }}</span>
+                        <span id="consumption" class="text-warning">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span>{{ LNG.fl_cargo_capacity }}</span>
+                        <span id="storage" class="text-success">-</span>
+                    </div>
+                </div>
+
+                <div class="speed-slider-box">
+                    <label>{{ LNG.fl_speed }}: <span id="speed-display">10</span>0%</label>
+                    <input type="range" min="1" max="10" step="1" value="10" name="speed" id="speed" onchange="updateVars()" oninput="document.getElementById('speed-display').innerHTML = this.value;" class="glass-range">
+                </div>
+
+            </div>
+
+            <div class="glass-panel shortcuts-panel">
+                <div class="panel-header"><i class="fas fa-bookmark"></i> {{ LNG.fl_shortcuts }}</div>
+                
+                <div class="shortcut-group">
+                    <h4>{{ LNG.fl_my_planets }}</h4>
+                    <div class="shortcut-grid">
+                        {% for ColonyRow in colonyList %}
+                        <div class="shortcut-chip" onclick="setTarget({{ ColonyRow.galaxy }},{{ ColonyRow.system }},{{ ColonyRow.planet }},{{ ColonyRow.type }}); updateVars();">
+                            <span class="chip-name">{{ ColonyRow.name }}</span>
+                            <span class="chip-coord">[{{ ColonyRow.galaxy }}:{{ ColonyRow.system }}:{{ ColonyRow.planet }}]</span>
+                        </div>
+                        {% else %}
+                        <div class="text-muted small">{{ LNG.fl_no_colony }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if ACSList %}
+                <div class="shortcut-group mt-3">
+                    <h4>{{ LNG.fl_acs_title }}</h4>
+                    <div class="shortcut-grid">
+                        {% for ACSRow in ACSList %}
+                        <div class="shortcut-chip acs" onclick="setACSTarget({{ ACSRow.galaxy }},{{ ACSRow.system }},{{ ACSRow.planet }},{{ ACSRow.planet_type }},{{ ACSRow.id }}); updateVars();">
+                            <span class="chip-name">{{ ACSRow.name }}</span>
+                            <span class="chip-coord">[{{ ACSRow.galaxy }}:{{ ACSRow.system }}:{{ ACSRow.planet }}]</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="action-bar-bottom mt-3">
+            <a href="game.php?page=fleetTable" class="btn-ghost">{{ LNG.fl_back }}</a>
+            <button type="submit" class="btn-action-glow">{{ LNG.fl_continue }} <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+    </form>
+</div>
+
+<script type="text/javascript">
+var data = {{ fleetdata|json_encode|raw }};
+
+$(document).ready(function() {
+    if (typeof updateVars === 'function') {
+        updateVars();
+    }
+});
+</script>
+{% endblock %}

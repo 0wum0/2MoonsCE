@@ -1,0 +1,52 @@
+{% extends "layout.popup.twig" %}
+
+{% block title %}{{ LNG.al_diplo_head }}{% endblock %}
+{% block content %}
+<div class="glass-panel popup-panel">
+    <div class="panel-header"><i class="fas fa-pen-fancy"></i> {{ LNG.al_circular_send_ciruclar }}</div>
+    
+    <form name="message" id="message">
+        <div class="form-group">
+            <label>{{ LNG.al_diplo_ally }}</label>
+            <input type="text" id="name" name="name" class="glass-input full-width" placeholder="{{ LNG.al_alliance }}">
+        </div>
+
+        <div class="form-group">
+            <label>{{ LNG.al_diplo_level_des }}</label>
+            <select name="level" class="glass-select full-width">
+                <option value="1">{{ LNG.al_diplo_level[1] }}</option>
+                <option value="2">{{ LNG.al_diplo_level[2] }}</option>
+                <option value="3">{{ LNG.al_diplo_level[3] }}</option>
+                <option value="4">{{ LNG.al_diplo_level[4] }}</option>
+                <option value="5">{{ LNG.al_diplo_level[5] }}</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>{{ LNG.al_diplo_text }} (<span id="cntChars">0</span> / 5000)</label>
+            <textarea name="text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" onclick="return check();" class="btn-action-glow">{{ LNG.al_circular_send_submit }}</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+function check(){
+    if(document.message.text.value == '') {
+        alert('{{ LNG.mg_empty_text }}');
+        return false;
+    } else {
+        $.getJSON('game.php?page=alliance&mode=admin&action=diplomacyCreateProcessor&ajax=1&'+$('#message').serialize(), function(data) {
+            alert(data.message);
+            if(!data.error) {
+                parent.location.reload();
+            }
+        });
+        return true;
+    }
+}
+</script>
+{% endblock %}

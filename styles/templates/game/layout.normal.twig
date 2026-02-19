@@ -1,0 +1,23 @@
+{% include "main.header.twig" %}
+{% include "main.navigation.twig" %}
+
+<div class="game-wrapper">
+    <div class="content-wrapper" style="margin-left: 0; width: 100%;">
+        
+        {% include "main.navigation_header.twig" %}
+
+        <div class="container" style="margin-top: 10px;">
+            <div class="glass-panel">
+                <div class="card-head" style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h2 style="margin:0;">{% block title %}{% endblock %}</h2>
+                </div>
+                <div style="padding: 20px;">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% include "main.footer.twig" %}

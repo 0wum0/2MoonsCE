@@ -1,0 +1,114 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{% if mode == "defense" %}{{ LNG.lm_defenses }}{% else %}{{ LNG.lm_shipshard }}{% endif %}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title">
+                {% if mode == "defense" %}
+                    <i class="fas fa-shield-alt"></i> {{ LNG.lm_defenses }}
+                {% else %}
+                    <i class="fas fa-fighter-jet"></i> {{ LNG.lm_shipshard }}
+                {% endif %}
+            </h2>
+        </div>
+
+        {% if BuildList %}
+        <div class="glass-panel queue-panel">
+            <div class="queue-header">
+                <span><i class="fas fa-tasks"></i> {{ LNG.bd_production_queue }}</span>
+                <span id="timeleft"></span>
+            </div>
+            <div class="queue-body">
+                <select name="auftr[]" id="auftr" size="5" multiple class="queue-list">
+                    <option>&nbsp;</option>
+                </select>
+                <form action="game.php?page=shipyard&amp;mode={{ mode }}" method="post" class="cancel-form">
+                    <input type="hidden" name="action" value="delete">
+                    <button type="submit" class="btn-cancel">{{ LNG.bd_cancel_send }}</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not NotBuilding %}
+        <div class="status-alert">
+            {{ LNG.bd_building_shipyard }}
+        </div>
+        {% endif %}
+
+        <form action="game.php?page=shipyard&amp;mode={{ mode }}" method="post">
+            
+            <div class="ship-grid-container">
+                {% for ID, Element in elementList %}
+                <div class="ship-card-item">
+                    
+                    <div class="ship-img-box" onclick="return Dialog.info({{ ID }})">
+                        <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}">
+                        <span class="count-tag">{{ Element.available|number_format }}</span>
+                    </div>
+
+                    <div class="ship-details">
+                        <div class="s-title" onclick="return Dialog.info({{ ID }})">{{ LNG.tech[ID] }}</div>
+                        <div class="s-time"><i class="far fa-clock"></i> {{ Element.elementTime|time }}</div>
+                        
+                        <div class="s-costs">
+                            {% for RessID, RessAmount in Element.costResources %}
+                            <div class="cost-badge {% if Element.costOverflow[RessID] == 0 %}green{% else %}red{% endif %}">
+                                <img src="{{ dpath }}images/{{ RessID }}.gif" width="12" height="12">
+                                {{ RessAmount|shortly_number }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="ship-actions">
+                        {% if Element.AlreadyBuild %}
+                            <div class="msg-box green">{{ LNG.bd_protection_shield_only_one }}</div>
+                        {% elseif NotBuilding and Element.buyable %}
+                            <div class="input-row">
+                                <input type="number" name="fmenge[{{ ID }}]" id="input_{{ ID }}" value="0" min="0" max="{{ Element.maxBuildable }}" tabindex="{{ loop.index }}" placeholder="0">
+                                {% if Element.maxBuildable %}
+                                <button type="button" class="btn-max" onclick="$('#input_{{ ID }}').val('{{ Element.maxBuildable }}')">MAX</button>
+                                {% endif %}
+                            </div>
+                            {% if Element.maxBuildable %}
+                            <div class="max-txt" onclick="$('#input_{{ ID }}').val('{{ Element.maxBuildable }}')">Max: {{ Element.maxBuildable|number_format }}</div>
+                            {% endif %}
+                        {% else %}
+                            <div class="msg-box red">{{ LNG.bd_not_possible }}</div>
+                        {% endif %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if NotBuilding %}
+            <div class="dock-footer">
+                <button type="submit" class="btn-build-final">{{ LNG.bd_build_ships }}</button>
+            </div>
+            {% endif %}
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+data = {{ BuildList|json_encode|raw }};
+bd_operating = '{{ LNG.bd_operating }}';
+bd_available = '{{ LNG.bd_available }}';
+
+$(function() {
+    if(typeof ShipyardInit === 'function') {
+        ShipyardInit();
+    }
+});
+</script>
+{% endblock %}

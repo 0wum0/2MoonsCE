@@ -1,0 +1,31 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel center-panel text-center">
+        
+        <div class="panel-header">
+            <i class="fas fa-hourglass-half fa-spin-pulse"></i> {{ LNG.al_your_request_title }}
+        </div>
+
+        <div class="wait-content">
+            <p class="info-text">{{ request_text }}</p>
+            
+            <div class="status-box">
+                <span class="status-label">{{ LNG.al_request_date }}:</span>
+                <span class="status-value text-highlight">{{ "now"|date("d.m.Y") }}</span> <br>
+                <span class="badge-pending">{{ LNG.al_waiting }}</span>
+            </div>
+
+            <form action="game.php?page=alliance&amp;mode=cancelApply" method="post" class="mt-4">
+                <button type="submit" class="btn-icon-danger">
+                    <i class="fas fa-times-circle"></i> {{ LNG.al_continue }} ({{ LNG.al_apply_cancel }})
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

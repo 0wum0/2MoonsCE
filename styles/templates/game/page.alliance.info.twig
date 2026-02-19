@@ -1,0 +1,81 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    
+    <div class="glass-panel public-ally-header">
+        <div class="public-banner-content">
+            {% if ally_image %}
+                <img src="{{ ally_image }}" class="public-ally-logo">
+            {% else %}
+                <div class="public-logo-placeholder">{{ ally_tag }}</div>
+            {% endif %}
+            
+            <div class="public-ally-info">
+                <h1 class="public-name">{{ ally_name }} <span class="text-highlight">[{{ ally_tag }}]</span></h1>
+                <div class="public-stats">
+                    <span><i class="fas fa-users"></i> {{ ally_member_scount }} {{ LNG.al_members }}</span>
+                </div>
+                
+                <div class="public-actions">
+                     {% if ally_request %}
+                        <a href="game.php?page=alliance&amp;mode=apply&amp;id={{ ally_id }}" class="btn-action-glow">
+                            <i class="fas fa-pen-fancy"></i> {{ LNG.al_apply }}
+                        </a>
+                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ally-grid">
+        
+        <div class="glass-panel">
+            <div class="panel-header"><i class="fas fa-quote-left"></i> {{ LNG.al_description }}</div>
+            <div class="ally-text-content public-desc">
+                {{ ally_description|raw }}
+            </div>
+        </div>
+
+        <div class="ally-col-right">
+            
+            <div class="glass-panel">
+                <div class="panel-header">{{ LNG.pl_fightstats }}</div>
+                <div class="stats-list">
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_totalfight }}</span>
+                         <span class="text-highlight">{{ statisticData.totalfight|number_format }}</span>
+                     </div>
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_fightwon }}</span>
+                         <span class="text-success">{{ statisticData.fightwon|number_format }}</span>
+                     </div>
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_fightlose }}</span>
+                         <span class="text-danger">{{ statisticData.fightlose|number_format }}</span>
+                     </div>
+                     <div class="stat-row">
+                         <span>{{ LNG.pl_fightdraw }}</span>
+                         <span class="text-warning">{{ statisticData.fightdraw|number_format }}</span>
+                     </div>
+                 </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="info-list">
+                    {% if ally_web %}
+                    <div class="info-row">
+                         <span>{{ LNG.al_web_site }}</span>
+                         <a href="{{ ally_web }}" target="_blank"><i class="fas fa-external-link-alt"></i> {{ LNG.al_goto_website }}</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

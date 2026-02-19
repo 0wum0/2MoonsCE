@@ -1,0 +1,174 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_buildings }}{% endblock %}
+
+{% block content %}
+<div class="content_page">
+<div class="aerospace-container">
+
+    <div class="glass-panel header-panel">
+        <div class="header-content">
+            <h2 class="page-title"><i class="fas fa-city"></i> {{ LNG.lm_buildings }}</h2>
+    </div>
+</div>
+    {% if Queue %}
+    <div class="glass-panel queue-panel">
+        <div class="panel-header">
+            <i class="fas fa-tasks"></i> {{ LNG.bd_building_queue }} 
+            <span class="queue-badge">{{ Queue|length }}</span>
+        </div>
+        
+        <div class="queue-list-wrapper">
+            {% for List in Queue %}
+            <div class="queue-item {% if loop.first %}active-build{% endif %}">
+                
+                <div class="queue-visual">
+                    <span class="queue-pos">{{ loop.index }}</span>
+                    <img src="{{ dpath }}gebaeude/{{ List.element }}.gif" alt="{{ LNG.tech[List.element] }}" class="queue-img">
+                </div>
+
+                <div class="queue-details">
+                    <div class="queue-title">
+                        {{ LNG.tech[List.element] }} 
+                        <span class="lvl-badge">{{ List.level }}</span>
+                    </div>
+                    
+                    {% if loop.first %}
+                        <div class="active-timer-box">
+                            <span class="timer" data-time="{{ List.endtime }}">{{ List.display }}</span>
+                        </div>
+                        <div class="queue-progress-track">
+                             <div class="queue-progress-bar" style="width: 100%;"></div> 
+                        </div>
+                    {% else %}
+                        <div class="waiting-timer">
+                            <i class="fas fa-clock"></i> <span class="timer" data-time="{{ List.endtime }}">{{ List.display }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="queue-action">
+                    <form action="game.php?page=buildings" method="post">
+                        <input type="hidden" name="cmd" value="{% if loop.first %}cancel{% else %}remove{% endif %}">
+                        {% if not loop.first %}<input type="hidden" name="listid" value="{{ loop.index }}">{% endif %}
+                        <button type="submit" class="btn-icon-danger" title="{{ LNG.bd_cancel }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="tech-grid">
+        {% for ID, Element in BuildInfoList %}
+        <div class="glass-panel tech-card {% if not Element.buyable %}disabled{% endif %}">
+            
+            <div class="tech-visual">
+                <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="tech-img">
+                {% if Element.level > 0 %}
+                <span class="level-tag">{{ Element.level }}</span>
+                {% endif %}
+            </div>
+
+            <div class="tech-content">
+                <div class="tech-header">
+                    <h3 class="tech-name">
+                        <a href="#" onclick="return Dialog.info({{ ID }});">{{ LNG.tech[ID] }}</a>
+                    </h3>
+                    {% if Element.maxLevel != 255 %}
+                    <span class="max-lvl">{{ LNG.bd_max_level }}: {{ Element.maxLevel }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="tech-price">
+                    {% for RessID, RessAmount in Element.costResources %}
+                    <div class="price-item {% if Element.costOverflow[RessID] != 0 %}missing-res{% endif %}">
+                        <img src="{{ dpath }}images/{{ RessID }}.gif" alt="" class="res-icon-sm">
+                        <span class="res-val">{{ RessAmount|number_format }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="tech-meta">
+                    <span class="meta-item"><i class="far fa-clock"></i> {{ Element.elementTime|time }}</span>
+                    
+                    {% if Element.infoEnergy %}
+                    <span class="meta-item energy">
+                        <i class="fas fa-bolt"></i> {{ Element.infoEnergy|raw }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="tech-actions">
+                    {% if Element.maxLevel == Element.levelToBuild %}
+                        <div class="btn-disabled"><i class="fas fa-check"></i> {{ LNG.bd_maxlevel }}</div>
+                    {% elseif (isBusy.research and (ID == 6 or ID == 31)) or (isBusy.shipyard and (ID == 15 or ID == 21)) %}
+                        <div class="btn-disabled"><i class="fas fa-cog fa-spin"></i> {{ LNG.bd_working }}</div>
+                    {% elseif not RoomIsOk %}
+                        <div class="btn-disabled text-danger"><i class="fas fa-ban"></i> {{ LNG.bd_no_more_fields }}</div>
+                    {% elseif not CanBuildElement or not Element.buyable %}
+                        <div class="btn-disabled text-danger"><i class="fas fa-lock"></i> {{ LNG.bd_notres }}</div>
+                    {% else %}
+                        <form action="game.php?page=buildings" method="post" class="full-width-form">
+                            <input type="hidden" name="cmd" value="insert">
+                            <input type="hidden" name="building" value="{{ ID }}">
+                            <button type="submit" class="btn-action-glow">
+                                {% if Element.level == 0 %}
+                                    {{ LNG.bd_build }}
+                                {% else %}
+                                    {{ LNG.bd_build_next_level }} {{ Element.levelToBuild + 1 }}
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+                
+                {% if Element.level > 0 %}
+                <div class="tech-extras">
+                    {% if ID == 43 %}
+                        <a href="#" onclick="return Dialog.info({{ ID }})" class="extra-link">{{ LNG.bd_jump_gate_action }}</a>
+                    {% endif %}
+                    
+                    {% if (ID == 44 and not HaveMissiles) or ID != 44 %}
+                    <a class="demolish-link" onclick="confirmDemolish('{{ ID }}', '{{ LNG.tech[ID] }}', '{{ Element.destroyTime|time }}');">
+                       <i class="fas fa-trash-alt"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+<script>
+function confirmDemolish(id, name, time) {
+    if(confirm("{{ LNG.bd_dismantle }} " + name + "?\n{{ LNG.bd_duration }}: " + time)) {
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = 'game.php?page=buildings';
+        
+        var inputCmd = document.createElement('input');
+        inputCmd.type = 'hidden';
+        inputCmd.name = 'cmd';
+        inputCmd.value = 'destroy';
+        
+        var inputId = document.createElement('input');
+        inputId.type = 'hidden';
+        inputId.name = 'building';
+        inputId.value = id;
+
+        form.appendChild(inputCmd);
+        form.appendChild(inputId);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

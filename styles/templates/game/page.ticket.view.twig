@@ -1,0 +1,54 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.ti_read }} - {{ LNG.lm_support }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper" style="max-width: 900px; margin: 0 auto;">
+        
+        <div class="glass-panel header-panel">
+            {% for answerID, answerRow in answerList %} 
+                {% if loop.first %}
+                <h2 class="page-title"><i class="fas fa-comment-alt"></i> {{ answerRow.subject }}</h2>
+                <div class="cat-badge">{{ categoryList[answerRow.categoryID] }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="ticket-stream">
+            {% for answerID, answerRow in answerList %} 
+            <div class="ticket-msg glass-panel">
+                <div class="msg-meta">
+                    <span class="msg-user"><i class="fas fa-user"></i> {{ answerRow.ownerName }}</span>
+                    <span class="msg-time">{{ answerRow.time }}</span>
+                </div>
+                <div class="msg-body">
+                    {{ answerRow.message|nl2br }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if status < 2 %}
+        <div class="glass-panel reply-box">
+            <form action="game.php?page=ticket&mode=send" method="post" id="form">
+                <input type="hidden" name="id" value="{{ ticketID }}">
+                <h3>{{ LNG.ti_answer }}</h3>
+                <textarea class="glass-textarea validate[required]" id="message" name="message" rows="5"></textarea>
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">{{ LNG.ti_submit }}</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+$(document).ready(function() {
+    $("#form").validationEngine('attach');
+});
+</script>
+{% endblock %}

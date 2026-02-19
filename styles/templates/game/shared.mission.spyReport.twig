@@ -1,0 +1,42 @@
+<div class="aerospace-spy-report">
+    <div class="spy-header">
+        <i class="fas fa-user-secret"></i>
+        <a href="game.php?page=galaxy&amp;galaxy={{ targetPlanet.galaxy }}&amp;system={{ targetPlanet.system }}">{{ title }}</a>
+    </div>
+
+    <div class="spy-content">
+        {% for Class, elementIDs in spyData %}
+        <div class="spy-section">
+            <div class="section-head">{{ LNG.tech[Class] }}</div>
+            <div class="section-grid">
+                {% for elementID, amount in elementIDs %}
+                <div class="spy-item">
+                    <span class="item-name">{{ LNG.tech[elementID] }}</span>
+                    <span class="item-amount">{{ amount|number_format }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="spy-footer">
+        <div class="action-links">
+            <a href="game.php?page=fleetTable&amp;galaxy={{ targetPlanet.galaxy }}&amp;system={{ targetPlanet.system }}&amp;planet={{ targetPlanet.planet }}&amp;planettype={{ targetPlanet.planet_type }}&amp;target_mission=1" class="btn-attack">
+                <i class="fas fa-crosshairs"></i> {{ LNG.type_mission_1 }}
+            </a>
+            {% if isBattleSim %}
+            <a href="game.php?page=battleSimulator{% for Class, elementIDs in spyData %}{% for elementID, amount in elementIDs %}&amp;im[{{ elementID }}]={{ amount }}{% endfor %}{% endfor %}" class="btn-sim">
+                <i class="fas fa-gamepad"></i> {{ LNG.fl_simulate }}
+            </a>
+            {% endif %}
+        </div>
+        <div class="spy-chance">
+            {% if targetChance >= spyChance %}
+                <span style="color: #e74c3c;">{{ LNG.sys_mess_spy_destroyed }}</span>
+            {% else %}
+                {{ LNG.sys_mess_spy_lostproba|format(targetChance) }}
+            {% endif %}
+        </div>
+    </div>
+</div>

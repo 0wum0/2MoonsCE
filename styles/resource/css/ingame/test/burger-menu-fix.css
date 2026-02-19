@@ -1,0 +1,378 @@
+/**
+ * Burger Menu Fix - Mobile Navigation Styles
+ * Enhanced CSS for smooth sidebar animations and responsive behavior
+ */
+
+/* ============================================
+   BURGER MENU BUTTON STYLES
+   ============================================ */
+.burger-menu,
+#burgerMenu,
+#burger-toggle {
+    display: none; /* Hidden by default, shown via media queries */
+    position: relative;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: rgba(0, 15, 30, 0.9);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10001;
+}
+
+/* Hide sidebar-toggle as it's redundant */
+#sidebar-toggle {
+    display: none !important;
+}
+
+.burger-menu:hover,
+#burgerMenu:hover,
+#burger-toggle:hover {
+    background: rgba(0, 243, 255, 0.1);
+    border-color: var(--color-accent-cyan, #00f3ff);
+    transform: scale(1.05);
+}
+
+/* Burger lines */
+.burger-menu span,
+#burgerMenu span,
+#burger-toggle span,
+.burger-line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-accent-cyan, #00f3ff);
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Active state animations */
+.burger-menu.active span:nth-child(1),
+#burgerMenu.active span:nth-child(1),
+#burger-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translateY(8px);
+}
+
+.burger-menu.active span:nth-child(2),
+#burgerMenu.active span:nth-child(2),
+#burger-toggle.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.burger-menu.active span:nth-child(3),
+#burgerMenu.active span:nth-child(3),
+#burger-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-8px);
+}
+
+/* ============================================
+   SIDEBAR STYLES
+   ============================================ */
+.game-sidebar,
+#gameSidebar,
+#leftmenu,
+.sidebar-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--color-bg-secondary, rgba(0, 10, 20, 0.95));
+    border-right: 1px solid rgba(0, 243, 255, 0.2);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.3s ease,
+                opacity 0.3s ease;
+    z-index: 9999;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Ensure modern layout sidebar sits below fixed header */
+.game-sidebar,
+#gameSidebar {
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+}
+
+/* Mobile: Sidebar hidden by default */
+@media screen and (max-width: 992px) {
+    .game-sidebar,
+    #gameSidebar,
+    #leftmenu,
+    .sidebar-nav {
+        transform: translateX(-100%);
+        visibility: hidden;
+        opacity: 0;
+    }
+    
+    .game-sidebar.active,
+    #gameSidebar.active,
+    #leftmenu.active,
+    .sidebar-nav.active {
+        transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    .game-sidebar.collapsed,
+    #gameSidebar.collapsed,
+    #leftmenu.collapsed,
+    .sidebar-nav.collapsed {
+        transform: translateX(-100%);
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+/* Desktop: Sidebar always visible */
+@media screen and (min-width: 993px) {
+    .game-sidebar,
+    #gameSidebar,
+    #leftmenu,
+    .sidebar-nav {
+        transform: translateX(0) !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative;
+        border-right: none;
+    }
+    
+    /* Hide burger menu on desktop */
+    .burger-menu,
+    #burgerMenu,
+    #burger-toggle,
+    #sidebar-toggle {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   OVERLAY STYLES
+   ============================================ */
+.sidebar-overlay,
+#sidebarOverlay,
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+/* Overlay should start below header for modern layout */
+.sidebar-overlay,
+#sidebarOverlay,
+#sidebar-overlay {
+    top: var(--header-height);
+}
+
+.sidebar-overlay.active,
+#sidebarOverlay.active,
+#sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ============================================
+   CLOSE BUTTON STYLES
+   ============================================ */
+.sidebar-close,
+#sidebarClose,
+#closeLeftSidebar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: var(--color-text-primary, #ffffff);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.sidebar-close:hover,
+#sidebarClose:hover,
+#closeLeftSidebar:hover {
+    background: rgba(255, 0, 0, 0.3);
+    border-color: rgba(255, 0, 0, 0.5);
+    transform: rotate(90deg);
+}
+
+/* Only show close button on mobile */
+@media screen and (min-width: 993px) {
+    .sidebar-close,
+    #sidebarClose,
+    #closeLeftSidebar,
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+@media screen and (max-width: 992px) {
+    /* Show burger menu */
+    .burger-menu,
+    #burgerMenu,
+    #burger-toggle {
+        display: flex !important;
+    }
+    
+    /* Sidebar and overlay offset for mobile header height */
+    .game-sidebar,
+    #gameSidebar {
+        top: var(--header-mobile-height);
+        height: calc(100vh - var(--header-mobile-height));
+    }
+
+    .sidebar-overlay,
+    #sidebarOverlay,
+    #sidebar-overlay {
+        top: var(--header-mobile-height);
+        height: calc(100vh - var(--header-mobile-height));
+    }
+    .burger-menu,
+    #burgerMenu,
+    #burger-toggle,
+    #sidebar-toggle {
+        display: flex;
+    }
+    
+    /* Main content adjustments */
+    .game-main {
+        margin-left: 0 !important;
+        padding-top: 60px; /* Account for header */
+    }
+    
+    /* Header adjustments */
+    .game-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9997;
+    }
+    
+    /* Prevent body scroll when sidebar is open */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+    
+    /* Sidebar animation entrance */
+    @keyframes slideInLeft {
+        from {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutLeft {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+    }
+    
+    .game-sidebar.active,
+    #gameSidebar.active {
+        animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .game-sidebar.collapsed,
+    #gameSidebar.collapsed {
+        animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+    .game-sidebar,
+    #gameSidebar,
+    #leftmenu,
+    .sidebar-nav {
+        width: 85vw; /* Take most of screen width on small devices */
+        max-width: 320px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+.burger-menu:focus,
+#burgerMenu:focus,
+#burger-toggle:focus,
+#sidebar-toggle:focus {
+    outline: 2px solid var(--color-accent-cyan, #00f3ff);
+    outline-offset: 2px;
+}
+
+.sidebar-close:focus,
+#sidebarClose:focus {
+    outline: 2px solid var(--color-accent-cyan, #00f3ff);
+    outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
+* {
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+/* Ensure smooth scrolling */
+.game-sidebar,
+#gameSidebar {
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Prevent text selection during swipe */
+.game-sidebar.active,
+#gameSidebar.active {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}

@@ -1,0 +1,23 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_alliance }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="selection-grid">
+        
+        <a href="game.php?page=alliance&amp;mode=create" class="selection-card create-card">
+            <div class="card-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="card-title">{{ LNG.al_alliance_make }}</div>
+            <div class="card-desc">{{ LNG.al_make_ally_text_r }}</div>
+        </a>
+
+        <a href="game.php?page=alliance&amp;mode=search" class="selection-card search-card">
+            <div class="card-icon"><i class="fas fa-search"></i></div>
+            <div class="card-title">{{ LNG.al_alliance_search }}</div>
+            <div class="card-desc">{{ LNG.al_find_ally_text_r }}</div>
+        </a>
+
+    </div>
+</div>
+{% endblock %}

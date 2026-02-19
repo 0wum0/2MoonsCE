@@ -1,0 +1,92 @@
+{% include "overall_header.twig" %}
+<form action="" method="POST">
+<table width="90%">
+<tr>
+<td class="transparent left">
+<input type="checkbox" {{ minimize }} name="minimize"><input type="submit" value="{{ se_contrac }}" class="button">
+<img src="./styles/resource/images/admin/GO.png" onClick="javascript:$('#seeker').slideToggle();" style="cursor:pointer;padding-right:60px;" class="tooltip" data-tooltip-content="{{ ac_minimize_maximize }}">
+</td>
+</tr>
+</table>
+<div id="seeker"{{ diisplaay }}>
+<table width="90%">
+	<tr>
+		<th colspan="8">
+			{{ se_search_title }}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			{{ se_intro }}
+		</td>
+		<td>
+			{{ se_type_typee }}
+		</td>
+		<td>
+			{{ se_search_in }}
+		</td>
+		<td>
+			{{ se_filter_title }}
+		</td>
+		<td>
+			{{ se_limit }}
+		</td>
+		<td>
+			{{ se_asc_desc }}
+		</td>
+		{% if OrderBYParse %}
+		<td>
+			{{ se_search_order }}
+		</td>
+		{% endif %}
+	<td>
+		
+	</td>
+	</tr>
+<tr>
+	<td>
+		<input type="text" name="key_user" value="{{ search }}">
+	</td>
+	<td>
+		<!-- TODO: Complex html_options - needs manual review -->
+	</td>
+	<td>
+		<!-- TODO: Complex html_options - needs manual review -->
+	</td>
+	<td>
+		<!-- TODO: Complex html_options - needs manual review -->
+	</td>
+	<td>
+		<!-- TODO: Complex html_options - needs manual review -->
+	</td>
+	<td>
+		<!-- TODO: Complex html_options - needs manual review -->
+	</td>
+	{% if OrderBYParse %}
+	<td>
+		<!-- TODO: Complex html_options - needs manual review -->
+	</td>
+	{% endif %}
+	<td>
+		<input type="submit" value="{{ se_search }}">
+	</td>
+</tr>
+{% if error %}
+<tr>
+	<td colspan="8">
+		<span style="color:red">{{ error }}</span>
+	</td>
+</tr>
+{% endif %}
+</table>
+</div>
+<br>
+<table width="90%" border="0px">
+{{ PAGES|raw }}
+</table>
+{{ LIST|raw }}
+<br>
+<table width="90%" border="0px">
+{{ PAGES|raw }}
+</table>
+</form>

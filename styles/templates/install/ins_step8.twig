@@ -1,0 +1,23 @@
+{% include "ins_header.twig" %}
+
+<div class="text-center">
+	<div class="success-message">
+		<h2 class="mb-3">🎉 {{ LNG.step6_head }}</h2>
+		<p class="mb-4">{{ LNG.step6_desc }}</p>
+	</div>
+	
+	<div class="step-description">
+		<h3 class="mb-3">{{ LNG.step6_info_head }}</h3>
+		<p>{{ LNG.step6_info_additional|raw }}</p>
+	</div>
+	
+	<div class="d-grid gap-3 mt-4">
+		<a href="../admin.php" class="btn btn-primary btn-lg">
+			🚀 {{ LNG.login }}
+		</a>
+		<a href="../index.php" class="btn btn-secondary btn-lg">
+			🌌 Enter SmartMoons Universe
+		</a>
+	</div>
+</div>
+{% include "ins_footer.twig" %}

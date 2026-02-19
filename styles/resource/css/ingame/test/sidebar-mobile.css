@@ -1,0 +1,436 @@
+/**
+ * SmartMoons - Mobile Sidebar Navigation
+ * Responsive Sci-Fi Design for Mobile Devices
+ * Version: 1.0
+ */
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+:root {
+    --header-height: 157px; /* Height of resource header */
+    --progress-height: 0px; /* Additional height for progress bars */
+}
+
+/* ============================================
+   SIDEBAR BASE STYLES
+   ============================================ */
+.sidebar-nav,
+#leftmenu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #111111 100%);
+    border-right: 1px solid rgba(0, 243, 255, 0.3);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-in-out;
+    float: none !important; /* Override default float */
+    margin: 0 !important; /* Reset margins */
+    padding: 0 !important; /* Reset default padding */
+    border-radius: 0 !important; /* Remove border radius */
+    box-shadow: none !important; /* Reset box-shadow, will be added on mobile */
+}
+
+/* Desktop: Sidebar visible */
+@media (min-width: 769px) {
+    .sidebar-nav,
+    #leftmenu {
+        position: fixed;
+        left: 0;
+        top: calc(var(--header-height, 60px) + var(--progress-height, 50px));
+        height: calc(100vh - var(--header-height, 60px) - var(--progress-height, 50px));
+        transform: translateX(0) !important;
+    }
+    
+    /* Adjust main content for desktop */
+    #content,
+    .main-content-wrapper {
+        margin-left: 250px !important;
+        transition: margin-left 0.3s ease-in-out;
+    }
+    
+    /* Hide burger button on desktop */
+    /* #sidebar-toggle removed - using #burgerMenu instead */
+    .burger-menu {
+        display: none !important;
+    }
+    
+    /* Hide overlay on desktop */
+    #sidebar-overlay,
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* Mobile: Sidebar hidden by default */
+@media (max-width: 768px) {
+    .sidebar-nav,
+    #leftmenu {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 250px !important;
+        height: 100vh !important;
+        transform: translateX(-100%);
+        z-index: 9999;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .sidebar-nav.active,
+    #leftmenu.active {
+        transform: translateX(0);
+    }
+    
+    /* Reset content margin on mobile */
+    #content,
+    .main-content-wrapper {
+        margin-left: 0 !important;
+    }
+    
+    /* Show burger button on mobile */
+    /* #sidebar-toggle removed - using #burgerMenu instead */
+    .burger-menu {
+        display: flex !important;
+    }
+}
+
+/* ============================================
+   BURGER BUTTON STYLES
+   ============================================ */
+/* #sidebar-toggle removed - using #burgerMenu instead */
+.burger-menu {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin-right: 10px;
+}
+
+/* #sidebar-toggle removed */
+.burger-menu:hover {
+    background: rgba(0, 243, 255, 0.1);
+    border-color: var(--color-accent-cyan, #00f3ff);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+}
+
+.burger-line {
+    width: 22px;
+    height: 2px;
+    background: var(--color-accent-cyan, #00f3ff);
+    transition: all 0.3s ease;
+    display: block;
+}
+
+/* Burger animation when active */
+.burger-menu.active .burger-line:nth-child(1),
+/* #sidebar-toggle removed */
+.burger-menu.active .burger-line:nth-child(1) {
+    transform: rotate(45deg) translateY(8px);
+}
+
+.burger-menu.active .burger-line:nth-child(2),
+/* #sidebar-toggle removed */
+.burger-menu.active .burger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.burger-menu.active .burger-line:nth-child(3),
+/* #sidebar-toggle removed */
+.burger-menu.active .burger-line:nth-child(3) {
+    transform: rotate(-45deg) translateY(-8px);
+}
+
+/* ============================================
+   SIDEBAR OVERLAY
+   ============================================ */
+#sidebar-overlay,
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#sidebar-overlay.active,
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   SIDEBAR CONTENT STYLES
+   ============================================ */
+.sidebar-content,
+#leftmenu .menu_content_left,
+#leftmenu > div {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 243, 255, 0.3) transparent;
+}
+
+/* Override default leftmenu content styles for mobile */
+@media (max-width: 768px) {
+    #leftmenu .menu_content_left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    #leftmenu .menu_content_left a {
+        flex: none;
+        width: 100%;
+        min-height: 48px;
+        padding: 14px 16px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 8px;
+        margin: 0;
+    }
+}
+
+.sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 243, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 243, 255, 0.5);
+}
+
+/* ============================================
+   NAVIGATION SECTIONS
+   ============================================ */
+.nav-section {
+    margin-bottom: 24px;
+}
+
+.nav-section-title {
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-left: 8px;
+}
+
+/* ============================================
+   SIDEBAR LINKS
+   ============================================ */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 4px;
+    color: var(--color-text-secondary, #9ca3af);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--color-accent-cyan, #00f3ff);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: rgba(0, 243, 255, 0.1);
+    color: var(--color-accent-cyan, #00f3ff);
+    padding-left: 16px;
+}
+
+.sidebar-link:hover::before {
+    transform: translateX(0);
+}
+
+.sidebar-link.active {
+    background: linear-gradient(90deg, rgba(0, 243, 255, 0.2), transparent);
+    color: var(--color-accent-cyan, #00f3ff);
+    font-weight: 600;
+    box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+.sidebar-link.active::before {
+    transform: translateX(0);
+}
+
+.sidebar-link i {
+    font-size: 1.125rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-link span {
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+/* Badge for notifications */
+.sidebar-link .badge {
+    margin-left: auto;
+    background: var(--color-accent-red, #ef4444);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* Admin link special styling */
+.admin-link {
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    background: rgba(168, 85, 247, 0.05);
+}
+
+.admin-link:hover {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: var(--color-accent-purple, #a855f7);
+    color: var(--color-accent-purple, #a855f7);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+/* ============================================
+   SIDEBAR FOOTER
+   ============================================ */
+.sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(0, 243, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.version-info {
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.75rem;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.version-info span {
+    color: var(--color-accent-cyan, #00f3ff);
+    font-weight: 600;
+}
+
+.copyright {
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.625rem;
+    text-align: center;
+    opacity: 0.7;
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS
+   ============================================ */
+@media (max-width: 768px) {
+    .sidebar-nav {
+        width: 250px;
+    }
+    
+    .sidebar-content {
+        padding: 16px;
+    }
+    
+    .sidebar-link {
+        padding: 14px 12px;
+        touch-action: manipulation;
+    }
+    
+    .sidebar-link:active {
+        background: rgba(0, 243, 255, 0.2);
+        transform: scale(0.98);
+    }
+    
+    /* Larger touch targets on mobile */
+    .sidebar-link {
+        min-height: 48px;
+    }
+}
+
+/* Small mobile screens */
+@media (max-width: 375px) {
+    .sidebar-nav {
+        width: 85vw;
+        max-width: 250px;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-nav,
+    .sidebar-link,
+    #sidebar-toggle,
+    #sidebar-overlay {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -1,0 +1,200 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_fleet }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-space-shuttle"></i> {{ LNG.lm_fleet }}</h2>
+    </div>
+
+    <div class="glass-panel slots-panel">
+        <div class="slot-metric">
+            <span class="label">{{ LNG.fl_fleets }}</span>
+            <div class="progress-track">
+                <div class="progress-fill" style="width: {{ ((maxFleetSlots|default(0) + 0) > 0) ? min(((activeFleetSlots|default(0) + 0) / (maxFleetSlots|default(0) + 0) * 100), 100) : 0 }}%;"></div>
+            </div>
+            <span class="value">{{ activeFleetSlots }} / {{ maxFleetSlots }}</span>
+        </div>
+        
+        <div class="slot-metric">
+            <span class="label">{{ LNG.fl_expeditions }}</span>
+            <div class="progress-track expedition">
+                <div class="progress-fill" style="width: {{ ((maxExpedition|default(0) + 0) > 0) ? min(((activeExpedition|default(0) + 0) / (maxExpedition|default(0) + 0) * 100), 100) : 0 }}%;"></div>
+            </div>
+            <span class="value">{{ activeExpedition }} / {{ maxExpedition }}</span>
+        </div>
+    </div>
+
+    <div class="glass-panel table-panel">
+        <div class="table-responsive">
+            <table class="glass-table full-width">
+                <thead>
+                    <tr>
+                        <th>{{ LNG.fl_number }}</th>
+                        <th>{{ LNG.fl_mission }}</th>
+                        <th>{{ LNG.fl_ammount }}</th>
+                        <th>{{ LNG.fl_beginning }}</th>
+                        <th>{{ LNG.fl_departure }}</th>
+                        <th>{{ LNG.fl_destiny }}</th>
+                        <th>{{ LNG.fl_arrival }}</th>
+                        <th>{{ LNG.fl_objective }}</th>
+                        <th>{{ LNG.fl_order }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for FlyingFleetRow in FlyingFleetList %}
+                    <tr class="fleet-row {% if FlyingFleetRow.state == 1 %}returning{% endif %}">
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td>
+                            <span class="mission-badge m-{{ FlyingFleetRow.mission }}">
+                                {{ LNG["type_mission_" ~ FlyingFleetRow.mission] }}
+                            </span>
+                            {% if FlyingFleetRow.state == 1 %}
+                                <div class="small-status text-muted"><i class="fas fa-undo"></i> {{ LNG.fl_returning }}</div>
+                            {% else %}
+                                <div class="small-status text-highlight"><i class="fas fa-arrow-right"></i> {{ LNG.fl_onway }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="text-highlight">{{ FlyingFleetRow.amount|number_format }}</td>
+                        <td>
+                            <a href="game.php?page=galaxy&amp;galaxy={{ FlyingFleetRow.startGalaxy }}&amp;system={{ FlyingFleetRow.startSystem }}" class="coord-link">
+                                [{{ FlyingFleetRow.startGalaxy }}:{{ FlyingFleetRow.startSystem }}:{{ FlyingFleetRow.startPlanet }}]
+                            </a>
+                        </td>
+                        <td class="timer-cell" data-time="{{ (FlyingFleetRow.startTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
+                            {{ FlyingFleetRow.startTime|date("H:i:s") }}
+                        </td>
+                        <td>
+                            <a href="game.php?page=galaxy&amp;galaxy={{ FlyingFleetRow.endGalaxy }}&amp;system={{ FlyingFleetRow.endSystem }}" class="coord-link">
+                                [{{ FlyingFleetRow.endGalaxy }}:{{ FlyingFleetRow.endSystem }}:{{ FlyingFleetRow.endPlanet }}]
+                            </a>
+                        </td>
+                        <td class="timer-cell" data-time="{{ (FlyingFleetRow.endTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
+                             {{ FlyingFleetRow.endTime|date("H:i:s") }}
+                        </td>
+                        <td>
+                            {% if FlyingFleetRow.targetUser %}
+                                <a href="#" onclick="return Dialog.Playercard({{ FlyingFleetRow.targetUserID }});">{{ FlyingFleetRow.targetUser }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if FlyingFleetRow.mission == 15 or FlyingFleetRow.state == 1 %}
+                                <span class="text-muted">-</span>
+                            {% else %}
+                            <form action="game.php?page=fleetTable&amp;action=sendfleetback" method="post">
+                                <input type="hidden" name="fleetID" value="{{ FlyingFleetRow.id }}">
+                                <button type="submit" class="btn-icon-danger" title="{{ LNG.fl_send_back }}">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </form>
+                            {% if FlyingFleetRow.mission == 1 %}
+                            <form action="game.php?page=fleetTable&amp;action=acs" method="post" class="mt-2">
+                                <input type="hidden" name="fleetID" value="{{ FlyingFleetRow.id }}">
+                                <button type="submit" class="btn-ghost small" title="{{ LNG.fl_acs }}">
+                                    <i class="fas fa-users"></i> {{ LNG.fl_acs }}
+                                </button>
+                            </form>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted p-3">{{ LNG.fl_no_flying_fleets }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if acsData %}
+    <div class="mt-3">
+        {% include "shared.fleetTable.acsTable.twig" %}
+    </div>
+    {% endif %}
+
+    <div class="glass-panel table-panel mt-3">
+        <div class="panel-header"><i class="fas fa-plus-circle"></i> {{ LNG.fl_new_mission_title }}</div>
+
+        {% if maxFleetSlots == activeFleetSlots %}
+        <div class="p-3 text-center text-muted">{{ LNG.fl_no_more_slots }}</div>
+        {% else %}
+        <form action="game.php?page=fleetStep1" method="post" class="p-3">
+            <input type="hidden" name="galaxy" value="{{ targetGalaxy }}">
+            <input type="hidden" name="system" value="{{ targetSystem }}">
+            <input type="hidden" name="planet" value="{{ targetPlanet }}">
+            <input type="hidden" name="type" value="{{ targetType }}">
+            <input type="hidden" name="target_mission" value="{{ targetMission }}">
+
+            <div class="small text-muted mb-3">
+                {{ LNG.fl_destiny }}: [{{ targetGalaxy }}:{{ targetSystem }}:{{ targetPlanet }}] ({{ LNG["type_planet_" ~ targetType] }})
+            </div>
+
+            <div class="table-responsive">
+                <table class="glass-table full-width">
+                    <thead>
+                        <tr>
+                            <th>{{ LNG.fl_ship_type }}</th>
+                            <th>{{ LNG.fl_ship_available }}</th>
+                            <th>{{ LNG.fl_max }}</th>
+                            <th>{{ LNG.fl_ammount }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for FleetRow in FleetsOnPlanet %}
+                        <tr>
+                            <td>{{ LNG.tech[FleetRow.id] }}</td>
+                            <td id="ship{{ FleetRow.id }}_value">{{ FleetRow.count }}</td>
+                            {% if FleetRow.speed != 0 %}
+                            <td><a href="javascript:maxShip('ship{{ FleetRow.id }}');">{{ LNG.fl_max }}</a></td>
+                            <td><input name="ship{{ FleetRow.id }}" id="ship{{ FleetRow.id }}_input" class="glass-input" size="10" value="0"></td>
+                            {% else %}
+                            <td>-</td>
+                            <td>-</td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">{{ LNG.fl_no_ships }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if FleetsOnPlanet|length > 0 %}
+            <div class="action-bar-bottom mt-3">
+                <a href="javascript:noShips();" class="btn-ghost">{{ LNG.fl_remove_all_ships }}</a>
+                <a href="javascript:maxShips();" class="btn-ghost">{{ LNG.fl_select_all_ships }}</a>
+                <button type="submit" class="btn-action-glow">{{ LNG.fl_continue }}</button>
+            </div>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="glass-panel info-panel mt-3">
+        <div class="panel-header small"><i class="fas fa-chart-bar"></i> {{ LNG.fl_bonus }}</div>
+        <div class="bonus-grid">
+            <div class="bonus-item">
+                <span class="bonus-label">{{ LNG.fl_bonus_attack }}</span>
+                <span class="bonus-val text-danger">+{{ bonusAttack }}%</span>
+            </div>
+            <div class="bonus-item">
+                <span class="bonus-label">{{ LNG.fl_bonus_defensive }}</span>
+                <span class="bonus-val text-success">+{{ bonusDefensive }}%</span>
+            </div>
+            <div class="bonus-item">
+                <span class="bonus-label">{{ LNG.fl_bonus_shield }}</span>
+                <span class="bonus-val text-primary">+{{ bonusShield }}%</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block script %}<script src="scripts/game/fleetTable.js?v=3.1.0"></script>{% endblock %}

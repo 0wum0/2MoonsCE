@@ -1,0 +1,52 @@
+<div class="aerospace-gate-modal">
+    <div class="gate-header">{{ LNG.in_jump_gate_select_ships }}</div>
+    
+    <div class="gate-content">
+        {% if gateData.restTime != 0 %}
+            <div class="gate-wait">
+                <i class="fas fa-hourglass-half"></i>
+                <p>{{ LNG.in_jump_gate_wait_time }}</p>
+                <div class="countdown" data-time="{{ gateData.restTime }}">{{ pretty_fly_time(gateData.restTime) }}</div>
+                <div class="next-jump">{{ gateData.nextTime }}</div>
+            </div>
+        {% else %}
+            <div class="gate-route">
+                <div class="route-node">
+                    <span class="label">{{ LNG.in_jump_gate_start_moon }}</span>
+                    <span class="val">{{ gateData.startLink }}</span>
+                </div>
+                <div class="route-arrow"><i class="fas fa-chevron-right"></i></div>
+                <div class="route-node">
+                    <span class="label">{{ LNG.in_jump_gate_finish_moon }}</span>
+                    <div class="target-select">
+                        <select name="target_moon" class="glass-select">
+                            {% for moonID, moonName in gateData.gateList %}
+                                <option value="{{ moonID }}">{{ moonName }}</option>
+                            {% endfor %}
+                         </select>
+                    </div>
+                </div>
+            </div>
+
+            {% if gateData.gateList %}
+                <div class="ship-list custom-scroll">
+                    {% for fleetID, amount in gateData.fleetList %}
+                    <div class="ship-row">
+                        <div class="ship-name">{{ LNG.tech[fleetID] }}</div>
+                        <div class="ship-avail" id="ship{{ fleetID }}_value">{{ amount|number_format(0, '.', ',') }}</div>
+                        <div class="ship-input">
+                            <input class="glass-input" name="ship[{{ fleetID }}]" id="ship{{ fleetID }}_input" value="0" type="text">
+                            <button onclick="Gate.max({{ fleetID }});" class="btn-max">MAX</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="gate-actions">
+                    <button class="btn-jump" onclick="Gate.submit();">{{ LNG.in_jump_gate_jump }}</button>
+                </div>
+            {% else %}
+                <div class="gate-error">{{ LNG.in_jump_gate_no_target }}</div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>

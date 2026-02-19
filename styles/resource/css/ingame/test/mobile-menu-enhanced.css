@@ -1,0 +1,449 @@
+/**
+ * SmartMoons - Enhanced Mobile Menu Styles
+ * Ensures burger menu items are visible and properly styled
+ */
+
+/* ============================================
+   MOBILE HEADER
+   ============================================ */
+#mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(10, 14, 26, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+  z-index: 10000;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 768px) {
+  #mobile-header {
+    display: block !important;
+  }
+  
+  /* Hide desktop header on mobile */
+  #header {
+    display: none !important;
+  }
+  
+  /* Adjust content padding */
+  body {
+    padding-top: 60px !important;
+  }
+}
+
+.mobile-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 15px;
+}
+
+.mobile-logo {
+  color: #00f3ff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Mobile only utility class */
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   MOBILE NAVIGATION CONTAINER
+   ============================================ */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 60px; /* Below header */
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - 60px);
+  background: rgba(10, 14, 26, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 243, 255, 0.3);
+  border-bottom: 2px solid rgba(0, 243, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+}
+
+/* When menu is open */
+.mobile-nav.open {
+  display: block !important;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  animation: slideDown 0.3s ease forwards;
+}
+
+/* Navigation list */
+.mobile-nav ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.mobile-nav li {
+  margin: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeInUp 0.3s ease forwards;
+  animation-delay: calc(var(--item-index, 0) * 0.05s);
+  opacity: 0;
+}
+
+.mobile-nav.open li {
+  opacity: 1;
+}
+
+/* Add animation delay for each item */
+.mobile-nav li:nth-child(1) { --item-index: 1; }
+.mobile-nav li:nth-child(2) { --item-index: 2; }
+.mobile-nav li:nth-child(3) { --item-index: 3; }
+.mobile-nav li:nth-child(4) { --item-index: 4; }
+.mobile-nav li:nth-child(5) { --item-index: 5; }
+.mobile-nav li:nth-child(6) { --item-index: 6; }
+.mobile-nav li:nth-child(7) { --item-index: 7; }
+.mobile-nav li:nth-child(8) { --item-index: 8; }
+.mobile-nav li:nth-child(9) { --item-index: 9; }
+
+.mobile-nav a {
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px 20px !important;
+  color: #e2e8f0 !important;
+  text-decoration: none !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Hover effect */
+.mobile-nav a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: #00f3ff;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+
+.mobile-nav a:hover,
+.mobile-nav a:focus {
+  background: rgba(0, 243, 255, 0.1) !important;
+  color: #00f3ff !important;
+  padding-left: 28px !important;
+}
+
+.mobile-nav a:hover::before,
+.mobile-nav a:focus::before {
+  transform: translateX(0);
+}
+
+.mobile-nav a:active {
+  background: rgba(0, 243, 255, 0.2) !important;
+  transform: scale(0.98);
+}
+
+/* ============================================
+   ENHANCED BURGER BUTTON
+   ============================================ */
+.burger-menu {
+  /* #sidebar-toggle removed - using #burgerMenu instead */
+  display: none; /* Hidden by default */
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: rgba(0, 15, 30, 0.95);
+  border: 2px solid rgba(0, 243, 255, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10001;
+  overflow: hidden;
+}
+
+/* Show on mobile */
+@media (max-width: 768px) {
+  .burger-menu {
+    display: flex !important;
+  }
+  /* #sidebar-toggle removed */
+}
+
+.burger-menu:hover {
+  /* #sidebar-toggle removed */
+  background: rgba(0, 243, 255, 0.15);
+  border-color: #00f3ff;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+}
+
+.burger-menu:active {
+  /* #sidebar-toggle removed */
+  transform: scale(0.95);
+}
+
+/* Burger lines */
+.burger-line,
+.burger-menu span,
+#sidebar-toggle span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: #00f3ff;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+}
+
+/* Active/open state */
+.burger-menu.active .burger-line:nth-child(1),
+.burger-menu[aria-expanded="true"] .burger-line:nth-child(1),
+#sidebar-toggle.active .burger-line:nth-child(1),
+#sidebar-toggle[aria-expanded="true"] .burger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.burger-menu.active .burger-line:nth-child(2),
+.burger-menu[aria-expanded="true"] .burger-line:nth-child(2),
+#sidebar-toggle.active .burger-line:nth-child(2),
+#sidebar-toggle[aria-expanded="true"] .burger-line:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.burger-menu.active .burger-line:nth-child(3),
+.burger-menu[aria-expanded="true"] .burger-line:nth-child(3),
+#sidebar-toggle.active .burger-line:nth-child(3),
+#sidebar-toggle[aria-expanded="true"] .burger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -8px);
+}
+
+/* ============================================
+   OVERLAY
+   ============================================ */
+#sidebar-overlay,
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#sidebar-overlay.active,
+.mobile-nav-overlay.active {
+  display: block;
+  opacity: 1;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   BODY SCROLL LOCK
+   ============================================ */
+body.menu-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.mobile-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mobile-nav::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.mobile-nav::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 3px;
+}
+
+.mobile-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.5);
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.burger-menu:focus,
+#sidebar-toggle:focus {
+  outline: 3px solid #00f3ff;
+  outline-offset: 2px;
+}
+
+.mobile-nav a:focus {
+  outline: 2px solid #00f3ff;
+  outline-offset: -2px;
+}
+
+/* Screen reader text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 480px) {
+  .mobile-nav {
+    top: 56px; /* Slightly smaller header on very small screens */
+  }
+  
+  .mobile-nav a {
+    padding: 14px 16px !important;
+    font-size: 0.95rem !important;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   TOUCH OPTIMIZATION
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-nav a {
+    min-height: 48px; /* Minimum touch target size */
+  }
+  
+  .burger-menu,
+  #sidebar-toggle {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling on iOS */
+.mobile-nav {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent text selection during interaction */
+.burger-menu,
+#sidebar-toggle,
+.mobile-nav {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* ============================================
+   HEADER ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  /* Ensure header is fixed and above menu */
+  #top-header,
+  .sci-fi-header,
+  #header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 10000 !important;
+    background: rgba(10, 14, 26, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  
+  /* Adjust content for fixed header */
+  #content,
+  .main-content,
+  .game-main {
+    padding-top: 70px !important;
+  }
+}

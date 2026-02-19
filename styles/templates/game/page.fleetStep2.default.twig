@@ -1,0 +1,167 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_fleet }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-tasks"></i> {{ LNG.fl_mission }} & {{ LNG.fl_resources }}</h2>
+        <div class="header-subtitle">{{ galaxy }}:{{ system }}:{{ planet }} - {{ LNG["type_mission_" ~ type] }}</div>
+    </div>
+
+    <form action="game.php?page=fleetStep3" method="post" id="form">
+        <input type="hidden" name="token" value="{{ token }}">
+        
+        <div class="fleet-step2-grid">
+            
+            <div class="step2-main">
+                
+                <div class="glass-panel mission-panel">
+                    <div class="panel-header"><i class="fas fa-crosshairs"></i> {{ LNG.fl_mission }}</div>
+                    
+                    <div class="mission-grid">
+                        {% for MissionID in MissionSelector %}
+                        <label class="mission-card">
+                            <input type="radio" name="mission" value="{{ MissionID }}" {% if mission == MissionID %}checked{% endif %}>
+                            <div class="mission-content">
+                                <div class="mission-icon">
+                                    {% if MissionID == 1 %}<i class="fas fa-fist-raised"></i>
+                                    {% elseif MissionID == 2 %}<i class="fas fa-users"></i>
+                                    {% elseif MissionID == 3 %}<i class="fas fa-truck-loading"></i>
+                                    {% elseif MissionID == 4 %}<i class="fas fa-trash-alt"></i>
+                                    {% elseif MissionID == 5 %}<i class="fas fa-shield-alt"></i>
+                                    {% elseif MissionID == 6 %}<i class="fas fa-binoculars"></i>
+                                    {% elseif MissionID == 7 %}<i class="fas fa-globe"></i>
+                                    {% elseif MissionID == 8 %}<i class="fas fa-recycle"></i>
+                                    {% elseif MissionID == 9 %}<i class="fas fa-bomb"></i>
+                                    {% elseif MissionID == 15 %}<i class="fas fa-compass"></i>
+                                    {% else %}<i class="fas fa-rocket"></i>{% endif %}
+                                </div>
+                                <span class="mission-name">{{ LNG["type_mission_" ~ MissionID] }}</span>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if 15 in MissionSelector %}
+                    <div class="alert-box warning mt-2">
+                        <i class="fas fa-exclamation-triangle"></i> {{ LNG.fl_expedition_alert_message }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="glass-panel resource-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-box-open"></i> {{ LNG.fl_resources }}
+                        <span class="storage-info">{{ LNG.fl_resources_left }}: <span id="remainingresources" class="text-highlight">-</span></span>
+                    </div>
+
+                    <div class="res-load-group">
+                        <div class="res-load-item">
+                            <div class="res-icon-label">
+                                <img src="{{ dpath }}images/901.gif" alt="Metal">
+                                <span>{{ LNG.tech.901 }}</span>
+                            </div>
+                            <div class="res-input-wrapper">
+                                <input type="text" name="metal" id="metal" class="glass-input" size="10" onchange="calculateTransportCapacity();" value="0">
+                                <a href="javascript:maxResource('metal');" class="btn-ghost tiny">Max</a>
+                            </div>
+                        </div>
+
+                        <div class="res-load-item">
+                            <div class="res-icon-label">
+                                <img src="{{ dpath }}images/902.gif" alt="Crystal">
+                                <span>{{ LNG.tech.902 }}</span>
+                            </div>
+                            <div class="res-input-wrapper">
+                                <input type="text" name="crystal" id="crystal" class="glass-input" size="10" onchange="calculateTransportCapacity();" value="0">
+                                <a href="javascript:maxResource('crystal');" class="btn-ghost tiny">Max</a>
+                            </div>
+                        </div>
+
+                        <div class="res-load-item">
+                            <div class="res-icon-label">
+                                <img src="{{ dpath }}images/903.gif" alt="Deuterium">
+                                <span>{{ LNG.tech.903 }}</span>
+                            </div>
+                            <div class="res-input-wrapper">
+                                <input type="text" name="deuterium" id="deuterium" class="glass-input" size="10" onchange="calculateTransportCapacity();" value="0">
+                                <a href="javascript:maxResource('deuterium');" class="btn-ghost tiny">Max</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="res-actions">
+                        <a href="javascript:maxResources()" class="btn-ghost small"><i class="fas fa-check-double"></i> {{ LNG.fl_all_resources }}</a>
+                        <span class="consumption-info">{{ LNG.fl_fuel_consumption }}: <span id="consumption" class="text-warning">{{ consumption }}</span></span>
+                    </div>
+                </div>
+
+                {% if StaySelector %}
+                <div class="glass-panel hold-panel">
+                    <div class="panel-header"><i class="fas fa-clock"></i> {{ LNG.fl_hold_time }}</div>
+                    <div class="glass-select-wrapper">
+                        {% if StaySelector %}
+                        <select name="staytime" class="glass-select">
+                            {% for stayTime in StaySelector %}
+                            <option value="{{ stayTime }}">{{ stayTime }} {{ LNG.fl_hours }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="step2-sidebar">
+                <div class="glass-panel briefing-panel">
+                    <div class="panel-header"><i class="fas fa-info-circle"></i> {{ LNG.fl_briefing }}</div>
+                    
+                    <div class="briefing-list">
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_destiny }}</span>
+                            <span class="text-highlight">[{{ galaxy }}:{{ system }}:{{ planet }}]</span>
+                        </div>
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_distance }}</span>
+                            <span>{{ distance|number_format }}</span>
+                        </div>
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_fleet_speed }}</span>
+                            <span>{{ maxspeed|number_format }}</span>
+                        </div>
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_duration }}</span>
+                            <span>{{ duration|time }}</span>
+                        </div>
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_arrival_time }}</span>
+                            <span>{{ arrivalTime }}</span>
+                        </div>
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_return_time }}</span>
+                            <span>{{ returnTime }}</span>
+                        </div>
+                        <div class="briefing-item">
+                            <span>{{ LNG.fl_cargo_capacity }}</span>
+                            <span id="storage" class="text-success">{{ fleetroom|number_format }}</span>
+                        </div>
+                    </div>
+
+                    <div class="action-area">
+                         <button type="submit" class="btn-action-glow full-width">
+                            {{ LNG.fl_send_fleet }} <i class="fas fa-paper-plane"></i>
+                         </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+var data = {{ fleetdata|json_encode|raw }};
+</script>
+{% endblock %}

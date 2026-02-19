@@ -1,0 +1,170 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_messages }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper messages-page">
+        
+        <div class="glass-panel header-panel">
+            <h2 class="page-title"><i class="fas fa-envelope-open-text"></i> {{ LNG.lm_messages }}</h2>
+            <span id="loading" style="display:none; position: absolute; right: 20px; color: #00f3ff; font-weight: bold;">
+                <i class="fas fa-spinner fa-spin"></i> {{ LNG.loading }}
+            </span>
+        </div>
+
+        <div class="glass-panel msg-inbox-shell">
+            
+            <div class="msg-inbox-topbar">
+                
+                <div class="msg-filter-row">
+                    <select id="message-category-select" name="category" class="glass-select" onchange="Message.getMessages(this.value, 1);">
+                        {% for CategoryID, CategoryRow in CategoryList %}
+                        <option value="{{ CategoryID }}"{% if category == CategoryID %} selected{% endif %}>
+                            {{ LNG.mg_type[CategoryID] }} ({{ CategoryRow.total }}){% if CategoryRow.unread > 0 %} - ({{ CategoryRow.unread }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="search" id="message-search" class="glass-input msg-search" placeholder="{{ LNG.mg_subject }} / {{ LNG.mg_from }}" autocomplete="off">
+                </div>
+
+                <div class="msg-top-actions">
+                    <a href="#" id="btn-load-messages" onclick="Message.getMessages($('#message-category-select').val(), {{ side|default(1) }}); return false;" class="btn-action" title="{{ LNG.lm_refresh|default('Aktualisieren') }}" style="background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff;">
+                        <i class="fas fa-sync-alt"></i>
+                        <script>
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    const btn = document.getElementById('btn-load-messages');
+    if (btn) btn.click();
+  }, 1000);
+});
+</script>
+                    </a>
+                    
+                    <a href="#" class="btn-action" onclick="return Message.openCompose();">
+                        <i class="fas fa-pen"></i> {{ LNG.mg_send_new }}
+                    </a>
+                </div>
+            </div>
+
+            <input type="hidden" id="message-current-page" value="{{ side|default(1) }}">
+            
+            <div id="messages-view" class="msg-inbox-list-host" style="min-height: 200px;"></div>
+        </div>
+
+        {% if OperatorList %}
+        <div class="glass-panel mt-3" style="margin-top: 20px;">
+            <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight:bold; color:#aaa;">
+                {{ LNG.mg_game_operators }}
+            </div>
+            <div class="operator-list">
+                {% for OperatorName, OperatorEmail in OperatorList %}
+                    <div class="operator-item">
+                        <i class="fas fa-user-shield" style="color: #e74c3c;"></i>
+                        <span class="op-name">{{ OperatorName }}</span>
+                        <a href="game.php?page=ticket&mode=create" class="op-mail" title="{{ LNG.lm_support }}">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+/**
+ * Nachrichten Auto-Loader
+ * Wartet auf jQuery UND message.js, oder lädt direkt per AJAX als Fallback
+ */
+(function(){
+    function loadMessageScript(callback) {
+        // Prüfe ob message.js schon geladen ist
+        if(typeof Message !== 'undefined' && typeof Message.init === 'function') {
+            callback();
+            return;
+        }
+        // Lade message.js manuell
+        var s = document.createElement('script');
+        s.src = 'scripts/game/message.js';
+        s.onload = function(){ 
+            setTimeout(callback, 50);
+        };
+        s.onerror = function(){
+            // Fallback: Direkt AJAX laden
+            directLoad();
+        };
+        document.head.appendChild(s);
+    }
+
+    function directLoad() {
+        var sel = document.getElementById('message-category-select');
+        var cat = sel ? sel.value : '100';
+        var target = document.getElementById('messages-view');
+        if(!target) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'game.php?page=messages&mode=view&messcat=' + cat + '&site=1&ajax=1');
+        xhr.onload = function(){
+            if(xhr.status === 200) {
+                target.innerHTML = xhr.responseText;
+            } else {
+                target.innerHTML = '<div class="glass-panel" style="padding:20px;text-align:center;color:#ef4444;">Fehler beim Laden der Nachrichten.</div>';
+            }
+        };
+        xhr.onerror = function(){
+            target.innerHTML = '<div class="glass-panel" style="padding:20px;text-align:center;color:#ef4444;">Verbindungsfehler.</div>';
+        };
+        xhr.send();
+    }
+
+    function init(){
+        // Suche-Filter
+        var search = document.getElementById('message-search');
+        if(search){
+            search.value = '';
+            search.addEventListener('input', function(){
+                var v = this.value.toLowerCase();
+                document.querySelectorAll('.msg-item').forEach(function(el){
+                    el.style.display = el.textContent.toLowerCase().indexOf(v) > -1 ? '' : 'none';
+                });
+            });
+        }
+
+        // Warte bis jQuery da ist (max 3 Sekunden), dann lade message.js
+        var jqAttempts = 0;
+        function waitForJQuery(){
+            jqAttempts++;
+            if(typeof jQuery !== 'undefined'){
+                loadMessageScript(function(){
+                    if(typeof Message !== 'undefined' && typeof Message.init === 'function'){
+                        Message.init();
+                    } else {
+                        directLoad();
+                    }
+                });
+            } else if(jqAttempts < 60){
+                setTimeout(waitForJQuery, 50);
+            } else {
+                // jQuery nicht verfügbar — direkt laden
+                directLoad();
+            }
+        }
+        waitForJQuery();
+    }
+
+    // Start
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+{% endblock %}

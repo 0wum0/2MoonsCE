@@ -1,0 +1,90 @@
+{% include "overall_header.twig" %}
+<div class="legacy-content">
+    <div class="dash-header">
+        <h1>{% if id == 0 %}Neuer Cronjob{% else %}Cronjob bearbeiten #{{ id }}{% endif %}</h1>
+    </div>
+
+    <form method="POST" action="">
+    <input type="hidden" name="action" value="edit">
+    <input type="hidden" name="id" value="{{ id }}">
+    
+    <table style="width: 100%; max-width: 900px;">
+        {% if error_msg %}
+        <tr>
+            <td colspan="2" style="background: rgba(248,113,113,0.1); color: var(--adm-neon-red); padding: 15px; border-radius: 8px;">
+                {% for error in error_msg %}{{ error }}<br>{% endfor %}
+            </td>
+        </tr>
+        {% endif %}
+        
+        <tr>
+            <td style="width: 200px;">Name</td>
+            <td><input type="text" name="name" value="{{ name }}" class="glass-input" style="width: 100%;"></td>
+        </tr>
+        <tr>
+            <td>Klasse</td>
+            <td>
+                <select name="class" class="glass-select" style="width: 100%;">
+                    <option value="">-- Klasse wählen --</option>
+                    {% for cronClass in avalibleCrons %}
+                        <option value="{{ cronClass }}" {% if cronClass == class %}selected{% endif %}>{{ cronClass }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Minuten (0-59)</td>
+            <td>
+                <select name="min[]" multiple class="glass-select" style="height: 80px; width: 100px;">
+                    {% for i in 0..59 %}<option value="{{ i }}" {% if i in min or '*' in min %}selected{% endif %}>{{ i }}</option>{% endfor %}
+                </select>
+                <input type="checkbox" name="min_all" value="1" {% if '*' in min %}checked{% endif %}> Alle
+            </td>
+        </tr>
+        <tr>
+            <td>Stunden (0-23)</td>
+            <td>
+                <select name="hours[]" multiple class="glass-select" style="height: 80px; width: 100px;">
+                    {% for i in 0..23 %}<option value="{{ i }}" {% if i in hours or '*' in hours %}selected{% endif %}>{{ i }}</option>{% endfor %}
+                </select>
+                <input type="checkbox" name="hours_all" value="1" {% if '*' in hours %}checked{% endif %}> Alle
+            </td>
+        </tr>
+        <tr>
+            <td>Tag im Monat (1-31)</td>
+            <td>
+                <select name="dom[]" multiple class="glass-select" style="height: 80px; width: 100px;">
+                    {% for i in 1..31 %}<option value="{{ i }}" {% if i in dom or '*' in dom %}selected{% endif %}>{{ i }}</option>{% endfor %}
+                </select>
+                <input type="checkbox" name="dom_all" value="1" {% if '*' in dom %}checked{% endif %}> Alle
+            </td>
+        </tr>
+        <tr>
+            <td>Monat</td>
+            <td>
+                <select name="month[]" multiple class="glass-select" style="height: 80px; width: 100px;">
+                    {% for i in 1..12 %}<option value="{{ i }}" {% if i in month or '*' in month %}selected{% endif %}>{{ i }}</option>{% endfor %}
+                </select>
+                <input type="checkbox" name="month_all" value="1" {% if '*' in month %}checked{% endif %}> Alle
+            </td>
+        </tr>
+        <tr>
+            <td>Wochentag</td>
+            <td>
+                <select name="dow[]" multiple class="glass-select" style="height: 80px; width: 100px;">
+                    {% for i in 0..6 %}<option value="{{ i }}" {% if i in dow or '*' in dow %}selected{% endif %}>{{ i }}</option>{% endfor %}
+                </select>
+                <input type="checkbox" name="dow_all" value="1" {% if '*' in dow %}checked{% endif %}> Alle
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: right; padding-top: 20px;">
+                <input type="submit" value="Speichern" class="button">
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+{% include "overall_footer.twig" %}

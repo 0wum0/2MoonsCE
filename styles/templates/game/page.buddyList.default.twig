@@ -1,0 +1,124 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_buddylist }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-user-friends"></i> {{ LNG.bu_buddy_list }}</h2>
+    </div>
+
+    {% if otherRequestList %}
+    <div class="glass-panel request-panel">
+        <div class="panel-header text-highlight">
+            <i class="fas fa-inbox"></i> {{ LNG.bu_requests }}
+        </div>
+        <div class="table-responsive">
+            <table class="glass-table full-width">
+                <thead>
+                    <tr>
+                        <th>{{ LNG.bu_player }}</th>
+                        <th>{{ LNG.bu_alliance }}</th>
+                        <th>{{ LNG.bu_coords }}</th>
+                        <th>{{ LNG.bu_text }}</th>
+                        <th>{{ LNG.bu_action }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for otherRequestID, otherRequestRow in otherRequestList %}
+                    <tr>
+                        <td>
+                            <a href="#" onclick="return Dialog.Playercard({{ otherRequestRow.id }});" class="text-highlight">
+                                {{ otherRequestRow.username }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if otherRequestRow.ally_name %}
+                                <a href="game.php?page=alliance&amp;mode=info&amp;id={{ otherRequestRow.ally_id }}">{{ otherRequestRow.ally_name }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="game.php?page=galaxy&amp;galaxy={{ otherRequestRow.galaxy }}&amp;system={{ otherRequestRow.system }}" class="coord-link">
+                                [{{ otherRequestRow.galaxy }}:{{ otherRequestRow.system }}:{{ otherRequestRow.planet }}]
+                            </a>
+                        </td>
+                        <td class="text-muted italic">{{ otherRequestRow.text }}</td>
+                        <td>
+                            <a href="game.php?page=buddyList&amp;mode=accept&amp;id={{ otherRequestID }}" class="btn-icon-success" title="{{ LNG.bu_accept }}">
+                                <i class="fas fa-check"></i>
+                            </a>
+                            <a href="game.php?page=buddyList&amp;mode=delete&amp;id={{ otherRequestID }}" class="btn-icon-danger" title="{{ LNG.bu_decline }}">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="glass-panel table-panel">
+        <div class="panel-header">
+            <i class="fas fa-users"></i> {{ LNG.bu_partners }}
+        </div>
+        <div class="table-responsive">
+            <table class="glass-table full-width">
+                <thead>
+                    <tr>
+                        <th>{{ LNG.bu_player }}</th>
+                        <th>{{ LNG.bu_alliance }}</th>
+                        <th>{{ LNG.bu_coords }}</th>
+                        <th>{{ LNG.bu_online }}</th>
+                        <th>{{ LNG.bu_action }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for myBuddyID, myBuddyRow in myBuddyList %}
+                    <tr>
+                        <td>
+                            <a href="#" onclick="return Dialog.PM({{ myBuddyRow.id }});" class="text-highlight">
+                                {{ myBuddyRow.username }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if myBuddyRow.ally_name %}
+                                <a href="game.php?page=alliance&amp;mode=info&amp;id={{ myBuddyRow.ally_id }}">{{ myBuddyRow.ally_name }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="game.php?page=galaxy&amp;galaxy={{ myBuddyRow.galaxy }}&amp;system={{ myBuddyRow.system }}" class="coord-link">
+                                [{{ myBuddyRow.galaxy }}:{{ myBuddyRow.system }}:{{ myBuddyRow.planet }}]
+                            </a>
+                        </td>
+                        <td>
+                            {% if myBuddyRow.onlinetime < 4 %}
+                                <span class="status-dot online" title="{{ LNG.bu_connected }}"></span>
+                            {% elseif myBuddyRow.onlinetime <= 15 %}
+                                <span class="status-dot away" title="{{ myBuddyRow.onlinetime }} {{ LNG.bu_minutes }}"></span>
+                            {% else %}
+                                <span class="status-dot offline" title="{{ LNG.bu_disconnected }}"></span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="game.php?page=buddyList&amp;mode=delete&amp;id={{ myBuddyID }}" class="btn-icon-danger" onclick="return confirm('{{ LNG.bu_cancel_request }}');" title="{{ LNG.bu_cancel_request }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted p-3">{{ LNG.bu_no_buddys }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

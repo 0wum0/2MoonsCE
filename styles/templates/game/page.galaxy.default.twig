@@ -1,0 +1,272 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_galaxy }}{% endblock %}
+{% block content %}
+
+<script type="text/javascript">
+    var status_ok       = '{{ LNG.gl_ajax_status_ok }}';
+    var status_fail     = '{{ LNG.gl_ajax_status_fail }}';
+    var MaxFleetSetting = {{ settings_fleetactions|default(0) }};
+
+    function toggleActionMenu(planetId) {
+        var rowId = 'action-menu-' + planetId;
+        var row = document.getElementById(rowId);
+        
+        if (row) {
+            if (row.style.display === 'none' || row.style.display === '') {
+                // Alle anderen schließen (optional, für Übersicht)
+                var allRows = document.getElementsByClassName('action-menu-row');
+                for(var i=0; i<allRows.length; i++){
+                    allRows[i].style.display = 'none';
+                }
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+</script>
+
+<div class="content_page">
+    
+    <div class="aerospace-wrapper">
+
+        <div class="glass-panel nav-deck">
+            <form action="game.php?page=galaxy" method="post" id="galaxy_form">
+                <input type="hidden" id="auto" value="dr">
+                
+                <div class="nav-controls">
+                    <div class="nav-group">
+                        <button type="button" class="btn-nav" onclick="galaxy_submit('galaxyLeft')"><i class="fas fa-chevron-left"></i></button>
+                        <div class="nav-input-wrapper">
+                            <span class="label">{{ LNG.gl_galaxy }}</span>
+                            <input type="text" name="galaxy" value="{{ galaxy }}" size="3" maxlength="3" class="glass-input" tabindex="1">
+                        </div>
+                        <button type="button" class="btn-nav" onclick="galaxy_submit('galaxyRight')"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+
+                    <div class="nav-group">
+                        <button type="button" class="btn-nav" onclick="galaxy_submit('systemLeft')"><i class="fas fa-chevron-left"></i></button>
+                        <div class="nav-input-wrapper">
+                            <span class="label">{{ LNG.gl_solar_system }}</span>
+                            <input type="text" name="system" value="{{ system }}" size="3" maxlength="3" class="glass-input" tabindex="2">
+                        </div>
+                        <button type="button" class="btn-nav" onclick="galaxy_submit('systemRight')"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+
+                    <button type="submit" class="btn-action-glow">{{ LNG.gl_show }}</button>
+                </div>
+            </form>
+        </div>
+
+        {% if action == 'sendMissle' %}
+        <div class="glass-panel missile-panel">
+            <form action="game.php?page=fleetMissile" method="post">
+                <input type="hidden" name="galaxy" value="{{ galaxy }}">
+                <input type="hidden" name="system" value="{{ system }}">
+                <input type="hidden" name="planet" value="{{ planet }}">
+                <input type="hidden" name="type" value="{{ type }}">
+                <div class="missile-header">
+                    {{ LNG.gl_missil_launch }} [{{ galaxy }}:{{ system }}:{{ planet }}]
+                </div>
+                <div class="missile-controls">
+                    <div>{{ missile_count }} <input type="text" name="SendMI" size="2" maxlength="7" class="glass-input"></div>
+                    <button type="submit" class="btn-action-glow small">{{ LNG.gl_missil_launch_action }}</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="glass-panel table-panel">
+            <div class="table-responsive">
+                <table class="glass-table galaxy-table">
+                    <thead>
+                        <tr>
+                            <th class="w-pos">{{ LNG.gl_pos }}</th>
+                            <th class="w-img">{{ LNG.gl_planet }}</th>
+                            <th>{{ LNG.gl_name_activity }}</th>
+                            <th class="w-img">{{ LNG.gl_moon }}</th>
+                            <th class="w-debris">{{ LNG.gl_debris }}</th>
+                            <th>{{ LNG.gl_player_estate }}</th>
+                            <th>{{ LNG.gl_alliance }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for planet in 1..max_planets %}
+                            
+                            {% if GalaxyRows[planet] is defined %}
+                                {% set currentPlanet = GalaxyRows[planet] %}
+
+                                {# --- Zerstörter Planet --- #}
+                                {% if currentPlanet == false %}
+                                    <tr class="galaxy-row destroyed-row">
+                                        <td class="text-center pos-cell">{{ planet }}</td>
+                                        <td colspan="6" class="text-danger text-center">{{ LNG.gl_planet_destroyed }}</td>
+                                    </tr>
+
+                                {# --- Besiedelter Planet --- #}
+                                {% else %}
+                                    <tr class="galaxy-row {% if currentPlanet.user.id == userID %}own-planet{% endif %}">
+                                        
+                                        <td class="text-center pos-cell">
+                                            <a href="game.php?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1&target_mission=7">{{ planet }}</a>
+                                        </td>
+
+                                        <td class="text-center p-0">
+                                            <div class="planet-thumb cursor-pointer" 
+                                                 onclick="toggleActionMenu({{ planet }});"
+                                                 style="background-image: url('{{ dpath }}planeten/small/s_{{ currentPlanet.planet.image }}.jpg');"
+                                                 title="Optionen öffnen">
+                                            </div>
+                                        </td>
+
+                                        <td class="name-cell">
+                                            <span class="planet-name cursor-pointer" onclick="toggleActionMenu({{ planet }});">
+                                                {{ currentPlanet.planet.name }}
+                                            </span>
+                                            {% if currentPlanet.lastActivity %}
+                                                <span class="activity-timer">{{ currentPlanet.lastActivity }}</span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="text-center p-0">
+                                            {% if currentPlanet.moon %}
+                                                <div class="moon-thumb" 
+                                                     style="background-image: url('{{ dpath }}planeten/mond.jpg');"
+                                                     title="{{ currentPlanet.moon.name }}">
+                                                </div>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="text-center">
+                                            {% if currentPlanet.debris %}
+                                                <div class="debris-wrapper">
+                                                    <img src="{{ dpath }}planeten/debris.jpg" width="22" height="22" title="M: {{ currentPlanet.debris.metal }} / K: {{ currentPlanet.debris.crystal }}">
+                                                    {% if currentPlanet.missions.8 %}
+                                                        <a href="javascript:doit(8, {{ currentPlanet.planet.id }});" class="debris-link"><i class="fas fa-recycle"></i></a>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            {# PHP 8 Safe Class Output #}
+                                            <span class="player-name {{ currentPlanet.user.class|join(' ') }} cursor-pointer" onclick="toggleActionMenu({{ planet }});">
+                                                {{ currentPlanet.user.username }}
+                                            </span>
+                                            <div class="rank-status">
+                                                <span class="rank">#{{ currentPlanet.user.rank }}</span>
+                                                {% if currentPlanet.user.status %}
+                                                    <span class="status">({{ currentPlanet.user.status }})</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            {% if currentPlanet.alliance %}
+                                                <a href="game.php?page=alliance&mode=info&id={{ currentPlanet.alliance.id }}" 
+                                                   class="ally-link {% for class in currentPlanet.alliance.class %}{{ class }} {% endfor %}"
+                                                   onclick="return Dialog.Alliance({{ currentPlanet.alliance.id }});">
+                                                    [{{ currentPlanet.alliance.tag }}]
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+
+                                    {# --- ACTION MENÜ (DROPDOWN) --- #}
+                                    <tr id="action-menu-{{ planet }}" class="action-menu-row" style="display:none; background: rgba(0,0,0,0.5);">
+                                        <td colspan="7" style="padding: 10px;">
+                                            <div class="action-box">
+                                                <div class="action-grid-buttons" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+                                                    
+                                                    {% if currentPlanet.user.id != userID %}
+                                                        {% if currentPlanet.action.esp %}
+                                                            <a href="javascript:doit(6,{{ currentPlanet.planet.id }})" class="act-btn spy"><i class="far fa-eye"></i> {{ LNG.gl_spy }}</a>
+                                                        {% endif %}
+                                                        
+                                                        <a href="?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1&target_mission=1" class="act-btn attack"><i class="fas fa-crosshairs"></i> {{ LNG.gl_attack }}</a>
+                                                        
+                                                        {% if currentPlanet.action.message %}
+                                                            <a href="#" onclick="return Dialog.PM({{ currentPlanet.user.id }})" class="act-btn msg"><i class="far fa-envelope"></i> {{ LNG.write_message }}</a>
+                                                        {% endif %}
+                                                        
+                                                        {% if currentPlanet.action.buddy %}
+                                                            <a href="#" onclick="return Dialog.Buddy({{ currentPlanet.user.id }})" class="act-btn buddy"><i class="far fa-handshake"></i> {{ LNG.gl_buddy_request }}</a>
+                                                        {% endif %}
+                                                        
+                                                        {% if currentPlanet.action.missle %}
+                                                            <a href="?page=galaxy&action=sendMissle&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&type=1" class="act-btn missile"><i class="fas fa-rocket"></i> Raketen</a>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <span style="color: #aaa; padding: 5px;">Eigener Planet</span>
+                                                    {% endif %}
+
+                                                    <a href="?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1&target_mission=3" class="act-btn transport"><i class="fas fa-truck"></i> Transport</a>
+                                                    
+                                                    <a href="?page=statistics&who=1&start={{ currentPlanet.user.rank }}" class="act-btn stats"><i class="fas fa-chart-bar"></i> Stats</a>
+                                                    
+                                                    {% if currentPlanet.planet.phalanx %}
+                                                        <a href="#" onclick="OpenPopup('?page=phalanx&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1','',640,510);return false;" class="act-btn phalanx"><i class="fas fa-satellite-dish"></i> {{ LNG.gl_phalanx }}</a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                {% endif %}
+
+                            {# --- Leerer Planet --- #}
+                            {% else %}
+                                <tr class="galaxy-row empty-row">
+                                    <td class="text-center pos-cell">{{ planet }}</td>
+                                    <td class="text-center p-0">
+                                        <a href="game.php?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1&target_mission=7" class="planet-thumb empty-slot">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    </td>
+                                    <td class="name-cell">
+                                        <a href="game.php?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ planet }}&planettype=1&target_mission=7" class="text-muted link-clean">{{ LNG.gl_free_planet }}</a>
+                                    </td>
+                                    <td></td><td></td><td></td><td></td>
+                                </tr>
+                            {% endif %}
+
+                        {% endfor %}
+
+                        <tr>
+                            <td class="text-center">{{ max_planets + 1 }}</td>
+                            <td colspan="6">
+                                <a href="game.php?page=fleetTable&galaxy={{ galaxy }}&system={{ system }}&planet={{ max_planets + 1 }}&planettype=1&target_mission=15" class="btn-expedition full-width">
+                                    <i class="fas fa-compass"></i> {{ LNG.gl_out_space }}
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="galaxy-footer glass-panel">
+            <div class="stats-row">
+                <div><span id="missiles">{{ currentmip|number_format }}</span> {{ LNG.gl_avaible_missiles }}</div>
+                <div><span id="slots">{{ maxfleetcount }}</span>/{{ fleetmax }} {{ LNG.gl_fleets }}</div>
+            </div>
+            <div class="stats-row secondary">
+                <div><span id="elementID210">{{ spyprobes|number_format }}</span> {{ LNG.gl_avaible_spyprobes }}</div>
+                <div><span id="elementID209">{{ recyclers|number_format }}</span> {{ LNG.gl_avaible_recyclers }}</div>
+                <div><span id="elementID219">{{ grecyclers|number_format }}</span> {{ LNG.gl_avaible_grecyclers }}</div>
+            </div>
+            
+            <div class="legend">
+                <span class="strong">{{ LNG.gl_short_strong }} = {{ LNG.gl_strong_player }}</span>
+                <span class="noob">{{ LNG.gl_short_newbie }} = {{ LNG.gl_week_player }}</span>
+                <span class="vacation">{{ LNG.gl_short_vacation }} = {{ LNG.gl_vacation }}</span>
+                <span class="inactive">{{ LNG.gl_short_inactive }} = {{ LNG.gl_inactive_seven }}</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

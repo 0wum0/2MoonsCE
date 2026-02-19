@@ -1,0 +1,101 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_fleettrader }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-hand-holding-usd"></i> {{ LNG.ft_head }}</h2>
+    </div>
+
+    <form action="game.php?page=fleetDealer" method="post">
+        <input type="hidden" name="mode" value="send">
+
+        <div class="glass-panel dealer-grid">
+            
+            <div class="dealer-visual">
+                <div class="ship-preview-box">
+                    <img id="img" alt="" data-src="{{ dpath }}gebaeude/" class="ship-img">
+                </div>
+            </div>
+
+            <div class="dealer-controls">
+                
+                <div class="control-group">
+                    <label class="label-highlight">{{ LNG.ft_select_ship }}</label>
+                    <div class="glass-select-wrapper">
+                        <select name="shipID" id="shipID" onchange="updateVars()" class="glass-select full-width">
+                            {% for shipID in shipIDs %}
+                            <option value="{{ shipID }}">{{ LNG.tech[shipID] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3 id="traderHead" class="ship-title"></h3>
+                    <div class="input-action-row">
+                        <span class="label">{{ LNG.ft_count }}:</span>
+                        <input type="text" id="count" name="count" onkeyup="Total();" class="glass-input">
+                        <button onclick="MaxShips();return false;" class="btn-ghost small">{{ LNG.ft_max }}</button>
+                    </div>
+                </div>
+
+                <div class="resource-breakdown">
+                    <div class="res-row">
+                        <img src="{{ dpath }}images/901.gif" alt="Metal">
+                        <span class="res-name">{{ LNG.tech.901 }}:</span>
+                        <span class="res-value" id="metal">0</span>
+                    </div>
+                    <div class="res-row">
+                        <img src="{{ dpath }}images/902.gif" alt="Crystal">
+                        <span class="res-name">{{ LNG.tech.902 }}:</span>
+                        <span class="res-value" id="crystal">0</span>
+                    </div>
+                    <div class="res-row">
+                        <img src="{{ dpath }}images/903.gif" alt="Deuterium">
+                        <span class="res-name">{{ LNG.tech.903 }}:</span>
+                        <span class="res-value" id="deuterium">0</span>
+                    </div>
+                    <div class="res-row highlight">
+                        <img src="{{ dpath }}images/921.gif" alt="Darkmatter">
+                        <span class="res-name">{{ LNG.tech.921 }}:</span>
+                        <span class="res-value" id="darkmatter">0</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="total-result">
+                    <div class="total-label">{{ LNG.ft_total }}:</div>
+                    <div class="total-res-grid">
+                        <div class="total-item">
+                            <img src="{{ dpath }}images/901.gif"> <span id="total_metal" class="text-success">0</span>
+                        </div>
+                        <div class="total-item">
+                            <img src="{{ dpath }}images/902.gif"> <span id="total_crystal" class="text-success">0</span>
+                        </div>
+                        <div class="total-item">
+                            <img src="{{ dpath }}images/903.gif"> <span id="total_deuterium" class="text-success">0</span>
+                        </div>
+                        <div class="total-item">
+                            <img src="{{ dpath }}images/921.gif"> <span id="total_darkmatter" class="text-warning">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-area">
+                    <button type="submit" class="btn-action-glow full-width">
+                        <i class="fas fa-exchange-alt"></i> {{ LNG.ft_submit }}
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+// Integrate with existing game logic vars
+var CostInfo = {{ CostInfo|json_encode|raw }};
+</script>
+{% endblock %}

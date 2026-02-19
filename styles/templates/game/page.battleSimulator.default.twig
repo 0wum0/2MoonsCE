@@ -1,0 +1,129 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_battlesim }}{% endblock %}
+{% block content %}
+
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-calculator"></i> {{ LNG.lm_battlesim }}</h2>
+    </div>
+
+    <form id="form" name="battlesim">
+    <input type="hidden" name="slots" id="slots" value="{{ Slots + 1 }}">
+    
+    <div class="glass-panel resource-input-panel">
+        <div class="res-input-group">
+            <span class="label">{{ LNG.bs_steal }}</span>
+            
+            <div class="res-field">
+                <img src="{{ dpath }}images/901.gif" alt="Metal">
+                <input type="text" class="glass-input small" value="{% if battleinput.0.1.901 is defined %}{{ battleinput.0.1.901 }}{% else %}0{% endif %}" name="battleinput[0][1][901]">
+            </div>
+            
+            <div class="res-field">
+                <img src="{{ dpath }}images/902.gif" alt="Crystal">
+                <input type="text" class="glass-input small" value="{% if battleinput.0.1.902 is defined %}{{ battleinput.0.1.902 }}{% else %}0{% endif %}" name="battleinput[0][1][902]">
+            </div>
+            
+            <div class="res-field">
+                <img src="{{ dpath }}images/903.gif" alt="Deuterium">
+                <input type="text" class="glass-input small" value="{% if battleinput.0.1.903 is defined %}{{ battleinput.0.1.903 }}{% else %}0{% endif %}" name="battleinput[0][1][903]">
+            </div>
+        </div>
+        
+        <button type="button" onClick="return add();" class="btn-ghost small"><i class="fas fa-plus"></i> {{ LNG.bs_add_acs_slot }}</button>
+    </div>
+
+    <div id="tabs">
+        <div class="tab-controls">
+            <ul>
+            {% for slot in 0..Slots %}
+                <li><a href="#tabs-{{ slot }}">{{ LNG.bs_acs_slot }} {{ slot }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+        
+        {% for slot in 0..Slots %}
+        <div id="tabs-{{ slot }}" class="battle-tab-content">
+            <div class="battle-grid">
+                
+                <div class="glass-panel battle-col attacker">
+                    <div class="col-header text-success"><i class="fas fa-fighter-jet"></i> {{ LNG.bs_atter }}</div>
+                    
+                    <div class="tech-section">
+                        <div class="tech-header">{{ LNG.tech.0 }}</div>
+                        <div class="tech-row"><span class="label">{{ LNG.tech.109 }}</span><input type="text" class="glass-input tiny" value="{% if battleinput[slot][0][109] is defined %}{{ battleinput[slot][0][109] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][0][109]"></div>
+                        <div class="tech-row"><span class="label">{{ LNG.tech.110 }}</span><input type="text" class="glass-input tiny" value="{% if battleinput[slot][0][110] is defined %}{{ battleinput[slot][0][110] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][0][110]"></div>
+                        <div class="tech-row"><span class="label">{{ LNG.tech.111 }}</span><input type="text" class="glass-input tiny" value="{% if battleinput[slot][0][111] is defined %}{{ battleinput[slot][0][111] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][0][111]"></div>
+                    </div>
+
+                    <div class="fleet-section">
+                        <div class="tech-header">{{ LNG.bs_names }}</div>
+                        {% for id in fleetList %}
+                        <div class="tech-row">
+                            <span class="label">{{ LNG.tech[id] }}</span>
+                            <input type="text" class="glass-input" value="{% if battleinput[slot][0][id] is defined %}{{ battleinput[slot][0][id] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][0][{{ id }}]">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if slot == 0 %}
+                <div class="glass-panel battle-col defender">
+                    <div class="col-header text-danger">
+                        <i class="fas fa-shield-alt"></i> {{ LNG.bs_deffer }}
+                    </div>
+                    
+                    <div class="tech-section">
+                        <div class="tech-header">{{ LNG.tech.0 }}</div>
+                        <div class="tech-row"><span class="label">{{ LNG.tech.109 }}</span><input type="text" class="glass-input tiny" value="{% if battleinput[slot][1][109] is defined %}{{ battleinput[slot][1][109] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][1][109]"></div>
+                        <div class="tech-row"><span class="label">{{ LNG.tech.110 }}</span><input type="text" class="glass-input tiny" value="{% if battleinput[slot][1][110] is defined %}{{ battleinput[slot][1][110] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][1][110]"></div>
+                        <div class="tech-row"><span class="label">{{ LNG.tech.111 }}</span><input type="text" class="glass-input tiny" value="{% if battleinput[slot][1][111] is defined %}{{ battleinput[slot][1][111] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][1][111]"></div>
+                    </div>
+
+                    <div class="fleet-section">
+                        <div class="tech-header">
+                             {{ LNG.bs_names }} 
+                             <button type="button" class="btn-ghost tiny" style="float:right;">{{ LNG.bs_reset }}</button>
+                        </div>
+                        {% for id in fleetList %}
+                        <div class="tech-row">
+                            <span class="label">{{ LNG.tech[id] }}</span>
+                            <input type="text" class="glass-input" value="{% if battleinput[slot][1][id] is defined %}{{ battleinput[slot][1][id] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][1][{{ id }}]">
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="tech-header mt-2">{{ LNG.tech.400 }}</div>
+                        {% for id in defensiveList %}
+                        <div class="tech-row">
+                            <span class="label">{{ LNG.tech[id] }}</span>
+                            <input type="text" class="glass-input" value="{% if battleinput[slot][1][id] is defined %}{{ battleinput[slot][1][id] }}{% else %}0{% endif %}" name="battleinput[{{ slot }}][1][{{ id }}]">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="glass-panel action-panel">
+        <button type="button" onClick="return check();" class="btn-action-glow">{{ LNG.bs_send }}</button>
+        <button type="reset" class="btn-ghost">{{ LNG.bs_cancel }}</button>
+        <div id="wait" style="display:none; margin-top:10px;">
+            <i class="fas fa-spinner fa-spin"></i> {{ LNG.bs_wait }}
+        </div>
+    </div>
+    
+    </form>
+    
+    <div id="results" style="margin-top: 20px;"></div>
+</div>
+<script>
+$(function() {
+    $("#tabs").tabs();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}{{ LNG.lm_faq }}{% endblock %}
+{% block content %}
+
+<div class="content_page">
+    <div class="aerospace-wrapper">
+        
+        <div class="faq-detail-card glass-panel">
+            <div class="detail-header">
+                <h2><i class="far fa-question-circle"></i> {{ questionRow.title }}</h2>
+                <a href="game.php?page=questions" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> {{ LNG.al_back }}
+                </a>
+            </div>
+            
+            <div class="detail-body custom-scroll">
+                {{ questionRow.body|raw }}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

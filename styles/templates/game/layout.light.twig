@@ -1,0 +1,6 @@
+{% include "main.header.twig" %}
+<!-- Light layout doesn't use sidebar usually, or uses a simple top nav -->
+<div class="container" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center;">
+    {% block content %}{% endblock %}
+</div>
+{% include "main.footer.twig" %}

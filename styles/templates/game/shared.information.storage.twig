@@ -1,0 +1,38 @@
+<div class="aerospace-info-table">
+    <div class="info-header">{{ LNG.in_storage }}</div>
+    
+    <div class="table-scroll-wrapper custom-scroll">
+        <table class="glass-table">
+            <thead>
+                <tr>
+                    <th>{{ LNG.in_level }}</th>
+                    {% for resourceID in productionTable.usedResource %}
+                    <th colspan="2">{{ LNG.tech[resourceID] }}</th>
+                    {% endfor %}
+                </tr>
+                <tr class="sub-header">
+                    <th></th>
+                    {% for resourceID in productionTable.usedResource %}
+                    <th>{{ LNG.in_storage }}</th>
+                    <th>Diff</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for elementLevel, productionData in productionTable.storage %}
+                <tr {% if CurrentLevel == elementLevel %}class="current-level"{% endif %}>
+                    <td class="lvl">{{ elementLevel }}</td>
+                    {% for resourceID, storage in productionData %}
+                    {% set storageDiff = storage - productionTable.storage[CurrentLevel][resourceID] %}
+                    
+                    <td class="val">{{ storage|number_format }}</td>
+                    <td class="diff {% if storageDiff > 0 %}pos{% elseif storageDiff < 0 %}neg{% endif %}">
+                        {{ storageDiff|number_format }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
