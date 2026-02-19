@@ -141,7 +141,7 @@
 
             <!-- FLOTTEN -->
             <div class="notif-icon-wrap">
-                <button class="notif-btn" onclick="SmartNotif.toggle('fleets')">
+                <button class="notif-btn" id="fleet-notif-btn" onclick="SmartNotif.toggle('fleets')">
                     <i class="fas fa-rocket"></i><span class="notif-badge" id="fleet-badge" style="display:none;">0</span>
                 </button>
                 <div class="notif-dropdown" id="notif-fleets-dropdown">
@@ -327,6 +327,11 @@ var SmartNotif=(function(){
         if(!b) return;
         if(n>0){ b.textContent = n>99 ? '99+' : n; b.style.display='flex'; }
         else { b.style.display='none'; }
+        // Also toggle active class on the parent button for fleet badge
+        if(id==='fleet-badge'){
+            var btn=document.getElementById('fleet-notif-btn');
+            if(btn){ if(n>0) btn.classList.add('notif-btn-active'); else btn.classList.remove('notif-btn-active'); }
+        }
     }
 
     function setAttackMode(on){
@@ -386,7 +391,7 @@ var SmartNotif=(function(){
             var f = fl[i];
             if(f.isHostile) atk = true;
             
-            var restTime = parseInt(f.resttime) || 0;
+            var restTime = Math.max(0, parseInt(f.resttime) || 0);
             var fleetText = f.text || 'Unbekannte Flotte';
             
             html += '<div class="notif-fleet-item' + (f.isHostile ? ' hostile' : '') + '">';
@@ -454,6 +459,7 @@ var SmartNotif=(function(){
         });
 
         var refreshScheduled = false;
+        var firstTick = true;
         function tick(){
             for(var i=0; i<Q.length; i++){
                 var q = Q[i];
@@ -463,11 +469,12 @@ var SmartNotif=(function(){
 
                 var pct;
                 if(q.mode === 'elapsed'){
-                    q.elapsed = (q.elapsed||0) + 1;
+                    // Don't increment on very first tick — just display current state
+                    if(!firstTick) q.elapsed = (q.elapsed||0) + 1;
                     q.left = Math.max(0, (q.total||0) - q.elapsed);
                     pct = q.total > 0 ? (q.elapsed / q.total * 100) : 100;
                 } else {
-                    q.left = Math.max(0, q.left - 1);
+                    if(!firstTick) q.left = Math.max(0, q.left - 1);
                     pct = q._init > 0 ? ((q._init - q.left) / q._init * 100) : 100;
                 }
 
@@ -487,6 +494,7 @@ var SmartNotif=(function(){
                     }, 2000);
                 }
             }
+            firstTick = false;
         }
         tick();
         setInterval(tick, 1000);
