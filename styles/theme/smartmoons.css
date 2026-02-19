@@ -3229,6 +3229,24 @@ select.form-control {
 .small-status { font-size: 0.75rem; margin-top: 3px; }
 .timer-cell { font-family: monospace; font-size: 0.95rem; }
 
+
+.fleet-table-main {
+    table-layout: fixed;
+}
+.fleet-table-main th,
+.fleet-table-main td {
+    vertical-align: middle;
+}
+.fleet-table-main .timer-cell {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+.fleet-table-main .coord-link {
+    display: inline-block;
+    white-space: nowrap;
+}
+
 /* Bonus Grid */
 .bonus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 10px; text-align: center; }
 .bonus-val { display: block; font-size: 1.2rem; font-weight: bold; }
@@ -8361,6 +8379,16 @@ body.sidebar-open {
 /* Body / Items */
 .user-menu-body {
     padding: 6px 0;
+    max-height: 320px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 243, 255, 0.25) transparent;
+}
+.user-menu-body::-webkit-scrollbar { width: 5px; }
+.user-menu-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 243, 255, 0.25);
+    border-radius: 4px;
 }
 .user-menu-item {
     display: flex;
