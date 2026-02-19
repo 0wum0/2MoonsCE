@@ -430,6 +430,10 @@ class statbuilder
 		$this->CheckUniverseAccounts($UniData);		
 		$this->writeRecordData();
 
+		$config = Config::get();
+		$config->stat_last_db_update = TIMESTAMP;
+		$config->save();
+
 		return $this->SomeStatsInfos();
 	}
 }

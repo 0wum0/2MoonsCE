@@ -85,7 +85,7 @@
                     </div>
                     <div class="stat-card-body">
                         <div class="stat-card-name">
-                            <a href="#" onclick="return Dialog.Playercard({{ RangeInfo.id }}, '{{ RangeInfo.name }}');">{{ RangeInfo.name }}</a>
+                            <a href="#" onclick="return Dialog.Playercard({{ RangeInfo.id }}, '{{ RangeInfo.name|e('js') }}');">{{ RangeInfo.name }}</a>
                             {% if RangeInfo.id != CUser_id %}
                                 <a href="#" onclick="return Dialog.PM({{ RangeInfo.id }});" class="stat-card-pm"><i class="far fa-envelope"></i></a>
                             {% endif %}

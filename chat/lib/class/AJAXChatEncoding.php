@@ -96,7 +96,7 @@ class AJAXChatEncoding {
 
 	public static function decodeEntities($str, $encoding='UTF-8', $htmlEntitiesMap=null) {
 		// Due to PHP bug #25670, html_entity_decode does not work with UTF-8 for PHP versions < 5:
-		if(function_exists('html_entity_decode') && version_compare(phpversion(), 5, '>=')) {
+		if(function_exists('html_entity_decode') && PHP_VERSION_ID >= 50000) {
 			// Replace numeric and literal entities:
 			$str = html_entity_decode($str, ENT_QUOTES, $encoding);
 			// Replace additional literal HTML entities if an HTML entities map is given:

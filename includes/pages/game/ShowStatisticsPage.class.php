@@ -181,6 +181,7 @@ class ShowStatisticsPage extends AbstractGamePage
 
 
 		require_once 'includes/classes/Cronjob.class.php';
+		$lastStatisticRun = max((int) Cronjob::getLastExecutionTime('statistic'), (int) $config->stat_last_db_update);
 
         $this->assign(array(
             'Selectors'				=> $Selector,
@@ -190,7 +191,7 @@ class ShowStatisticsPage extends AbstractGamePage
             'RangeList'				=> $RangeList,
             'CUser_ally'			=> $USER['ally_id'],
             'CUser_id'				=> $USER['id'],
-            'stat_date'				=> _date($LNG['php_tdformat'], Cronjob::getLastExecutionTime('statistic'), $USER['timezone']),
+            'stat_date'				=> _date($LNG['php_tdformat'], $lastStatisticRun, $USER['timezone']),
         ));
 
         $this->display('page.statistics.default.twig');

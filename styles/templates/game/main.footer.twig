@@ -41,6 +41,11 @@
     </a>
 </nav>
 
+<button id="chat-fab" class="chat-fab" onclick="SmartChat.toggle();return false;" aria-label="Chat öffnen">
+    <i class="fas fa-comments"></i>
+    <span id="chat-fab-indicator" class="chat-fab-indicator"></span>
+</button>
+
 <!-- GLOBAL CHAT OVERLAY -->
 <div id="smart-chat-panel" class="smart-chat-panel">
     <div class="smart-chat-header">
@@ -58,10 +63,15 @@
 <script>
 var SmartChat=(function(){
     var isOpen=false;
+    function updateIndicator(show){
+        var indicator=document.getElementById('chat-fab-indicator');
+        if(indicator) indicator.style.display = show ? 'block' : 'none';
+    }
     function toggle(){
         var p=document.getElementById('smart-chat-panel');if(!p)return;
         isOpen=!isOpen;p.classList.toggle('open',isOpen);
         if(isOpen){var f=document.getElementById('smart-chat-iframe');if(f&&!f.src)f.src='./chat/index.php';}
+        updateIndicator(!isOpen);
     }
     function switchTab(tab,btn){
         var f=document.getElementById('smart-chat-iframe');if(!f)return;
@@ -69,6 +79,8 @@ var SmartChat=(function(){
         document.querySelectorAll('.chat-tab').forEach(function(t){t.classList.remove('active');});
         if(btn)btn.classList.add('active');
     }
+    window.setInterval(function(){ if(!isOpen) updateIndicator(true); }, 30000);
+    updateIndicator(true);
     return{toggle:toggle,switchTab:switchTab};
 })();
 </script>
