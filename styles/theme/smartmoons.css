@@ -7916,6 +7916,7 @@ body.sidebar-open {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
+    position: relative;
 }
 .nq-name { font-size: 0.84rem; font-weight: 600; color: #e2e8f0; }
 .nq-level { font-size: 0.78rem; color: #94a3b8; font-family: 'Exo 2', monospace; }
@@ -7944,6 +7945,39 @@ body.sidebar-open {
 .nq-timer {
     font-family: 'Exo 2', monospace; font-size: 0.78rem; font-weight: 600;
     color: var(--color-accent-cyan); min-width: 56px; text-align: right;
+    animation: nq-timer-pulse 2s infinite;
+}
+
+@keyframes nq-timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Cancel Button (X) für Bauschleifen-Abbruch */
+.nq-cancel {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(239, 68, 68, 0.8);
+    border: 1px solid rgba(239, 68, 68, 0.9);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+.nq-cancel:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
 }
 
 /* ===== TOAST NOTIFICATIONS ===== */
@@ -8062,10 +8096,13 @@ body.sidebar-open {
     /* Toast Position auf Mobile */
     #toast-container { top: 44px; right: 8px; left: 8px; }
     .sm-toast { max-width: 100%; }
+    /* Cancel-Button kompakter auf Mobile */
+    .nq-cancel { width: 18px; height: 18px; font-size: 9px; }
 }
 @media (max-width: 420px) {
     .notif-btn { width: 32px; height: 32px; font-size: 0.8rem; }
     .notif-badge { min-width: 16px; height: 16px; font-size: 0.6rem; }
+    .nq-cancel { width: 16px; height: 16px; font-size: 8px; }
     .sidebar-menu-toggle { width: 34px; height: 34px; flex: 0 0 34px; }
 }
 

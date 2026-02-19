@@ -360,9 +360,22 @@ var SmartNotif=(function(){
         var fl = [];
         try {
             var jsonEl = document.getElementById('fleet-json-data');
-            if(jsonEl) fl = JSON.parse(jsonEl.textContent || '[]');
-        } catch(e) { console.error('Fleet JSON parse error:', e); fl = []; }
-        if(!fl || !fl.length) return;
+            if(jsonEl && jsonEl.textContent) {
+                var content = jsonEl.textContent.trim();
+                if(content && content !== '[]') {
+                    fl = JSON.parse(content);
+                }
+            }
+        } catch(e) { 
+            console.error('Fleet JSON parse error:', e); 
+            fl = []; 
+        }
+        
+        if(!fl || !fl.length) {
+            // Hide empty fleet badge
+            setBadge('fleet-badge', 0);
+            return;
+        }
 
         var el = document.getElementById('notif-fleets-list');
         if(!el) return;
@@ -372,38 +385,65 @@ var SmartNotif=(function(){
         for(var i=0; i<fl.length; i++){
             var f = fl[i];
             if(f.isHostile) atk = true;
+            
+            var restTime = parseInt(f.resttime) || 0;
+            var fleetText = f.text || 'Unbekannte Flotte';
+            
             html += '<div class="notif-fleet-item' + (f.isHostile ? ' hostile' : '') + '">';
-            html += '<span class="notif-fleet-timer" id="hft-'+i+'">' + fmt(f.resttime||0) + '</span>';
-            html += '<span class="notif-fleet-text">' + (f.text||'') + '</span>';
+            html += '<span class="notif-fleet-timer" id="hft-'+i+'">' + fmt(restTime) + '</span>';
+            html += '<span class="notif-fleet-text">' + fleetText + '</span>';
             html += '</div>';
         }
         el.innerHTML = html;
         setAttackMode(atk);
         if(atk) toast('Feindliche Flotte im Anflug!', 'exclamation-triangle', '#ef4444');
 
-        setInterval(function(){
-            for(var i=0; i<fl.length; i++){
-                fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
-                var t = document.getElementById('hft-'+i);
-                if(t) t.textContent = fmt(fl[i].resttime);
-            }
-        }, 1000);
+        // Timer update only if we have fleets
+        if(fl.length > 0) {
+            setInterval(function(){
+                for(var i=0; i<fl.length; i++){
+                    fl[i].resttime = Math.max(0, (fl[i].resttime||0) - 1);
+                    var t = document.getElementById('hft-'+i);
+                    if(t) t.textContent = fmt(fl[i].resttime);
+                }
+            }, 1000);
+        }
     }
 
     /* ===== BUILD QUEUES + PROGRESSBARS ===== */
     function initQueues(){
         var Q = [];
         {% if buildQueue.building %}
-        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, _init:{{ buildQueue.building.timeLeft|default(0)|raw }}, mode:'end'});
+        Q.push({id:'building', left:{{ buildQueue.building.timeLeft|default(0)|raw }}, _init:{{ buildQueue.building.timeLeft|default(0)|raw }}, mode:'end', cancelUrl:'game.php?page=buildings&mode=cancel'});
         {% endif %}
         {% if buildQueue.research %}
-        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, _init:{{ buildQueue.research.timeLeft|default(0)|raw }}, mode:'end'});
+        Q.push({id:'research', left:{{ buildQueue.research.timeLeft|default(0)|raw }}, _init:{{ buildQueue.research.timeLeft|default(0)|raw }}, mode:'end', cancelUrl:'game.php?page=research&mode=cancel'});
         {% endif %}
         {% if buildQueue.hangar %}
-        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, _init:{{ buildQueue.hangar.timeLeft|default(1)|raw }}, total:{{ buildQueue.hangar.totalTime|default(0)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed'});
+        Q.push({id:'hangar', left:{{ buildQueue.hangar.timeLeft|default(0)|raw }}, _init:{{ buildQueue.hangar.totalTime|default(1)|raw }}, total:{{ buildQueue.hangar.totalTime|default(0)|raw }}, elapsed:{{ buildQueue.hangar.elapsed|default(0)|raw }}, mode:'elapsed', cancelUrl:'game.php?page=shipyard&mode=cancel'});
         {% endif %}
 
         if(!Q.length) return;
+
+        // Add X-Buttons to active queue items
+        Q.forEach(function(q) {
+            var item = document.querySelector('.nq-active');
+            if(item && q.cancelUrl) {
+                var header = item.querySelector('.nq-header');
+                if(header && !header.querySelector('.nq-cancel')) {
+                    var cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'nq-cancel';
+                    cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    cancelBtn.title = 'Abbrechen';
+                    cancelBtn.onclick = function() {
+                        if(confirm('Bau wirklich abbrechen?')) {
+                            window.location.href = q.cancelUrl;
+                        }
+                    };
+                    header.appendChild(cancelBtn);
+                }
+            }
+        });
 
         function tick(){
             for(var i=0; i<Q.length; i++){
@@ -424,6 +464,13 @@ var SmartNotif=(function(){
 
                 timer.textContent = fmt(q.left);
                 if(bar) bar.style.width = Math.min(100, pct).toFixed(1) + '%';
+                
+                // Auto-refresh when complete
+                if(q.left <= 0) {
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                }
             }
         }
         tick();
