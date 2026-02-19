@@ -9,7 +9,7 @@
         {% endif %}
     </td>
     <td>
-        <a href="#" onclick="return Dialog.Playercard({{ RangeInfo.id }}, '{{ RangeInfo.name }}');">
+        <a href="#" onclick="return Dialog.Playercard({{ RangeInfo.id }}, '{{ RangeInfo.name|e('js') }}');">
             {{ RangeInfo.name }}
         </a>
     </td>

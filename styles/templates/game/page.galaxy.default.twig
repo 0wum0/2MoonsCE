@@ -151,9 +151,9 @@
 
                                         <td>
                                             {# PHP 8 Safe Class Output #}
-                                            <span class="player-name {{ currentPlanet.user.class|join(' ') }} cursor-pointer" onclick="toggleActionMenu({{ planet }});">
+                                            <a href="#" class="player-name {{ currentPlanet.user.class|join(' ') }} cursor-pointer" onclick="return Dialog.Playercard({{ currentPlanet.user.id }}, '{{ currentPlanet.user.username|e('js') }}');">
                                                 {{ currentPlanet.user.username }}
-                                            </span>
+                                            </a>
                                             <div class="rank-status">
                                                 <span class="rank">#{{ currentPlanet.user.rank }}</span>
                                                 {% if currentPlanet.user.status %}

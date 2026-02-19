@@ -28,7 +28,7 @@
 
     <div class="glass-panel table-panel">
         <div class="table-responsive">
-            <table class="glass-table full-width">
+            <table class="glass-table full-width fleet-table-main">
                 <thead>
                     <tr>
                         <th>{{ LNG.fl_number }}</th>
@@ -62,7 +62,7 @@
                                 [{{ FlyingFleetRow.startGalaxy }}:{{ FlyingFleetRow.startSystem }}:{{ FlyingFleetRow.startPlanet }}]
                             </a>
                         </td>
-                        <td class="timer-cell" data-time="{{ (FlyingFleetRow.startTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
+                        <td class="timer-cell fleets" data-fleet-time="{{ (FlyingFleetRow.startTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
                             {{ FlyingFleetRow.startTime|date("H:i:s") }}
                         </td>
                         <td>
@@ -70,7 +70,7 @@
                                 [{{ FlyingFleetRow.endGalaxy }}:{{ FlyingFleetRow.endSystem }}:{{ FlyingFleetRow.endPlanet }}]
                             </a>
                         </td>
-                        <td class="timer-cell" data-time="{{ (FlyingFleetRow.endTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
+                        <td class="timer-cell fleets" data-fleet-time="{{ (FlyingFleetRow.endTimestamp|default(0) + 0) - ("now"|date("U") + 0) }}">
                              {{ FlyingFleetRow.endTime|date("H:i:s") }}
                         </td>
                         <td>
