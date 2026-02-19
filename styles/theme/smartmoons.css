@@ -8528,3 +8528,42 @@ body.sidebar-open {
 /* ==========================================================================
    END OF SMARTMOONS CSS
    ========================================================================== */
+
+
+/* Modern JS modal fallback */
+#smart-modal-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.72); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+#smart-modal-overlay.open { display: flex; }
+#smart-modal-overlay .smart-modal-window { position: relative; width: min(92vw, 760px); height: min(90vh, 680px); border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,243,255,.25); box-shadow: 0 30px 80px rgba(0,0,0,.45); background: rgba(10,15,30,.98); }
+#smart-modal-overlay .smart-modal-close { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border: 0; border-radius: 8px; background: rgba(15,23,42,.8); color: #fff; z-index: 2; cursor: pointer; }
+#smart-modal-overlay .smart-modal-iframe { width: 100%; height: 100%; }
+
+/* Fleet cards */
+.fleet-cards-mobile { display: none; padding: 12px; gap: 10px; }
+.fleet-mobile-card { background: rgba(15,23,42,.55); border: 1px solid rgba(148,163,184,.2); border-radius: 12px; padding: 10px; margin-bottom: 10px; }
+.fleet-mobile-top, .fleet-mobile-times { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.fleet-mobile-route { display: grid; gap: 4px; font-size: .82rem; color: #cbd5e1; }
+
+/* Shipyard fixes */
+.shipyard-active-timer { padding: 8px 12px; color: var(--color-accent-cyan); font-weight: 700; font-family: monospace; }
+.queue-list { background: rgba(2,6,23,.75); color: #e2e8f0; }
+.queue-list option { background: rgba(2,6,23,.9); color: #e2e8f0; }
+.btn-build-mobile { display: none; }
+
+/* Chat floating button */
+.chat-fab { position: fixed; right: 16px; bottom: 92px; width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(0,243,255,.35); background: linear-gradient(145deg,#0ea5e9,#6366f1); color: #fff; z-index: 5001; box-shadow: 0 10px 30px rgba(14,165,233,.35); }
+.chat-fab-indicator { position: absolute; top: 7px; right: 7px; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 0 rgba(239,68,68,.8); animation: chatPing 1.8s infinite; }
+@keyframes chatPing { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,.8);} 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0);} 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0);} }
+
+/* Combat report readability */
+.aerospace-battle-log { background: radial-gradient(circle at top, rgba(15,23,42,.95), rgba(2,6,23,.98)); }
+.aerospace-battle-log .fleet-table th { background: rgba(15,23,42,.8); color: #e2e8f0; }
+.aerospace-battle-log .fleet-table td { color: #cbd5e1; }
+
+@media (max-width: 900px) {
+  .fleet-table-main { display: none; }
+  .fleet-cards-mobile { display: block; }
+}
+@media (max-width: 768px) {
+  .btn-build-mobile { display: inline-flex; position: fixed; left: 14px; right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 2000; justify-content: center; padding: 12px 16px; border: 0; border-radius: 12px; background: linear-gradient(135deg,#22d3ee,#3b82f6); color: #001126; font-weight: 700; }
+  .chat-fab { bottom: calc(150px + env(safe-area-inset-bottom)); }
+}

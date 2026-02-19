@@ -167,7 +167,7 @@ var Dialog	= {
 	},
 	
 	Playercard: function(ID) {
-		return isPlayerCardActive && Dialog.open('game.php?page=playerCard&id='+ID, 650, 600);
+		return Dialog.open('game.php?page=playerCard&id='+ID, 650, 600);
 	},
 	
 	Buddy: function(ID) {
@@ -183,7 +183,7 @@ var Dialog	= {
 	},
 	
 	open: function(url, width, height) {
-		if(typeof $ !== 'undefined' && $.fancybox) {
+		if ($.fancybox) {
 			$.fancybox({
 				width: width,
 				padding: 0,
@@ -192,7 +192,21 @@ var Dialog	= {
 				href: url
 			});
 		} else {
-			window.open(url+'&ajax=1', '_blank', 'width='+width+',height='+height+',scrollbars=yes,resizable=yes');
+			var modal = document.getElementById('smart-modal-overlay');
+			if(!modal) {
+				modal = document.createElement('div');
+				modal.id = 'smart-modal-overlay';
+				modal.innerHTML = '<div class="smart-modal-window"><button class="smart-modal-close" type="button">×</button><iframe class="smart-modal-iframe" frameborder="0"></iframe></div>';
+				document.body.appendChild(modal);
+				modal.addEventListener('click', function(e){ if(e.target === modal) modal.classList.remove('open'); });
+				modal.querySelector('.smart-modal-close').addEventListener('click', function(){ modal.classList.remove('open'); });
+			}
+
+			var win = modal.querySelector('.smart-modal-window');
+			win.style.width = (width || 700) + 'px';
+			win.style.height = (height || 600) + 'px';
+			modal.querySelector('.smart-modal-iframe').src = url;
+			modal.classList.add('open');
 		}
 		
 		return false;
