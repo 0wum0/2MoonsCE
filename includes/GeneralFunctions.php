@@ -584,12 +584,14 @@ function exceptionHandler(\Throwable $exception): void
 			$config		= Config::get();
 			$gameName	= $config->game_name;
 			$VERSION	= $config->VERSION;
-		} catch(ErrorException $e) {
+		} catch(Throwable $e) {
 		}
 	}
 	
 	
 	$DIR		= MODE == 'INSTALL' ? '..' : '.';
+	$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+	$requestUrl = PROTOCOL.HTTP_HOST.$requestUri;
 	ob_start();
 	echo '<!DOCTYPE html>
 <!--[if lt IE 7 ]> <html lang="de" class="no-js ie6"> <![endif]-->
@@ -651,7 +653,7 @@ function exceptionHandler(\Throwable $exception): void
 			<b>Message: </b>'.$exception->getMessage().'<br>
 			<b>File: </b>'.$exception->getFile().'<br>
 			<b>Line: </b>'.$exception->getLine().'<br>
-			<b>URL: </b>'.PROTOCOL.HTTP_HOST.$_SERVER['REQUEST_URI'].'<br>
+			<b>URL: </b>'.$requestUrl.'<br>
 			<b>PHP-Version: </b>'.PHP_VERSION.'<br>
 			<b>PHP-API: </b>'.php_sapi_name().'<br>
 			<b>2Moons Version: </b>'.$VERSION.'<br>
@@ -666,7 +668,7 @@ function exceptionHandler(\Throwable $exception): void
 	
 	$errorText	= date("[d-M-Y H:i:s]", TIMESTAMP).': "'.strip_tags($exception->getMessage())."\"\r\n";
 	$errorText	.= 'File: '.$exception->getFile().' | Line: '.$exception->getLine()."\r\n";
-	$errorText	.= 'URL: '.PROTOCOL.HTTP_HOST.$_SERVER['REQUEST_URI'].' | Version: '.$VERSION."\r\n";
+	$errorText	.= 'URL: '.$requestUrl.' | Version: '.$VERSION."\r\n";
 	$errorText	.= "Stack trace:\r\n";
 	$errorText	.= str_replace(ROOT_PATH, '/', htmlspecialchars(str_replace('\\', '/',$exception->getTraceAsString())))."\r\n";
 	

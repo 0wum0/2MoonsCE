@@ -16,12 +16,16 @@ declare(strict_types=1);
  * @link https://github.com/jkroepke/2Moons
  */
 
-require_once('vendor/autoload.php');
-
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 use Twig\TwigFilter;
+
+$composerAutoloader = dirname(__DIR__, 2).'/vendor/autoload.php';
+
+if (file_exists($composerAutoloader)) {
+	require_once $composerAutoloader;
+}
 
 class template
 {
@@ -41,6 +45,12 @@ class template
 
 	private function twigSettings(): void
 	{
+		if (!class_exists(Environment::class)) {
+			throw new RuntimeException(
+				'Twig is not available. Run "composer install" in the project root to install dependencies.'
+			);
+		}
+
 		// Setup Twig Loader with multiple namespaces for templates
 		$loader = new FilesystemLoader($this->templateDir);
 		

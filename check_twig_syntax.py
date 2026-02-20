@@ -140,7 +140,8 @@ def scan_templates(base_path: str) -> Dict:
     }
 
 if __name__ == '__main__':
-    template_path = '/workspace/styles/templates'
+    repo_root = Path(__file__).resolve().parent
+    template_path = str(repo_root / 'styles' / 'templates')
     
     print(f"Scanning Twig templates in: {template_path}")
     print("=" * 80)
