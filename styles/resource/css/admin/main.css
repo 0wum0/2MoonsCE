@@ -1352,3 +1352,130 @@ textarea#rawLog {
   height: auto;
   min-height: 0;
 }
+
+/* =========================================
+   Lightweight Utility Layer (Bootstrap-like)
+   ========================================= */
+
+.container-fluid { width: 100%; margin: 0 auto; }
+.row { display: flex; flex-wrap: wrap; margin: -8px; }
+.row > [class*="col-"] { padding: 8px; }
+.col-12 { width: 100%; }
+.col-3 { width: 25%; }
+
+@media (min-width: 768px) {
+    .col-md-5 { width: 41.6666667%; }
+    .col-md-7 { width: 58.3333333%; }
+}
+
+@media (min-width: 992px) {
+    .col-lg-6 { width: 50%; }
+    .col-lg-8 { width: 66.6666667%; }
+}
+
+@media (min-width: 1200px) {
+    .col-xl-6 { width: 50%; }
+}
+
+.d-flex { display: flex; }
+.d-block { display: block; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-center { justify-content: center; }
+.align-items-center { align-items: center; }
+.align-items-end { align-items: flex-end; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+
+.p-0 { padding: 0; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.pb-2 { padding-bottom: 8px; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-1 { margin-top: 4px; }
+.mt-3 { margin-top: 12px; }
+.m-0 { margin: 0; }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+.text-white { color: var(--adm-text); }
+.text-muted { color: var(--adm-text-muted); }
+.text-end { text-align: right; }
+.text-center { text-align: center; }
+.small { font-size: 12px; }
+.fw-bold { font-weight: 700; }
+
+.card {
+    background: var(--adm-bg-card);
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+}
+.card-header { padding: 12px 16px; border-bottom: 1px solid var(--adm-border); }
+.card-body { padding: 16px; }
+
+.form-control,
+.form-select,
+.form-check-input {
+    width: 100%;
+    background: var(--adm-bg-secondary);
+    border: 1px solid var(--adm-border);
+    color: var(--adm-text);
+    border-radius: var(--adm-radius-sm);
+    padding: 8px 10px;
+}
+
+.input-group { display: flex; width: 100%; }
+.input-group > .form-control { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.input-group > .btn,
+.input-group > .input-group-text { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+
+.input-group-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--adm-bg-secondary);
+    border: 1px solid var(--adm-border);
+    color: var(--adm-text-muted);
+}
+
+.btn {
+    border: 1px solid var(--adm-border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--adm-text);
+    border-radius: var(--adm-radius-sm);
+    padding: 8px 14px;
+    cursor: pointer;
+}
+.btn:hover { border-color: var(--adm-accent); color: #fff; }
+.btn-primary,
+.btn-danger,
+.btn-outline-danger,
+.btn-outline-success,
+.btn-secondary { font-weight: 600; }
+.btn-primary { background: linear-gradient(135deg, var(--adm-accent), #0ea5e9); color: #0b1020; border-color: transparent; }
+.btn-danger { background: rgba(248, 113, 113, 0.15); border-color: rgba(248, 113, 113, 0.5); color: #fecaca; }
+.btn-secondary { background: rgba(148, 163, 184, 0.12); }
+.btn-outline-danger { background: transparent; border-color: rgba(248, 113, 113, 0.6); color: #fca5a5; }
+.btn-outline-success { background: transparent; border-color: rgba(52, 211, 153, 0.6); color: #86efac; }
+
+.nav { list-style: none; padding: 0; margin: 0; }
+.nav-pills { display: flex; gap: 8px; }
+.nav-item { flex: 1; }
+.nav-link {
+    width: 100%;
+    border: 1px solid var(--adm-border);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--adm-text-muted);
+    border-radius: var(--adm-radius-sm);
+    padding: 10px;
+}
+.nav-link.active { color: var(--adm-accent); border-color: var(--adm-accent); background: rgba(56, 189, 248, 0.08); }
+
+.tab-content > .tab-pane { display: none; }
+.tab-content > .active { display: block; }
