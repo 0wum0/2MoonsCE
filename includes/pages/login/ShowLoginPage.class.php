@@ -43,7 +43,7 @@ class ShowLoginPage extends AbstractLoginPage
 			':username'	=> $username
 		));
 
-		if (isset($loginData))
+		if (is_array($loginData))
 		{
 			$hashedPassword = PlayerUtil::cryptPassword($password);
 			if($loginData['password'] != $hashedPassword)
