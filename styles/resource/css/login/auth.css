@@ -210,6 +210,24 @@
     letter-spacing: 0.14em;
 }
 
+/* Newest player chip */
+.lp-topbar__newest {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-violet);
+    font-weight: 600;
+    background: rgba(155, 109, 255, 0.10);
+    border: 1px solid rgba(155, 109, 255, 0.22);
+    border-radius: var(--r-pill);
+    padding: 4px 10px;
+    margin-left: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
 /* Status badge */
 .lp-status-badge {
     display: inline-flex;
@@ -1951,6 +1969,14 @@ button.is-loading .btn-spinner {
         align-items: flex-start;
     }
 
+    .lp-topbar__newest {
+        display: none;
+    }
+
+    .auth-body {
+        font-size: 1rem;
+    }
+
     .lp-hero,
     .auth-hero {
         padding: var(--sp-lg) 0 var(--sp-md);
@@ -2013,6 +2039,17 @@ button.is-loading .btn-spinner {
 }
 
 @media (max-width: 480px) {
+    :root {
+        --topbar-h: 52px;
+        --sp-md: 24px;
+    }
+
+    .lp-shell,
+    .lp-shell--page,
+    .lp-shell--popup {
+        padding-top: calc(var(--topbar-h) + var(--sp-md)) !important;
+    }
+
     .lp-topbar__brand {
         font-size: 0.85rem;
     }

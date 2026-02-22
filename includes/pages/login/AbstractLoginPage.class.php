@@ -90,6 +90,17 @@ abstract class AbstractLoginPage
 
 		$config	= Config::get();
 
+		$db = Database::get();
+		$onlineCount = (int)$db->selectSingle(
+			"SELECT COUNT(*) as cnt FROM %%USERS%% WHERE onlinetime > :t",
+			[':t' => TIMESTAMP - 900],
+			'cnt'
+		);
+		$newestPlayerRow = $db->selectSingle(
+			"SELECT username FROM %%USERS%% ORDER BY register_time DESC LIMIT 1"
+		);
+		$newestPlayer = is_array($newestPlayerRow) ? ($newestPlayerRow['username'] ?? '') : (string)($newestPlayerRow ?? '');
+
         $this->tplObj->assign_vars(array(
 			'recaptchaEnable'		=> $config->capaktiv,
 			'recaptchaPublicKey'	=> $config->cappublic,
@@ -106,6 +117,8 @@ abstract class AbstractLoginPage
 			'VERSION'				=> $config->VERSION,
 			'REV'					=> substr($config->VERSION, -4),
 			'languages'				=> Language::getAllowedLangs(false),
+			'onlineCount'			=> $onlineCount,
+			'newestPlayer'			=> $newestPlayer,
 		));
 	}
 	

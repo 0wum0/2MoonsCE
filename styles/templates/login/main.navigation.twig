@@ -9,8 +9,11 @@
 	</div>
 	<div class="lp-topbar__center">
 		<span class="lp-status-badge">
-			<span class="lp-status-dot"></span>Online
+			<span class="lp-status-dot"></span>{{ onlineCount }} Online
 		</span>
+		{% if newestPlayer %}
+		<span class="lp-topbar__newest">&#43; {{ newestPlayer }}</span>
+		{% endif %}
 	</div>
 	<div class="lp-topbar__right">
 		<a href="index.php?page=register" class="lp-btn lp-btn--primary lp-topbar__cta">{{ LNG.buttonRegister }}</a>
