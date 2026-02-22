@@ -1,0 +1,93 @@
+/* =====================================================
+   SMARTMOONS FIX - BEHEBT RESSOURCENLEISTEN-PROBLEM
+   Entfernt störende halbtransparente Blöcke
+   ===================================================== */
+
+/* KRITISCHER FIX: Deaktiviert alle störenden Pseudo-Elemente und Hintergrundblöcke */
+.header::before,
+.header::after,
+.topbar::before,
+.topbar::after,
+.main-header::before,
+.header-bg,
+.nav-bg,
+.main-content::before,
+.main-content::after,
+.resource-bar::before {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Header und Resource Bar nahtlos verbinden */
+.main-header {
+  position: sticky !important;
+  top: 0 !important;
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.resource-bar {
+  position: relative !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 8px !important;
+  border-top: none !important;
+  /* Nahtloser Übergang vom Header */
+  background: linear-gradient(135deg, 
+    rgba(15, 20, 35, 0.8) 0%, 
+    rgba(20, 25, 40, 0.7) 100%) !important;
+}
+
+/* Main Content direkt unter Resource Bar */
+.main-content {
+  margin-top: 0 !important;
+  padding-top: 20px !important; /* Nur normaler Content-Padding */
+}
+
+/* App Container optimiert */
+.app-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+
+/* Stelle sicher, dass keine leeren Container sichtbar sind */
+div:empty:not([class]):not([id]),
+.header-bg,
+.nav-bg {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+}
+
+/* Mobile Anpassungen */
+@media (max-width: 992px) {
+  .resource-bar {
+    padding: 6px 2px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .resource-bar {
+    padding: 4px 0 !important;
+  }
+  
+  .main-content {
+    padding-top: 15px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .resource-bar {
+    padding: 3px 0 !important;
+  }
+  
+  .main-content {
+    padding-top: 10px !important;
+  }
+}

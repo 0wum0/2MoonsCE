@@ -1,0 +1,301 @@
+{% extends "overall_header.twig" %}
+
+{% block title %}Forum Administration - {{ game_name|default('SmartMoons') }}{% endblock %}
+
+{% block content %}
+
+<div class="forum-container">
+
+<div class="forum-header">
+    <h1 class="forum-header-title">⚙️ Forum Administration</h1>
+    <div class="forum-header-actions">
+        <a href="game.php?page=forum" class="forum-btn">👁️ Forum ansehen</a>
+    </div>
+</div>
+
+{# Message Display #}
+{% if message.text is defined %}
+<div class="alert alert-{{ message.class }}" style="margin-bottom: 20px; padding: 15px; border-radius: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid var(--forum-accent);">
+    {{ message.text }}
+</div>
+{% endif %}
+
+{# Navigation Tabs #}
+<div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--forum-border); padding-bottom: 10px;">
+    <a href="admin.php?page=ForumAdmin&mode=categories" class="forum-btn {% if mode == 'categories' %}forum-btn-primary{% endif %}">
+        📂 Kategorien
+    </a>
+    <a href="admin.php?page=ForumAdmin&mode=topics" class="forum-btn {% if mode == 'topics' %}forum-btn-primary{% endif %}">
+        📄 Topics
+    </a>
+    <a href="admin.php?page=ForumAdmin&mode=posts" class="forum-btn {% if mode == 'posts' %}forum-btn-primary{% endif %}">
+        💬 Posts
+    </a>
+    <a href="admin.php?page=ForumAdmin&mode=stats" class="forum-btn {% if mode == 'stats' %}forum-btn-primary{% endif %}">
+        📊 Statistiken
+    </a>
+</div>
+
+{# ==================== CATEGORIES ==================== #}
+{% if mode == 'categories' %}
+
+<div class="forum-editor" style="margin-bottom: 30px;">
+    <h3 style="margin-top: 0; color: var(--forum-accent);">➕ Neue Kategorie erstellen</h3>
+    <form method="post" action="admin.php?page=ForumAdmin&mode=categories">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div class="forum-input-group">
+                <label class="forum-label">Titel *</label>
+                <input type="text" name="title" class="forum-input" required>
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Übergeordnete Kategorie</label>
+                <select name="parent_id" class="forum-input">
+                    <option value="0">Keine (Top-Level)</option>
+                    {% if flat_categories is defined %}
+                    {% for cat in flat_categories %}
+                    <option value="{{ cat.id }}">{{ cat.title }}</option>
+                    {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Icon (Emoji)</label>
+                <input type="text" name="icon" class="forum-input" value="📁" maxlength="10">
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Farbe (Hex)</label>
+                <input type="text" name="color" class="forum-input" value="#38bdf8">
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Sortierung</label>
+                <input type="number" name="sort_order" class="forum-input" value="0">
+            </div>
+        </div>
+        
+        <div class="forum-input-group">
+            <label class="forum-label">Beschreibung</label>
+            <textarea name="description" class="forum-input" rows="3"></textarea>
+        </div>
+        
+        <button type="submit" name="create_category" value="1" class="forum-btn forum-btn-primary">
+            ✨ Kategorie erstellen
+        </button>
+    </form>
+</div>
+
+<h3 style="color: var(--forum-accent); margin-bottom: 15px;">📂 Kategorien verwalten</h3>
+
+{% if categories is defined %}
+{% for category in categories %}
+<div class="forum-category" style="margin-bottom: 15px;">
+    <div class="forum-category-header">
+        <div class="forum-category-icon" style="background: {{ category.color }}20; color: {{ category.color }}">
+            {{ category.icon }}
+        </div>
+        <div class="forum-category-info" style="flex: 1;">
+            <h3 class="forum-category-title">{{ category.title }}</h3>
+            <p class="forum-category-description">{{ category.description }}</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="admin.php?page=ForumAdmin&mode=edit_category&id={{ category.id }}" class="forum-btn">
+                ✏️ Bearbeiten
+            </a>
+            <form method="post" action="admin.php?page=ForumAdmin&mode=categories" style="display: inline;" onsubmit="return confirm('Wirklich löschen? Alle Topics und Posts werden gelöscht!');">
+                <input type="hidden" name="category_id" value="{{ category.id }}">
+                <button type="submit" name="delete_category" value="1" class="forum-btn" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">
+                    🗑️ Löschen
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    {% if category.children is defined and category.children|length > 0 %}
+    <div class="forum-subcategories">
+        {% for sub in category.children %}
+        <div class="forum-subcategory">
+            <div class="forum-subcategory-left">
+                <div class="forum-subcategory-icon">{{ sub.icon }}</div>
+                <div>
+                    <div class="forum-subcategory-title">{{ sub.title }}</div>
+                    <div class="forum-subcategory-description">{{ sub.description }}</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="admin.php?page=ForumAdmin&mode=edit_category&id={{ sub.id }}" class="forum-post-action">✏️</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{# ==================== EDIT CATEGORY ==================== #}
+{% elseif mode == 'edit_category' %}
+
+<a href="admin.php?page=ForumAdmin&mode=categories" style="color: var(--forum-text-muted); text-decoration: none;">← Zurück</a>
+
+{% if category is defined %}
+<div class="forum-editor" style="margin-top: 20px;">
+    <h3 style="margin-top: 0; color: var(--forum-accent);">✏️ Kategorie bearbeiten</h3>
+    <form method="post" action="admin.php?page=ForumAdmin&mode=edit_category&id={{ category.id }}">
+        <input type="hidden" name="category_id" value="{{ category.id }}">
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div class="forum-input-group">
+                <label class="forum-label">Titel *</label>
+                <input type="text" name="title" class="forum-input" value="{{ category.title }}" required>
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Übergeordnete Kategorie</label>
+                <select name="parent_id" class="forum-input">
+                    <option value="0" {% if not category.parent_id %}selected{% endif %}>Keine (Top-Level)</option>
+                    {% if flat_categories is defined %}
+                    {% for cat in flat_categories %}
+                    <option value="{{ cat.id }}" {% if category.parent_id == cat.id %}selected{% endif %}>{{ cat.title }}</option>
+                    {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Icon (Emoji)</label>
+                <input type="text" name="icon" class="forum-input" value="{{ category.icon }}">
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Farbe (Hex)</label>
+                <input type="text" name="color" class="forum-input" value="{{ category.color }}">
+            </div>
+            
+            <div class="forum-input-group">
+                <label class="forum-label">Sortierung</label>
+                <input type="number" name="sort_order" class="forum-input" value="{{ category.sort_order }}">
+            </div>
+            
+            <div class="forum-input-group">
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--forum-text); cursor: pointer;">
+                    <input type="checkbox" name="is_locked" {% if category.is_locked %}checked{% endif %}>
+                    🔒 Kategorie gesperrt
+                </label>
+            </div>
+        </div>
+        
+        <div class="forum-input-group">
+            <label class="forum-label">Beschreibung</label>
+            <textarea name="description" class="forum-input" rows="3">{{ category.description }}</textarea>
+        </div>
+        
+        <button type="submit" name="update_category" value="1" class="forum-btn forum-btn-primary">
+            💾 Speichern
+        </button>
+    </form>
+</div>
+{% endif %}
+
+{# ==================== TOPICS ==================== #}
+{% elseif mode == 'topics' %}
+
+<h3 style="color: var(--forum-accent); margin-bottom: 15px;">📄 Topics verwalten</h3>
+
+<div class="forum-topics">
+    {% if topics is defined %}
+    {% for topic in topics %}
+    <div class="forum-topic-item">
+        <div class="forum-topic-icon {% if topic.is_sticky %}sticky{% elseif topic.is_locked %}locked{% endif %}">
+            {% if topic.is_sticky %}📌{% elseif topic.is_locked %}🔒{% else %}💬{% endif %}
+        </div>
+        <div class="forum-topic-content">
+            <a href="game.php?page=forum&mode=topic&id={{ topic.id }}" class="forum-topic-title" target="_blank">
+                {{ topic.title }}
+            </a>
+            <div class="forum-topic-meta">
+                <span>von <strong>{{ topic.username }}</strong></span>
+                <span>in {{ topic.category_title }}</span>
+                <span>{{ topic.created_at|date('d.m.Y H:i') }}</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="admin.php?page=ForumAdmin&mode=edit_topic&id={{ topic.id }}" class="forum-btn">✏️ Edit</a>
+            <form method="post" action="admin.php?page=ForumAdmin&mode=topics" style="display: inline;" onsubmit="return confirm('Topic wirklich löschen?');">
+                <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                <button type="submit" name="delete_topic" value="1" class="forum-btn" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">
+                    🗑️
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+
+{# ==================== POSTS ==================== #}
+{% elseif mode == 'posts' %}
+
+<h3 style="color: var(--forum-accent); margin-bottom: 15px;">💬 Neueste Posts</h3>
+
+<div class="forum-topics">
+    {% if posts is defined %}
+    {% for post in posts %}
+    <div class="forum-topic-item">
+        <div class="forum-topic-icon">💬</div>
+        <div class="forum-topic-content">
+            <a href="game.php?page=forum&mode=topic&id={{ post.topic_id }}" class="forum-topic-title" target="_blank">
+                {{ post.topic_title }}
+            </a>
+            <div class="forum-topic-meta">
+                <span>von <strong>{{ post.username }}</strong></span>
+                <span>{{ post.created_at|date('d.m.Y H:i') }}</span>
+            </div>
+            <div style="margin-top: 8px; color: var(--forum-text-muted); font-size: 13px;">
+                {{ post.content|slice(0, 150) }}...
+            </div>
+        </div>
+        <div>
+            <form method="post" action="admin.php?page=ForumAdmin&mode=posts" onsubmit="return confirm('Post wirklich löschen?');">
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                <button type="submit" name="delete_post" value="1" class="forum-btn" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">
+                    🗑️ Löschen
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+
+{# ==================== STATS ==================== #}
+{% elseif mode == 'stats' %}
+
+<div class="forum-stats">
+    {% if stats is defined %}
+    <div class="forum-stat-card">
+        <div class="forum-stat-value">{{ stats.total_categories|default(0) }}</div>
+        <div class="forum-stat-label">Kategorien</div>
+    </div>
+    <div class="forum-stat-card">
+        <div class="forum-stat-value">{{ stats.total_topics|default(0) }}</div>
+        <div class="forum-stat-label">Topics</div>
+    </div>
+    <div class="forum-stat-card">
+        <div class="forum-stat-value">{{ stats.total_posts|default(0) }}</div>
+        <div class="forum-stat-label">Posts</div>
+    </div>
+    <div class="forum-stat-card">
+        <div class="forum-stat-value">{{ stats.total_users|default(0) }}</div>
+        <div class="forum-stat-label">Aktive User</div>
+    </div>
+    {% endif %}
+</div>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

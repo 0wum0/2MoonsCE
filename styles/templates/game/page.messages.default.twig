@@ -2,169 +2,79 @@
 
 {% block title %}{{ LNG.lm_messages }}{% endblock %}
 {% block content %}
+<style>
+    :root {
+        --galactic-cyan: #38bdf8;
+        --galactic-bg: rgba(10, 15, 25, 0.98);
+        --galactic-border: rgba(56, 189, 248, 0.25);
+        --galactic-glow: rgba(56, 189, 248, 0.4);
+    }
 
-<div class="content_page">
-    <div class="aerospace-wrapper messages-page">
-        
-        <div class="glass-panel header-panel">
-            <h2 class="page-title"><i class="fas fa-envelope-open-text"></i> {{ LNG.lm_messages }}</h2>
-            <span id="loading" style="display:none; position: absolute; right: 20px; color: #00f3ff; font-weight: bold;">
-                <i class="fas fa-spinner fa-spin"></i> {{ LNG.loading }}
-            </span>
+    .msg-shell-container { width: 100% !important; max-width: 100% !important; padding: 5px; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    
+    .galactic-header-card {
+        background: var(--galactic-bg);
+        border: 2px solid var(--galactic-border);
+        border-radius: 15px;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .galactic-title { font-size: 22px; font-weight: 900; color: var(--galactic-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; text-shadow: 0 0 10px var(--galactic-glow); }
+    
+    .msg-filter-card { background: rgba(13, 17, 23, 0.95); border: 1px solid var(--galactic-border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+    
+    .galactic-select { width: 100%; background: #000; color: #fff; border: 1px solid var(--galactic-border); padding: 12px; border-radius: 8px; font-size: 15px; outline: none; transition: 0.3s; }
+    .galactic-select:focus { border-color: var(--galactic-cyan); box-shadow: 0 0 10px var(--galactic-glow); }
+    
+    .btn-galactic-main { background: var(--galactic-cyan); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; border: none; cursor: pointer; }
+    .btn-galactic-main:hover { background: #fff; box-shadow: 0 0 15px var(--galactic-glow); transform: translateY(-2px); }
+
+    .msg-list-area { width: 100%; min-height: 250px; }
+    #loading { color: var(--galactic-cyan); margin-right: 15px; font-weight: bold; }
+</style>
+
+<div class="msg-shell-container">
+    <div class="galactic-header-card">
+        <h2 class="galactic-title"><i class="fas fa-envelope-open-text"></i> {{ LNG.lm_messages }}</h2>
+        <div style="display: flex; align-items: center;">
+            <span id="loading" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+            <a href="#" class="btn-galactic-main" onclick="return Message.openCompose();">
+                <i class="fas fa-pen"></i> {{ LNG.mg_send_new }}
+            </a>
         </div>
+    </div>
 
-        <div class="glass-panel msg-inbox-shell">
-            
-            <div class="msg-inbox-topbar">
-                
-                <div class="msg-filter-row">
-                    <select id="message-category-select" name="category" class="glass-select" onchange="Message.getMessages(this.value, 1);">
-                        {% for CategoryID, CategoryRow in CategoryList %}
-                        <option value="{{ CategoryID }}"{% if category == CategoryID %} selected{% endif %}>
-                            {{ LNG.mg_type[CategoryID] }} ({{ CategoryRow.total }}){% if CategoryRow.unread > 0 %} - ({{ CategoryRow.unread }}){% endif %}
-                        </option>
-                        {% endfor %}
-                    </select>
-
-                    <input type="search" id="message-search" class="glass-input msg-search" placeholder="{{ LNG.mg_subject }} / {{ LNG.mg_from }}" autocomplete="off">
-                </div>
-
-                <div class="msg-top-actions">
-                    <a href="#" id="btn-load-messages" onclick="Message.getMessages($('#message-category-select').val(), {{ side|default(1) }}); return false;" class="btn-action" title="{{ LNG.lm_refresh|default('Aktualisieren') }}" style="background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff;">
-                        <i class="fas fa-sync-alt"></i>
-                        <script>
-document.addEventListener('DOMContentLoaded', function () {
-  setTimeout(function () {
-    const btn = document.getElementById('btn-load-messages');
-    if (btn) btn.click();
-  }, 1000);
-});
-</script>
-                    </a>
-                    
-                    <a href="#" class="btn-action" onclick="return Message.openCompose();">
-                        <i class="fas fa-pen"></i> {{ LNG.mg_send_new }}
-                    </a>
-                </div>
-            </div>
-
-            <input type="hidden" id="message-current-page" value="{{ side|default(1) }}">
-            
-            <div id="messages-view" class="msg-inbox-list-host" style="min-height: 200px;"></div>
-        </div>
-
-        {% if OperatorList %}
-        <div class="glass-panel mt-3" style="margin-top: 20px;">
-            <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight:bold; color:#aaa;">
-                {{ LNG.mg_game_operators }}
-            </div>
-            <div class="operator-list">
-                {% for OperatorName, OperatorEmail in OperatorList %}
-                    <div class="operator-item">
-                        <i class="fas fa-user-shield" style="color: #e74c3c;"></i>
-                        <span class="op-name">{{ OperatorName }}</span>
-                        <a href="game.php?page=ticket&mode=create" class="op-mail" title="{{ LNG.lm_support }}">
-                            <i class="fas fa-envelope"></i>
-                        </a>
-                    </div>
+    <div class="msg-filter-card">
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
+            <select id="message-category-select" class="galactic-select" onchange="Message.getMessages(this.value, 1);">
+                {% for CategoryID, CategoryRow in CategoryList %}
+                <option value="{{ CategoryID }}"{% if category == CategoryID %} selected{% endif %}>
+                    {{ LNG.mg_type[CategoryID] }} ({{ CategoryRow.total }}){% if CategoryRow.unread > 0 %} - [{{ CategoryRow.unread }} NEU]{% endif %}
+                </option>
                 {% endfor %}
-            </div>
+            </select>
+            <button onclick="Message.getMessages($('#message-category-select').val(), 1);" class="btn-galactic-main" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #444;">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
-        {% endif %}
+    </div>
 
+    <div id="messages-view" class="msg-list-area">
+        {# Inhalt wird per AJAX geladen #}
     </div>
 </div>
 
-{% endblock %}
-
-{% block script %}
 <script>
-/**
- * Nachrichten Auto-Loader
- * Wartet auf jQuery UND message.js, oder lädt direkt per AJAX als Fallback
- */
-(function(){
-    function loadMessageScript(callback) {
-        // Prüfe ob message.js schon geladen ist
-        if(typeof Message !== 'undefined' && typeof Message.init === 'function') {
-            callback();
-            return;
-        }
-        // Lade message.js manuell
-        var s = document.createElement('script');
-        s.src = 'scripts/game/message.js';
-        s.onload = function(){ 
-            setTimeout(callback, 50);
-        };
-        s.onerror = function(){
-            // Fallback: Direkt AJAX laden
-            directLoad();
-        };
-        document.head.appendChild(s);
-    }
-
-    function directLoad() {
-        var sel = document.getElementById('message-category-select');
-        var cat = sel ? sel.value : '100';
-        var target = document.getElementById('messages-view');
-        if(!target) return;
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'game.php?page=messages&mode=view&messcat=' + cat + '&site=1&ajax=1');
-        xhr.onload = function(){
-            if(xhr.status === 200) {
-                target.innerHTML = xhr.responseText;
-            } else {
-                target.innerHTML = '<div class="glass-panel" style="padding:20px;text-align:center;color:#ef4444;">Fehler beim Laden der Nachrichten.</div>';
-            }
-        };
-        xhr.onerror = function(){
-            target.innerHTML = '<div class="glass-panel" style="padding:20px;text-align:center;color:#ef4444;">Verbindungsfehler.</div>';
-        };
-        xhr.send();
-    }
-
-    function init(){
-        // Suche-Filter
-        var search = document.getElementById('message-search');
-        if(search){
-            search.value = '';
-            search.addEventListener('input', function(){
-                var v = this.value.toLowerCase();
-                document.querySelectorAll('.msg-item').forEach(function(el){
-                    el.style.display = el.textContent.toLowerCase().indexOf(v) > -1 ? '' : 'none';
-                });
-            });
-        }
-
-        // Warte bis jQuery da ist (max 3 Sekunden), dann lade message.js
-        var jqAttempts = 0;
-        function waitForJQuery(){
-            jqAttempts++;
-            if(typeof jQuery !== 'undefined'){
-                loadMessageScript(function(){
-                    if(typeof Message !== 'undefined' && typeof Message.init === 'function'){
-                        Message.init();
-                    } else {
-                        directLoad();
-                    }
-                });
-            } else if(jqAttempts < 60){
-                setTimeout(waitForJQuery, 50);
-            } else {
-                // jQuery nicht verfügbar — direkt laden
-                directLoad();
-            }
-        }
-        waitForJQuery();
-    }
-
-    // Start
-    if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-})();
+document.addEventListener('DOMContentLoaded', function() {
+    // Automatisches Laden beim Start
+    setTimeout(function() {
+        Message.getMessages({{ category|default(100) }}, {{ side|default(1) }});
+    }, 150);
+});
 </script>
 {% endblock %}

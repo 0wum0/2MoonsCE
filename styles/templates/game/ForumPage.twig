@@ -1,0 +1,191 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}Forum - {{ game_name|default('SmartMoons') }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --fl-bg: rgba(10, 15, 25, 0.98);
+        --fl-card: rgba(20, 25, 35, 0.85);
+        --fl-border: rgba(56, 189, 248, 0.25);
+        --fl-accent: #38bdf8;
+        --fl-text: #e2e8f0;
+        --fl-muted: #94a3b8;
+    }
+
+    /* Volle Breite ohne Quetschung */
+    .forum-container { 
+        width: 100%; 
+        padding: 5px; 
+        box-sizing: border-box;
+        color: var(--fl-text);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    .fl-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--fl-bg);
+        padding: 18px 25px;
+        border-radius: 10px;
+        border: 1px solid var(--fl-border);
+        margin-bottom: 25px;
+    }
+
+    .fl-box { background: var(--fl-bg); border-radius: 10px; border: 1px solid var(--fl-border); margin-bottom: 30px; overflow: hidden; }
+    .fl-item { display: flex; padding: 18px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
+    .fl-item:hover { background: rgba(56, 189, 248, 0.05); }
+    
+    .fl-avatar-circle {
+        width: 50px; height: 50px; border-radius: 50%;
+        background: var(--fl-accent); color: #000; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; flex-shrink: 0; margin-right: 20px;
+        border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .fl-content-main { flex-grow: 1; min-width: 0; }
+    .fl-link-title { font-size: 16.5px; font-weight: 700; color: #fff; text-decoration: none; display: block; margin-bottom: 3px; }
+    .fl-link-title:hover { color: var(--fl-accent); }
+
+    /* Post Layout & Rankings */
+    .fl-post { display: flex; gap: 20px; padding: 25px; background: var(--fl-card); border-radius: 15px; border: 1px solid var(--fl-border); margin-bottom: 15px; }
+    .fl-author-info { width: 170px; flex-shrink: 0; text-align: center; border-right: 1px solid var(--fl-border); padding-right: 20px; }
+    .fl-rank-tag { font-size: 10px; color: var(--fl-accent); font-weight: 800; text-transform: uppercase; margin-top: 10px; display: block; background: rgba(56, 189, 248, 0.1); border-radius: 4px; padding: 2px; }
+    .fl-points { font-size: 11px; color: var(--fl-muted); margin-top: 8px; display: block; }
+    .fl-points b { color: #fff; }
+
+    .fl-post-body-container { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; }
+    .fl-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; color: var(--fl-muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+    .fl-post-text { flex-grow: 1; line-height: 1.75; font-size: 15px; color: #d1d5db; }
+
+    .fl-actions { display: flex; justify-content: flex-end; gap: 20px; margin-top: 15px; font-size: 12px; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+    .fl-action-btn { color: var(--fl-muted); cursor: pointer; text-decoration: none; }
+    .fl-action-btn:hover { color: var(--fl-accent); }
+
+    /* BB-Code Toolbar Design */
+    .editor-toolbar { display: flex; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid var(--fl-border); flex-wrap: wrap; }
+    .toolbar-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--fl-border); border-radius: 6px; color: #fff; cursor: pointer; transition: 0.2s; font-size: 16px; }
+    .toolbar-btn:hover { background: var(--fl-accent); color: #000; }
+    
+    .fl-btn-main { padding: 9px 18px; border-radius: 8px; background: var(--fl-accent); color: #000 !important; font-weight: 800; text-decoration: none; border: none; cursor: pointer; font-size: 13px; }
+</style>
+
+<div class="forum-container">
+
+    <div class="fl-header">
+        <h1 style="margin:0; font-size: 20px; font-weight: 800;">🌌 Galaktisches Terminal</h1>
+        <div style="display: flex; gap: 10px;">
+            {% if mode != 'index' %}<a href="game.php?page=forum" class="fl-btn-main" style="background: rgba(255,255,255,0.1); color: #fff !important;">🏠 Home</a>{% endif %}
+            <a href="game.php?page=forum&mode=search" class="fl-btn-main" style="background: rgba(255,255,255,0.1); color: #fff !important;">🔍 Suche</a>
+        </div>
+    </div>
+
+    {# INDEX #}
+    {% if mode == 'index' %}
+        {% for category in categories %}
+            <div class="fl-box">
+                <div style="padding: 10px 25px; background: rgba(56, 189, 248, 0.1); font-weight: 800; color: var(--fl-accent); font-size: 11px; text-transform: uppercase;">{{ category.title }}</div>
+                {% for sub in category.children %}
+                    <div class="fl-item">
+                        <div class="fl-avatar-circle" style="border-radius: 10px; background: {{ sub.color }}20; color: {{ sub.color }};">{{ sub.icon|default('📁') }}</div>
+                        <div class="fl-content-main">
+                            <a href="game.php?page=forum&mode=category&id={{ sub.id }}" class="fl-link-title">{{ sub.title }}</a>
+                            <div style="font-size: 13px; color: var(--fl-muted);">{{ sub.description }}</div>
+                        </div>
+                        <div style="text-align: right; min-width: 120px; font-size: 12px; color: var(--fl-muted);">
+                            <b style="color: var(--fl-accent)">{{ sub.topic_count }}</b> Themen<br>
+                            <b>{{ sub.post_count }}</b> Posts
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+    {# TOPIC (THREAD CONTENT) #}
+    {% elseif mode == 'topic' %}
+        <div style="margin-bottom: 20px;">
+            <a href="game.php?page=forum&mode=category&id={{ topic.category_id }}" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← Zum Sektor</a>
+            <h1 style="font-size: 26px; margin: 10px 0; color:#fff; font-weight: 800;">{{ topic.title }}</h1>
+        </div>
+
+        {% for post in posts %}
+            <div class="fl-post">
+                <div class="fl-author-info">
+                    <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|slice(0, 1)|upper }}</div>
+                    <a href="game.php?page=profile&id={{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username }}</a>
+                    <span class="fl-rank-tag">Platz {{ post.user_rank|default('?') }}</span>
+                    <span class="fl-points"><b>{{ post.user_points|number_format(0, ',', '.') }}</b> Pkt.</span>
+                </div>
+                <div class="fl-post-body-container">
+                    <div class="fl-post-header">
+                        <span>Signal-Eingang: {{ post.created_at|date('d.m.Y H:i') }}</span>
+                        {% if post.authlevel > 0 %}<span style="color: #f87171; font-weight: 900; font-size: 10px;">[STAFF]</span>{% endif %}
+                    </div>
+                    <div class="fl-post-text" id="post-data-{{ post.id }}">{{ post.content_html|raw }}</div>
+                    <div class="fl-actions">
+                        <span class="fl-action-btn" onclick="likePost({{ post.id }})">❤️ Like (<span id="lc-{{ post.id }}">{{ post.like_count|default(0) }}</span>)</span>
+                        <span class="fl-action-btn" onclick="quotePost('{{ post.username }}', 'post-data-{{ post.id }}')">💬 Zitieren</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        {% if not topic.is_locked %}
+            <div class="fl-box" style="padding: 25px;">
+                <h3 style="margin-top:0; font-size: 16px; font-weight: 800; color: var(--fl-accent); text-transform: uppercase;">📡 Übertragung senden</h3>
+                
+                {# BB-Code Toolbar #}
+                <div class="editor-toolbar">
+                    <button type="button" class="toolbar-btn" onclick="insertBB('b')"><b>B</b></button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('i')"><i>I</i></button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('u')"><u>U</u></button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('url')">🔗</button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('img')">🖼️</button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('quote')">❝</button>
+                </div>
+
+                <form action="game.php?page=forum&mode=topic&id={{ topic.id }}" method="POST">
+                    <input type="hidden" name="create_post" value="1">
+                    <textarea name="content" id="forum-content" style="width: 100%; height: 160px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 18px; font-family: inherit; font-size: 15px; margin-bottom: 15px;"></textarea>
+                    <button type="submit" class="fl-btn-main">🚀 Absenden</button>
+                </form>
+            </div>
+        {% endif %}
+    {% endif %}
+
+</div>
+
+<script>
+function insertBB(tag) {
+    const area = document.getElementById('forum-content');
+    const start = area.selectionStart;
+    const end = area.selectionEnd;
+    const text = area.value;
+    const sel = text.substring(start, end);
+    let res = "";
+    if(tag === 'url') res = "[url=https://]" + (sel || "Link") + "[/url]";
+    else res = "[" + tag + "]" + sel + "[/" + tag + "]";
+    area.value = text.substring(0, start) + res + text.substring(end);
+    area.focus();
+}
+
+function likePost(id) {
+    fetch('game.php?page=forum&mode=like&post_id=' + id, { method: 'POST' })
+    .then(r => r.json()).then(d => { if(d.success) {
+        let e = document.getElementById('lc-' + id);
+        e.innerText = parseInt(e.innerText) + (d.liked ? 1 : -1);
+        e.style.color = d.liked ? '#38bdf8' : '#94a3b8';
+    }});
+}
+
+function quotePost(user, dataId) {
+    const area = document.getElementById('forum-content');
+    const content = document.getElementById(dataId).innerText;
+    area.value += "[quote=" + user + "]" + content.substring(0, 150) + "...[/quote]\n";
+    area.focus();
+    area.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

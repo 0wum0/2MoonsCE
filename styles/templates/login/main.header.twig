@@ -6,6 +6,7 @@
 <!--[if (gt IE 9)|!(IE)]><!--> <html lang="{{ lang }}" class="no-js"> <!--<![endif]-->
 <head>
 	<link rel="stylesheet" type="text/css" href="styles/resource/css/login/styles.css">
+	<link rel="stylesheet" type="text/css" href="styles/resource/css/login/auth.css">
 	<link rel="stylesheet" href="styles/resource/font-awesome/4.5.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" type="text/css" href="styles/resource/css/base/jquery.fancybox.css">
 	<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
@@ -31,7 +32,14 @@
 	<script src="scripts/base/jquery.cookie.js"></script>
 	<script src="scripts/base/jquery.fancybox.js?v={{ REV }}"></script>
 	<script src="scripts/login/main.js"></script>
-	<script>{% if code is defined %}var loginError = {{ code|json_encode|raw }};{% endif %}</script>
+	<script>
+		window.LoginUI = window.LoginUI || {};
+		{% if code is defined %}
+		window.LoginUI.errorMessage = {{ code|json_encode|raw }};
+		{% else %}
+		window.LoginUI.errorMessage = null;
+		{% endif %}
+	</script>
 	{% block script %}{% endblock %}	
 </head>
-<body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }}">
+<body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }} auth-body">

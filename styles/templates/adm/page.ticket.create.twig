@@ -1,28 +1,27 @@
 {% include "overall_header.twig" %}
-<form action="admin.php?page=support&amp;mode=send" method="post" id="form">
-<input type="hidden" name="id" value="0">
-<table>
-	<tr>
-		<th colspan="2">{{ LNG.ti_create_head }}</th>
-	</tr>
-	<tr>
-		<td colspan="2" class="left">{{ LNG.ti_create_info }}</td>
-	</tr>
-	<tr>
-		<td style="width:30%"><label for="category">{{ LNG.ti_category }}</label></td>
-		<td style="width:70%"><select id="category" name="category">{% for key, value in categoryList %}<option value="{{ key }}">{{ value }}</option>{% endfor %}</select></td>
-	</tr>
-	<tr>
-		<td><label for="subject">{{ LNG.ti_subject }}</label></td>
-		<td><input class="validate[required]" type="text" id="subject" name="subject" size="40" maxlength="255"></td>
-	</tr>
-	<tr>
-		<td><label for="message">{{ LNG.ti_message }}</label></td>
-		<td><textarea class="validate[required]" id="message" name="message" row="60" cols="8" style="height:100px;"></textarea></td>
-	</tr>
-	<tr>
-		<td colspan="2"><input type="submit" value="{{ LNG.ti_submit }}"></td>
-	</tr>
-</table>
-</form>
+<style>
+    .adm-support-create { width: 100% !important; padding: 20px; box-sizing: border-box; }
+    .adm-card { background: rgba(13, 17, 23, 0.95); border: 1px solid #38bdf8; border-radius: 15px; padding: 30px; max-width: 800px; margin: 0 auto; }
+    .adm-input { width: 100% !important; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; }
+</style>
+
+<div class="adm-support-create">
+    <div class="adm-card">
+        <h2 style="color: #fff; margin-top: 0; text-transform: uppercase;">Neues Ticket (Intern)</h2>
+        <form action="admin.php?page=support&mode=send" method="post">
+            <input type="hidden" name="id" value="0">
+            
+            <label style="display: block; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">Benutzer-ID</label>
+            <input type="number" name="ownerID" class="adm-input" required>
+
+            <label style="display: block; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">Betreff</label>
+            <input type="text" name="subject" class="adm-input" required>
+
+            <label style="display: block; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">Nachricht</label>
+            <textarea name="message" class="adm-input" style="min-height: 200px;"></textarea>
+
+            <button type="submit" style="padding: 12px 30px; background: #38bdf8; color: #000; border: none; border-radius: 8px; font-weight: 900; cursor: pointer;">Ticket erstellen</button>
+        </form>
+    </div>
+</div>
 {% include "overall_footer.twig" %}

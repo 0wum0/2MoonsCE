@@ -1,14 +1,8 @@
 /*
  * @package AJAX_Chat
  * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license GNU Affero General Public License
- * @link https://blueimp.net/ajax/
- * 
- * Color palette inspired by Simple Machines Forum style "SMF Default Theme - Core":
- * http://www.simplemachines.org/
+ * * Ultimative SmartMoons Aerospace Anpassung (Main, Shoutbox, Logs & Mobile)
  */
-
 
 @import url('positions.css');
 @import url('borders.css');
@@ -16,166 +10,400 @@
 @import url('misc.css');
 @import url('print.css');
 
+@media screen, projection, handheld {
+    :focus { outline: 0 none; }
 
-/*
- * Colors
- */
+    /* =========================================================
+       1. BASIS & HAUPT-LAYOUT (Glass-Panel)
+       ========================================================= */
+    #content, body.ajax-chat {
+        color: #E0E0E0;
+        font-family: 'Titillium Web', 'Verdana', sans-serif;
+    }
+    
+    #content {
+        padding-bottom: 70px; /* Platz für schwebende Buttons */
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
 
-@media screen,projection,handheld {
-	:focus {
-		outline:0 none;
-	}
-	
-	#loginContent {
-		background-color:#E5E5E8;
-		color:#CCC;
-	}
-	#loginContent h1 {
-		color:#CCC;
-	}
-	#loginContent a {
-		color:#CCC;
-	}
-	#loginContent input, #loginContent select {
-		background-color:#FFF;
-		color:#CCC;
-	}
-	#loginContent #loginFormContainer #loginButton {
-		background-color:#F7F5F1;
-		color:#CCC;
-	}
-	#loginContent #errorContainer {
-		color:red;
-	}
-	
-	#content {
-		color:#CCC;
-        position: inherit;
-	}
-	#content h1 {
-		color:#CCC;
-	}
-	#content a {
-		color:#CCC;
-	}
-	#content input, #content select, #content textarea {
-		border:1px solid #212121;
-		background: #0D1014;
-		background: rgba(13, 16, 20, 0.95);
-		color:#CCC;
-		font-family:Verdana;
-		font-size:10px;
-	}
-	#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
-		background: #0D1014;
-		background: rgba(13, 16, 20, 0.95);
-		border: 0;
-	}
+    /* Glass-Panel Optik für alle Container */
+    #content #chatList, 
+    #content #onlineListContainer, 
+    #content #helpContainer, 
+    #content #settingsContainer,
+    body.ajax-chat #logoutChannelContainer {
+        background: rgba(13, 18, 28, 0.85);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 170, 255, 0.15);
+        border-radius: 8px;
+        box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6);
+        box-sizing: border-box;
+    }
+
+    /* Flex-Grid für den Haupt-Panel Container (loggedIn.html) */
+    body.ajax-chat #mainPanelContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        width: 100%;
+    }
+
+    /* Responsive Spalten (Desktop nebeneinander, Mobile untereinander) */
+    #content #chatList {
+        flex: 1 1 100%;
+        height: 350px;
+        overflow-y: auto;
+        padding: 5px;
+    }
+    #content #onlineListContainer {
+        flex: 1 1 100%;
+        padding: 10px;
+    }
+
+    @media (min-width: 768px) {
+        #content #chatList { flex: 1 1 calc(100% - 220px); }
+        #content #onlineListContainer { flex: 0 0 200px; }
+    }
+
+
+    /* =========================================================
+       2. KOPFZEILE, LOGOUT & LOGS (Archiv)
+       ========================================================= */
+    body.ajax-chat #logoutChannelContainer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+        gap: 10px;
+    }
+
+    body.ajax-chat #logoutChannelInner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    body.ajax-chat #logoutChannelContainer label {
+        color: #00AAFF;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    body.ajax-chat #logoutChannelContainer select,
+    body.ajax-chat #logoutChannelInner select {
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(0, 170, 255, 0.3);
+        color: #FFF;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    body.ajax-chat #logoutChannelContainer select:focus {
+        border-color: #00AAFF;
+        box-shadow: 0 0 8px rgba(0, 170, 255, 0.4);
+        outline: none;
+    }
+
+    /* Logout Button Styling */
+    #logoutButton {
+        background: rgba(255, 77, 77, 0.1);
+        border: 1px solid rgba(255, 77, 77, 0.4);
+        color: #FF4D4D;
+        padding: 4px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    #logoutButton:hover {
+        background: rgba(255, 77, 77, 0.3);
+        color: #FFF;
+    }
+
+
+    /* =========================================================
+       3. CHAT-VERLAUF & NACHRICHTEN
+       ========================================================= */
+    #content .rowEven, #content .rowOdd {
+        background: rgba(0, 170, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 5px 8px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+    }
+
+    /* Löschen-Button (Das "X") */
+    #content #chatList .delete {
+        background: rgba(255, 77, 77, 0.1) url('../img/delete.png') no-repeat center;
+        border: 1px solid rgba(255, 77, 77, 0.3);
+        border-radius: 3px;
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    #content #chatList .delete:hover {
+        background-color: rgba(255, 77, 77, 0.4);
+    }
+
+
+    /* =========================================================
+       4. SEITENLEISTEN (Online-Liste, Header)
+       ========================================================= */
+    #content #onlineListContainer h3,
+    #content #helpContainer h3,
+    #content #settingsContainer h3 {
+        background: linear-gradient(90deg, rgba(0, 170, 255, 0.25) 0%, transparent 80%);
+        border-bottom: 1px solid rgba(0, 170, 255, 0.4);
+        color: #00AAFF;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 11px;
+        padding: 5px 10px;
+        margin: -10px -10px 10px -10px;
+        border-radius: 8px 8px 0 0;
+    }
 
     #content #onlineListContainer #onlineList div > a {
-        padding-bottom: 2px;
-        padding-top: 4px;
+        padding: 5px 0;
+        display: block;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        font-size: 12px;
     }
 
-	.statusContainerOn {
-		background-image: url('../img/loading.png');
-	}
-	.statusContainerOff {
-		background-image: url('../img/loading-done.png');
-	}
-	.statusContainerAlert {
-		background-image: url('../img/loading-trouble.png');
-	}
-	#content #bbCodeContainer input, #content #submitButton {
-		margin:2px;
-		text-align:center;
-	}
-    #content #logoutChannelContainer {
-        display:none;
+
+    /* =========================================================
+       5. EINGABEBEREICH & BUTTONS (Unten)
+       ========================================================= */
+    #content #inputFieldContainer {
+        flex: 1 1 100%;
+        background: rgba(13, 18, 28, 0.85);
+        border: 1px solid rgba(0, 170, 255, 0.15);
+        border-radius: 8px;
+        padding: 10px;
+        box-sizing: border-box;
     }
 
-	#content #colorCodesContainer a {
-		border-color:black;
-	}
-	#content #optionsContainer input {
-	    background-color:transparent;
-	    border:0 none;
-	}
-	#content #optionsContainer #helpButton {
-	    background:url('../img/help.png') no-repeat;
-	}
-	#content #optionsContainer #settingsButton {
-	    background:url('../img/settings.png') no-repeat;
-	}
-	#content #optionsContainer #onlineListButton {
-	    background:url('../img/users.png') no-repeat;
-	}
-	#content #optionsContainer #audioButton {
-	    background:url('../img/audio.png') no-repeat;
-	}
-	#content #optionsContainer #audioButton.off {
-	    background:url('../img/audio-off.png') no-repeat;
-	}
-	#content #optionsContainer #autoScrollButton {
-	    background:url('../img/autoscroll.png') no-repeat;
-	}
-	#content #optionsContainer #autoScrollButton.off {
-	    background:url('../img/autoscroll-off.png') no-repeat;
-	}
-	#content .rowEven {
-		background: transparent
-	}
-	#content .rowOdd {
-		background: #212428;
-		background: rgba(33, 36, 40, 0.3);
-	}
-	#content .guest {
-		color:gray;
-	}
-	#content .user {
-		color:#CCC;
-	}
-	#content .moderator {
-		color:#0000FF;
-	}
-	#content .admin {
-		color:#FF0000;
-	}
-	#content .chatBot {
-		color:#476C8E;
-	}
-	#content #chatList .chatBotErrorMessage {
-		color:red;
-	}
-	#content #chatList a {
-		color:#476C8E;
-	}
-	#content #chatList .delete {
-		background:url('../img/delete.png') no-repeat right;
-	}
-	#content #chatList .deleteSelected {
-		border-color:red;
-	}
-	#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
-		background:url(../../styles/theme/gow/img/bkd_title.png);
-		color:#FFF;
-		font-weight:700;
-		height:22px;
-		line-height:18px;
-		text-align:left
-	}
-	#onlineListContainer h3 {
-		padding:2px 3px;
-	}
-	#content #settingsContainer > #settingsList input.playback {
-	    background:url('../img/playback.png') no-repeat;
-	}
-	#content #settingsContainer,
-	#content #helpContainer {
-		width: 200px;
-	}
-	#content #settingsContainer > #settingsList,
-	#content #helpContainer > #helpList{
-		padding: 10px;
-	}
+    #content textarea, #content input[type="text"] {
+        width: 100%;
+        border: 1px solid rgba(0, 170, 255, 0.3);
+        background: rgba(0, 0, 0, 0.6);
+        color: #FFF;
+        border-radius: 6px;
+        padding: 10px;
+        box-sizing: border-box;
+        font-size: 13px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    #content textarea:focus, #content input[type="text"]:focus {
+        border-color: #00AAFF;
+        box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+    }
+
+    /* Container für BBCode und Options-Buttons */
+    #content #bbCodeContainer,
+    #content #optionsContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+
+    #content #bbCodeContainer input[type="button"],
+    #content #optionsContainer input[type="button"],
+    #content #optionsContainer a {
+        background: rgba(0, 50, 80, 0.6);
+        border: 1px solid rgba(0, 170, 255, 0.3);
+        color: #00AAFF;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 11px;
+        cursor: pointer;
+        min-height: 26px;
+        transition: all 0.2s;
+    }
+
+    #content #bbCodeContainer input[type="button"]:hover,
+    #content #optionsContainer input[type="button"]:hover {
+        background: rgba(0, 170, 255, 0.2);
+        color: #FFF;
+        border-color: #00AAFF;
+    }
+
+    /* Icons via CSS (Ersetzt kaputte Hintergrundbilder) */
+    #content #optionsContainer input,
+    #content #optionsContainer a {
+        background-image: none !important;
+        font-weight: bold;
+    }
+    #content #optionsContainer #helpButton::before { content: "?"; }
+    #content #optionsContainer #settingsButton::before { content: "⚙"; }
+    #content #optionsContainer #onlineListButton::before { content: "👥"; }
+    #content #optionsContainer #audioButton::before { content: "🔊"; }
+    #content #optionsContainer #audioButton.off::before { content: "🔇"; color: #FF4D4D; }
+    #content #optionsContainer #autoScrollButton::before { content: "⬇"; }
+    #content #optionsContainer #autoScrollButton.off::before { content: "⊘"; color: #FF4D4D; }
+
+    /* Absenden & Zeichenzähler */
+    #content #submitButtonContainer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        margin-top: 5px;
+    }
+    #content #submitButtonContainer > div {
+        color: #8899A6;
+        font-size: 11px;
+    }
+    #content #submitButton {
+        background: linear-gradient(180deg, #0077B5 0%, #005580 100%);
+        color: #FFF;
+        border: 1px solid #00AAFF;
+        padding: 8px 24px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    #content #submitButton:hover {
+        background: linear-gradient(180deg, #00AAFF 0%, #0077B5 100%);
+    }
+
+
+    /* =========================================================
+       6. EINSTELLUNGEN & HILFE (Das <dl> / <dt> Layout)
+       ========================================================= */
+    body.ajax-chat #settingsList dl,
+    body.ajax-chat #helpList dl {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 8px 0;
+        margin: 0;
+    }
+
+    body.ajax-chat #settingsList dt,
+    body.ajax-chat #helpList dt {
+        flex: 1 1 60%;
+        color: #00AAFF;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    body.ajax-chat #settingsList dd,
+    body.ajax-chat #helpList dd {
+        flex: 0 0 auto;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    body.ajax-chat #settingsList input[type="text"],
+    body.ajax-chat #settingsList select {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(0, 170, 255, 0.3);
+        color: #FFF;
+        border-radius: 3px;
+        padding: 2px 5px;
+        width: 60px; 
+    }
+
+    /* Popups für Mobile (z.B. Settings) */
+    body.ajax-chat .popup {
+        position: absolute !important;
+        top: 50px !important;
+        right: 10px !important;
+        z-index: 9999;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8) !important;
+        background: rgba(10, 15, 20, 0.95) !important;
+        border: 1px solid #00AAFF !important;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+
+    /* =========================================================
+       7. ROLLEN-FARBEN & LINKS
+       ========================================================= */
+    #content .guest { color: #A0B0C0; } 
+    #content .user { color: #E0E0E0; } 
+    #content .moderator { color: #00FF88; }
+    #content .admin { color: #FF3366; font-weight: bold; }
+    #content .chatBot { color: #00BBFF; font-style: italic; }
+    
+    #content a { color: #00AAFF; text-decoration: none; }
+    #content a:hover { color: #FFF; text-shadow: 0 0 5px rgba(0, 170, 255, 0.8); }
+
+
+    /* =========================================================
+       8. SHOUTBOX SPEZIAL (Der Mini-Chat in der Übersicht)
+       ========================================================= */
+    #ajaxChatContent {
+        background: rgba(13, 18, 28, 0.85);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 170, 255, 0.15);
+        border-radius: 8px;
+        box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        color: #E0E0E0;
+        font-family: 'Titillium Web', 'Verdana', sans-serif;
+    }
+
+    #ajaxChatChatList {
+        height: 200px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        padding-right: 5px;
+    }
+
+    #ajaxChatChatList .rowEven, 
+    #ajaxChatChatList .rowOdd {
+        background: rgba(0, 170, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 4px;
+        margin-bottom: 2px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    #ajaxChatInputFieldContainer input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(0, 170, 255, 0.3);
+        color: #FFF;
+        padding: 8px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+    #ajaxChatInputFieldContainer input:focus {
+        border-color: #00AAFF;
+        box-shadow: 0 0 8px rgba(0, 170, 255, 0.4);
+        outline: none;
+    }
+
+    #ajaxChatCopyright {
+        font-size: 9px;
+        text-align: center;
+        margin-top: 8px;
+        opacity: 0.4;
+    }
+    #ajaxChatCopyright a {
+        color: #00AAFF;
+        text-decoration: none;
+    }
 }

@@ -1,50 +1,149 @@
 {% include "overall_header.twig" %}
-<table width="70%" cellpadding="2" cellspacing="2">
-	<tr>
-		<th colspan="6">{{ LNG.ti_header }}</th>
-	</tr>
-	<tr>
-		<th style="width:10%">{{ LNG.ti_id }}</td>
-		<th style="width:10%">{{ LNG.ti_username }}</td>
-		<th style="width:40%">{{ LNG.ti_subject }}</td>
-		<th style="width:10%">{{ LNG.ti_answers }}</td>
-		<th style="width:15%">{{ LNG.ti_date }}</td>
-		<th style="width:15%">{{ LNG.ti_status }}</td>
-	</tr>
-	{% for TicketID, TicketInfo in ticketList %}	
-	{% if TicketInfo.status < 2 %}
-	<tr>
-		<td><a href="admin.php?page=support&amp;mode=view&amp;id={{ TicketID }}">#{{ TicketID }}</a></td>
-		<td><a href="admin.php?page=support&amp;mode=view&amp;id={{ TicketID }}">{{ TicketInfo.username }}</a></td>
-		<td><a href="admin.php?page=support&amp;mode=view&amp;id={{ TicketID }}">{{ TicketInfo.subject }}</a></td>
-		<td>{{ TicketInfo.answer - 1 }}</td>
-		<td>{{ TicketInfo.time }}</td>
-		<td>{% if TicketInfo.status == 0 %}<span style="color:green">{{ LNG.ti_status_open }}</span>{% elseif TicketInfo.status == 1 %}<span style="color:orange">{{ LNG.ti_status_answer }}</span>{% endif %}</td>
-	</tr>
-	{% endif %}
-	{% endfor %}
-	<tr>
-		<th colspan="6">{{ LNG.ti_status_closed }}</th>
-	</tr>
-	<tr>
-		<th style="width:10%">{{ LNG.ti_id }}</td>
-		<th style="width:10%">{{ LNG.ti_username }}</td>
-		<th style="width:40%">{{ LNG.ti_subject }}</td>
-		<th style="width:10%">{{ LNG.ti_answers }}</td>
-		<th style="width:15%">{{ LNG.ti_date }}</td>
-		<th style="width:15%">{{ LNG.ti_status }}</td>
-	</tr>
-	{% for TicketID, TicketInfo in ticketList %}	
-	{% if TicketInfo.status == 2 %}
-	<tr>
-		<td><a href="admin.php?page=support&amp;mode=view&amp;id={{ TicketID }}">#{{ TicketID }}</a></td>
-		<td><a href="admin.php?page=support&amp;mode=view&amp;id={{ TicketID }}">{{ TicketInfo.username }}</a></td>
-		<td><a href="admin.php?page=support&amp;mode=view&amp;id={{ TicketID }}">{{ TicketInfo.subject }}</a></td>
-		<td>{{ TicketInfo.answer - 1 }}</td>
-		<td>{{ TicketInfo.time }}</td>
-		<td><span style="color:red">{{ LNG.ti_status_closed }}</span></td>
-	</tr>
-	{% endif %}
-	{% endfor %}
-</table>
+<style>
+    /* Galactic Admin Support Style (Ref: 1000248241.png) */
+    :root {
+        --galactic-bg: #0d1117;
+        --galactic-border: rgba(56, 189, 248, 0.25);
+        --galactic-accent: #38bdf8;
+        --galactic-glow: rgba(56, 189, 248, 0.5);
+    }
+
+    .support-admin-container {
+        width: 100% !important;
+        padding: 10px;
+        box-sizing: border-box;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    .galactic-header {
+        display: flex;
+        align-items: center;
+        background: rgba(13, 17, 23, 0.9);
+        border: 1px solid var(--galactic-border);
+        border-radius: 15px;
+        padding: 20px 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .galactic-header-icon {
+        font-size: 40px;
+        color: var(--galactic-accent);
+        margin-right: 20px;
+        filter: drop-shadow(0 0 10px var(--galactic-glow));
+    }
+
+    .galactic-title {
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--galactic-accent);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin: 0;
+        text-shadow: 0 0 15px var(--galactic-glow);
+    }
+
+    .galactic-card {
+        background: rgba(13, 17, 23, 0.95);
+        border: 1px solid var(--galactic-border);
+        border-radius: 15px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .galactic-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .galactic-table th {
+        background: rgba(56, 189, 248, 0.08);
+        padding: 15px 20px;
+        text-align: left;
+        color: #8b949e;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 1px solid var(--galactic-border);
+    }
+
+    .galactic-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: #e2e8f0;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .galactic-row:hover {
+        background: rgba(56, 189, 248, 0.03);
+    }
+
+    .col-id { color: #8b949e; font-family: monospace; font-size: 13px; width: 60px; }
+    .col-user { color: var(--galactic-accent); font-weight: 600; width: 120px; }
+    .col-subject { font-weight: 700; font-size: 15px; }
+    .col-subject a { color: #fff; text-decoration: none; transition: 0.2s; }
+    .col-subject a:hover { color: var(--galactic-accent); }
+
+    /* Status Badges (Ref Style) */
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        display: inline-block;
+        border: 1px solid transparent;
+        letter-spacing: 0.5px;
+    }
+    .status-open { background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: #22c55e; }
+    .status-answered { background: rgba(234, 179, 8, 0.1); color: #eab308; border-color: #eab308; }
+    .status-closed { background: rgba(248, 113, 113, 0.05); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
+
+    .ans-count { color: var(--galactic-accent); font-weight: 800; }
+</style>
+
+<div class="support-admin-container">
+    <div class="galactic-header">
+        <div class="galactic-header-icon">🎧</div>
+        <h1 class="galactic-title">Support-System</h1>
+    </div>
+
+    <div class="galactic-card">
+        <table class="galactic-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Benutzer</th>
+                    <th>Betreff</th>
+                    <th style="text-align: center;">Antworten</th>
+                    <th>Datum</th>
+                    <th style="text-align: right;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for TicketID, TicketInfo in ticketList %}	
+                <tr class="galactic-row">
+                    <td class="col-id">#{{ TicketID }}</td>
+                    <td class="col-user">{{ TicketInfo.username }}</td>
+                    <td class="col-subject">
+                        <a href="admin.php?page=support&mode=view&id={{ TicketID }}">{{ TicketInfo.subject }}</a>
+                    </td>
+                    <td style="text-align: center;" class="ans-count">{{ TicketInfo.answer - 1 }}</td>
+                    <td style="color: #8b949e; font-size: 12px;">{{ TicketInfo.time }}</td>
+                    <td style="text-align: right;">
+                        {% if TicketInfo.status == 0 %}
+                            <span class="status-badge status-open">{{ LNG.ti_status_open }}</span>
+                        {% elseif TicketInfo.status == 1 %}
+                            <span class="status-badge status-answered">{{ LNG.ti_status_answer }}</span>
+                        {% else %}
+                            <span class="status-badge status-closed">{{ LNG.ti_status_closed }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% include "overall_footer.twig" %}

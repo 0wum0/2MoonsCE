@@ -1,19 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 /**
- *  2Moons 
- *   by Jan-Otto Kröpke 2009-2016
- *
- * For the full copyright and license information, please view the LICENSE
- *
- * @package 2Moons
- * @author Jan-Otto Kröpke <slaver7@gmail.com>
- * @copyright 2009 Lucky
- * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
- * @licence MIT
- * @version 1.8.0
- * @link https://github.com/jkroepke/2Moons
+ * SmartMoons Support - User Controller
+ * Dateipfad: includes/pages/game/ShowTicketPage.class.php
  */
 
 class ShowTicketPage extends AbstractGamePage
@@ -46,85 +37,77 @@ class ShowTicketPage extends AbstractGamePage
 
 		$ticketList		= array();
 		
-		foreach($ticketResult as $ticketRow) {
+		foreach($ticketResult as $ticketRow)
+		{
 			$ticketRow['time']	= _date($LNG['php_tdformat'], $ticketRow['time'], $USER['timezone']);
-
 			$ticketList[$ticketRow['ticketID']]	= $ticketRow;
 		}
-		
+
 		$this->assign(array(
-			'ticketList'	=> $ticketList
+			'ticketList'	=> $ticketList,
+			'categoryList'	=> $this->ticketObj->getCategoryList(),
 		));
-			
-		$this->display('page.ticket.default.tpl');
+		
+		$this->display('page.ticket.default.twig');
 	}
 	
-	function create() 
+	public function create()
 	{
-		$categoryList	= $this->ticketObj->getCategoryList();
-		
 		$this->assign(array(
-			'categoryList'	=> $categoryList,
+			'categoryList'	=> $this->ticketObj->getCategoryList(),
 		));
-			
-		$this->display('page.ticket.create.tpl');		
+		
+		$this->display('page.ticket.create.twig');
 	}
 	
-	function send() 
+	public function send()
 	{
 		global $USER, $LNG;
-				
+		
 		$ticketID	= HTTP::_GP('id', 0);
 		$categoryID	= HTTP::_GP('category', 0);
-		$message	= HTTP::_GP('message', '', true);
 		$subject	= HTTP::_GP('subject', '', true);
+		$message	= HTTP::_GP('message', '', true);
 		
-		if(empty($message)) {
-			if(empty($ticketID)) {
-				$this->redirectTo('game.php?page=ticket&mode=create');
-			} else {
-				$this->redirectTo('game.php?page=ticket&mode=view&id='.$ticketID);
-			}
+		if (empty($message)) {
+			$this->redirectTo('game.php?page=ticket');
 		}
 
-		if(empty($ticketID))
-		{
-			if(empty($subject))
-			{
-				$this->printMessage($LNG['ti_error_no_subject'], array(array(
-					'label'	=> $LNG['sys_back'],
-					'url'	=> 'javascript:window.history.back()'
-				)));
+		if ($ticketID == 0) {
+			if (empty($subject) || empty($categoryID)) {
+				$this->redirectTo('game.php?page=ticket');
 			}
-
-			$ticketID	= $this->ticketObj->createTicket($USER['id'], $categoryID, $subject);
+			$ticketID	= $this->ticketObj->createTicket($USER['id'], $USER['username'], $categoryID, $subject, $message);
 		} else {
 			$db = Database::get();
-
-			$sql = "SELECT status FROM %%TICKETS%% WHERE ticketID = :ticketID;";
-			$ticketStatus = $db->selectSingle($sql, array(
-				':ticketID'	=> $ticketID
+			$sql = "SELECT status FROM %%TICKETS%% WHERE ticketID = :ticketID AND ownerID = :userID;";
+			$status = $db->selectSingle($sql, array(
+				':ticketID'	=> $ticketID,
+				':userID'	=> $USER['id']
 			), 'status');
-
-			if ($ticketStatus == 2)
-			{
-				$this->printMessage($LNG['ti_error_closed']);
-			}
-		}
 			
-		$this->ticketObj->createAnswer($ticketID, $USER['id'], $USER['username'], $subject, $message, 0);
+			if($status >= 2) {
+				$this->redirectTo('game.php?page=ticket');
+			}
+			
+			$this->ticketObj->createAnswer($ticketID, $USER['id'], $USER['username'], $subject, $message, 0);
+		}
+		
 		$this->redirectTo('game.php?page=ticket&mode=view&id='.$ticketID);
 	}
 	
-	function view() 
+	public function view() 
 	{
 		global $USER, $LNG;
 		
-		require_once 'includes/classes/BBCode.class.php';
+		// BBCode Klasse laden und Objekt erstellen (Fix für PHP 8.3 static error)
+		if (!class_exists('BBCode')) {
+			require_once 'includes/classes/BBCode.class.php';
+		}
+		$bbcode = new BBCode();
 
 		$db = Database::get();
-
-		$ticketID			= HTTP::_GP('id', 0);
+		$ticketID = HTTP::_GP('id', 0);
 
 		$sql = "SELECT a.*, t.categoryID, t.status FROM %%TICKETS_ANSWER%% a INNER JOIN %%TICKETS%% t USING(ticketID) WHERE a.ticketID = :ticketID AND t.ownerID = :userID ORDER BY a.answerID;";
 		$answerResult = $db->select($sql, array(
@@ -132,36 +115,30 @@ class ShowTicketPage extends AbstractGamePage
 			':userID'	=> $USER['id']
 		));
 
-		$answerList			= array();
-
 		if(empty($answerResult)) {
-			$this->printMessage(sprintf($LNG['ti_not_exist'], $ticketID), array(array(
-				'label'	=> $LNG['sys_back'],
-				'url'	=> 'game.php?page=ticket'
-			)));
+			$this->redirectTo('game.php?page=ticket');
 		}
 
+		$answerList	= array();
 		$ticket_status = 0;
 
 		foreach($answerResult as $answerRow) {
-			$answerRow['time']		= _date($LNG['php_tdformat'], $answerRow['time'], $USER['timezone']);
-			$answerRow['message']	= BBCode::parse($answerRow['message']);
-			$answerList[$answerRow['answerID']]	= $answerRow;
-			if (empty($ticket_status))
-			{
+			if (empty($ticket_status)) {
 				$ticket_status = $answerRow['status'];
 			}
+			$answerRow['time'] = _date($LNG['php_tdformat'], $answerRow['time'], $USER['timezone']);
+			// FIX: Dynamischer Aufruf statt statisch
+			$answerRow['message'] = $bbcode->parse($answerRow['message']);
+			$answerList[$answerRow['answerID']] = $answerRow;
 		}
 
-		$categoryList	= $this->ticketObj->getCategoryList();
-		
 		$this->assign(array(
-			'ticketID'		=> $ticketID,
-			'categoryList'	=> $categoryList,
 			'answerList'	=> $answerList,
+			'ticketID'		=> $ticketID,
+			'categoryList'	=> $this->ticketObj->getCategoryList(),
 			'status'		=> $ticket_status,
 		));
-			
-		$this->display('page.ticket.view.tpl');		
+		
+		$this->display('page.ticket.view.twig');
 	}
 }

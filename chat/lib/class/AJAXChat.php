@@ -2000,7 +2000,7 @@ class AJAXChat {
 		) {
 		$message = '<message';
 		$message .= ' id="'.$messageID.'"';
-		$message .= ' dateTime="'.date('r', $timeStamp).'"';
+		$message .= ' dateTime="'.date('r', (int)$timeStamp).'"';
 		$message .= ' userID="'.$userID.'"';
 		$message .= ' userRole="'.$userRole.'"';
 		$message .= ' channelID="'.$channelID.'"';
@@ -2122,7 +2122,7 @@ class AJAXChat {
 			$message = '';
 			$message .= '<message';
 			$message .= ' id="'.$row['id'].'"';
-			$message .= ' dateTime="'.date('r', $row['timeStamp']).'"';
+			$message .= ' dateTime="'.date('r', (int)$row['timeStamp']).'"';
 			$message .= ' userID="'.$row['userID'].'"';
 			$message .= ' userRole="'.$row['userRole'].'"';
 			$message .= ' channelID="'.$row['channelID'].'"';
@@ -2286,7 +2286,7 @@ class AJAXChat {
 		while($row = $result->fetch()) {
 			$xml .= '<message';
 			$xml .= ' id="'.$row['id'].'"';
-			$xml .= ' dateTime="'.date('r', $row['timeStamp']).'"';
+			$xml .= ' dateTime="'.date('r', (int)$row['timeStamp']).'"';
 			$xml .= ' userID="'.$row['userID'].'"';
 			$xml .= ' userRole="'.$row['userRole'].'"';
 			$xml .= ' channelID="'.$row['channelID'].'"';

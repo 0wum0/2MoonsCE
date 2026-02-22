@@ -23,7 +23,7 @@
     </a>
 
     <div class="dock-fab-wrapper">
-        <a href="game.php?page=fleetTable" class="dock-fab">
+        <a href="game.php?page=fleetTable" class="dock-fab{% if GET.page|default('') == 'fleetTable' %} dock-fab-active{% endif %}">
             <div class="fab-inner">
                 <i class="fas fa-rocket"></i>
             </div>
@@ -41,7 +41,8 @@
     </a>
 </nav>
 
-<button id="chat-fab" class="chat-fab" onclick="SmartChat.toggle();return false;" aria-label="Chat öffnen">
+<!-- chat-fab: NUR Desktop sichtbar (Mobile nutzt Dock-Chat-Button) -->
+<button id="chat-fab" class="chat-fab chat-fab-desktop-only" onclick="SmartChat.toggle();return false;" aria-label="Chat öffnen">
     <i class="fas fa-comments"></i>
     <span id="chat-fab-indicator" class="chat-fab-indicator"></span>
 </button>

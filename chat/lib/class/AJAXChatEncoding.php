@@ -80,11 +80,13 @@ class AJAXChatEncoding {
 	}
 
 	public static function encodeSpecialChars($str) {
-		return strtr($str, AJAXChatEncoding::getSpecialChars());
+		// PHP 8.x Fix: strtr requires string type
+		return strtr((string)$str, AJAXChatEncoding::getSpecialChars());
 	}
 
 	public static function decodeSpecialChars($str) {
-		return strtr($str, array_flip(AJAXChatEncoding::getSpecialChars()));
+		// PHP 8.x Fix: strtr requires string type
+		return strtr((string)$str, array_flip(AJAXChatEncoding::getSpecialChars()));
 	}
 
 	public static function encodeEntities($str, $encoding='UTF-8', $convmap=null) {
@@ -96,7 +98,8 @@ class AJAXChatEncoding {
 
 	public static function decodeEntities($str, $encoding='UTF-8', $htmlEntitiesMap=null) {
 		// Due to PHP bug #25670, html_entity_decode does not work with UTF-8 for PHP versions < 5:
-		if(function_exists('html_entity_decode') && PHP_VERSION_ID >= 50000) {
+		$phpVersion = (string) phpversion();
+		if(function_exists('html_entity_decode') && $phpVersion !== '' && version_compare($phpVersion, '5.0.0', '>=')) {
 			// Replace numeric and literal entities:
 			$str = html_entity_decode($str, ENT_QUOTES, $encoding);
 			// Replace additional literal HTML entities if an HTML entities map is given:

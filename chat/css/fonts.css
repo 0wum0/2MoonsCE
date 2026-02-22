@@ -1,91 +1,88 @@
-#loginContent {
-	font-family:Verdana, Arial, Helvetica, sans-serif;
-	font-size:0.8em;
+/*
+ * @package AJAX_Chat
+ * * Bereinigte fonts.css (Aerospace Theme Typography)
+ */
+
+#loginContent, #content {
+	font-family: 'Titillium Web', 'Roboto', 'Segoe UI', Tahoma, sans-serif;
+	font-size: 13px;
+    line-height: 1.5;
 }
-#loginContent h1 {
-	font-size:1.3em;
-	font-family:"Trebuchet MS", Verdana, Arial, sans-serif;
-	font-weight:bold;
+
+#loginContent h1, #content h1 {
+	font-size: 1.4em;
+	font-family: 'Titillium Web', 'Orbitron', 'Segoe UI', sans-serif;
+	font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
-#loginContent a {
-	text-decoration:none;
+
+#loginContent a, #content a {
+	text-decoration: none;
 }
-#loginContent a:hover {
-	text-decoration:underline;
+#loginContent a:hover, #content a:hover {
+	text-decoration: underline;
 }
-#loginContent #loginRegisteredUsers {
-    font-size:0.8em;
-}
-#loginContent #copyright {
-	font-size:0.8em;
-}
-#content {
-	font-family:Verdana, Arial, Helvetica, sans-serif;
-	font-size:0.8em;
-}
-#content h1 {
-	font-size:1.3em;
-	font-family:"Trebuchet MS", Verdana, Arial, sans-serif;
-	font-weight:bold;
-}
-#content h3 {
-	font-size:1.0em;
-}
-#content a {
-	text-decoration:none;
-}
-#content a:hover {
-	text-decoration:underline;
-}
+
+#loginContent #loginRegisteredUsers, 
+#loginContent #copyright,
 #content #copyright {
-	font-size:0.8em;
+	font-size: 11px;
+    opacity: 0.6;
 }
+
+#content h3 {
+	font-size: 1.1em;
+}
+
+/* Zeitstempel im Chat (klein und dezent) */
 #content #chatList span.dateTime {
-	font-size:0.7em;
+	font-size: 10px;
+    color: #8899A6;
+    margin-right: 5px;
 }
-#content #chatList span.guest {
-	font-weight:bold;
-}
-#content #chatList span.user {
-	font-weight:bold;
-}
-#content #chatList span.customUser {
-	font-weight:bold;
-}
-#content #chatList span.moderator {
-	font-weight:bold;
-}
-#content #chatList span.admin {
-	font-weight:bold;
-}
+
+/* User-Namen fett machen, damit sie sich vom Text abheben */
+#content #chatList span.guest,
+#content #chatList span.user,
+#content #chatList span.customUser,
+#content #chatList span.moderator,
+#content #chatList span.admin,
 #content #chatList span.chatBot {
-	font-weight:bold;
-	font-style:italic;
+	font-weight: bold;
 }
-#content #chatList .chatBotMessage {
-	font-style:italic;
-}
-#content #chatList .chatBotErrorMessage {
-	font-style:italic;
-}
-#content #chatList .privmsg {
-	font-style:italic;
-}
+
+/* Bot-Nachrichten und System-Infos kursiv */
+#content #chatList span.chatBot,
+#content #chatList .chatBotMessage,
+#content #chatList .chatBotErrorMessage,
+#content #chatList .privmsg,
 #content #chatList .action {
-	font-style:italic;
+	font-style: italic;
 }
+
 #content #chatList q {
-	font-variant:small-caps;
+	font-style: italic;
+    color: #A0B0C0;
 }
+
 #content #chatList code {
-    font-size:1.2em;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: #00E676; /* Hacker-Grün für Code-Snippets */
 }
-#content #onlineListContainer #onlineList div {
-	font-size:0.9em;
+
+/* Listen und Container-Texte */
+#content #onlineListContainer #onlineList div,
+#content #helpContainer #helpList, 
+#content #settingsContainer #settingsList {
+	font-size: 12px;
 }
-#content #helpContainer #helpList, #content #settingsContainer #settingsList {
-	font-size:0.9em;
-}
+
 #content #helpContainer #helpList dd {
-	font-style:italic;
+	font-style: italic;
+    color: #A0B0C0;
 }

@@ -1,48 +1,93 @@
 {% include "overall_header.twig" %}
-<form action="admin.php?page=support&mode=send" method="post" id="form">
-<input type="hidden" name="id" value="{{ ticketID }}">
-<table width="70%" cellpadding="2" cellspacing="2">
-	{% for answerID, answerRow in answerList %}	
-	{% if loop.first %}
-	<tr>
-		<th colspan="2"><a href="admin.php?page=support">{{ LNG.ti_overview }}</a></th>
-	</tr>
-	<tr>
-		<th colspan="2">{{ LNG.ti_read }} :: {{ answerRow.subject }}</th>
-	</tr>
-	{% endif %}
-	<tr>
-		<td class="left" colspan="2">
-			<p>{% if not loop.first %}
-				<b>{{ LNG.ti_subject }}: {{ answerRow.subject }}</b><br>
-			{{ LNG.ti_responded }}: <b>{{ answerRow.time }}</b> {{ LNG.ti_from }} <b>{{ answerRow.ownerName }}</b>
-			{% endif %}
-			{% if loop.first %}
-			{{ LNG.ti_create }}: <b>{{ answerRow.time }}</b> {{ LNG.ti_from }} <b>{{ answerRow.ownerName }}</b>
-				<br>{{ LNG.ti_category }}: {{ categoryList[answerRow.categoryID] }}
-			{% endif %}
-			</p>
-			<hr>
-			<p>
-				{{ answerRow.message }}
-			</p>
-		</td>
-	</tr>
-	{% endfor %}
-	<tr>
-		<th colspan="2">{{ LNG.ti_answer }}</th>
-	</tr>
-	<tr>
-		<td style="width:30%"><label for="message">{{ LNG.ti_message }}</label></td>
-		<td style="width:70%"><textarea class="validate[required]" id="message" name="message" row="60" cols="8" style="height:100px;"></textarea></td>
-	</tr>
-	<tr>
-		<td style="width:30%">{% if ticket_status < 2 %}{{ LNG.ti_close }}{% else %}{{ LNG.ti_open }}{% endif %}</td>
-		<td style="width:70%"><input type="checkbox" name="change_status" value="1"></td>
-	</tr>	
-	<tr>
-		<td colspan="2"><input type="submit" value="{{ LNG.ti_submit }}" onclick="parent.rightFrame.document.location.reload();"></td>
-	</tr>
-</table>
-</form>
+<style>
+    .support-view-container { width: 100% !important; padding: 15px; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    .msg-card { background: rgba(22, 27, 34, 0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .msg-header { border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .msg-author { color: #38bdf8; font-weight: 800; font-size: 16px; text-transform: uppercase; }
+    .msg-date { color: #8b949e; font-size: 12px; }
+    .msg-content { color: #d1d5db; line-height: 1.8; font-size: 15px; word-wrap: break-word; }
+
+    .reply-box { background: rgba(13, 17, 23, 0.98); border: 1px solid #38bdf8; border-radius: 15px; padding: 25px; margin-top: 30px; }
+    .adm-textarea { 
+        width: 100% !important; 
+        min-height: 200px; 
+        background: rgba(0,0,0,0.5); 
+        color: #fff; 
+        border: 1px solid rgba(56, 189, 248, 0.3); 
+        padding: 15px; 
+        border-radius: 10px; 
+        font-family: inherit; 
+        font-size: 15px; 
+        resize: vertical; 
+        box-sizing: border-box;
+        margin-bottom: 15px;
+    }
+    
+    .bb-toolbar { display: flex; gap: 8px; margin-bottom: 12px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; }
+    .bb-btn { padding: 6px 14px; background: #38bdf8; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: 900; font-size: 12px; transition: 0.2s; }
+    .bb-btn:hover { transform: scale(1.1); background: #fff; }
+
+    .btn-submit { padding: 12px 30px; background: #38bdf8; color: #000; border: none; border-radius: 8px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+    .btn-submit:hover { box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+</style>
+
+<div class="support-view-container">
+    <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <a href="admin.php?page=support" style="color: #38bdf8; text-decoration: none; font-weight: 800; font-size: 13px;">← ÜBERSICHT</a>
+            <h2 style="color: #fff; margin: 10px 0 0 0;">{{ answerList|first.subject }}</h2>
+        </div>
+        <div style="color: #8b949e; font-size: 12px;">Ticket #{{ ticketID }}</div>
+    </div>
+
+    {% for row in answerList %}
+    <div class="msg-card">
+        <div class="msg-header">
+            <span class="msg-author">👤 {{ row.ownerName }}</span>
+            <span class="msg-date">📅 {{ row.time }}</span>
+        </div>
+        <div class="msg-content">
+            {# BBCode Render mit raw #}
+            {{ row.message|raw }}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="reply-box">
+        <h3 style="color: #38bdf8; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">Antwort verfassen</h3>
+        
+        <div class="bb-toolbar">
+            <button type="button" class="bb-btn" onclick="addBB('b')">B</button>
+            <button type="button" class="bb-btn" onclick="addBB('i')">I</button>
+            <button type="button" class="bb-btn" onclick="addBB('quote')">Zitat</button>
+            <button type="button" class="bb-btn" onclick="addBB('url')">Link</button>
+        </div>
+
+        <form action="admin.php?page=support&mode=send" method="post">
+            <input type="hidden" name="id" value="{{ ticketID }}">
+            <textarea name="message" id="message" class="adm-textarea" required placeholder="Nachricht an den Kommandanten..."></textarea>
+            
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button type="submit" class="btn-submit">🚀 Antwort senden</button>
+                <select name="change_status" style="padding: 11px; background: #000; color: #fff; border: 1px solid #333; border-radius: 8px;">
+                    <option value="0">Status nicht ändern</option>
+                    <option value="1">Ticket schließen</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function addBB(tag) {
+    const area = document.getElementById('message');
+    const start = area.selectionStart;
+    const end = area.selectionEnd;
+    const text = area.value;
+    const sel = text.substring(start, end);
+    const res = "[" + tag + "]" + sel + "[/" + tag + "]";
+    area.value = text.substring(0, start) + res + text.substring(end);
+    area.focus();
+}
+</script>
 {% include "overall_footer.twig" %}

@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 /**
  *  2Moons 
  *   by Jan-Otto Kröpke 2009-2016
@@ -16,10 +14,17 @@ declare(strict_types=1);
  * @version 1.8.0
  * @link https://github.com/jkroepke/2Moons
  */
-
 define('DB_VERSION_REQUIRED', 4);
 define('DB_NAME'			, $databaseConfig['dbname']);
 define('DB_PREFIX'			, $databaseConfig['prefix']);
+
+
+define('DB_PREFIX_FORUM_CATEGORIES', DB_PREFIX.'forum_categories');
+define('DB_PREFIX_FORUM_TOPICS', DB_PREFIX.'forum_topics');
+define('DB_PREFIX_FORUM_POSTS', DB_PREFIX.'forum_posts');
+define('DB_PREFIX_FORUM_POST_LIKES', DB_PREFIX.'forum_post_likes');
+define('DB_PREFIX_FORUM_MENTIONS', DB_PREFIX.'forum_mentions');
+define('DB_PREFIX_FORUM_SUBSCRIPTIONS', DB_PREFIX.'forum_subscriptions');
 
 // Data Tabells
 $dbTableNames	= array(
@@ -43,6 +48,13 @@ $dbTableNames	= array(
 	'DIPLO'				=> DB_PREFIX.'diplo',
 	'FLEETS'			=> DB_PREFIX.'fleets',
 	'FLEETS_EVENT'		=> DB_PREFIX.'fleet_event',
+	// ✅ FORUM SYSTEM
+	'FORUM_CATEGORIES'	=> DB_PREFIX.'forum_categories',
+	'FORUM_TOPICS'		=> DB_PREFIX.'forum_topics',
+	'FORUM_POSTS'		=> DB_PREFIX.'forum_posts',
+	'FORUM_POST_LIKES'	=> DB_PREFIX.'forum_post_likes',
+	'FORUM_MENTIONS'	=> DB_PREFIX.'forum_mentions',
+	'FORUM_SUBSCRIPTIONS' => DB_PREFIX.'forum_subscriptions',
 	'LOG'				=> DB_PREFIX.'log',
 	'LOG_FLEETS'		=> DB_PREFIX.'log_fleets',
 	'LOSTPASSWORD'		=> DB_PREFIX.'lostpassword',
@@ -70,4 +82,3 @@ $dbTableNames	= array(
 	'VARS_RAPIDFIRE'	=> DB_PREFIX.'vars_rapidfire',
 	'VARS_REQUIRE'	 	=> DB_PREFIX.'vars_requriements',
 );
-// MOD-TABLES

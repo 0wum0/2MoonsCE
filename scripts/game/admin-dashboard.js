@@ -330,6 +330,33 @@
     createOrUpdateChart('bots', 'chartBots', 'Bot-Ticks', 'bar', chartData);
   }
 
+
+  // ---- data-bs-toggle=tab fallback (without Bootstrap JS) ----
+  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var container = this.closest('[role="tablist"]') || document;
+      container.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (item) {
+        item.classList.remove('active');
+      });
+      this.classList.add('active');
+
+      var targetSelector = this.getAttribute('data-bs-target');
+      if (!targetSelector) return;
+
+      var tabContent = document.querySelector('.tab-content');
+      if (!tabContent) return;
+
+      tabContent.querySelectorAll('.tab-pane').forEach(function (pane) {
+        pane.classList.remove('show', 'active');
+      });
+
+      var target = document.querySelector(targetSelector);
+      if (target) {
+        target.classList.add('show', 'active');
+      }
+    });
+  });
+
   // ---- Global Search ----
   var searchInput = document.getElementById('globalSearch');
   if (searchInput) {

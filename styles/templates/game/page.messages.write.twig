@@ -2,86 +2,99 @@
 
 {% block title %}{{ LNG.write_message }}{% endblock %}
 {% block content %}
-
-<div class="aerospace-popup">
+<style>
+    .galactic-write-wrap { padding: 25px; font-family: 'Inter', sans-serif; background: #0d1117; color: #fff; min-height: 100vh; }
+    .popup-galactic-head { font-size: 22px; font-weight: 900; color: #38bdf8; text-transform: uppercase; margin-bottom: 25px; border-bottom: 2px solid rgba(56, 189, 248, 0.3); padding-bottom: 12px; display: flex; align-items: center; gap: 12px; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     
-    <div class="popup-header">
+    .g-form-group { margin-bottom: 20px; }
+    .g-label-cyan { display: block; color: #38bdf8; font-weight: 800; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+    
+    .g-input-field { width: 100% !important; background: rgba(0,0,0,0.5); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; color: #fff; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box; transition: 0.3s; }
+    .g-input-field:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+    
+    .g-textarea-field { width: 100% !important; min-height: 220px; resize: vertical; font-family: inherit; }
+    
+    .bb-toolbar-galactic { display: flex; gap: 6px; margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.05); }
+    .bb-btn-galactic { padding: 8px 14px; background: #38bdf8; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: 900; font-size: 12px; transition: 0.2s; }
+    .bb-btn-galactic:hover { background: #fff; transform: scale(1.05); }
+    
+    .btn-galactic-send { width: 100%; padding: 18px; background: #38bdf8; color: #000; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 15px; font-size: 16px; letter-spacing: 1px; }
+    .btn-galactic-send:hover { background: #fff; box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); transform: translateY(-3px); }
+</style>
+
+<div class="galactic-write-wrap">
+    <div class="popup-galactic-head">
         <i class="far fa-edit"></i> {{ LNG.mg_send_new }}
     </div>
 
-    <form name="message" id="message" action="javascript:void(0);">
+    <form name="message" id="message-form-galactic">
         <input type="hidden" name="id" value="{{ id }}">
 
-        <div class="form-group">
-            <label>{{ LNG.mg_send_to }}</label>
+        <div class="g-form-group">
+            <label class="g-label-cyan">{{ LNG.mg_send_to }}</label>
             {% if allowFreeRecipient %}
-            <input type="text" name="to" id="to" class="glass-input" maxlength="32" value="{{ OwnerRecord.username|default('') }}" placeholder="{{ LNG.mg_send_to }}">
+            <input type="text" name="to" id="to" class="g-input-field" value="{{ OwnerRecord.username|default('') }}" placeholder="Empfänger eingeben...">
             {% else %}
-            <input type="text" name="to" id="to" class="glass-input" value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]" readonly>
+            <input type="text" name="to" id="to" class="g-input-field" style="background: rgba(255,255,255,0.04); opacity: 0.8;" value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]" readonly>
             {% endif %}
         </div>
 
-        <div class="form-group">
-            <label>{{ LNG.mg_subject }}</label>
-            <input type="text" name="subject" id="subject" class="glass-input" maxlength="40" value="{% if subject %}{{ subject }}{% else %}{{ LNG.mg_no_subject }}{% endif %}">
+        <div class="g-form-group">
+            <label class="g-label-cyan">{{ LNG.mg_subject }}</label>
+            <input type="text" name="subject" id="subject" class="g-input-field" maxlength="40" value="{% if subject %}{{ subject }}{% else %}{{ LNG.mg_no_subject }}{% endif %}">
         </div>
 
-        <div class="form-group">
-            <label>
+        <div class="g-form-group">
+            <label class="g-label-cyan">
                 {{ LNG.mg_message }} 
-                <span class="char-count">(<span id="cntChars">0</span> / 5.000)</span>
+                <span style="float:right; opacity: 0.4;">(<span id="cntChars">0</span> / 5.000)</span>
             </label>
-            <textarea name="text" id="text" class="glass-textarea" rows="10" onkeyup="$('#cntChars').text($(this).val().length);">{{ message|default('') }}</textarea>
+            
+            <div class="bb-toolbar-galactic">
+                <button type="button" class="bb-btn-galactic" onclick="addBB('b')">B</button>
+                <button type="button" class="bb-btn-galactic" onclick="addBB('i')">I</button>
+                <button type="button" class="bb-btn-galactic" onclick="addBB('u')">U</button>
+                <button type="button" class="bb-btn-galactic" onclick="addBB('quote')">Zitat</button>
+                <button type="button" class="bb-btn-galactic" onclick="addBB('url')">Link</button>
+            </div>
+
+            <textarea name="text" id="text" class="g-input-field g-textarea-field" onkeyup="$('#cntChars').text($(this).val().length);">{{ message|default('') }}</textarea>
         </div>
 
-        <div class="form-actions">
-            <input id="submit" type="button" onClick="check();" class="btn-send" value="{{ LNG.mg_send }}">
-        </div>
+        <input id="submit-btn" type="button" onClick="check();" class="btn-galactic-send" value="{{ LNG.mg_send }}">
     </form>
-
 </div>
 
 <script type="text/javascript">
-function check(){
-    {% if allowFreeRecipient %}
-    if($('#to').val().trim().length === 0) {
-        alert('{{ LNG.mg_error }}');
-        return false;
-    }
-    {% endif %}
+function addBB(tag) {
+    const area = document.getElementById('text');
+    const start = area.selectionStart;
+    const end = area.selectionEnd;
+    const text = area.value;
+    const sel = text.substring(start, end);
+    const res = "[" + tag + "]" + sel + "[/" + tag + "]";
+    area.value = text.substring(0, start) + res + text.substring(end);
+    area.focus();
+}
 
-    if($('#text').val().length == 0) {
+function check(){
+    if($('#text').val().trim().length == 0) {
         alert('{{ LNG.mg_empty_text }}');
         return false;
-    } else {
-        $('#submit').prop('disabled', true);
-        $.post("game.php?page=messages&mode=send&ajax=1", $('#message').serialize(), function(data){
-            var message = '';
-            if (typeof data === 'string') {
-                message = data;
-            } else if (data && typeof data.message === 'string') {
-                message = data.message;
-            } else {
-                message = '{{ LNG.mg_message_send|e('js') }}';
-            }
-            alert(message);
-            if (window.parent && typeof window.parent.Message !== 'undefined') {
-                window.parent.Message.getMessages(window.parent.Message.MessID || 100, 1);
-            }
-            if (window.parent && window.parent.$ && window.parent.$.fancybox) {
-                window.parent.$.fancybox.close();
-            } else {
-                window.close();
-            }
-        }, 'json').fail(function() {
-            alert('{{ LNG.mg_error }}');
-            $('#submit').prop('disabled', false);
-        });
-        return true;
     }
+    $('#submit-btn').prop('disabled', true).val('Wird übertragen...');
+    $.post("game.php?page=messages&mode=send&ajax=1", $('#message-form-galactic').serialize(), function(data){
+        alert(data);
+        if (window.parent && typeof window.parent.Message !== 'undefined') {
+            window.parent.Message.getMessages(window.parent.Message.MessID || 100, 1);
+        }
+        parent.$.fancybox.close();
+    }, 'json').fail(function() {
+        alert('{{ LNG.mg_error }}');
+        $('#submit-btn').prop('disabled', false).val('{{ LNG.mg_send }}');
+    });
 }
-</script>
-<script type="text/javascript">
+
 $(function() {
     $('#cntChars').text($('#text').val().length);
 });

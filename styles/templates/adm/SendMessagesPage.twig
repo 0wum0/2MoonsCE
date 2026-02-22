@@ -1,5 +1,130 @@
 {% include "overall_header.twig" %}
+<style>
+    /* Galactic Admin Style - Global Message */
+    :root {
+        --galactic-bg: #0d1117;
+        --galactic-border: rgba(56, 189, 248, 0.25);
+        --galactic-accent: #38bdf8;
+        --galactic-glow: rgba(56, 189, 248, 0.5);
+        --galactic-card: rgba(13, 17, 23, 0.95);
+    }
+
+    .gm-admin-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 15px;
+        box-sizing: border-box;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    .galactic-header {
+        background: rgba(13, 17, 23, 0.9);
+        border: 2px solid var(--galactic-border);
+        border-radius: 12px;
+        padding: 20px 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .galactic-title {
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--galactic-accent);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 0;
+        text-shadow: 0 0 10px var(--galactic-glow);
+    }
+
+    .galactic-card {
+        background: var(--galactic-card);
+        border: 1px solid var(--galactic-border);
+        border-radius: 15px;
+        padding: 30px;
+        max-width: 1000px;
+        margin: 0 auto;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+
+    .gm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .gm-group { margin-bottom: 20px; }
+    .gm-label { display: block; color: var(--galactic-accent); font-weight: 800; text-transform: uppercase; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; }
+
+    .gm-input, .gm-textarea {
+        width: 100% !important;
+        background: rgba(0,0,0,0.5) !important;
+        border: 1px solid var(--galactic-border) !important;
+        border-radius: 8px;
+        color: #fff !important;
+        padding: 12px 15px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: 0.2s;
+    }
+
+    .gm-textarea { min-height: 250px; resize: vertical; font-family: inherit; }
+    .gm-input:focus, .gm-textarea:focus { border-color: var(--galactic-accent) !important; box-shadow: 0 0 15px var(--galactic-glow); }
+
+    /* BBCode Toolbar */
+    .bb-toolbar {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+        background: rgba(255,255,255,0.03);
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.05);
+        flex-wrap: wrap;
+    }
+    .bb-btn {
+        padding: 6px 14px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--galactic-border);
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 13px;
+        transition: 0.2s;
+    }
+    .bb-btn:hover { background: var(--galactic-accent); color: #000; box-shadow: 0 0 10px var(--galactic-glow); }
+
+    .btn-submit {
+        width: 100%;
+        padding: 18px;
+        background: var(--galactic-accent);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+    .btn-submit:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 0 25px var(--galactic-glow); }
+
+    .char-info { float: right; font-size: 11px; color: #8b949e; margin-top: 5px; }
+</style>
+
 <script type="text/javascript">
+function insertBB(tag) {
+    const area = document.getElementById('text');
+    const start = area.selectionStart;
+    const end = area.selectionEnd;
+    const text = area.value;
+    const sel = text.substring(start, end);
+    let res = "";
+    if(tag === 'url') res = "[url=https://]" + (sel || "Link") + "[/url]";
+    else res = "[" + tag + "]" + sel + "[/" + tag + "]";
+    area.value = text.substring(0, start) + res + text.substring(end);
+    area.focus();
+}
 
 function check(){
 	if($('#text').val().length == 0) {
@@ -7,38 +132,80 @@ function check(){
 		return false;
 	} else {
 		$.post('admin.php?page=globalmessage&action=send&ajax=1', $('#message').serialize(), function(data) {
-			Dialog.alert(data, function() {
-				location.reload();
-			});
+			// Prüfung ob erfolgreich (2Moons liefert oft Text zurück)
+            // Wir bauen ein Modal mit den gewünschten Buttons
+            if(data.indexOf('erfolgreich') !== -1 || data.indexOf('gesendet') !== -1 || data.indexOf('sended') !== -1) {
+                Dialog.alert('<div style="text-align:center; padding:10px;"><h2 style="color:#22c55e;">✅ GESENDET</h2><p>'+data+'</p></div>', function() {
+                    window.location.href = 'admin.php?page=globalmessage';
+                });
+                // Button Text im Modal anpassen (2Moons Standard nutzt oft jQuery UI oder interne Dialoge)
+                $('.ui-dialog-buttonset button').text('Weiter');
+            } else {
+                Dialog.confirm('<div style="text-align:center; padding:10px;"><h2 style="color:#ef4444;">❌ FEHLER</h2><p>Die Nachricht konnte nicht übertragen werden.</p><small>'+data+'</small></div>', 'Wiederholen', 'Abbrechen', function() {
+                    // Bleibt auf der Seite zum Wiederholen
+                });
+            }
 		});
 		return true;
 	}
 }
 </script>
-<form name="message" id="message" action="admin.php?page=globalmessage&action=send&ajax=1">
-<table class="table569">
-		<tr>
-            <th colspan="2">{{ LNG.ma_send_global_message }}</th>
-        </tr>
-        <tr>
-            <td>{{ LNG.ma_mode }}</td>
-            <td><!-- TODO: Complex html_options - needs manual review --></td>
-		</tr>
-        <tr>
-            <td>{{ LNG.se_lang }}</td>
-            <td><!-- TODO: Complex html_options - needs manual review --></td>
-        </tr>
-        <tr>
-            <td>{{ LNG.ma_subject }}</td>
-            <td><input name="subject" id="subject" size="40" maxlength="40" value="{{ LNG.ma_none }}" type="text"></td>
-        </tr>
-		<tr>
-            <td>{{ LNG.ma_message }} (<span id="cntChars">0</span> / 5000 {{ LNG.ma_characters }})</td>
-            <td><textarea name="text" id="text" cols="40" rows="10" onkeyup="$('#cntChars').text($('#text').val().length);"></textarea></td>
-        </tr>
-        <tr>
-            <td colspan="2"><input type="button" onclick="check();" value="{{ LNG.button_submit }}"></td>
-        </tr>
-    </table>
-</form>
+
+<div class="gm-admin-wrapper">
+    <div class="galactic-header">
+        <span style="font-size: 30px;">📢</span>
+        <h1 class="galactic-title">{{ LNG.ma_send_global_message }}</h1>
+    </div>
+
+    <div class="galactic-card">
+        <form name="message" id="message">
+            <div class="gm-row">
+                <div class="gm-group">
+                    <label class="gm-label">{{ LNG.ma_mode }}</label>
+                    <select name="mode" class="gm-input">
+                        {% for id, name in modes %}
+                        <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="gm-group">
+                    <label class="gm-label">{{ LNG.se_lang }}</label>
+                    <select name="globalmessagelang" class="gm-input">
+                        {% for id, name in langSelector %}
+                        <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="gm-group">
+                <label class="gm-label">{{ LNG.ma_subject }}</label>
+                <input name="subject" id="subject" class="gm-input" maxlength="40" value="{{ LNG.ma_none }}" type="text">
+            </div>
+
+            <div class="gm-group">
+                <label class="gm-label">
+                    {{ LNG.ma_message }}
+                    <span class="char-info"><span id="cntChars">0</span> / 5000 {{ LNG.ma_characters }}</span>
+                </label>
+
+                <div class="bb-toolbar">
+                    <button type="button" class="bb-btn" onclick="insertBB('b')">B</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('i')">I</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('u')">U</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('quote')">Zitat</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('url')">Link</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('img')">Bild</button>
+                </div>
+
+                <textarea name="text" id="text" class="gm-textarea" onkeyup="$('#cntChars').text($('#text').val().length);" placeholder="Nachricht hier eingeben..."></textarea>
+            </div>
+
+            <button type="button" class="btn-submit" onclick="check();">
+                🚀 {{ LNG.button_submit }}
+            </button>
+        </form>
+    </div>
+</div>
+
 {% include "overall_footer.twig" %}

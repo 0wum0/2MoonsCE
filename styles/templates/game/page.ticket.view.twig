@@ -1,54 +1,59 @@
 {% extends "layout.full.twig" %}
 
-{% block title %}{{ LNG.ti_read }} - {{ LNG.lm_support }}{% endblock %}
+{% block title %}{{ LNG.ti_read }}{% endblock %}
 {% block content %}
+<style>
+    .support-full { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
+    .ticket-msg { background: rgba(20,25,35,0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+    .msg-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 15px; font-size: 12px; color: #8b949e; display: flex; justify-content: space-between; }
+    .msg-body { color: #d1d5db; line-height: 1.7; font-size: 15px; }
+    .glass-textarea { width: 100% !important; min-height: 150px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; resize: vertical; }
+    .bb-toolbar { display: flex; gap: 5px; margin-bottom: 8px; }
+    .bb-btn { padding: 4px 10px; background: #38bdf8; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+</style>
 
-<div class="content_page">
-    <div class="aerospace-wrapper" style="max-width: 900px; margin: 0 auto;">
-        
-        <div class="glass-panel header-panel">
-            {% for answerID, answerRow in answerList %} 
-                {% if loop.first %}
-                <h2 class="page-title"><i class="fas fa-comment-alt"></i> {{ answerRow.subject }}</h2>
-                <div class="cat-badge">{{ categoryList[answerRow.categoryID] }}</div>
-                {% endif %}
-            {% endfor %}
+<div class="content_page support-full">
+    <h1 style="color: #fff;">📡 {{ answerList[0].subject }}</h1>
+    
+    {% for answerRow in answerList %} 
+    <div class="ticket-msg">
+        <div class="msg-header">
+            <span style="color: #38bdf8; font-weight: bold;">👤 {{ answerRow.ownerName }}</span>
+            <span>📅 {{ answerRow.time }}</span>
         </div>
-
-        <div class="ticket-stream">
-            {% for answerID, answerRow in answerList %} 
-            <div class="ticket-msg glass-panel">
-                <div class="msg-meta">
-                    <span class="msg-user"><i class="fas fa-user"></i> {{ answerRow.ownerName }}</span>
-                    <span class="msg-time">{{ answerRow.time }}</span>
-                </div>
-                <div class="msg-body">
-                    {{ answerRow.message|nl2br }}
-                </div>
-            </div>
-            {% endfor %}
+        <div class="msg-body">
+            {{ answerRow.message|raw }}
         </div>
-
-        {% if status < 2 %}
-        <div class="glass-panel reply-box">
-            <form action="game.php?page=ticket&mode=send" method="post" id="form">
-                <input type="hidden" name="id" value="{{ ticketID }}">
-                <h3>{{ LNG.ti_answer }}</h3>
-                <textarea class="glass-textarea validate[required]" id="message" name="message" rows="5"></textarea>
-                <div class="form-actions">
-                    <button type="submit" class="btn-submit">{{ LNG.ti_submit }}</button>
-                </div>
-            </form>
-        </div>
-        {% endif %}
-
     </div>
+    {% endfor %}
+
+    {% if status < 2 %}
+    <div class="glass-panel" style="margin-top: 25px;">
+        <h3 style="color: #38bdf8;">💬 {{ LNG.ti_answer }}</h3>
+        <div class="bb-toolbar">
+            <button type="button" class="bb-btn" onclick="addBB('b')">B</button>
+            <button type="button" class="bb-btn" onclick="addBB('i')">I</button>
+            <button type="button" class="bb-btn" onclick="addBB('quote')">Zitat</button>
+        </div>
+        <form action="game.php?page=ticket&mode=send" method="post">
+            <input type="hidden" name="id" value="{{ ticketID }}">
+            <textarea class="glass-textarea" id="message" name="message" required></textarea>
+            <button type="submit" style="margin-top: 10px; padding: 10px 25px; background: #38bdf8; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">{{ LNG.ti_submit }}</button>
+        </form>
+    </div>
+    {% endif %}
 </div>
-{% endblock %}
-{% block script %}
+
 <script>
-$(document).ready(function() {
-    $("#form").validationEngine('attach');
-});
+function addBB(tag) {
+    const area = document.getElementById('message');
+    const start = area.selectionStart;
+    const end = area.selectionEnd;
+    const text = area.value;
+    const sel = text.substring(start, end);
+    const res = "[" + tag + "]" + sel + "[/" + tag + "]";
+    area.value = text.substring(0, start) + res + text.substring(end);
+    area.focus();
+}
 </script>
 {% endblock %}

@@ -2,8 +2,15 @@
 <header class="game-header" id="game-header">
     <div class="header-row-main">
         <!-- BURGER -->
-        <button id="sidebar-toggle" class="sidebar-menu-toggle burger-menu mobile-menu-toggle" type="button" aria-label="Menu" aria-controls="leftmenu" aria-expanded="false">
-            <span class="burger-line"></span><span class="burger-line"></span><span class="burger-line"></span>
+        <button id="sidebar-toggle"
+                class="sidebar-menu-toggle burger-menu"
+                type="button"
+                aria-label="Navigation Ã¶ffnen"
+                aria-controls="leftmenu"
+                aria-expanded="false">
+            <span class="burger-line" aria-hidden="true"></span>
+            <span class="burger-line" aria-hidden="true"></span>
+            <span class="burger-line" aria-hidden="true"></span>
         </button>
 
         <!-- LOGO -->
@@ -34,14 +41,14 @@
                 <button class="notif-btn attack-btn"><i class="fas fa-exclamation-triangle"></i></button>
             </div>
 
-            <!-- GEBÄUDE -->
+            <!-- GEBÃUDE -->
             <div class="notif-icon-wrap">
                 <button class="notif-btn{% if buildQueue.building %} notif-btn-active{% endif %}" onclick="SmartNotif.toggle('building')">
                     <i class="fas fa-building"></i>{% if buildQueue.building %}<span class="notif-badge">{{ buildQueue.building.count }}</span>{% endif %}
                 </button>
                 <div class="notif-dropdown" id="notif-building-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-building"></i> Gebäude</span>
+                        <span><i class="fas fa-building"></i> GebÃ¤ude</span>
                         <a href="game.php?page=buildings" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="notif-dropdown-body">
@@ -195,7 +202,7 @@
                     {% if new_message > 0 %}<span class="avatar-dot"></span>{% endif %}
                 </button>
 
-                <div class="notif-dropdown user-menu-dropdown" id="notif-usermenu-dropdown" role="menu" aria-label="Benutzermenü">
+                <div class="notif-dropdown user-menu-dropdown" id="notif-usermenu-dropdown" role="menu" aria-label="BenutzermenÃ¼">
                     <div class="user-menu-header">
                         <div class="user-menu-avatar"><i class="fas fa-user-astronaut"></i></div>
                         <div class="user-menu-info">
@@ -210,7 +217,7 @@
                             <i class="fas fa-envelope"></i><span>{{ LNG.lm_messages|default('Nachrichten') }}</span>
                             {% if new_message > 0 %}<span class="user-menu-badge">{{ new_message }}</span>{% endif %}
                         </a>
-
+						<a href="game.php?page=forum" class="user-menu-item"><i class="fas fa-comments"></i><span>Forum</span></a>
                         <a href="game.php?page=buddyList" class="user-menu-item"><i class="fas fa-user-friends"></i><span>{{ LNG.lm_buddylist|default('Buddyliste') }}</span></a>
                         <a href="game.php?page=statistics" class="user-menu-item"><i class="fas fa-chart-line"></i><span>{{ LNG.lm_statistics|default('Statistiken') }}</span></a>
                         <a href="game.php?page=alliance" class="user-menu-item"><i class="fas fa-users"></i><span>{{ LNG.lm_alliance|default('Allianz') }}</span></a>
@@ -255,14 +262,14 @@
         <div class="res-bar-container">
             <div class="res-bar">
                 {% for resourceID, resourceData in resourceTable %}
-                <div class="res-item tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
+                <div class="res-item res-item-tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
                     <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
                     <div class="res-info">
                         <span class="res-val {% if resourceData.current >= resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
                             {% if shortlyNumber %}{{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}{% else %}{{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}{% endif %}
                         </span>
                         <div class="res-progress"><div class="res-progress-fill" id="resbar_{{ resourceData.name }}"></div></div>
-                        <span class="res-trend" id="restrend_{{ resourceData.name }}">±0</span>
+                        <span class="res-trend" id="restrend_{{ resourceData.name }}">Â±0</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -280,6 +287,66 @@
 (function(){var t=document.getElementById('sidebar-toggle'),s=document.getElementById('leftmenu')||document.querySelector('.sidebar-nav'),o=document.getElementById('sidebar-overlay');if(!t||!s||t.dataset.sidebarBound==='1')return;t.dataset.sidebarBound='1';function set(open){s.classList.toggle('active',open);s.classList.toggle('collapsed',!open);t.classList.toggle('active',open);t.setAttribute('aria-expanded',open);document.body.classList.toggle('sidebar-open',open);if(o)o.classList.toggle('active',open);}t.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();set(!s.classList.contains('active'));},true);if(o)o.addEventListener('click',function(){set(false);});document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false);});if(window.matchMedia('(max-width:992px)').matches)set(false);s.querySelectorAll('a.sidebar-link').forEach(function(l){l.addEventListener('click',function(){if(window.matchMedia('(max-width:992px)').matches)set(false);});});})();
 </script>
 
+<!-- FIX 4: Header-HÃ¶he messen â CSS Custom Property --sm-header-total -->
+<script>
+(function() {
+    function measureAndSetHeaderHeight() {
+        var header = document.getElementById('game-header');
+        if (!header) return;
+        var h = header.getBoundingClientRect().height;
+        if (h > 0) {
+            document.documentElement.style.setProperty('--sm-header-total', Math.ceil(h) + 'px');
+        }
+    }
+    // Sofort + nach Fonts/Bildern geladen
+    measureAndSetHeaderHeight();
+    window.addEventListener('load', measureAndSetHeaderHeight);
+    window.addEventListener('resize', measureAndSetHeaderHeight);
+})();
+</script>
+
+<!-- SIDEBAR DESKTOP COLLAPSE (Feature 2) -->
+<script>
+(function(){
+    var STORAGE_KEY = 'sm_sidebar_collapsed';
+    var sidebar = document.getElementById('leftmenu');
+    var btn     = document.getElementById('sidebar-collapse-btn');
+    var icon    = document.getElementById('sidebar-collapse-icon');
+    var body    = document.body;
+    if (!sidebar || !btn) return;
+
+    function setCollapsed(collapsed) {
+        sidebar.classList.toggle('sidebar-icon-only', collapsed);
+        body.classList.toggle('sidebar-collapsed', collapsed);
+        if (icon) {
+            icon.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+        }
+        btn.setAttribute('aria-label', collapsed ? 'Sidebar ausklappen' : 'Sidebar einklappen');
+        try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e){}
+    }
+
+    btn.addEventListener('click', function() {
+        setCollapsed(!sidebar.classList.contains('sidebar-icon-only'));
+    });
+
+    // Zustand aus localStorage wiederherstellen (nur Desktop)
+    if (window.matchMedia('(min-width: 769px)').matches) {
+        try {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved === '1') setCollapsed(true);
+        } catch(e) {}
+    }
+
+    // Bei Resize: auf Mobile niemals Icon-Only
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('sidebar-icon-only');
+            body.classList.remove('sidebar-collapsed');
+        }
+    });
+})();
+</script>
+
 <!-- RESOURCE TICKER -->
 {% if not vmode %}
 <script>
@@ -292,6 +359,127 @@ resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ res
 </script>
 {% endif %}
 
+<!-- FEATURES 1,3,4,5: Tooltip / Section-Highlight / Warn-Toast / Dock-Active -->
+<script>
+(function(){
+    /* ââ FEATURE 3: Section-Has-Active Fallback (ohne :has()) ââ */
+    function markActiveSections() {
+        var sections = document.querySelectorAll('#leftmenu .nav-section');
+        sections.forEach(function(sec) {
+            var hasActive = sec.querySelector('.sidebar-link.active');
+            sec.classList.toggle('section-has-active', !!hasActive);
+        });
+    }
+    markActiveSections(); // Einmalig beim Load
+
+    /* ââ FEATURE 1: Ressource-Tooltip via data-res-tooltip Attribut ââ
+       FÃ¼llt das CSS-attr(data-res-tooltip) mit formatiertem Text.
+       LÃ¤uft einmalig + beim 2s-Interval Tick der applyResourceBars. */
+    function updateResTooltips() {
+        var items = document.querySelectorAll('.res-item-tooltip[data-res-current]');
+        items.forEach(function(item) {
+            var name       = item.getAttribute('data-res-name') || '';
+            var current    = Number(item.getAttribute('data-res-current')) || 0;
+            var max        = Number(item.getAttribute('data-res-max'))     || 0;
+            var production = Number(item.getAttribute('data-res-production')) || 0;
+
+            // Dynamischen aktuellen Wert aus dem DOM holen (falls resourceTicker lÃ¤uft)
+            var valEl = name ? document.getElementById('current_' + name) : null;
+            if (valEl) {
+                // Nutze innerHTML da resourceTicker dort eintrÃ¤gt
+                var raw = valEl.textContent || valEl.innerText || '';
+                // current bleibt als NÃ¤herung
+            }
+
+            var pct   = max > 0 ? Math.min(100, (current / max) * 100).toFixed(1) : '0.0';
+            var prod  = production;
+            var prodStr;
+            if (prod > 0)      prodStr = '+' + Math.round(prod).toLocaleString('de-DE') + '/h';
+            else if (prod < 0) prodStr = Math.round(prod).toLocaleString('de-DE') + '/h';
+            else               prodStr = 'Â±0/h';
+
+            var tooltipText = name + '
+' + pct + '% voll
+' + prodStr;
+            item.setAttribute('data-res-tooltip', tooltipText);
+        });
+    }
+
+    // Initial + alle 5s aktualisieren (weniger aggressiv als der 1s-Ticker)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateResTooltips);
+    } else {
+        updateResTooltips();
+    }
+    window.setInterval(updateResTooltips, 5000);
+
+    /* ââ FEATURE 4: Ressource-Warnung Toast bei >= 90% FÃ¼llstand ââ
+       Einmalig pro Ressource pro Session (sessionStorage Guard). */
+    var warnedRes = {};
+    try {
+        var saved = sessionStorage.getItem('sm_res_warned');
+        if (saved) warnedRes = JSON.parse(saved);
+    } catch(e) {}
+
+    function checkResWarnings() {
+        var items = document.querySelectorAll('.res-item-tooltip[data-res-current]');
+        items.forEach(function(item) {
+            var name    = item.getAttribute('data-res-name') || '';
+            var current = Number(item.getAttribute('data-res-current')) || 0;
+            var max     = Number(item.getAttribute('data-res-max')) || 0;
+            if (!name || !max) return;
+            var pct = (current / max) * 100;
+            if (pct >= 90 && !warnedRes[name]) {
+                warnedRes[name] = true;
+                try { sessionStorage.setItem('sm_res_warned', JSON.stringify(warnedRes)); } catch(e) {}
+                // Toast via SmartNotif (falls geladen)
+                if (typeof SmartNotif !== 'undefined' && SmartNotif.toast) {
+                    SmartNotif.toast(
+                        name + ' fast voll (' + pct.toFixed(0) + '%)',
+                        'exclamation-circle',
+                        '#f97316'
+                    );
+                }
+            }
+        });
+    }
+    // Warn-Check nach 3s (resourceTicker hat dann schon aktualisiert)
+    setTimeout(checkResWarnings, 3000);
+    window.setInterval(checkResWarnings, 60000); // Danach alle 60s erneut prÃ¼fen
+
+    /* _resWarnCheck Hook: wird von topnav.js resourceTicker aufgerufen */
+    window._resWarnCheck = function(elemId, current, max) {
+        if (!max) return;
+        var pct = (current / max) * 100;
+        var name = elemId.replace('current_', '');
+        if (pct >= 90 && !warnedRes[name]) {
+            warnedRes[name] = true;
+            try { sessionStorage.setItem('sm_res_warned', JSON.stringify(warnedRes)); } catch(e) {}
+            if (typeof SmartNotif !== 'undefined' && SmartNotif.toast) {
+                SmartNotif.toast(
+                    name.charAt(0).toUpperCase() + name.slice(1) + ' fast voll (' + pct.toFixed(0) + '%)',
+                    'exclamation-circle',
+                    '#f97316'
+                );
+            }
+        }
+    };
+
+    /* ââ FEATURE 5: Dock FAB Active-State fÃ¼r fleetTable ââ
+       Twig setzt kein active auf .dock-fab, nur auf .dock-item.
+       Wir prÃ¼fen die aktuelle page aus body-id. */
+    function setDockFabActive() {
+        var bodyId  = document.body.id || '';
+        var fab     = document.querySelector('.dock-fab');
+        if (!fab) return;
+        // FAB verlinkt auf fleetTable
+        fab.classList.toggle('dock-fab-active', bodyId === 'fleetTable');
+    }
+    setDockFabActive();
+
+})();
+</script>
+
 <!-- Fleet data as safe JSON (no JS string escaping issues) -->
 <script type="application/json" id="fleet-json-data">{{ globalFleetJSON|default("[]")|raw }}</script>
 <script>
@@ -300,48 +488,88 @@ window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|js
 
 <script>
 (function(){
-    function applyResourceBars(){
+    /* Dynamischer Progressbar-Farbverlauf (0-30% rot, 30-70% gelb, 70-100% grÃ¼n) */
+    function resBarGradient(pct) {
+        function lc(a, b, t) {
+            function p(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+            function h(n){ return ('0'+Math.round(n).toString(16)).slice(-2); }
+            var A=p(a),B=p(b);
+            return '#'+h(A[0]+(B[0]-A[0])*t)+h(A[1]+(B[1]-A[1])*t)+h(A[2]+(B[2]-A[2])*t);
+        }
+        if (pct <= 30) {
+            var m = pct / 30;
+            return 'linear-gradient(90deg,#ef4444,'+lc('#ef4444','#f97316',m)+')';
+        } else if (pct <= 70) {
+            var m = (pct - 30) / 40;
+            return 'linear-gradient(90deg,'+lc('#f97316','#eab308',m)+','+lc('#eab308','#84cc16',m)+')';
+        } else {
+            var m = (pct - 70) / 30;
+            return 'linear-gradient(90deg,'+lc('#84cc16','#22d3ee',m)+','+lc('#22d3ee','#3b82f6',m)+')';
+        }
+    }
+
+    /* Smooth Einfahren via rAF */
+    function animateBar(fill, target) {
+        var cur = parseFloat(fill.style.width) || 0;
+        var diff = target - cur;
+        if (Math.abs(diff) < 0.15) { fill.style.width = target.toFixed(2)+'%'; return; }
+        fill.style.width = (cur + diff * 0.15).toFixed(2) + '%';
+        requestAnimationFrame(function(){ animateBar(fill, target); });
+    }
+
+    function applyResourceBars(animate){
         var nodes = document.querySelectorAll('.res-item[data-res-current]');
         nodes.forEach(function(node){
-            var current = Number(node.getAttribute('data-res-current') || 0);
-            var max = Number(node.getAttribute('data-res-max') || 0);
+            var current    = Number(node.getAttribute('data-res-current') || 0);
+            var max        = Number(node.getAttribute('data-res-max') || 0);
             var production = Number(node.getAttribute('data-res-production') || 0);
-            var name = node.getAttribute('data-res-name') || '';
-            var fill = name ? document.getElementById('resbar_' + name) : null;
-            var trend = name ? document.getElementById('restrend_' + name) : null;
-            if(!fill) return;
+            var name       = node.getAttribute('data-res-name') || '';
+            var fill       = name ? document.getElementById('resbar_' + name) : null;
+            var trend      = name ? document.getElementById('restrend_' + name) : null;
+            if (!fill) return;
 
             var pct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
-            var visiblePct = pct > 0 ? Math.max(4, pct) : 0;
-            fill.style.width = visiblePct.toFixed(2) + '%';
+            var visiblePct = pct > 0 ? Math.max(3, pct) : 0;
+
+            /* Farbe */
+            fill.style.background = resBarGradient(pct);
+
+            /* Breite: beim ersten Aufruf smooth einfahren, danach direkt */
+            if (animate) {
+                fill.style.width = '0%';
+                requestAnimationFrame(function(){ requestAnimationFrame(function(){ animateBar(fill, visiblePct); }); });
+            } else {
+                fill.style.width = visiblePct.toFixed(2) + '%';
+            }
+
             fill.classList.toggle('is-full', pct >= 98);
-            fill.classList.toggle('is-low', pct <= 15);
+            fill.classList.toggle('is-low',  pct <= 15);
             fill.classList.toggle('is-positive', production > 0);
             fill.classList.toggle('is-negative', production < 0);
 
-            var item = node;
-            item.classList.toggle('res-anim-full', pct >= 98);
-            item.classList.toggle('res-anim-low', pct <= 15);
-            item.classList.toggle('res-anim-negative', production < 0);
-            item.classList.toggle('res-anim-positive', production > 0);
+            node.classList.toggle('res-anim-full',     pct >= 98);
+            node.classList.toggle('res-anim-low',      pct <= 15);
+            node.classList.toggle('res-anim-negative', production < 0);
+            node.classList.toggle('res-anim-positive', production > 0);
 
             if (trend) {
                 var absProd = Math.abs(production);
-                var prefix = production > 0 ? '+' : (production < 0 ? '-' : '±');
+                var prefix = production > 0 ? '+' : (production < 0 ? '-' : 'Â±');
                 trend.textContent = prefix + Math.round(absProd).toLocaleString('de-DE');
-                trend.classList.toggle('up', production > 0);
+                trend.classList.toggle('up',   production > 0);
                 trend.classList.toggle('down', production < 0);
                 trend.classList.toggle('flat', production === 0);
             }
         });
     }
 
+    /* Erster Aufruf mit Animation, danach alle 2s ohne */
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', applyResourceBars);
+        document.addEventListener('DOMContentLoaded', function(){ applyResourceBars(true); });
     } else {
-        applyResourceBars();
+        applyResourceBars(true);
     }
-    window.setInterval(applyResourceBars, 2000);
+    window.setInterval(function(){ applyResourceBars(false); }, 2000);
 })();
 </script>
 
@@ -579,7 +807,7 @@ var SmartNotif=(function(){
         {% endif %}
     }
 
-    /* ===== INIT — jQuery oder Vanilla ===== */
+    /* ===== INIT â jQuery oder Vanilla ===== */
     function doInit(){
         try { initFleets(); } catch(e){ console.error('SmartNotif fleets error:', e); }
         try { initQueues(); } catch(e){ console.error('SmartNotif queues error:', e); }

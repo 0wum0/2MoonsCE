@@ -8199,18 +8199,15 @@ body.sidebar-open {
 
 /* ==========================================================================
    CONTENT & SIDEBAR POSITIONING
-   Header = 40px. Sidebar direkt anknüpfend. Content unter Header+Resbar.
+   PATCH v5: top + padding-top werden vollständig in Patch v5 gesteuert.
+   content-wrapper padding bleibt, sidebar-Werte hier entfernt (verhindert Konflikt).
    ========================================================================== */
 .content-wrapper {
     padding-top: 80px;
 }
-#leftmenu, .sidebar-nav {
-    padding-top: 40px !important;
-    top: 0 !important;
-}
+/* #leftmenu / .sidebar-nav top + padding-top → siehe PATCH v5 am Ende der Datei */
 @media (max-width: 768px) {
     .content-wrapper { padding-top: 75px; }
-    #leftmenu, .sidebar-nav { padding-top: 40px !important; }
 }
 
 /* ==========================================================================
@@ -8598,10 +8595,6 @@ body.sidebar-open {
     padding: 4px 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.82rem; color: #e2e8f0;
 }
 
-/* ==========================================================================
-   END OF SMARTMOONS CSS
-   ========================================================================== */
-
 
 /* Modern JS modal fallback */
 #smart-modal-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.72); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; }
@@ -8642,3 +8635,1694 @@ body.sidebar-open {
   .btn-build-mobile { display: inline-flex; position: fixed; left: 14px; right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 2000; justify-content: center; padding: 12px 16px; border: 0; border-radius: 12px; background: linear-gradient(135deg,#22d3ee,#3b82f6); color: #001126; font-weight: 700; }
   .chat-fab { bottom: calc(150px + env(safe-area-inset-bottom)); }
 }
+/* ========================================
+   SmartMoons Forum Theme
+   Flarum-Inspired Space Design
+   ======================================== */
+
+:root {
+    --forum-bg: #0a0e1a;
+    --forum-bg-secondary: #101624;
+    --forum-card-bg: rgba(16, 22, 36, 0.8);
+    --forum-border: rgba(56, 189, 248, 0.2);
+    --forum-accent: #38bdf8;
+    --forum-accent-hover: #0ea5e9;
+    --forum-neon-green: #10b981;
+    --forum-neon-purple: #a855f7;
+    --forum-neon-orange: #f59e0b;
+    --forum-text: rgba(255, 255, 255, 0.9);
+    --forum-text-muted: rgba(255, 255, 255, 0.5);
+    --forum-glass: rgba(255, 255, 255, 0.05);
+    --forum-error: #ef4444;
+}
+
+/* ========== MAIN CONTAINER ========== */
+.forum-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* ========== HEADER ========== */
+.forum-header {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(99, 102, 241, 0.1));
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--forum-border);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forum-header-title {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--forum-accent), var(--forum-neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+.forum-header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.forum-btn {
+    padding: 10px 20px;
+    background: var(--forum-glass);
+    border: 1px solid var(--forum-border);
+    border-radius: 10px;
+    color: var(--forum-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.forum-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: var(--forum-accent);
+    color: var(--forum-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+}
+
+.forum-btn-primary {
+    background: linear-gradient(135deg, var(--forum-accent), var(--forum-neon-purple));
+    border: none;
+    color: white;
+}
+
+.forum-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+}
+
+/* ========== STATS BAR ========== */
+.forum-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.forum-stat-card {
+    background: var(--forum-card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--forum-border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.forum-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--forum-accent);
+    margin-bottom: 5px;
+}
+
+.forum-stat-label {
+    font-size: 13px;
+    color: var(--forum-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ========== CATEGORIES ========== */
+.forum-category {
+    background: var(--forum-card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--forum-border);
+    border-radius: 16px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.forum-category:hover {
+    border-color: var(--forum-accent);
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+}
+
+.forum-category-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--forum-border);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.forum-category-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--forum-glass);
+}
+
+.forum-category-info {
+    flex: 1;
+}
+
+.forum-category-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--forum-text);
+    margin: 0 0 5px 0;
+}
+
+.forum-category-description {
+    font-size: 13px;
+    color: var(--forum-text-muted);
+    margin: 0;
+}
+
+.forum-category-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--forum-text-muted);
+}
+
+.forum-category-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Sub-Categories */
+.forum-subcategories {
+    padding: 0;
+}
+
+.forum-subcategory {
+    padding: 15px 25px;
+    border-top: 1px solid var(--forum-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.forum-subcategory:hover {
+    background: var(--forum-glass);
+}
+
+.forum-subcategory-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.forum-subcategory-icon {
+    font-size: 20px;
+}
+
+.forum-subcategory-title {
+    font-weight: 500;
+    color: var(--forum-text);
+}
+
+.forum-subcategory-description {
+    font-size: 12px;
+    color: var(--forum-text-muted);
+    margin-top: 3px;
+}
+
+.forum-subcategory-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+    color: var(--forum-text-muted);
+}
+
+/* ========== TOPICS LIST ========== */
+.forum-topics {
+    background: var(--forum-card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--forum-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.forum-topic-item {
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--forum-border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.2s ease;
+}
+
+.forum-topic-item:last-child {
+    border-bottom: none;
+}
+
+.forum-topic-item:hover {
+    background: var(--forum-glass);
+}
+
+.forum-topic-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--forum-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.forum-topic-icon.sticky {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.forum-topic-icon.locked {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.forum-topic-icon.announcement {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+}
+
+.forum-topic-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.forum-topic-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--forum-text);
+    margin: 0 0 5px 0;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.forum-topic-title:hover {
+    color: var(--forum-accent);
+}
+
+.forum-topic-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+    color: var(--forum-text-muted);
+}
+
+.forum-topic-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--forum-text-muted);
+    white-space: nowrap;
+}
+
+.forum-topic-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ========== POSTS ========== */
+.forum-post {
+    background: var(--forum-card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--forum-border);
+    border-radius: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 20px;
+    padding: 25px;
+    transition: all 0.2s ease;
+}
+
+.forum-post:hover {
+    border-color: var(--forum-accent);
+}
+
+/* User Sidebar */
+.forum-post-user {
+    width: 150px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.forum-post-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--forum-accent), var(--forum-neon-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+.forum-post-username {
+    font-weight: 600;
+    color: var(--forum-text);
+    text-align: center;
+    word-break: break-word;
+}
+
+.forum-post-role {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.forum-post-role.admin {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.forum-post-role.moderator {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.forum-post-alliance {
+    font-size: 12px;
+    color: var(--forum-text-muted);
+    text-align: center;
+}
+
+.forum-post-user-stats {
+    font-size: 11px;
+    color: var(--forum-text-muted);
+    text-align: center;
+    margin-top: 5px;
+}
+
+/* Post Content */
+.forum-post-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.forum-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--forum-border);
+}
+
+.forum-post-time {
+    font-size: 12px;
+    color: var(--forum-text-muted);
+}
+
+.forum-post-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.forum-post-action {
+    padding: 5px 12px;
+    background: var(--forum-glass);
+    border: 1px solid var(--forum-border);
+    border-radius: 6px;
+    color: var(--forum-text-muted);
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.forum-post-action:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: var(--forum-accent);
+    color: var(--forum-accent);
+}
+
+.forum-post-body {
+    color: var(--forum-text);
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.forum-post-footer {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--forum-border);
+    display: flex;
+    gap: 15px;
+}
+
+.forum-post-like-btn {
+    padding: 8px 15px;
+    background: var(--forum-glass);
+    border: 1px solid var(--forum-border);
+    border-radius: 8px;
+    color: var(--forum-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.forum-post-like-btn:hover {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--forum-neon-green);
+    color: var(--forum-neon-green);
+}
+
+.forum-post-like-btn.liked {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--forum-neon-green);
+    color: var(--forum-neon-green);
+}
+
+/* ========== BBCODE STYLES ========== */
+.forum-mention {
+    color: var(--forum-accent);
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.forum-mention:hover {
+    background: rgba(56, 189, 248, 0.2);
+}
+
+.forum-link {
+    color: var(--forum-accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--forum-accent);
+}
+
+.forum-link:hover {
+    color: var(--forum-accent-hover);
+}
+
+.forum-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.forum-quote {
+    background: rgba(56, 189, 248, 0.05);
+    border-left: 3px solid var(--forum-accent);
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.forum-quote-author {
+    font-weight: 600;
+    color: var(--forum-accent);
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.forum-quote-content {
+    color: var(--forum-text-muted);
+    font-style: italic;
+}
+
+.forum-code {
+    background: rgba(10, 14, 26, 0.8);
+    border: 1px solid var(--forum-border);
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.forum-code-header {
+    background: rgba(56, 189, 248, 0.1);
+    padding: 8px 15px;
+    font-size: 11px;
+    color: var(--forum-accent);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.forum-code pre {
+    margin: 0;
+    padding: 15px;
+    overflow-x: auto;
+}
+
+.forum-code code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--forum-text);
+}
+
+.forum-list {
+    margin: 10px 0;
+    padding-left: 25px;
+}
+
+.forum-list li {
+    margin: 5px 0;
+    color: var(--forum-text);
+}
+
+/* ========== EDITOR ========== */
+.forum-editor {
+    background: var(--forum-card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--forum-border);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.forum-editor-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--forum-border);
+    flex-wrap: wrap;
+}
+
+.forum-editor-btn {
+    padding: 8px 12px;
+    background: var(--forum-glass);
+    border: 1px solid var(--forum-border);
+    border-radius: 8px;
+    color: var(--forum-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.forum-editor-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: var(--forum-accent);
+}
+
+.forum-input {
+    width: 100%;
+    background: rgba(10, 14, 26, 0.5);
+    border: 1px solid var(--forum-border);
+    border-radius: 10px;
+    padding: 12px 15px;
+    color: var(--forum-text);
+    font-size: 14px;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.forum-input:focus {
+    border-color: var(--forum-accent);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.forum-textarea {
+    min-height: 150px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.forum-input-group {
+    margin-bottom: 15px;
+}
+
+.forum-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--forum-text);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* ========== PAGINATION ========== */
+.forum-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.forum-pagination-btn {
+    padding: 8px 15px;
+    background: var(--forum-glass);
+    border: 1px solid var(--forum-border);
+    border-radius: 8px;
+    color: var(--forum-text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.forum-pagination-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: var(--forum-accent);
+    color: var(--forum-accent);
+}
+
+.forum-pagination-btn.active {
+    background: linear-gradient(135deg, var(--forum-accent), var(--forum-neon-purple));
+    border: none;
+    color: white;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .forum-post {
+        flex-direction: column;
+    }
+    
+    .forum-post-user {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+    
+    .forum-post-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    .forum-topic-stats {
+        display: none;
+    }
+    
+    .forum-category-stats {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   END OF SMARTMOONS CSS
+   ========================================================================== */
+
+   
+/* ==========================================================================
+   SMARTMOONS PATCH v2 — Navigation + Mobile/Desktop + Progressbars + Bugfixes
+   Nur gezielte Ergänzungen, kein globaler Umbau.
+   ========================================================================== */
+
+/* ── 1. SIDEBAR FOOTER LINKS ── */
+.sidebar-footer {
+    padding: 10px 14px 12px;
+    background: rgba(10, 14, 26, 0.7);
+    border-top: 1px solid rgba(0, 243, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.sidebar-footer-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.sidebar-footer-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid rgba(0, 243, 255, 0.12);
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+.sidebar-footer-link:hover {
+    background: rgba(0, 243, 255, 0.12);
+    border-color: rgba(0, 243, 255, 0.35);
+    color: var(--color-accent-cyan);
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.2);
+}
+.sidebar-footer-admin i { color: #eab308 !important; }
+.sidebar-footer-admin:hover { border-color: rgba(234, 179, 8, 0.4) !important; background: rgba(234, 179, 8, 0.08) !important; }
+.version-info {
+    font-size: 0.7rem;
+    color: #475569;
+    margin-bottom: 0;
+}
+.copyright {
+    font-size: 0.65rem;
+    color: #334155;
+}
+
+/* ── 2. NAV-SECTION-TITLE verbessert ── */
+.nav-section-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+    padding: 6px var(--spacing-sm) 4px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nav-section-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 10px;
+    background: var(--color-accent-cyan);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(0, 243, 255, 0.4);
+    flex-shrink: 0;
+}
+.nav-section {
+    margin-bottom: 12px;
+}
+
+/* ── 3. SIDEBAR-LINK Hover-Verbesserung ── */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 7px var(--spacing-md);
+    margin-bottom: 2px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: #94a3b8;
+    transition: all 0.18s ease;
+    position: relative;
+    text-decoration: none;
+    font-size: 0.84rem;
+    border-left: 2px solid transparent;
+}
+.sidebar-link i {
+    width: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #64748b;
+    transition: color 0.18s ease, transform 0.18s ease;
+    flex-shrink: 0;
+}
+.sidebar-link:hover {
+    background: rgba(0, 243, 255, 0.07);
+    border-color: rgba(0, 243, 255, 0.15);
+    border-left-color: rgba(0, 243, 255, 0.5);
+    color: var(--color-accent-cyan);
+    padding-left: calc(var(--spacing-md) + 2px);
+}
+.sidebar-link:hover i {
+    color: var(--color-accent-cyan);
+    transform: scale(1.08);
+}
+.sidebar-link.active {
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.12), rgba(59, 130, 246, 0.06));
+    border-color: rgba(0, 243, 255, 0.25);
+    border-left-color: var(--color-accent-cyan);
+    color: var(--color-accent-cyan);
+    box-shadow: inset 0 0 12px rgba(0, 243, 255, 0.04);
+}
+.sidebar-link.active i {
+    color: var(--color-accent-cyan);
+}
+
+/* ── 4. BUGFIX: nq-cancel überdeckt nq-level nicht mehr ──
+   Problem: .nq-cancel position:absolute right:0 liegt ÜBER .nq-level
+   Fix: .nq-header bekommt padding-right damit Platz für Cancel-Button ist;
+        .nq-cancel bleibt absolut, aber .nq-level wird nicht beschnitten.
+*/
+.nq-header {
+    display: flex;
+    justify-content: flex-start;   /* Links ausrichten, Cancel rechts absolut */
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    position: relative;
+    padding-right: 28px;           /* PATCH: Platz für Cancel-Button (20px + 8px Abstand) */
+}
+.nq-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+.nq-level {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-family: 'Exo 2', monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.nq-cancel {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    /* PATCH: bleibt absolut, nq-header padding-right schützt nq-level */
+    background: rgba(239, 68, 68, 0.75);
+    border: 1px solid rgba(239, 68, 68, 0.85);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+    transition: all 0.2s ease;
+    z-index: 10;
+    line-height: 1;
+}
+.nq-cancel:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+/* ── 5. CHAT-FAB: Desktop-only (Mobile nutzt Dock-Chat-Button) ── */
+.chat-fab-desktop-only {
+    /* Standard: sichtbar auf Desktop */
+}
+@media (max-width: 768px) {
+    .chat-fab-desktop-only {
+        display: none !important;
+    }
+}
+
+/* ── 6. PROGRESSBAR: dynamische Farbe via CSS Custom Property ──
+   Die Farbe wird per JS über .style.background gesetzt.
+   CSS-Klassen nur für Keyframe-Animationen.
+*/
+.res-progress-fill {
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s ease !important;
+}
+.res-progress-fill.is-low {
+    animation: resBarLowPulse 0.9s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+.res-progress-fill.is-full {
+    animation: resBarFullPulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+/* ── 7. MOBILE: sidebar-link active state klarer ── */
+@media (max-width: 768px) {
+    /* Sidebar auf Mobile bekommt schließen-Button am unteren Rand */
+    #leftmenu.active .sidebar-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
+}
+
+/* ── 8. DESKTOP: sidebar-link::before bleibt (deaktiviert alte ::before-Regel falls Dopplung) ── */
+.sidebar-link::before { display: none; } /* Altes Pseudo-Element durch border-left ersetzt */
+
+/* ==========================================================================
+   END PATCH v2
+   ========================================================================== */
+
+/* ==========================================================================
+   SMARTMOONS PATCH v3 — Features 1–5
+   ========================================================================== */
+
+/* ────────────────────────────────────────────────────────────────────────────
+   FEATURE 1 – RESSOURCE TOOLTIP (Hover zeigt Name + Produktion + Füllstand)
+   ──────────────────────────────────────────────────────────────────────────── */
+.res-item-tooltip {
+    position: relative;
+}
+.res-item-tooltip::after {
+    content: attr(data-res-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: rgba(10, 14, 28, 0.97);
+    border: 1px solid rgba(0, 243, 255, 0.25);
+    border-radius: 8px;
+    padding: 7px 11px;
+    font-size: 0.75rem;
+    font-family: 'Exo 2', monospace;
+    color: #e2e8f0;
+    white-space: pre;          /* \n für Zeilenumbruch im content */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 9000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 12px rgba(0,243,255,0.08);
+    min-width: 130px;
+    text-align: left;
+    line-height: 1.55;
+}
+.res-item-tooltip:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+/* Pfeil nach unten */
+.res-item-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 243, 255, 0.25);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    z-index: 9001;
+}
+.res-item-tooltip:hover::before {
+    opacity: 1;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   FEATURE 2 – SIDEBAR COLLAPSE (Icon-Only Mode auf Desktop)
+   ──────────────────────────────────────────────────────────────────────────── */
+.sidebar-collapse-btn {
+    position: absolute;
+    top: 50%;
+    right: -13px;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(10, 14, 26, 0.95);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    color: var(--color-accent-cyan);
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.15);
+    opacity: 0;                  /* Nur bei Hover sichtbar */
+}
+.sidebar-nav:hover .sidebar-collapse-btn {
+    opacity: 1;
+}
+.sidebar-collapse-btn:hover {
+    background: rgba(0, 243, 255, 0.15);
+    box-shadow: 0 0 14px rgba(0, 243, 255, 0.35);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Sidebar Icon-Only Mode */
+.sidebar-nav.sidebar-icon-only {
+    width: 58px !important;
+    min-width: 58px !important;
+    overflow: visible;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-content {
+    overflow: visible;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-link span,
+.sidebar-nav.sidebar-icon-only .nav-section-title span,
+.sidebar-nav.sidebar-icon-only .sidebar-footer-links + *,
+.sidebar-nav.sidebar-icon-only .version-info,
+.sidebar-nav.sidebar-icon-only .copyright {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, width 0.25s ease;
+}
+.sidebar-nav.sidebar-icon-only .nav-section-title {
+    justify-content: center;
+    padding-left: 4px;
+}
+.sidebar-nav.sidebar-icon-only .nav-section-title::before {
+    width: 100%;
+    height: 1px;
+    border-radius: 1px;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-link {
+    justify-content: center;
+    padding: 8px 0;
+    gap: 0;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-link i {
+    width: auto;
+    font-size: 1rem;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-footer {
+    padding: 8px 4px;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-footer-links {
+    flex-direction: column;
+}
+
+/* Sidebar-Icon-Only: Tooltip beim Hover auf den Link zeigen */
+.sidebar-nav.sidebar-icon-only .sidebar-link {
+    position: relative;
+}
+.sidebar-nav.sidebar-icon-only .sidebar-link::after {
+    content: attr(data-label);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(10, 14, 28, 0.97);
+    border: 1px solid rgba(0, 243, 255, 0.25);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    color: #e2e8f0;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 2000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.sidebar-nav.sidebar-icon-only .sidebar-link:hover::after {
+    opacity: 1;
+}
+
+/* Content-Wrapper-Verschiebung bei collapsed Sidebar auf Desktop */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .content-wrapper,
+    body.sidebar-collapsed #content-wrapper,
+    body.sidebar-collapsed .game-wrapper > .content-wrapper {
+        margin-left: 58px;
+        transition: margin-left 0.25s ease;
+    }
+    .sidebar-nav {
+        transition: width 0.25s ease, min-width 0.25s ease;
+    }
+}
+
+/* Collapse-Button auf Mobile verstecken */
+@media (max-width: 768px) {
+    .sidebar-collapse-btn {
+        display: none !important;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   FEATURE 3 – ACTIVE-SECTION-HIGHLIGHT
+   Wenn ein Kind-Link .active ist, leuchtet der Section-Title dezent auf.
+   Nutzt :has() mit Fallback via JS-Klasse .section-has-active
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* :has() – moderne Browser */
+.nav-section:has(.sidebar-link.active) .nav-section-title {
+    color: var(--color-accent-cyan);
+}
+.nav-section:has(.sidebar-link.active) .nav-section-title::before {
+    height: 14px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+}
+
+/* Fallback via JS-Klasse */
+.nav-section.section-has-active .nav-section-title {
+    color: var(--color-accent-cyan);
+}
+.nav-section.section-has-active .nav-section-title::before {
+    height: 14px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   FEATURE 5 – DOCK ACTIVE-STATE (fleetTable + weitere Seiten)
+   ──────────────────────────────────────────────────────────────────────────── */
+/* .dock-item.active kommt bereits aus Twig; dock-fab hat kein eigenes active.
+   Zusätzlich: FAB aktiv-Glow wenn fleetTable aktiv */
+.dock-fab.dock-fab-active {
+    box-shadow:
+        0 0 30px rgba(0, 243, 255, 0.7),
+        0 4px 16px rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 243, 255, 0.6);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   RESSOURCE WARNUNG TOAST – spezielle Farbe (Feature 4)
+   ──────────────────────────────────────────────────────────────────────────── */
+.sm-toast.res-warn {
+    border-left-color: #f97316;
+}
+.sm-toast.res-warn i {
+    color: #f97316;
+}
+
+/* ==========================================================================
+   END PATCH v3
+   ========================================================================== */
+
+/* ==========================================================================
+   SMARTMOONS PATCH v4 — Bugfixes: Avatar-Overlay, Burger, Mobile-Nav, Dock-Dopplung
+   Minimal-invasiv. Keine Notifications verändert. Keine globale Umstrukturierung.
+   ========================================================================== */
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   FIX 1: Avatar-Dropdown wird von res-bar-row überdeckt
+   
+   Ursache 1: .res-bar-row ist DOM-Sibling nach .header-row-main, beide in
+              .game-header (SC z-index:2000). Das .res-bar mit opaquem Hintergrund
+              übermalt das Dropdown, das im Stacking Context von .header-row-main liegt.
+   Ursache 2: .user-avatar-btn hat transform:translateZ(0) → eigener SC, das
+              Dropdown liegt innerhalb dieses SC.
+   
+   Fix:
+   - .notif-icon-wrap.user-avatar-wrap bekommt isolation:isolate + z-index → 
+     eigener SC der über res-bar-row schwebt
+   - .user-menu-dropdown wird aus dem header-flow herausgehoben: position:fixed
+     statt position:absolute, damit es NICHT im SC von game-header gefangen ist
+   - user-avatar-btn: transform:translateZ(0) entfernen (war nur GPU-Hint, unnötig)
+   - res-bar-row bekommt explizit z-index:1 damit es unter Dropdowns liegt
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* res-bar-row unter Dropdowns halten */
+.res-bar-row {
+    position: relative;
+    z-index: 1;
+}
+
+/* Avatar-Wrap: eigener Stacking Context MIT hohem z-index */
+.user-avatar-wrap {
+    isolation: isolate;
+    z-index: 100;
+    position: relative;
+}
+
+/* user-avatar-btn: kein transform:translateZ(0) mehr (verursachte SC-Konflikt) */
+.user-avatar-btn {
+    transform: none;
+}
+/* GPU-Compositing via will-change stattdessen (kein SC) */
+.user-avatar-btn:hover {
+    will-change: box-shadow, border-color;
+}
+
+/* Avatar-Dropdown: position:fixed statt absolute → bricht aus game-header SC aus */
+.user-menu-dropdown {
+    position: fixed !important;
+    top: 44px;        /* Direkt unter header-row-main (40px + 4px gap) */
+    right: 8px;
+    left: auto;
+    width: 280px;
+    z-index: 9800 !important;  /* Über allem: header(2000), res-bar(1), dock(1200) */
+}
+
+/* Mobile: fixed full-width bleibt, top angepasst */
+@media (max-width: 768px) {
+    .user-menu-dropdown {
+        top: 38px !important;   /* mobile header-row-main ist 38px hoch */
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        border-radius: 0 0 16px 16px;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   FIX 3: Burger-Button — modern, animiert, kein Layout-Jump
+   
+   Ursache des Jumps: 
+   - .mobile-menu-toggle hat position:fixed; top:var(--spacing-md) →
+     beim Hinzufügen von .active springt der Button durch reflow
+   - Zwei konkurrierende Definitionen: .burger-menu (40px) vs .sidebar-menu-toggle (34px)
+     ohne align-items/justify-content → lines floaten
+   - burger-line translate-Werte (5px,5px) und (7px,-6px) stimmen nicht mit der
+     tatsächlichen Zeilengröße überein → X ist asymmetrisch
+   
+   Fix:
+   - .sidebar-menu-toggle bekommt eigene vollständige, korrekte Definition
+   - position:relative statt position:fixed (ist bereits in header-row-main inline)
+   - Burger-Lines: präzise, proportionale Transform-Werte für perfektes X
+   - Transition auf transform + opacity, kein Layout-Property
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Burger-Button: vollständig neu definiert, überschreibt beide alten Definitionen */
+.sidebar-menu-toggle,
+.sidebar-menu-toggle.burger-menu,
+.sidebar-menu-toggle.mobile-menu-toggle {
+    /* Layout — fix: kein position:fixed, kein top-Wert */
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    /* Größe */
+    width: 34px !important;
+    height: 34px !important;
+    flex: 0 0 34px !important;
+    min-width: 34px;
+    /* Flex-Zentrierung der Lines */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    padding: 0 !important;
+    /* Optik */
+    background: rgba(10, 20, 35, 0.9) !important;
+    border: 1px solid rgba(0, 243, 255, 0.35) !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden; /* kein Layout-Ausbrechen der Lines */
+}
+
+.sidebar-menu-toggle:hover,
+.sidebar-menu-toggle.burger-menu:hover {
+    background: rgba(0, 243, 255, 0.12) !important;
+    border-color: rgba(0, 243, 255, 0.6) !important;
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.25) !important;
+}
+
+.sidebar-menu-toggle:focus-visible {
+    outline: 2px solid var(--color-accent-cyan);
+    outline-offset: 2px;
+}
+
+/* Burger-Lines: präzise proportional für 34px Button */
+.sidebar-menu-toggle .burger-line {
+    display: block !important;
+    width: 18px !important;
+    height: 2px !important;
+    background: var(--color-accent-cyan) !important;
+    border-radius: 2px !important;
+    /* Transition nur auf transform + opacity, KEIN margin/top/position */
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity   0.18s ease !important;
+    transform-origin: center center;
+    flex-shrink: 0;
+}
+
+/* Aktiv-Zustand: Burger → X (mathematisch korrekt für 18px Lines, 5px gap) */
+/* Line 1: dreht sich 45° nach unten-rechts.
+   Translate: Y = gap + line-height = 5px + 2px = 7px → translateY(7px) */
+.sidebar-menu-toggle.active .burger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg) !important;
+}
+
+/* Line 2: ausblenden */
+.sidebar-menu-toggle.active .burger-line:nth-child(2) {
+    opacity: 0 !important;
+    transform: scaleX(0) !important;
+}
+
+/* Line 3: dreht sich -45° nach oben-rechts.
+   Translate: Y = -(gap + line-height) = -7px */
+.sidebar-menu-toggle.active .burger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   FIX 4: Mobile Navigation liegt unter der Ressbar
+   
+   Ursache: @media (max-width:992px) setzt sidebar top:60px — das entspricht 
+   einem alten Header-System (sci-fi-header 60px). Der aktuelle Header ist:
+   header-row-main (~40px) + res-bar-row (~34px) = ~74px Gesamthöhe.
+   Sidebar startet also bei 60px → mitten in der Ressbar.
+   
+   Fix:
+   - CSS Custom Property --sm-header-total auf dem :root für die Gesamthöhe
+   - Mobile Sidebar: top = var(--sm-header-total)
+   - height: calc(100dvh - var(--sm-header-total)) damit kein Overflow
+   - z-index über res-bar aber unter Dropdowns
+   - JS-Snippet misst tatsächliche Header-Höhe und setzt die CSS-Variable
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* CSS Custom Property — Fallback-Wert 80px (wird via JS präzise gesetzt) */
+:root {
+    --sm-header-total: 80px;
+}
+
+@media (max-width: 992px) {
+    #leftmenu,
+    .sidebar-nav {
+        position: fixed !important;
+        top: var(--sm-header-total) !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: auto !important;
+        max-height: calc(100dvh - var(--sm-header-total)) !important;
+        overflow-y: auto !important;
+        z-index: 1500 !important;   /* über Header(2000)? Nein: unter Avatar-Dropdown(9800) */
+        transform: translateX(-100%) !important;
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: flex !important;   /* immer flex, transform statt display:none/flex */
+        visibility: hidden;
+    }
+
+    #leftmenu.active,
+    .sidebar-nav.active {
+        transform: translateX(0) !important;
+        visibility: visible;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* Mobile ≤768px: Breite anpassen, kein Overflow */
+@media (max-width: 768px) {
+    #leftmenu,
+    .sidebar-nav {
+        width: 270px !important;
+        z-index: 1500 !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   FIX 2: Dock-Link-Dopplung — Mobile verstecken, Desktop zeigen
+   
+   Dock-Links: overview, buildings, fleetTable, galaxy
+   Sidebar muss diese Links auf Mobile (≤768px) ausblenden, auf Desktop zeigen.
+   
+   Lösung: CSS-Klasse .dock-mirrored auf die entsprechenden sidebar-links setzen.
+   Auf Mobile (wo Dock sichtbar ist) → display:none
+   Auf Desktop (wo Dock display:none hat) → normal sichtbar
+   
+   Die Klasse wird in main_navigation.twig auf die 4 Links gesetzt die auch im Dock sind.
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Mobile: sidebar-links die auch im Dock sind → ausblenden */
+@media (max-width: 768px) {
+    .sidebar-link.dock-mirrored {
+        display: none !important;
+    }
+
+    /* Section-Title ausblenden wenn alle Links in der Section hidden sind */
+    .nav-section.dock-section-hidden {
+        display: none !important;
+    }
+}
+
+/* Desktop: immer sichtbar (Dock ist auf Desktop display:none) */
+@media (min-width: 769px) {
+    .sidebar-link.dock-mirrored {
+        display: flex !important; /* override, sicher */
+    }
+}
+
+/* Sidebar-Overlay auf Mobile: z-index unter Sidebar */
+@media (max-width: 992px) {
+    .sidebar-overlay {
+        z-index: 1400 !important; /* unter sidebar(1500), über content */
+    }
+}
+
+/* ==========================================================================
+   END PATCH v4
+   ========================================================================== */
+
+/* Übersichts-Section auf Mobile ausblenden (einziger Link ist dock-mirrored) */
+@media (max-width: 768px) {
+    .dock-section-overview {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   SMARTMOONS PATCH v5
+   Fixes: Sidebar-Gap, Avatar-Dropdown, Kontrast, Dock-Mirror-Logik
+   Alle Regeln am Ende = höchste Spezifität, keine globalen Änderungen.
+   ========================================================================== */
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FIX P1: Sidebar Gap zum Header
+   
+   DIAGNOSE:
+   ─────────
+   Kette der aktiven Regeln (Desktop, >992px):
+     Zeile 592:  top:140px               (alte Basis)
+     Zeile 8209: top:0 !important        (neuerer Patch - "Sidebar ab 0")
+                 padding-top:40px !important (schiebt Content 40px nach unten)
+   
+   top:0 = Sidebar-HINTERGRUND startet direkt hinter game-header (der liegt drüber,
+   z-index:2000 > sidebar z-index:999 → opaker Header versteckt die obersten ~80px
+   der Sidebar-Fläche).
+   
+   padding-top:40px schiebt die Links nur 40px nach unten, aber sichtbar ist die
+   Sidebar erst ab ~80px (40px header-row + ~40px res-bar). Resultat: die ersten
+   Links beginnen bei 40px vom top → die Hälfte davon ist noch unter der res-bar
+   versteckt → visueller "Gap" zwischen res-bar-unterkante und erstem sichtbaren Link.
+   
+   ZIEL laut Beschreibung:
+   "Hintergrund der Sidebar soll bis an den Header reichen"  → top:0 ✓ (korrekt)
+   "IMPERIUM-Titel bleibt an Position"                      → padding-top korrekt
+   "kein sichtbarer Gap"                                    → padding-top muss ≥ 80px
+   
+   FIX:
+   ────
+   1. padding-top auf var(--sm-header-total) setzen (JS misst echte Höhe, Fallback 80px)
+   2. top:0 behalten → Hintergrund reicht nahtlos bis ans Ende des Headers
+   3. Pseudo-Element ::before verlängert Sidebar-Background optisch HINTER den Header
+      (deckt den Bereich 0→sm-header-total mit identischem Hintergrund ab,
+       z-index:-1 damit Header-Inhalt davor bleibt)
+   4. Mobile (≤992px): top:var(--sm-header-total), padding-top:0 (kein Pseudo nötig)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Desktop: Hintergrund ab 0, Content ab Header-Gesamthöhe */
+@media (min-width: 993px) {
+    #leftmenu,
+    .sidebar-nav {
+        top: 0 !important;
+        padding-top: var(--sm-header-total) !important;  /* Content erst nach Header */
+        /* Hintergrund geht von top:0 → nahtlos an Header-Bottom */
+        /* overflow:visible damit Pseudo rausgehen kann */
+        overflow: visible;
+    }
+
+    /* sidebar-content braucht overflow-y, nicht sidebar selbst */
+    #leftmenu .sidebar-content,
+    .sidebar-nav .sidebar-content {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Kein Extra-Pseudo nötig: top:0 + opaker Hintergrund reicht bis oben.
+       Der game-header (z-index:2000) sitzt drüber → nahtloser Übergang.
+       Das Pseudo-Element verlängert nur für Edge Cases wo Header transparent ist. */
+    #leftmenu::before,
+    .sidebar-nav::before {
+        content: '';
+        position: absolute;
+        top: calc(-1 * var(--sm-header-total));
+        left: 0;
+        right: 0;
+        height: var(--sm-header-total);
+        background: inherit;        /* Gleiche Farbe wie Sidebar */
+        pointer-events: none;
+        z-index: -1;                /* Hinter Sidebar-Inhalt und Header-Inhalt */
+    }
+}
+
+/* Mobile (≤992px): Sidebar startet exakt unter dem Header, kein Pseudo nötig */
+@media (max-width: 992px) {
+    #leftmenu,
+    .sidebar-nav {
+        top: var(--sm-header-total) !important;
+        padding-top: 0 !important;   /* kein Extra-Offset: top deckt es ab */
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FIX P2: Avatar-Dropdown wird wieder verdeckt
+   
+   DIAGNOSE:
+   ─────────
+   SmartNotif.toggle() fügt/entfernt die Klasse .open am #notif-usermenu-dropdown.
+   Das Element ist .notif-dropdown.user-menu-dropdown.
+   
+   .notif-dropdown (Basis-Regel, Zeile 7857):
+     position: absolute;
+     overflow: hidden;      ← KRITISCH
+     max-height: 0;         ← versteckt ohne .open
+     opacity: 0;
+   
+   Patch v4 setzt auf .user-menu-dropdown:
+     position: fixed !important;
+     top: 44px;
+     z-index: 9800 !important;
+   
+   Das Problem: overflow:hidden von .notif-dropdown clippt immer noch das Dropdown
+   auch bei position:fixed, WEIL overflow:hidden auf dem ELEMENT selbst sitzt und
+   max-height:0 → Clipping durch max-height!
+   
+   Wenn .open → max-height:420px → Clip ist weg. Das sollte funktionieren.
+   
+   Aber: Das Dropdown ist Kind von .notif-icon-wrap (kein overflow) → ok.
+   .user-avatar-wrap (position:relative) → kein overflow → ok.
+   game-header (overflow:visible) → ok.
+   
+   Echter verbleibender Bug:
+   Stacking Context Kette: game-header (position:fixed, z-index:2000) erzeugt SC.
+   Alle Kinder von game-header leben INNERHALB dieses SC, egal wie hoch ihr z-index ist.
+   Das Dropdown liegt in SC von game-header → kann andere SCs außerhalb nicht übertreffen.
+   
+   ABER: position:fixed Elemente gehören zum "initial containing block" → sie sind
+   NICHT im SC ihres DOM-Elternteils gefangen. position:fixed bricht den SC-Kontext auf.
+   → z-index:9800 gilt im Root-SC, nicht im game-header-SC.
+   
+   Also: position:fixed + z-index:9800 MUSS über allem liegen.
+   
+   Wenn es trotzdem verdeckt wird: vermutlich liegt ein anderes Element mit höherem
+   z-index drüber (z-index:9999: toast-container, smart-modal-overlay).
+   Oder: .notif-dropdown max-height/overflow-Problem bei der .open Transition.
+   
+   FIX:
+   ────
+   1. user-menu-dropdown: position:fixed bleibt, z-index erhöhen auf 10000
+   2. max-height Transition robuster: beim open max-height sehr groß setzen
+   3. overflow auf user-menu-dropdown explizit auf visible/auto setzen
+   4. Sicherstellen dass SmartNotif-Click-Outside den fixed dropdown schließt
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Vollständige Neudefinition user-menu-dropdown für sicheres Rendering */
+.user-menu-dropdown {
+    /* Position: fixed → aus SC von game-header heraus */
+    position: fixed !important;
+    top: 46px !important;          /* header-row-main (40px) + 6px Luft */
+    right: 8px !important;
+    left: auto !important;
+    width: 280px !important;
+
+    /* Stacking: Root-SC, über allem anderen */
+    z-index: 10000 !important;
+
+    /* Sichtbarkeit: overflow NICHT hidden (würde Inhalt clippen) */
+    overflow: visible !important;
+
+    /* max-height Transition: groß genug für scrollbares Menü */
+    max-height: 0 !important;
+    opacity: 0 !important;
+    transform: translateY(-6px) !important;
+    transition: max-height 0.25s ease,
+                opacity    0.18s ease,
+                transform  0.18s ease !important;
+    pointer-events: none !important;
+}
+
+.user-menu-dropdown.open {
+    max-height: 520px !important;   /* Hoch genug für alle Menu-Items */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+    overflow: visible !important;   /* kein Clip */
+}
+
+/* user-menu-body bekommt overflow-y für scrollbares Menü */
+.user-menu-dropdown .user-menu-body {
+    max-height: 340px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Mobile: volle Breite */
+@media (max-width: 768px) {
+    .user-menu-dropdown {
+        top: calc(var(--sm-header-total) + 2px) !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        border-radius: 0 0 16px 16px !important;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FIX P3: Kontrast User-/Planet-Info im Avatar-Dropdown-Header
+   
+   DIAGNOSE:
+   ─────────
+   .user-menu-name  → color:#e2e8f0  (hell → ok, aber im neuen fixed-Kontext prüfen)
+   .user-menu-planet → color:#64748b  (Slate-500) auf background:rgba(0,243,255,0.03)
+   → Hintergrund ist quasi schwarz (#0f1423). Kontrast #64748b auf #0f1423: ~2.7:1
+   → WCAG AA verlangt 4.5:1 für Normaltext → FAIL.
+   
+   .user-menu-header hat background: rgba(0,243,255,0.03) → fast transparent auf
+   dem Dropdown-Background rgba(15,20,35,0.98) ≈ sehr dunkel.
+   
+   FIX:
+   ────
+   1. user-menu-planet: #94a3b8 (Slate-400) statt #64748b → Kontrast ~4.8:1 ✓
+   2. user-menu-name: #f1f5f9 (noch heller) für mehr Präsenz
+   3. user-menu-header: leicht aufgehellter Hintergrund für Abgrenzung
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.user-menu-name {
+    color: #f1f5f9 !important;        /* Slate-100: hell, klar lesbar */
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-menu-planet {
+    color: #94a3b8 !important;        /* Slate-400: Kontrast ~4.8:1 auf dunklem BG ✓ */
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-menu-header {
+    background: rgba(0, 243, 255, 0.06) !important;  /* Etwas mehr Cyan-Hauch */
+    border-bottom: 1px solid rgba(0, 243, 255, 0.12) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FIX DOCK-MIRROR: Mobile/Desktop Sidebar-Link Sichtbarkeit
+   
+   Bereits in Patch v4 gesetzt (.dock-mirrored, .dock-section-overview).
+   Hier: sicherstellen dass der cascade korrekt ist und kein Revert passiert.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Mobile (≤768px): Dock-gespiegelte Links in Sidebar ausblenden */
+@media (max-width: 768px) {
+    .sidebar-link.dock-mirrored {
+        display: none !important;
+    }
+    .dock-section-overview {
+        display: none !important;
+    }
+}
+
+/* Desktop (≥769px): immer sichtbar */
+@media (min-width: 769px) {
+    .sidebar-link.dock-mirrored {
+        display: flex !important;
+    }
+    .dock-section-overview {
+        display: block !important;
+    }
+}
+
+/* ==========================================================================
+   END PATCH v5
+   ========================================================================== */
