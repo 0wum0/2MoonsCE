@@ -21,8 +21,11 @@ function ShowForumAdminPage(): void
     $mode    = HTTP::_GP('mode', 'categories');
     $message = [];
 
+    // ── POST HANDLERS ──────────────────────────────────────────────────────────
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+        // Category: create
         if (isset($_POST['create_category'])) {
             $title = trim(HTTP::_GP('title', '', true));
             if ($title !== '') {
@@ -41,6 +44,7 @@ function ShowForumAdminPage(): void
             $message = ['class' => 'error', 'text' => 'Titel darf nicht leer sein.'];
         }
 
+        // Category: update
         if (isset($_POST['update_category'])) {
             $catId = (int)HTTP::_GP('category_id', 0);
             $title = trim(HTTP::_GP('title', '', true));
@@ -60,6 +64,7 @@ function ShowForumAdminPage(): void
             $message = ['class' => 'error', 'text' => 'Ungültige Daten.'];
         }
 
+        // Category: delete
         if (isset($_POST['delete_category'])) {
             $catId = (int)HTTP::_GP('category_id', 0);
             if ($catId > 0) {
@@ -69,38 +74,89 @@ function ShowForumAdminPage(): void
             }
         }
 
+        // Topic: delete
         if (isset($_POST['delete_topic'])) {
             $topicId = (int)HTTP::_GP('topic_id', 0);
             if ($topicId > 0) {
                 $forum->deleteTopic($topicId);
-                HTTP::redirectTo('admin.php?page=ForumAdmin&mode=topics&msg=topic_deleted');
+                $qs = http_build_query(array_filter([
+                    'page'          => 'ForumAdmin',
+                    'mode'          => 'topics',
+                    'msg'           => 'topic_deleted',
+                    'p'             => HTTP::_GP('p', 1) > 1 ? HTTP::_GP('p', 1) : null,
+                    'cat_filter'    => HTTP::_GP('cat_filter', 0) > 0 ? HTTP::_GP('cat_filter', 0) : null,
+                    'search'        => HTTP::_GP('search', '') !== '' ? HTTP::_GP('search', '') : null,
+                    'status_filter' => HTTP::_GP('status_filter', '') !== '' ? HTTP::_GP('status_filter', '') : null,
+                ]));
+                HTTP::redirectTo('admin.php?' . $qs);
                 return;
             }
         }
 
+        // Topic: update (full edit)
         if (isset($_POST['update_topic'])) {
             $topicId = (int)HTTP::_GP('topic_id', 0);
             $title   = trim(HTTP::_GP('title', '', true));
             if ($topicId > 0 && $title !== '') {
                 $forum->updateTopic($topicId, [
-                    'title'     => $title,
-                    'is_sticky' => isset($_POST['is_sticky']) ? 1 : 0,
-                    'is_locked' => isset($_POST['is_locked']) ? 1 : 0,
+                    'title'       => $title,
+                    'is_sticky'   => isset($_POST['is_sticky']) ? 1 : 0,
+                    'is_locked'   => isset($_POST['is_locked']) ? 1 : 0,
+                    'category_id' => (int)HTTP::_GP('category_id', 0),
                 ]);
                 HTTP::redirectTo('admin.php?page=ForumAdmin&mode=topics&msg=topic_updated');
                 return;
             }
         }
 
+        // Topic: quick action (lock/unlock/stick/unstick)
+        if (isset($_POST['quick_action'])) {
+            $topicId = (int)HTTP::_GP('topic_id', 0);
+            $action  = HTTP::_GP('quick_action', '');
+            if ($topicId > 0 && in_array($action, ['lock', 'unlock', 'stick', 'unstick'], true)) {
+                $topic = $forum->getTopicForEdit($topicId);
+                if ($topic !== null) {
+                    $forum->updateTopic($topicId, [
+                        'title'     => $topic['title'],
+                        'is_sticky' => $action === 'stick' ? 1 : ($action === 'unstick' ? 0 : (int)$topic['is_sticky']),
+                        'is_locked' => $action === 'lock'  ? 1 : ($action === 'unlock'  ? 0 : (int)$topic['is_locked']),
+                    ]);
+                }
+                $qs = http_build_query(array_filter([
+                    'page'          => 'ForumAdmin',
+                    'mode'          => 'topics',
+                    'msg'           => 'topic_updated',
+                    'p'             => HTTP::_GP('p', 1) > 1 ? HTTP::_GP('p', 1) : null,
+                    'cat_filter'    => HTTP::_GP('cat_filter', 0) > 0 ? HTTP::_GP('cat_filter', 0) : null,
+                    'search'        => HTTP::_GP('search', '') !== '' ? HTTP::_GP('search', '') : null,
+                    'status_filter' => HTTP::_GP('status_filter', '') !== '' ? HTTP::_GP('status_filter', '') : null,
+                ]));
+                HTTP::redirectTo('admin.php?' . $qs);
+                return;
+            }
+        }
+
+        // Post: delete
         if (isset($_POST['delete_post'])) {
             $postId = (int)HTTP::_GP('post_id', 0);
             if ($postId > 0) {
                 $forum->deletePost($postId);
-                HTTP::redirectTo('admin.php?page=ForumAdmin&mode=posts&msg=post_deleted');
+                $qs = http_build_query(array_filter([
+                    'page'         => 'ForumAdmin',
+                    'mode'         => 'posts',
+                    'msg'          => 'post_deleted',
+                    'p'            => HTTP::_GP('p', 1) > 1 ? HTTP::_GP('p', 1) : null,
+                    'cat_filter'   => HTTP::_GP('cat_filter', 0) > 0 ? HTTP::_GP('cat_filter', 0) : null,
+                    'topic_filter' => HTTP::_GP('topic_filter', 0) > 0 ? HTTP::_GP('topic_filter', 0) : null,
+                    'search'       => HTTP::_GP('search', '') !== '' ? HTTP::_GP('search', '') : null,
+                ]));
+                HTTP::redirectTo('admin.php?' . $qs);
                 return;
             }
         }
     }
+
+    // ── MSG FLASH ──────────────────────────────────────────────────────────────
 
     $msgKey = HTTP::_GP('msg', '');
     if ($msgKey !== '') {
@@ -117,6 +173,8 @@ function ShowForumAdminPage(): void
         }
     }
 
+    // ── COMMON DATA ────────────────────────────────────────────────────────────
+
     $tplData = [
         'mode'            => $mode,
         'message'         => $message,
@@ -124,34 +182,83 @@ function ShowForumAdminPage(): void
         'flat_categories' => $forum->getFlatCategories(),
     ];
 
+    // ── MODE-SPECIFIC DATA ─────────────────────────────────────────────────────
+
     try {
         switch ($mode) {
+
+            case 'categories':
+                // nothing extra — categories + flat_categories already loaded
+                break;
+
             case 'edit_category':
                 $catId = (int)HTTP::_GP('id', 0);
                 if ($catId > 0) {
-                    $tplData['category'] = $forum->getCategory($catId);
+                    $tplData['edit_category'] = $forum->getCategory($catId);
+                    if ($tplData['edit_category'] === null) {
+                        HTTP::redirectTo('admin.php?page=ForumAdmin&mode=categories');
+                        return;
+                    }
                 } else {
                     HTTP::redirectTo('admin.php?page=ForumAdmin&mode=categories');
                     return;
                 }
                 break;
 
+            case 'topics':
+                $page         = max(1, (int)HTTP::_GP('p', 1));
+                $catFilter    = (int)HTTP::_GP('cat_filter', 0);
+                $search       = trim(HTTP::_GP('search', '', true));
+                $statusFilter = HTTP::_GP('status_filter', '');
+                $limit        = 25;
+
+                $total    = $forum->getTopicsAdminCount($catFilter, $search, $statusFilter);
+                $maxPage  = max(1, (int)ceil($total / $limit));
+                $page     = min($page, $maxPage);
+
+                $tplData['topics']        = $forum->getTopicsAdmin($page, $limit, $catFilter, $search, $statusFilter);
+                $tplData['topics_total']  = $total;
+                $tplData['topics_page']   = $page;
+                $tplData['topics_pages']  = $maxPage;
+                $tplData['topics_limit']  = $limit;
+                $tplData['cat_filter']    = $catFilter;
+                $tplData['search']        = $search;
+                $tplData['status_filter'] = $statusFilter;
+                break;
+
             case 'edit_topic':
                 $topicId = (int)HTTP::_GP('id', 0);
                 if ($topicId > 0) {
-                    $tplData['topic'] = $forum->getTopicForEdit($topicId);
+                    $tplData['edit_topic'] = $forum->getTopicForEdit($topicId);
+                    if ($tplData['edit_topic'] === null) {
+                        HTTP::redirectTo('admin.php?page=ForumAdmin&mode=topics');
+                        return;
+                    }
                 } else {
                     HTTP::redirectTo('admin.php?page=ForumAdmin&mode=topics');
                     return;
                 }
                 break;
 
-            case 'topics':
-                $tplData['topics'] = $forum->getTopicsAdmin();
-                break;
-
             case 'posts':
-                $tplData['posts'] = $forum->getPostsAdmin();
+                $page        = max(1, (int)HTTP::_GP('p', 1));
+                $catFilter   = (int)HTTP::_GP('cat_filter', 0);
+                $topicFilter = (int)HTTP::_GP('topic_filter', 0);
+                $search      = trim(HTTP::_GP('search', '', true));
+                $limit       = 25;
+
+                $total   = $forum->getPostsAdminCount($catFilter, $topicFilter, $search);
+                $maxPage = max(1, (int)ceil($total / $limit));
+                $page    = min($page, $maxPage);
+
+                $tplData['posts']         = $forum->getPostsAdmin($page, $limit, $catFilter, $topicFilter, $search);
+                $tplData['posts_total']   = $total;
+                $tplData['posts_page']    = $page;
+                $tplData['posts_pages']   = $maxPage;
+                $tplData['posts_limit']   = $limit;
+                $tplData['cat_filter']    = $catFilter;
+                $tplData['topic_filter']  = $topicFilter;
+                $tplData['search']        = $search;
                 break;
 
             case 'stats':

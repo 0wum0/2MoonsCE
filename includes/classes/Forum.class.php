@@ -5,7 +5,6 @@ declare(strict_types=1);
 /**
  * SmartMoons Forum Model
  * PHP 8.3/8.4 Optimized
- * FIX: Player Rankings, Strict Mode & Unix Timestamps
  */
 
 class Forum
@@ -186,12 +185,19 @@ class Forum
 
     public function deleteCategory(int $id): void
     {
+        $children = $this->db->select("SELECT id FROM %%FORUM_CATEGORIES%% WHERE parent_id = :id", [':id' => $id]);
+        foreach ($children as $child) {
+            $childTopics = $this->db->select("SELECT id FROM %%FORUM_TOPICS%% WHERE category_id = :cat", [':cat' => (int)$child['id']]);
+            foreach ($childTopics as $topic) {
+                $this->deleteTopic((int)$topic['id']);
+            }
+            $this->db->delete("DELETE FROM %%FORUM_CATEGORIES%% WHERE id = :id", [':id' => (int)$child['id']]);
+        }
         $topics = $this->db->select("SELECT id FROM %%FORUM_TOPICS%% WHERE category_id = :cat", [':cat' => $id]);
         foreach ($topics as $topic) {
             $this->deleteTopic((int)$topic['id']);
         }
         $this->db->delete("DELETE FROM %%FORUM_CATEGORIES%% WHERE id = :id", [':id' => $id]);
-        $this->db->delete("DELETE FROM %%FORUM_CATEGORIES%% WHERE parent_id = :id", [':id' => $id]);
     }
 
     public function deleteTopic(int $id): void
@@ -217,42 +223,136 @@ class Forum
         return $this->db->select("SELECT id, title, parent_id FROM %%FORUM_CATEGORIES%% ORDER BY sort_order ASC, id ASC");
     }
 
-    public function getTopicsAdmin(int $page = 1, int $limit = 30): array
+    public function getTopicsAdmin(int $page = 1, int $limit = 30, int $catId = 0, string $search = '', string $status = ''): array
     {
+        [$where, $params] = $this->buildTopicAdminWhere($catId, $search, $status);
         $offset = ($page - 1) * $limit;
+        $params[':limit']  = $limit;
+        $params[':offset'] = $offset;
         return $this->db->select(
-            "SELECT t.*, u.username, c.title as category_title
+            "SELECT t.*, u.username, c.title as category_title,
+                    (SELECT COUNT(*) FROM %%FORUM_POSTS%% WHERE topic_id = t.id AND is_deleted = 0) as post_count
              FROM %%FORUM_TOPICS%% t
              LEFT JOIN %%USERS%% u ON t.user_id = u.id
              LEFT JOIN %%FORUM_CATEGORIES%% c ON t.category_id = c.id
+             {$where}
              ORDER BY t.created_at DESC
              LIMIT :limit OFFSET :offset",
-            [':limit' => $limit, ':offset' => $offset]
+            $params
         );
     }
 
-    public function getPostsAdmin(int $page = 1, int $limit = 30): array
+    public function getTopicsAdminCount(int $catId = 0, string $search = '', string $status = ''): int
     {
+        [$where, $params] = $this->buildTopicAdminWhere($catId, $search, $status);
+        return (int)$this->db->selectSingle(
+            "SELECT COUNT(*) as c FROM %%FORUM_TOPICS%% t {$where}",
+            $params,
+            'c'
+        );
+    }
+
+    private function buildTopicAdminWhere(int $catId, string $search, string $status): array
+    {
+        $conditions = [];
+        $params     = [];
+
+        if ($catId > 0) {
+            $conditions[] = 't.category_id = :cat_id';
+            $params[':cat_id'] = $catId;
+        }
+        if ($search !== '') {
+            $conditions[] = '(t.title LIKE :search OR u.username LIKE :search2)';
+            $params[':search']  = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
+        }
+        if ($status === 'sticky') {
+            $conditions[] = 't.is_sticky = 1';
+        } elseif ($status === 'locked') {
+            $conditions[] = 't.is_locked = 1';
+        } elseif ($status === 'deleted') {
+            $conditions[] = 't.is_deleted = 1';
+        }
+
+        $where = count($conditions) > 0 ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        return [$where, $params];
+    }
+
+    public function getPostsAdmin(int $page = 1, int $limit = 30, int $catId = 0, int $topicId = 0, string $search = ''): array
+    {
+        [$where, $params] = $this->buildPostAdminWhere($catId, $topicId, $search);
         $offset = ($page - 1) * $limit;
+        $params[':limit']  = $limit;
+        $params[':offset'] = $offset;
         return $this->db->select(
-            "SELECT p.*, u.username, t.title as topic_title
+            "SELECT p.*, u.username, t.title as topic_title, c.title as category_title
              FROM %%FORUM_POSTS%% p
              LEFT JOIN %%USERS%% u ON p.user_id = u.id
              LEFT JOIN %%FORUM_TOPICS%% t ON p.topic_id = t.id
-             WHERE p.is_deleted = 0
+             LEFT JOIN %%FORUM_CATEGORIES%% c ON t.category_id = c.id
+             {$where}
              ORDER BY p.created_at DESC
              LIMIT :limit OFFSET :offset",
-            [':limit' => $limit, ':offset' => $offset]
+            $params
         );
+    }
+
+    public function getPostsAdminCount(int $catId = 0, int $topicId = 0, string $search = ''): int
+    {
+        [$where, $params] = $this->buildPostAdminWhere($catId, $topicId, $search);
+        return (int)$this->db->selectSingle(
+            "SELECT COUNT(*) as c FROM %%FORUM_POSTS%% p
+             LEFT JOIN %%USERS%% u ON p.user_id = u.id
+             LEFT JOIN %%FORUM_TOPICS%% t ON p.topic_id = t.id
+             {$where}",
+            $params,
+            'c'
+        );
+    }
+
+    private function buildPostAdminWhere(int $catId, int $topicId, string $search): array
+    {
+        $conditions = ['p.is_deleted = 0'];
+        $params     = [];
+
+        if ($topicId > 0) {
+            $conditions[] = 'p.topic_id = :topic_id';
+            $params[':topic_id'] = $topicId;
+        } elseif ($catId > 0) {
+            $conditions[] = 't.category_id = :cat_id';
+            $params[':cat_id'] = $catId;
+        }
+        if ($search !== '') {
+            $conditions[] = '(u.username LIKE :search OR p.content LIKE :search2)';
+            $params[':search']  = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
+        }
+
+        $where = 'WHERE ' . implode(' AND ', $conditions);
+        return [$where, $params];
     }
 
     public function getStats(): array
     {
+        $topAuthors = $this->db->select(
+            "SELECT u.username, COUNT(p.id) as post_count
+             FROM %%FORUM_POSTS%% p
+             LEFT JOIN %%USERS%% u ON p.user_id = u.id
+             WHERE p.is_deleted = 0
+             GROUP BY p.user_id
+             ORDER BY post_count DESC
+             LIMIT :limit OFFSET :offset",
+            [':limit' => 5, ':offset' => 0]
+        );
         return [
-            'total_categories' => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_CATEGORIES%%", [], 'c'),
-            'total_topics'     => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_TOPICS%%", [], 'c'),
-            'total_posts'      => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_POSTS%% WHERE is_deleted = 0", [], 'c'),
-            'total_users'      => (int)$this->db->selectSingle("SELECT COUNT(DISTINCT user_id) as c FROM %%FORUM_POSTS%%", [], 'c'),
+            'total_categories'    => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_CATEGORIES%%", [], 'c'),
+            'total_subcategories' => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_CATEGORIES%% WHERE parent_id IS NOT NULL AND parent_id > 0", [], 'c'),
+            'total_topics'        => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_TOPICS%% WHERE is_deleted = 0", [], 'c'),
+            'total_posts'         => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_POSTS%% WHERE is_deleted = 0", [], 'c'),
+            'total_likes'         => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_POST_LIKES%%", [], 'c'),
+            'total_mentions'      => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_MENTIONS%%", [], 'c'),
+            'total_users'         => (int)$this->db->selectSingle("SELECT COUNT(DISTINCT user_id) as c FROM %%FORUM_POSTS%% WHERE is_deleted = 0", [], 'c'),
+            'top_authors'         => $topAuthors,
         ];
     }
 
@@ -290,15 +390,29 @@ class Forum
 
     public function updateTopic(int $id, array $data): void
     {
-        $this->db->update(
-            "UPDATE %%FORUM_TOPICS%% SET title = :title, is_sticky = :sticky, is_locked = :locked WHERE id = :id",
-            [
-                ':title'  => $data['title'] ?? '',
-                ':sticky' => (int)($data['is_sticky'] ?? 0),
-                ':locked' => (int)($data['is_locked'] ?? 0),
-                ':id'     => $id,
-            ]
-        );
+        $catId = isset($data['category_id']) && (int)$data['category_id'] > 0 ? (int)$data['category_id'] : null;
+        if ($catId !== null) {
+            $this->db->update(
+                "UPDATE %%FORUM_TOPICS%% SET title = :title, is_sticky = :sticky, is_locked = :locked, category_id = :cat WHERE id = :id",
+                [
+                    ':title'  => $data['title'] ?? '',
+                    ':sticky' => (int)($data['is_sticky'] ?? 0),
+                    ':locked' => (int)($data['is_locked'] ?? 0),
+                    ':cat'    => $catId,
+                    ':id'     => $id,
+                ]
+            );
+        } else {
+            $this->db->update(
+                "UPDATE %%FORUM_TOPICS%% SET title = :title, is_sticky = :sticky, is_locked = :locked WHERE id = :id",
+                [
+                    ':title'  => $data['title'] ?? '',
+                    ':sticky' => (int)($data['is_sticky'] ?? 0),
+                    ':locked' => (int)($data['is_locked'] ?? 0),
+                    ':id'     => $id,
+                ]
+            );
+        }
     }
 
     public function getTopicCount(int $categoryId): int
