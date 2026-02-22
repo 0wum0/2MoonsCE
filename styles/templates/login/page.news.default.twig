@@ -2,24 +2,25 @@
 
 {% block title %}{{ LNG.siteTitleNews }}{% endblock %}
 {% block content %}
-    <div class="container" style="margin-top: 80px;">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">{{ LNG.siteTitleNews }}</div>
-                    {% for newsRow in newsList %}
-                        <div class="panel-body">
-                            <h1 class="page-header">{{ newsRow.title }}</h1>
-                            <div class="info">{{ newsRow.from }}</div>
-                            <p>{{ newsRow.text|raw }}</p>
-                        </div>
-                        {% else %}
-                        <div class="panel-body">
-                            <h3 class="page-header">{{ LNG.news_does_not_exist }}</h3>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="lp-card">
+	<div class="lp-card__header">
+		<h2 class="lp-card__title">{{ LNG.siteTitleNews }}</h2>
+	</div>
+	<div class="lp-card__body">
+		<div class="lp-news-list">
+			{% for newsRow in newsList %}
+			<article class="lp-news-item">
+				<h3 class="lp-news-item__title">{{ newsRow.title }}</h3>
+				<div class="lp-news-item__meta">{{ newsRow.from }}</div>
+				<div class="lp-news-item__content">{{ newsRow.text|raw }}</div>
+			</article>
+			{% else %}
+			<div class="lp-empty">
+				<h3 class="lp-empty__title">{{ LNG.news_does_not_exist }}</h3>
+				<p class="lp-empty__text">No news articles are available at this time.</p>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
 {% endblock %}

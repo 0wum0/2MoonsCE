@@ -18,6 +18,53 @@ var LoginConfig = {
 	'referralEnable' : {{ referralEnable|json_encode|raw }},
 	'basePath' : {{ basepath|json_encode|raw }}
 };
+
+// Language dropdown fix
+document.addEventListener('DOMContentLoaded', function() {
+    const langDropdowns = document.querySelectorAll('.auth-language-selector');
+    
+    langDropdowns.forEach(function(dropdown) {
+        const toggle = dropdown.querySelector('.auth-lang-dropdown');
+        const menu = dropdown.querySelector('.auth-dropdown-menu');
+        
+        if (!toggle || !menu) return;
+        
+        // Close dropdown by default
+        menu.style.display = 'none';
+        
+        // Toggle dropdown on click
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isVisible = menu.style.display === 'block';
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.auth-dropdown-menu').forEach(function(otherMenu) {
+                if (otherMenu !== menu) {
+                    otherMenu.style.display = 'none';
+                }
+            });
+            
+            // Toggle current dropdown
+            menu.style.display = isVisible ? 'none' : 'block';
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                menu.style.display = 'none';
+            }
+        });
+    });
+});
 </script>
 {% if analyticsEnable %}
 <script type="text/javascript" src="http://www.google-analytics.com/ga.js"></script>

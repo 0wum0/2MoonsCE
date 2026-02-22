@@ -2,17 +2,21 @@
 
 {% block title %}{{ LNG.fcm_info }}{% endblock %}
 {% block content %}
-	<div class="container" style="margin-top: 80px;">
-		<div class="panel panel-default">
-			<div class="panel-heading">{{ LNG.fcm_info }}</div>
-			<div class="panel-body">
-				<table class="table519">
-					<tr>
-						<td><p>{{ message|raw }}</p>{% if redirectButtons %}<p>{% for button in redirectButtons %}<a href="{{ button.url }}"><button class="btn btn-default">{{ button.label }}</button></a>{% endfor %}</p>{% endif %}</td>
-					</tr>
-				</table>
+<div class="lp-card lp-card--popup">
+	<div class="lp-card__header">
+		<h2 class="lp-card__title">{{ LNG.fcm_info }}</h2>
+	</div>
+	<div class="lp-card__body">
+		<div class="lp-message">
+			<p class="lp-message__text">{{ message|raw }}</p>
+			{% if redirectButtons %}
+			<div class="lp-message__actions">
+				{% for button in redirectButtons %}
+				<a href="{{ button.url }}" class="lp-btn lp-btn--secondary">{{ button.label }}</a>
+				{% endfor %}
 			</div>
+			{% endif %}
 		</div>
 	</div>
-
+</div>
 {% endblock %}

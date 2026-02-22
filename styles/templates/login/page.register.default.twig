@@ -2,88 +2,111 @@
 
 {% block title %}{{ LNG.siteTitleRegister }}{% endblock %}
 {% block content %}
-
-	<div class="container" style="margin-top: 80px;">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">{{ LNG.siteTitleRegister }}</div>
-                    <div class="panel-body">
-						<form id="registerForm" method="post" action="index.php?page=register" data-action="index.php?page=register">
-							<input type="hidden" value="send" name="mode">
-							<input type="hidden" value="{{ externalAuth.account }}" name="externalAuth[account]">
-							<input type="hidden" value="{{ externalAuth.method }}" name="externalAuth[method]">
-							<input type="hidden" value="{{ referralData.id }}" name="referralID">
-							<div class="form-group">
-								<label for="universe">{{ LNG.chose_a_uni }}</label>
-								<select name="uni" id="universe" class="form-control changeAction">{% for key, value in universeSelect %}<option value="{{ key }}"{% if key == UNI %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
-								{% if error.uni %}<span class="error errorUni"></span>{% endif %}
-							</div>
-							<div class="form-group">
-								<label for="username">{{ LNG.registerUsername }}</label>
-								<input type="text" class="form-control" name="username" id="username" placeholder="{{ LNG.registerUsername }}">
-								{% if error.username %}<span class="error errorUsername"></span>{% endif %}
-								<span class="inputDesc"><small>{{ LNG.registerUsernameDesc }}</small></span>
-							</div>
-							<div class="form-group">
-								<label for="password">{{ LNG.registerPassword }}</label>
-								<input type="password" class="form-control" name="password" id="password" placeholder="{{ LNG.registerPassword }}">
-								{% if error.password %}<span class="error errorPassword"></span>{% endif %}
-								<span class="inputDesc"><small>{{ LNG.registerPasswordDesc }}</small></span>
-							</div>
-							<div class="form-group">
-								<label for="passwordReplay">{{ LNG.registerPasswordReplay }}</label>
-								<input type="password" class="form-control" name="passwordReplay" id="passwordReplay" placeholder="{{ LNG.registerPasswordReplay }}">
-								{% if error.passwordReplay %}<span class="error errorPasswordReplay"></span>{% endif %}
-								<span class="inputDesc"><small>{{ LNG.registerPasswordReplayDesc }}</small></span>
-							</div>
-							<div class="form-group">
-								<label for="email">{{ LNG.registerEmail }}</label>
-								<input type="email" class="form-control" name="email" id="email" placeholder="{{ LNG.registerEmail }}">
-								{% if error.password %}<span class="error errorEmail"></span>{% endif %}
-								<span class="inputDesc"><small>{{ LNG.registerEmailDesc }}</small></span>
-							</div>
-							<div class="form-group">
-								<label for="emailReplay">{{ LNG.registerEmailReplay }}</label>
-								<input type="email" class="form-control" name="emailReplay" id="emailReplay" placeholder="{{ LNG.registerEmailReplay }}">
-								{% if error.emailReplay %}<span class="error errorEmailReplay"></span>{% endif %}
-								<span class="inputDesc"><small>{{ LNG.registerEmailReplayDesc }}</small></span>
-							</div>
-							{% if languages|length > 1 %}
-								<div class="form-group">
-									<label for="language">{{ LNG.registerLanguage }}</label>
-									<select name="lang" id="language" class="form-control">{% for key, value in languages %}<option value="{{ key }}"{% if key == lang %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
-									{% if error.language %}<span class="error errorLanguage"></span>{% endif %}
-								</div>
-							{% endif %}
-							{% if referralData.name %}
-							<div class="form-group">
-								<label for="username">{{ LNG.registerReferral }}</label>
-								<span class="inputDesc">{{ referralData.name }}</span>
-							</div>
-							{% endif %}
-							{% if recaptchaEnable %}
-								<div class="rowForm" id="captchaRow">
-									<div>
-										<label>{{ LNG.registerCaptcha }}</label>
-										<!--<span class="inputDesc">{{ LNG.registerCaptchaDesc }}</span>-->
-										<div class="g-recaptcha" data-sitekey="{{ recaptchaPublicKey }}"></div>
-									</div>
-								</div>
-							{% endif %}
-							<div class="form-group checkbox">
-								<input type="checkbox" name="rules" id="rules" value="1"> {{ registerRulesDesc }}
-								{% if error.rules %}<span class="error errorRules"></span>{% endif %}
-							</div>
-							<div style="text-align: right;">
-								<button type="submit" class="btn btn-danger">{{ LNG.buttonRegister }}</button>
-							</div>
-						</form>
-					</div>
-                </div>
-            </div>
-        </div>
+<div class="lp-card">
+	<div class="lp-card__header">
+		<h2 class="lp-card__title">{{ LNG.siteTitleRegister }}</h2>
 	</div>
+	<div class="lp-card__body">
+		<form id="registerForm" method="post" action="index.php?page=register" data-action="index.php?page=register" class="lp-form">
+			<input type="hidden" value="send" name="mode">
+			<input type="hidden" value="{{ externalAuth.account }}" name="externalAuth[account]">
+			<input type="hidden" value="{{ externalAuth.method }}" name="externalAuth[method]">
+			<input type="hidden" value="{{ referralData.id }}" name="referralID">
+			
+			<div class="lp-field">
+				<label for="universe" class="lp-label">{{ LNG.chose_a_uni }}</label>
+				<div class="lp-input-wrapper">
+					<select name="uni" id="universe" class="lp-select changeAction">{% for key, value in universeSelect %}<option value="{{ key }}"{% if key == UNI %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+				</div>
+				{% if error.uni %}<span class="lp-error">{{ LNG.registerUniError|default('Invalid universe') }}</span>{% endif %}
+			</div>
+			
+			<div class="lp-field">
+				<label for="username" class="lp-label">{{ LNG.registerUsername }}</label>
+				<div class="lp-input-wrapper">
+					<input type="text" class="lp-input" name="username" id="username" placeholder="{{ LNG.registerUsername }}">
+				</div>
+				{% if error.username %}<span class="lp-error">{{ LNG.registerUsernameError|default('Invalid username') }}</span>{% endif %}
+				<span class="lp-desc">{{ LNG.registerUsernameDesc }}</span>
+			</div>
+			
+			<div class="lp-field">
+				<label for="password" class="lp-label">{{ LNG.registerPassword }}</label>
+				<div class="lp-input-wrapper">
+					<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.registerPassword }}">
+				</div>
+				{% if error.password %}<span class="lp-error">{{ LNG.registerPasswordError|default('Invalid password') }}</span>{% endif %}
+				<span class="lp-desc">{{ LNG.registerPasswordDesc }}</span>
+			</div>
+			
+			<div class="lp-field">
+				<label for="passwordReplay" class="lp-label">{{ LNG.registerPasswordReplay }}</label>
+				<div class="lp-input-wrapper">
+					<input type="password" class="lp-input" name="passwordReplay" id="passwordReplay" placeholder="{{ LNG.registerPasswordReplay }}">
+				</div>
+				{% if error.passwordReplay %}<span class="lp-error">{{ LNG.registerPasswordReplayError|default('Passwords do not match') }}</span>{% endif %}
+				<span class="lp-desc">{{ LNG.registerPasswordReplayDesc }}</span>
+			</div>
+			
+			<div class="lp-field">
+				<label for="email" class="lp-label">{{ LNG.registerEmail }}</label>
+				<div class="lp-input-wrapper">
+					<input type="email" class="lp-input" name="email" id="email" placeholder="{{ LNG.registerEmail }}">
+				</div>
+				{% if error.email %}<span class="lp-error">{{ LNG.registerEmailError|default('Invalid email') }}</span>{% endif %}
+				<span class="lp-desc">{{ LNG.registerEmailDesc }}</span>
+			</div>
+			
+			<div class="lp-field">
+				<label for="emailReplay" class="lp-label">{{ LNG.registerEmailReplay }}</label>
+				<div class="lp-input-wrapper">
+					<input type="email" class="lp-input" name="emailReplay" id="emailReplay" placeholder="{{ LNG.registerEmailReplay }}">
+				</div>
+				{% if error.emailReplay %}<span class="lp-error">{{ LNG.registerEmailReplayError|default('Emails do not match') }}</span>{% endif %}
+				<span class="lp-desc">{{ LNG.registerEmailReplayDesc }}</span>
+			</div>
+			
+			{% if languages|length > 1 %}
+			<div class="lp-field">
+				<label for="language" class="lp-label">{{ LNG.registerLanguage }}</label>
+				<div class="lp-input-wrapper">
+					<select name="lang" id="language" class="lp-select">{% for key, value in languages %}<option value="{{ key }}"{% if key == lang %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+				</div>
+				{% if error.language %}<span class="lp-error">{{ LNG.registerLanguageError|default('Invalid language') }}</span>{% endif %}
+			</div>
+			{% endif %}
+			
+			{% if referralData.name %}
+			<div class="lp-field">
+				<label class="lp-label">{{ LNG.registerReferral }}</label>
+				<span class="lp-desc">{{ referralData.name }}</span>
+			</div>
+			{% endif %}
+			
+			{% if recaptchaEnable %}
+			<div class="lp-field lp-captcha">
+				<label class="lp-label">{{ LNG.registerCaptcha }}</label>
+				<div class="lp-captcha-wrapper">
+					<div class="g-recaptcha" data-sitekey="{{ recaptchaPublicKey }}"></div>
+				</div>
+			</div>
+			{% endif %}
+			
+			<div class="lp-field lp-checkbox">
+				<label class="lp-checkbox-wrapper">
+					<input type="checkbox" name="rules" id="rules" value="1" class="lp-checkbox-input">
+					<span class="lp-checkbox-checkmark"></span>
+					<span class="lp-checkbox-label">{{ registerRulesDesc }}</span>
+				</label>
+				{% if error.rules %}<span class="lp-error">{{ LNG.registerRulesError|default('You must accept the rules') }}</span>{% endif %}
+			</div>
+			
+			<div class="lp-form__footer">
+				<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg">{{ LNG.buttonRegister }}</button>
+			</div>
+		</form>
+	</div>
+</div>
 {% endblock %}
 {% block script %}
 {% if recaptchaEnable %}

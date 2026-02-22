@@ -2,27 +2,32 @@
 
 {% block title %}{{ LNG.siteTitleScreens }}{% endblock %}
 {% block content %}
-	<div class="container" style="margin-top: 80px;">
-		<div class="panel panel-default">
-			<div class="panel-heading">{{ LNG.siteTitleScreens }}</div>
-			<div class="panel-body">
-				<div class="row">
-				{% for screenshot in screenshots %}
-					<div class="col-lg-4" style="margin-bottom: 20px;">
-						<a class="gallery" href="{{ screenshot.path }}" target="_blank" rel="gallery">
-							<img src="{{ screenshot.thumbnail }}" alt="" width="120" height="120" class="img-rounded">
-						</a>
-					</div>
-                {% endfor %}
-				</div>
+<div class="lp-card">
+	<div class="lp-card__header">
+		<h2 class="lp-card__title">{{ LNG.siteTitleScreens }}</h2>
+	</div>
+	<div class="lp-card__body">
+		<div class="lp-gallery">
+			{% for screenshot in screenshots %}
+			<div class="lp-gallery-item">
+				<a class="lp-gallery-link" href="{{ screenshot.path }}" target="_blank" rel="gallery">
+					<img src="{{ screenshot.thumbnail }}" alt="Screenshot {{ loop.index }}" class="lp-gallery-image">
+				</a>
 			</div>
+			{% else %}
+			<div class="lp-empty">
+				<h3 class="lp-empty__title">No Screenshots Available</h3>
+				<p class="lp-empty__text">Screenshots will be available soon.</p>
+			</div>
+			{% endfor %}
 		</div>
 	</div>
+</div>
 {% endblock %}
 {% block script %}
 <script>
 $(function() {
-	$(".gallery").fancybox();
+	$(".lp-gallery-link").fancybox();
 });
 </script>
 {% endblock %}
