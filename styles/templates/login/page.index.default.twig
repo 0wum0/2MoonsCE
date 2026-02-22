@@ -2,69 +2,70 @@
 
 {% block title %}{{ LNG.siteTitleIndex }}{% endblock %}
 {% block content %}
-	<div class="jumbotron hidden-xs" style="margin-top:10px;">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-12 col-lg-12">
-					<h1>{{ descHeader }}</h1>
-					<p>{{ descText }}</p>
-					<p style="text-align: center;"><a class="btn btn-lg btn-success" href="index.php?page=screens">{{ LNG.buttonScreenshot }}</a></p>
-				</div>
+	<div class="auth-surface">
+		<div class="auth-hero">
+			<h1>{{ descHeader }}</h1>
+			<p>{{ descText }}</p>
+			<div class="auth-hero__cta">
+				<a href="index.php?page=screens" class="auth-btn primary">{{ LNG.buttonScreenshot }}</a>
 			</div>
 		</div>
-	</div>
 
-	<div class="container mobile">
-		<div class="row">
-			<div class="col-lg-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">{{ LNG.siteTitleNews }}</div>
-                    {% for newsRow in newsList %}
-						<div class="panel-body">
-							<h1 class="page-header">{{ newsRow.title }}</h1>
-							<p>{{ newsRow.text|raw }}</p>
-						</div>
-                    {% else %}
-						<div class="panel-body">
-							<h3 class="page-header">{{ LNG.news_does_not_exist }}</h3>
-						</div>
-                    {% endfor %}
-					<div style="text-align: right; padding: 10px;">
-						<a href="index.php?page=news">
-							<button type="button" class="btn btn-success">All {{ LNG.siteTitleNews }}</button>
-						</a>
+		<div class="auth-grid-two">
+			<div class="auth-card">
+				<h2 class="auth-card__title">{{ LNG.siteTitleNews }}</h2>
+                {% for newsRow in newsList %}
+					<div class="auth-news">
+						<h3>{{ newsRow.title }}</h3>
+						<p>{{ newsRow.text|raw }}</p>
 					</div>
+                {% else %}
+					<div class="auth-news">
+						<h3>{{ LNG.news_does_not_exist }}</h3>
+					</div>
+                {% endfor %}
+				<div class="auth-news__cta">
+					<a href="index.php?page=news">
+						<button type="button" class="auth-btn">All {{ LNG.siteTitleNews }}</button>
+					</a>
 				</div>
 			</div>
 
-			<div class="col-lg-6">
-				<div class="panel panel-default">
-					<div class="panel-heading">{{ LNG.loginHeader }}</div>
-					<div class="panel-body">
-						<form id="login" name="login" action="index.php?page=login" data-action="index.php?page=login" method="post">
-							<div class="form-group">
-								<label for="universe">{{ LNG.universe }}</label>
-								<select name="uni" id="universe" class="form-control changeAction">{% for key, value in universeSelect %}<option value="{{ key }}"{% if key == UNI %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
-							</div>
-							<div class="form-group">
-								<label for="username">{{ LNG.loginUsername }}</label>
-								<input type="text" class="form-control" name="username" id="username" placeholder="{{ LNG.loginUsername }}">
-							</div>
-							<div class="form-group">
-								<label for="password">{{ LNG.loginPassword }}</label>
-								<input type="password" class="form-control" name="password" id="password" placeholder="{{ LNG.loginPassword }}">
-							</div>
-							<div style="text-align: right;">
-								<button type="submit" class="btn btn-primary">{{ LNG.loginButton }}</button>
-							</div>
-						</form>
-                        {% if facebookEnable %}<a href="#" data-href="index.php?page=externalAuth&method=facebook" class="fb_login"><img src="styles/resource/images/facebook/fb-connect-large.png" alt=""></a>{% endif %}<!-- http://b.static.ak.fbcdn.net/rsrc.php/zB6N8/hash/4li2k73z.gif -->
-						<div style="text-align: center">
-							<a href="index.php?page=register">{{ LNG.buttonRegister }}</a> {% if mailEnable %}- <a href="index.php?page=lostPassword">{{ LNG.buttonLostPassword }}</a>{% endif %}
-							<br>
-							<span class="small">{{ loginInfo }}</span>
+			<div class="auth-card">
+				<h2 class="auth-card__title">{{ LNG.loginHeader }}</h2>
+				<form id="login" name="login" action="index.php?page=login" data-action="index.php?page=login" method="post" class="auth-form">
+					<div class="auth-field">
+						<label for="universe" class="auth-label">{{ LNG.universe }}</label>
+						<div class="auth-input-wrapper">
+							<select name="uni" id="universe" class="auth-select changeAction">{% for key, value in universeSelect %}<option value="{{ key }}"{% if key == UNI %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
 						</div>
 					</div>
+					<div class="auth-field">
+						<label for="username" class="auth-label">{{ LNG.loginUsername }}</label>
+						<div class="auth-input-wrapper">
+							<input type="text" class="auth-input" name="username" id="username" placeholder="{{ LNG.loginUsername }}">
+						</div>
+					</div>
+					<div class="auth-field">
+						<label for="password" class="auth-label">{{ LNG.loginPassword }}</label>
+						<div class="auth-input-wrapper">
+							<input type="password" class="auth-input" name="password" id="password" placeholder="{{ LNG.loginPassword }}">
+						</div>
+					</div>
+					<div class="auth-submit">
+						<button type="submit" class="auth-btn primary">
+							<span class="btn-label">{{ LNG.loginButton }}</span>
+							<span class="btn-spinner hidden"></span>
+						</button>
+					</div>
+				</form>
+                {% if facebookEnable %}<a href="#" data-href="index.php?page=externalAuth&method=facebook" class="fb_login"><img src="styles/resource/images/facebook/fb-connect-large.png" alt=""></a>{% endif %}
+				<div class="auth-form__footer">
+					<div class="auth-links">
+						<a href="index.php?page=register">{{ LNG.buttonRegister }}</a>
+						{% if mailEnable %}<a href="index.php?page=lostPassword">{{ LNG.buttonLostPassword }}</a>{% endif %}
+					</div>
+					<span class="auth-field inputDesc">{{ loginInfo }}</span>
 				</div>
 			</div>
 		</div>

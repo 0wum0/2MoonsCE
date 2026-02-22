@@ -1,43 +1,44 @@
-<nav class="navbar navbar-default navbar-inverse navbar-fixed-top " role="navigation" style="border-color: #333;">
-	<div class="container">
-		<!-- Brand and toggle get grouped for better mobile display -->
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="#">{{ gameName }}</a>
+<nav class="auth-navbar" role="navigation">
+	<div class="auth-navbar-container">
+		<div class="auth-navbar-brand">
+			<a href="#" class="auth-brand-link">{{ gameName }}</a>
 		</div>
 
-		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="auth-navbar-toggle">
+			<button type="button" class="auth-menu-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="auth-toggle-line"></span>
+				<span class="auth-toggle-line"></span>
+				<span class="auth-toggle-line"></span>
+			</button>
+		</div>
+
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
-			<ul class="nav navbar-nav">
-				<li><a href="index.php">{{ LNG.menu_index }}</a></li>
-				<li><a href="index.php?page=board" target="board">{{ LNG.forum }}</a></li>
-				<li><a href="index.php?page=news">{{ LNG.menu_news }}</a></li>
-				<li><a href="index.php?page=rules">{{ LNG.menu_rules }}</a></li>
-				<li><a href="index.php?page=battleHall">{{ LNG.menu_battlehall }}</a></li>
-				<li><a href="index.php?page=banList">{{ LNG.menu_banlist }}</a></li>
-				<li><a href="index.php?page=disclamer">{{ LNG.menu_disclamer }}</a></li>
+			<ul class="auth-nav-links">
+				<li><a href="index.php" class="auth-nav-link">{{ LNG.menu_index }}</a></li>
+				<li><a href="index.php?page=board" target="board" class="auth-nav-link">{{ LNG.forum }}</a></li>
+				<li><a href="index.php?page=news" class="auth-nav-link">{{ LNG.menu_news }}</a></li>
+				<li><a href="index.php?page=rules" class="auth-nav-link">{{ LNG.menu_rules }}</a></li>
+				<li><a href="index.php?page=battleHall" class="auth-nav-link">{{ LNG.menu_battlehall }}</a></li>
+				<li><a href="index.php?page=banList" class="auth-nav-link">{{ LNG.menu_banlist }}</a></li>
+				<li><a href="index.php?page=disclamer" class="auth-nav-link">{{ LNG.menu_disclamer }}</a></li>
 			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<a class="btn btn-danger btn-sm navbar-btn" href="index.php?page=register">Sign up</a>
-				<div class="btn-group ">
-					<button class="btn navbar-btn btn-sm">Choose lang</button>
-					<button class="btn dropdown-toggle navbar-btn btn-sm" data-toggle="dropdown">
-						<span class="caret"></span>
+			<div class="auth-nav-actions">
+				<a class="auth-btn primary" href="index.php?page=register">Sign up</a>
+				<div class="auth-language-selector">
+					<button class="auth-btn auth-lang-btn">Choose lang</button>
+					<button class="auth-btn auth-lang-dropdown" data-toggle="dropdown">
+						<span class="auth-dropdown-arrow"></span>
 					</button>
                     {% if languages|length > 1 %}
-						<ul class="dropdown-menu" style="min-width:30px;" id="language">
+						<ul class="auth-dropdown-menu" id="language">
                             {% for langKey, langName in languages %}
 								<li><a href="?lang={{ langKey }}" rel="alternate" hreflang="{{ langKey }}" title="{{ langName }}"><span class="flags {{ langKey }}">{{ langName }}</span></a></li>
                             {% endfor %}
 						</ul>
                     {% endif %}
 				</div>
-			</ul>
-		</div><!-- /.navbar-collapse -->
+			</div>
+		</div>
 	</div>
 </nav>
