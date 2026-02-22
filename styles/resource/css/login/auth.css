@@ -93,15 +93,16 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 .auth-body {
-    font-family: 'Space Grotesk', system-ui, Arial, sans-serif;
-    font-size: 1rem;
-    line-height: 1.6;
+    font-family: 'Space Grotesk', system-ui, -apple-system, Arial, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
     background: var(--c-bg);
     color: var(--c-text);
     min-height: 100vh;
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     position: relative;
     overflow-x: hidden;
 }
@@ -139,7 +140,6 @@
 }
 
 .auth-body main {
-    padding: 0;
     position: relative;
     z-index: 1;
 }
@@ -603,7 +603,7 @@
 }
 
 .lp-shell--page {
-    padding-top: calc(var(--topbar-h) + var(--sp-lg));
+    padding-top: calc(var(--topbar-h) + var(--sp-lg)) !important;
 }
 
 .lp-shell--popup {
@@ -611,7 +611,7 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding-top: calc(var(--topbar-h) + var(--sp-md));
+    padding-top: calc(var(--topbar-h) + var(--sp-md)) !important;
 }
 
 .lp-container {
@@ -969,8 +969,8 @@
 
 .lp-label,
 .auth-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--c-muted);
     font-weight: 600;
@@ -993,8 +993,8 @@
     border-radius: var(--r-md);
     padding: 13px 16px;
     color: var(--c-text);
-    font-size: 0.95rem;
-    line-height: 1.4;
+    font-size: 1rem;
+    line-height: 1.5;
     font-family: 'Space Grotesk', sans-serif;
     transition: border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
     -webkit-appearance: none;
@@ -1950,31 +1950,41 @@ button.is-loading .btn-spinner {
     }
 
     .lp-topbar__center {
-        display: none;
+        flex-direction: row;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .lp-status-badge {
+        font-size: 0.62rem;
+        padding: 3px 8px;
+        letter-spacing: 0.1em;
+    }
+
+    .lp-topbar__newest {
+        display: inline-flex;
+        font-size: 0.62rem;
+        padding: 3px 8px;
+        max-width: 110px;
+        margin-left: 0;
     }
 }
 
 @media (max-width: 768px) {
     .lp-shell,
     .lp-shell--page {
-        padding-top: calc(var(--topbar-h) + var(--sp-md));
+        padding-top: calc(var(--topbar-h) + var(--sp-md)) !important;
         padding-left: 16px;
         padding-right: 16px;
     }
 
     .lp-shell--popup {
-        padding-top: calc(var(--topbar-h) + var(--sp-sm));
+        padding-top: calc(var(--topbar-h) + var(--sp-sm)) !important;
         padding-left: 16px;
         padding-right: 16px;
         align-items: flex-start;
-    }
-
-    .lp-topbar__newest {
-        display: none;
-    }
-
-    .auth-body {
-        font-size: 1rem;
     }
 
     .lp-hero,
@@ -2039,17 +2049,6 @@ button.is-loading .btn-spinner {
 }
 
 @media (max-width: 480px) {
-    :root {
-        --topbar-h: 52px;
-        --sp-md: 24px;
-    }
-
-    .lp-shell,
-    .lp-shell--page,
-    .lp-shell--popup {
-        padding-top: calc(var(--topbar-h) + var(--sp-md)) !important;
-    }
-
     .lp-topbar__brand {
         font-size: 0.85rem;
     }
