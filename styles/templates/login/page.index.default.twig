@@ -2,74 +2,84 @@
 
 {% block title %}{{ LNG.siteTitleIndex }}{% endblock %}
 {% block content %}
-	<div class="auth-surface">
-		<div class="auth-hero">
-			<h1>{{ descHeader }}</h1>
-			<p>{{ descText }}</p>
-			<div class="auth-hero__cta">
-				<a href="index.php?page=screens" class="auth-btn primary">{{ LNG.buttonScreenshot }}</a>
+<div class="lp-surface">
+	<div class="lp-hero">
+		<h1 class="lp-hero__title">{{ descHeader }}</h1>
+		<p class="lp-hero__text">{{ descText }}</p>
+		<div class="lp-hero__cta">
+			<a href="index.php?page=screens" class="lp-btn lp-btn--primary lp-btn--lg">{{ LNG.buttonScreenshot }}</a>
+		</div>
+	</div>
+
+	<div class="lp-grid-two">
+		<div class="lp-card">
+			<div class="lp-card__header">
+				<h2 class="lp-card__title">{{ LNG.siteTitleNews }}</h2>
+			</div>
+			<div class="lp-card__body">
+				<div class="lp-news-list">
+					{% for newsRow in newsList %}
+					<article class="lp-news-item">
+						<h3 class="lp-news-item__title">{{ newsRow.title }}</h3>
+						<div class="lp-news-item__meta">{{ newsRow.from }}</div>
+						<div class="lp-news-item__content">{{ newsRow.text|raw }}</div>
+					</article>
+					{% else %}
+					<div class="lp-empty">
+						<h3 class="lp-empty__title">{{ LNG.news_does_not_exist }}</h3>
+						<p class="lp-empty__text">No news articles are available at this time.</p>
+					</div>
+					{% endfor %}
+				</div>
+				<div class="lp-card__footer">
+					<a href="index.php?page=news" class="lp-btn lp-btn--secondary">All {{ LNG.siteTitleNews }}</a>
+				</div>
 			</div>
 		</div>
 
-		<div class="auth-grid-two">
-			<div class="auth-card">
-				<h2 class="auth-card__title">{{ LNG.siteTitleNews }}</h2>
-                {% for newsRow in newsList %}
-					<div class="auth-news">
-						<h3>{{ newsRow.title }}</h3>
-						<p>{{ newsRow.text|raw }}</p>
-					</div>
-                {% else %}
-					<div class="auth-news">
-						<h3>{{ LNG.news_does_not_exist }}</h3>
-					</div>
-                {% endfor %}
-				<div class="auth-news__cta">
-					<a href="index.php?page=news">
-						<button type="button" class="auth-btn">All {{ LNG.siteTitleNews }}</button>
-					</a>
-				</div>
+		<div class="lp-card">
+			<div class="lp-card__header">
+				<h2 class="lp-card__title">{{ LNG.loginHeader }}</h2>
 			</div>
-
-			<div class="auth-card">
-				<h2 class="auth-card__title">{{ LNG.loginHeader }}</h2>
-				<form id="login" name="login" action="index.php?page=login" data-action="index.php?page=login" method="post" class="auth-form">
-					<div class="auth-field">
-						<label for="universe" class="auth-label">{{ LNG.universe }}</label>
-						<div class="auth-input-wrapper">
-							<select name="uni" id="universe" class="auth-select changeAction">{% for key, value in universeSelect %}<option value="{{ key }}"{% if key == UNI %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+			<div class="lp-card__body">
+				<form id="login" name="login" action="index.php?page=login" data-action="index.php?page=login" method="post" class="lp-form">
+					<div class="lp-field">
+						<label for="universe" class="lp-label">{{ LNG.universe }}</label>
+						<div class="lp-input-wrapper">
+							<select name="uni" id="universe" class="lp-select changeAction">{% for key, value in universeSelect %}<option value="{{ key }}"{% if key == UNI %} selected{% endif %}>{{ value }}</option>{% endfor %}</select>
 						</div>
 					</div>
-					<div class="auth-field">
-						<label for="username" class="auth-label">{{ LNG.loginUsername }}</label>
-						<div class="auth-input-wrapper">
-							<input type="text" class="auth-input" name="username" id="username" placeholder="{{ LNG.loginUsername }}">
+					<div class="lp-field">
+						<label for="username" class="lp-label">{{ LNG.loginUsername }}</label>
+						<div class="lp-input-wrapper">
+							<input type="text" class="lp-input" name="username" id="username" placeholder="{{ LNG.loginUsername }}">
 						</div>
 					</div>
-					<div class="auth-field">
-						<label for="password" class="auth-label">{{ LNG.loginPassword }}</label>
-						<div class="auth-input-wrapper">
-							<input type="password" class="auth-input" name="password" id="password" placeholder="{{ LNG.loginPassword }}">
+					<div class="lp-field">
+						<label for="password" class="lp-label">{{ LNG.loginPassword }}</label>
+						<div class="lp-input-wrapper">
+							<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.loginPassword }}">
 						</div>
 					</div>
-					<div class="auth-submit">
-						<button type="submit" class="auth-btn primary">
+					<div class="lp-form__footer">
+						<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg">
 							<span class="btn-label">{{ LNG.loginButton }}</span>
 							<span class="btn-spinner hidden"></span>
 						</button>
 					</div>
 				</form>
-                {% if facebookEnable %}<a href="#" data-href="index.php?page=externalAuth&method=facebook" class="fb_login"><img src="styles/resource/images/facebook/fb-connect-large.png" alt=""></a>{% endif %}
-				<div class="auth-form__footer">
-					<div class="auth-links">
+				{% if facebookEnable %}<a href="#" data-href="index.php?page=externalAuth&method=facebook" class="fb_login"><img src="styles/resource/images/facebook/fb-connect-large.png" alt=""></a>{% endif %}
+				<div class="lp-form__links">
+					<div class="lp-links">
 						<a href="index.php?page=register">{{ LNG.buttonRegister }}</a>
 						{% if mailEnable %}<a href="index.php?page=lostPassword">{{ LNG.buttonLostPassword }}</a>{% endif %}
 					</div>
-					<span class="auth-field inputDesc">{{ loginInfo }}</span>
+					<span class="lp-desc">{{ loginInfo }}</span>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
 {% endblock %}
 {% block script %}
 <script>{% if code %}alert({{ code|json_encode|raw }});{% endif %}</script>

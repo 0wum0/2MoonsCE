@@ -19,7 +19,7 @@ var LoginConfig = {
 	'basePath' : {{ basepath|json_encode|raw }}
 };
 
-// Language dropdown fix
+// Enhanced language dropdown with robust event handling
 document.addEventListener('DOMContentLoaded', function() {
     const langDropdowns = document.querySelectorAll('.auth-language-selector');
     
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!toggle || !menu) return;
         
-        // Close dropdown by default
+        // Ensure dropdown is closed by default
         menu.style.display = 'none';
         
         // Toggle dropdown on click
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             menu.style.display = isVisible ? 'none' : 'block';
         });
         
-        // Close on outside click
+        // Close on outside click with proper event delegation
         document.addEventListener('click', function(e) {
             if (!dropdown.contains(e.target)) {
                 menu.style.display = 'none';
@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Escape') {
                 menu.style.display = 'none';
             }
+        });
+        
+        // Prevent menu clicks from closing the dropdown
+        menu.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     });
 });
