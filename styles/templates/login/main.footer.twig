@@ -2,10 +2,10 @@
 	<div class="auth-footer-container">
 		<div class="auth-footer-content">
 			<div class="auth-footer-links">
-				<a href="#" class="auth-footer-link">Back to top</a>
+				<a href="#" class="auth-footer-link">&#8679; Back to top</a>
 			</div>
 			<div class="auth-footer-info">
-				<p>© 2018 {{ gameName }}, Inc. · <a href="http://2moons.de" class="auth-footer-link">by 2moons.de</a> · <a href="https://github.com/HikeGame/2moons-2.0" class="auth-footer-link">github</a></p>
+				<p>© {{ gameName }} &nbsp;·&nbsp; <a href="http://2moons.de" class="auth-footer-link">2moons.de</a> &nbsp;·&nbsp; <a href="https://github.com/HikeGame/2moons-2.0" class="auth-footer-link">GitHub</a></p>
 			</div>
 		</div>
 	</div>
@@ -19,56 +19,165 @@ var LoginConfig = {
 	'basePath' : {{ basepath|json_encode|raw }}
 };
 
-// Enhanced language dropdown with robust event handling
 document.addEventListener('DOMContentLoaded', function() {
-    const langDropdowns = document.querySelectorAll('.auth-language-selector');
-    
-    langDropdowns.forEach(function(dropdown) {
-        const toggle = dropdown.querySelector('.auth-lang-dropdown');
-        const menu = dropdown.querySelector('.auth-dropdown-menu');
-        
-        if (!toggle || !menu) return;
-        
-        // Ensure dropdown is closed by default
-        menu.style.display = 'none';
-        
-        // Toggle dropdown on click
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const isVisible = menu.style.display === 'block';
-            
-            // Close all other dropdowns
-            document.querySelectorAll('.auth-dropdown-menu').forEach(function(otherMenu) {
-                if (otherMenu !== menu) {
-                    otherMenu.style.display = 'none';
-                }
-            });
-            
-            // Toggle current dropdown
-            menu.style.display = isVisible ? 'none' : 'block';
-        });
-        
-        // Close on outside click with proper event delegation
-        document.addEventListener('click', function(e) {
-            if (!dropdown.contains(e.target)) {
-                menu.style.display = 'none';
-            }
-        });
-        
-        // Close on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                menu.style.display = 'none';
-            }
-        });
-        
-        // Prevent menu clicks from closing the dropdown
-        menu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
+
+    /* ─────────────────────────────────────────
+       SIDEBAR TOGGLE
+    ───────────────────────────────────────── */
+    var burger   = document.getElementById('lpBurger');
+    var sidebar  = document.getElementById('lpSidebar');
+    var backdrop = document.getElementById('lpSidebarBackdrop');
+    var closeBtn = document.getElementById('lpSidebarClose');
+
+    function openSidebar() {
+        if (!sidebar) return;
+        sidebar.classList.add('lp-sidebar--open');
+        backdrop.classList.add('lp-sidebar-backdrop--visible');
+        document.body.classList.add('lp-sidebar-body-lock');
+        if (burger) burger.setAttribute('aria-expanded', 'true');
+        burger && burger.classList.add('lp-burger--open');
+    }
+
+    function closeSidebar() {
+        if (!sidebar) return;
+        sidebar.classList.remove('lp-sidebar--open');
+        backdrop.classList.remove('lp-sidebar-backdrop--visible');
+        document.body.classList.remove('lp-sidebar-body-lock');
+        if (burger) burger.setAttribute('aria-expanded', 'false');
+        burger && burger.classList.remove('lp-burger--open');
+    }
+
+    if (burger)   burger.addEventListener('click', openSidebar);
+    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+    if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSidebar();
+            closeLangMenu();
+        }
     });
+
+    /* ─────────────────────────────────────────
+       SIDEBAR LANGUAGE DROPDOWN
+    ───────────────────────────────────────── */
+    var langToggle = document.getElementById('lpSidebarLangToggle');
+    var langMenu   = document.getElementById('lpSidebarLangMenu');
+
+    function openLangMenu() {
+        if (!langMenu) return;
+        langMenu.classList.add('lp-sidebar-lang__menu--open');
+        if (langToggle) langToggle.setAttribute('aria-expanded', 'true');
+        langToggle && langToggle.classList.add('lp-sidebar-lang__toggle--open');
+    }
+
+    function closeLangMenu() {
+        if (!langMenu) return;
+        langMenu.classList.remove('lp-sidebar-lang__menu--open');
+        if (langToggle) langToggle.setAttribute('aria-expanded', 'false');
+        langToggle && langToggle.classList.remove('lp-sidebar-lang__toggle--open');
+    }
+
+    if (langToggle) {
+        langToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            langMenu.classList.contains('lp-sidebar-lang__menu--open') ? closeLangMenu() : openLangMenu();
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        var langContainer = document.getElementById('lpSidebarLang');
+        if (langContainer && !langContainer.contains(e.target)) {
+            closeLangMenu();
+        }
+    });
+
+    /* ─────────────────────────────────────────
+       NEWS SLIDESHOW
+    ───────────────────────────────────────── */
+    var slideshow = document.getElementById('lpNewsSlideshow');
+    if (slideshow) {
+        var track    = slideshow.querySelector('.lp-slideshow__track');
+        var slides   = slideshow.querySelectorAll('.lp-slideshow__slide');
+        var dots     = slideshow.querySelectorAll('.lp-slideshow__dot');
+        var prevBtn  = slideshow.querySelector('.lp-slideshow__arrow--prev');
+        var nextBtn  = slideshow.querySelector('.lp-slideshow__arrow--next');
+        var total    = slides.length;
+        var current  = 0;
+        var autoplay = parseInt(slideshow.getAttribute('data-autoplay') || '7000', 10);
+        var timer    = null;
+        var paused   = false;
+
+        function goTo(index) {
+            slides[current].classList.remove('lp-slideshow__slide--active');
+            slides[current].setAttribute('aria-hidden', 'true');
+            if (dots[current]) dots[current].classList.remove('lp-slideshow__dot--active');
+
+            current = (index + total) % total;
+
+            slides[current].classList.add('lp-slideshow__slide--active');
+            slides[current].setAttribute('aria-hidden', 'false');
+            if (dots[current]) dots[current].classList.add('lp-slideshow__dot--active');
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            if (total <= 1) return;
+            timer = setInterval(function() {
+                if (!paused) goTo(current + 1);
+            }, autoplay);
+        }
+
+        /* init first slide */
+        slides[0].classList.add('lp-slideshow__slide--active');
+
+        if (prevBtn) prevBtn.addEventListener('click', function() { goTo(current - 1); startTimer(); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { goTo(current + 1); startTimer(); });
+
+        dots.forEach(function(dot) {
+            dot.addEventListener('click', function() {
+                goTo(parseInt(this.getAttribute('data-index'), 10));
+                startTimer();
+            });
+        });
+
+        slideshow.addEventListener('mouseenter', function() { paused = true; });
+        slideshow.addEventListener('mouseleave', function() { paused = false; });
+        slideshow.addEventListener('focusin',    function() { paused = true; });
+        slideshow.addEventListener('focusout',   function() { paused = false; });
+
+        /* touch/swipe support */
+        var touchStartX = 0;
+        slideshow.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        slideshow.addEventListener('touchend', function(e) {
+            var diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 40) {
+                goTo(diff > 0 ? current + 1 : current - 1);
+                startTimer();
+            }
+        }, { passive: true });
+
+        startTimer();
+    }
+
+    /* ─────────────────────────────────────────
+       SMOOTH SCROLL FOR HERO LOGIN CTA
+    ───────────────────────────────────────── */
+    var loginCta = document.querySelector('.lp-hero__cta-login');
+    if (loginCta) {
+        loginCta.addEventListener('click', function(e) {
+            var target = document.getElementById('lp-login-anchor');
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                var firstInput = target.querySelector('input, select');
+                if (firstInput) setTimeout(function() { firstInput.focus(); }, 400);
+            }
+        });
+    }
+
 });
 </script>
 {% if analyticsEnable %}

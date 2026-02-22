@@ -3,41 +3,64 @@
 {% block title %}{{ LNG.siteTitleIndex }}{% endblock %}
 {% block content %}
 <div class="lp-surface">
-	<div class="lp-hero">
+
+	<div class="lp-hero lp-hero--index">
+		<div class="lp-hero__eyebrow">
+			<span class="lp-hero__badge">Space Browsergame</span>
+		</div>
 		<h1 class="lp-hero__title">{{ descHeader }}</h1>
 		<p class="lp-hero__text">{{ descText }}</p>
 		<div class="lp-hero__cta">
-			<a href="index.php?page=screens" class="lp-btn lp-btn--primary lp-btn--lg">{{ LNG.buttonScreenshot }}</a>
+			<a href="#lp-login-anchor" class="lp-btn lp-btn--primary lp-btn--lg lp-hero__cta-login">{{ LNG.loginButton }}</a>
+			<a href="index.php?page=register" class="lp-btn lp-btn--secondary lp-btn--lg">{{ LNG.buttonRegister }}</a>
+			<a href="index.php?page=screens" class="lp-btn lp-btn--ghost lp-btn--lg">{{ LNG.buttonScreenshot }}</a>
 		</div>
 	</div>
 
-	<div class="lp-grid-two">
-		<div class="lp-card">
+	<div class="lp-index-grid">
+
+		<div class="lp-card lp-card--news">
 			<div class="lp-card__header">
 				<h2 class="lp-card__title">{{ LNG.siteTitleNews }}</h2>
+				<a href="index.php?page=news" class="lp-card__header-link">{{ LNG.siteTitleNews }} &rsaquo;</a>
 			</div>
-			<div class="lp-card__body">
-				<div class="lp-news-list">
-					{% for newsRow in newsList %}
-					<article class="lp-news-item">
-						<h3 class="lp-news-item__title">{{ newsRow.title }}</h3>
-						<div class="lp-news-item__meta">{{ newsRow.from }}</div>
-						<div class="lp-news-item__content">{{ newsRow.text|raw }}</div>
-					</article>
-					{% else %}
-					<div class="lp-empty">
-						<h3 class="lp-empty__title">{{ LNG.news_does_not_exist }}</h3>
-						<p class="lp-empty__text">No news articles are available at this time.</p>
+			<div class="lp-card__body lp-card__body--no-pad">
+				{% set newsCount = newsList|length %}
+				{% if newsCount > 0 %}
+				<div class="lp-slideshow" id="lpNewsSlideshow" data-autoplay="7000">
+					<div class="lp-slideshow__track">
+						{% for newsRow in newsList %}
+						<article class="lp-slideshow__slide" aria-hidden="{{ loop.first ? 'false' : 'true' }}">
+							<div class="lp-slideshow__slide-inner">
+								<h3 class="lp-slideshow__title">{{ newsRow.title }}</h3>
+								<div class="lp-slideshow__meta">{{ newsRow.from }}</div>
+								<div class="lp-slideshow__content">{{ newsRow.text|raw }}</div>
+							</div>
+						</article>
+						{% endfor %}
 					</div>
-					{% endfor %}
+					{% if newsCount > 1 %}
+					<div class="lp-slideshow__controls">
+						<button class="lp-slideshow__arrow lp-slideshow__arrow--prev" aria-label="Previous news">&#8249;</button>
+						<div class="lp-slideshow__dots">
+							{% for newsRow in newsList %}
+							<button class="lp-slideshow__dot{% if loop.first %} lp-slideshow__dot--active{% endif %}" aria-label="News {{ loop.index }}" data-index="{{ loop.index0 }}"></button>
+							{% endfor %}
+						</div>
+						<button class="lp-slideshow__arrow lp-slideshow__arrow--next" aria-label="Next news">&#8250;</button>
+					</div>
+					{% endif %}
 				</div>
-				<div class="lp-card__footer">
-					<a href="index.php?page=news" class="lp-btn lp-btn--secondary">All {{ LNG.siteTitleNews }}</a>
+				{% else %}
+				<div class="lp-empty" style="padding: var(--sp-lg);">
+					<h3 class="lp-empty__title">{{ LNG.news_does_not_exist }}</h3>
+					<p class="lp-empty__text">No news articles are available at this time.</p>
 				</div>
+				{% endif %}
 			</div>
 		</div>
 
-		<div class="lp-card">
+		<div class="lp-card lp-card--login" id="lp-login-anchor">
 			<div class="lp-card__header">
 				<h2 class="lp-card__title">{{ LNG.loginHeader }}</h2>
 			</div>
@@ -52,17 +75,17 @@
 					<div class="lp-field">
 						<label for="username" class="lp-label">{{ LNG.loginUsername }}</label>
 						<div class="lp-input-wrapper">
-							<input type="text" class="lp-input" name="username" id="username" placeholder="{{ LNG.loginUsername }}">
+							<input type="text" class="lp-input" name="username" id="username" placeholder="{{ LNG.loginUsername }}" autocomplete="username">
 						</div>
 					</div>
 					<div class="lp-field">
 						<label for="password" class="lp-label">{{ LNG.loginPassword }}</label>
 						<div class="lp-input-wrapper">
-							<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.loginPassword }}">
+							<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.loginPassword }}" autocomplete="current-password">
 						</div>
 					</div>
 					<div class="lp-form__footer">
-						<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg">
+						<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg lp-btn--full">
 							<span class="btn-label">{{ LNG.loginButton }}</span>
 							<span class="btn-spinner hidden"></span>
 						</button>
@@ -78,6 +101,7 @@
 				</div>
 			</div>
 		</div>
+
 	</div>
 </div>
 {% endblock %}
