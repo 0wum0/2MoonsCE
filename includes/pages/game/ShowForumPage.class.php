@@ -21,37 +21,95 @@ class ShowForumPage extends AbstractGamePage
     }
 
     public function show(): void {
+        global $USER;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
+            $topicId = (int)HTTP::_GP('topic_id', 0);
+            $content  = HTTP::_GP('content', '', true);
+            if ($topicId > 0 && $content !== '') {
+                $topic = $this->forum->getTopic($topicId);
+                if ($topic && empty($topic['is_locked'])) {
+                    $this->forum->createPost($topicId, (int)$USER['id'], $content);
+                }
+            }
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_topic'])) {
+            $catId   = (int)HTTP::_GP('category_id', 0);
+            $title   = HTTP::_GP('title', '', true);
+            $content = HTTP::_GP('content', '', true);
+            if ($catId > 0 && $title !== '' && $content !== '') {
+                $topicId = $this->forum->createTopic($catId, (int)$USER['id'], $title, $content);
+                $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+                return;
+            }
+        }
         $this->assign([
-            'mode' => 'index',
-            'categories' => $this->forum->getCategories()
+            'mode'       => 'index',
+            'categories' => $this->forum->getCategories(),
+            'message'    => [],
         ]);
         $this->display('ForumPage.twig');
     }
 
     public function category(): void {
-        $id = (int)HTTP::_GP('id', 0);
+        $id   = (int)HTTP::_GP('id', 0);
+        $page = max(1, (int)HTTP::_GP('p', 1));
+        if ($id <= 0) {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
+        $category = $this->forum->getCategory($id);
+        if (empty($category)) {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
         $this->assign([
-            'mode' => 'category',
-            'category' => $this->forum->getCategory($id),
-            'topics' => $this->forum->getTopics($id, (int)HTTP::_GP('site', 1), 20),
+            'mode'     => 'category',
+            'category' => $category,
+            'topics'   => $this->forum->getTopics($id, $page, 20),
+            'p'        => $page,
+            'message'  => [],
         ]);
         $this->display('ForumPage.twig');
     }
 
     public function topic(): void {
         global $USER;
-        $id = (int)HTTP::_GP('id', 0);
+        $id   = (int)HTTP::_GP('id', 0);
+        $page = max(1, (int)HTTP::_GP('p', 1));
+        if ($id <= 0) {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
+        $message = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
-            $this->forum->createPost($id, (int)$USER['id'], HTTP::_GP('content', '', true));
-            $this->redirectTo('game.php?page=forum&mode=topic&id='.$id);
+            $content = HTTP::_GP('content', '', true);
+            if ($content !== '') {
+                $topic = $this->forum->getTopic($id);
+                if ($topic && empty($topic['is_locked'])) {
+                    $this->forum->createPost($id, (int)$USER['id'], $content);
+                    $this->redirectTo('game.php?page=forum&mode=topic&id=' . $id);
+                    return;
+                }
+                $message = ['class' => 'error', 'text' => 'Topic ist gesperrt oder existiert nicht.'];
+            } else {
+                $message = ['class' => 'error', 'text' => 'Inhalt darf nicht leer sein.'];
+            }
+        }
+        $topic = $this->forum->getTopic($id);
+        if (empty($topic)) {
+            $this->redirectTo('game.php?page=forum');
             return;
         }
         $this->assign([
-            'mode' => 'topic',
-            'topic' => $this->forum->getTopic($id),
-            'posts' => $this->forum->getPosts($id, (int)HTTP::_GP('site', 1), 15),
-            'can_moderate' => ($USER['authlevel'] >= AUTH_MOD),
-            'current_user_id' => $USER['id']
+            'mode'            => 'topic',
+            'topic'           => $topic,
+            'posts'           => $this->forum->getPosts($id, $page, 15),
+            'p'               => $page,
+            'can_moderate'    => ($USER['authlevel'] >= AUTH_MOD),
+            'current_user_id' => (int)$USER['id'],
+            'message'         => $message,
         ]);
         $this->display('ForumPage.twig');
     }
@@ -59,12 +117,31 @@ class ShowForumPage extends AbstractGamePage
     public function new_topic(): void {
         global $USER;
         $catId = (int)HTTP::_GP('category_id', 0);
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_topic'])) {
-            $topicId = $this->forum->createTopic($catId, (int)$USER['id'], HTTP::_GP('title', '', true), HTTP::_GP('content', '', true));
-            $this->redirectTo('game.php?page=forum&mode=topic&id='.$topicId);
+        if ($catId <= 0) {
+            $this->redirectTo('game.php?page=forum');
             return;
         }
-        $this->assign(['mode' => 'new_topic', 'category' => $this->forum->getCategory($catId)]);
+        $message = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_topic'])) {
+            $title   = HTTP::_GP('title', '', true);
+            $content = HTTP::_GP('content', '', true);
+            if ($title !== '' && $content !== '') {
+                $topicId = $this->forum->createTopic($catId, (int)$USER['id'], $title, $content);
+                $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+                return;
+            }
+            $message = ['class' => 'error', 'text' => 'Bitte fülle alle Felder aus.'];
+        }
+        $category = $this->forum->getCategory($catId);
+        if (empty($category)) {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
+        $this->assign([
+            'mode'     => 'new_topic',
+            'category' => $category,
+            'message'  => $message,
+        ]);
         $this->display('ForumPage.twig');
     }
 

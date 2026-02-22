@@ -130,9 +130,192 @@ class Forum
             $this->db->update("UPDATE %%FORUM_POSTS%% SET like_count = like_count - 1 WHERE id = :id", [':id' => $postId]);
             return false;
         } else {
-            $this->db->insert("INSERT INTO %%FORUM_POST_LIKES%% SET post_id = :post, user_id = :user", [':post' => $postId, ':user' => $userId]);
+            $now = TIMESTAMP;
+            $this->db->insert("INSERT INTO %%FORUM_POST_LIKES%% SET post_id = :post, user_id = :user, created_at = :now", [':post' => $postId, ':user' => $userId, ':now' => $now]);
             $this->db->update("UPDATE %%FORUM_POSTS%% SET like_count = like_count + 1 WHERE id = :id", [':id' => $postId]);
             return true;
         }
+    }
+
+    public function updatePost(int $postId, int $userId, string $content): void
+    {
+        $now = TIMESTAMP;
+        $this->db->update(
+            "UPDATE %%FORUM_POSTS%% SET content = :content, updated_at = :now WHERE id = :id",
+            [':content' => $content, ':now' => $now, ':id' => $postId]
+        );
+    }
+
+    public function createCategory(array $data): int
+    {
+        $now = TIMESTAMP;
+        $parentId = isset($data['parent_id']) && (int)$data['parent_id'] > 0 ? (int)$data['parent_id'] : null;
+        $this->db->insert(
+            "INSERT INTO %%FORUM_CATEGORIES%% SET parent_id = :parent, title = :title, description = :desc, icon = :icon, color = :color, sort_order = :sort, is_locked = :locked, created_at = :now",
+            [
+                ':parent' => $parentId,
+                ':title'  => $data['title'] ?? '',
+                ':desc'   => $data['description'] ?? '',
+                ':icon'   => $data['icon'] ?? '📁',
+                ':color'  => $data['color'] ?? '#38bdf8',
+                ':sort'   => (int)($data['sort_order'] ?? 0),
+                ':locked' => (int)($data['is_locked'] ?? 0),
+                ':now'    => $now,
+            ]
+        );
+        return (int)$this->db->lastInsertId();
+    }
+
+    public function updateCategory(int $id, array $data): void
+    {
+        $parentId = isset($data['parent_id']) && (int)$data['parent_id'] > 0 ? (int)$data['parent_id'] : null;
+        $this->db->update(
+            "UPDATE %%FORUM_CATEGORIES%% SET parent_id = :parent, title = :title, description = :desc, icon = :icon, color = :color, sort_order = :sort, is_locked = :locked WHERE id = :id",
+            [
+                ':parent' => $parentId,
+                ':title'  => $data['title'] ?? '',
+                ':desc'   => $data['description'] ?? '',
+                ':icon'   => $data['icon'] ?? '📁',
+                ':color'  => $data['color'] ?? '#38bdf8',
+                ':sort'   => (int)($data['sort_order'] ?? 0),
+                ':locked' => (int)($data['is_locked'] ?? 0),
+                ':id'     => $id,
+            ]
+        );
+    }
+
+    public function deleteCategory(int $id): void
+    {
+        $topics = $this->db->select("SELECT id FROM %%FORUM_TOPICS%% WHERE category_id = :cat", [':cat' => $id]);
+        foreach ($topics as $topic) {
+            $this->deleteTopic((int)$topic['id']);
+        }
+        $this->db->delete("DELETE FROM %%FORUM_CATEGORIES%% WHERE id = :id", [':id' => $id]);
+        $this->db->delete("DELETE FROM %%FORUM_CATEGORIES%% WHERE parent_id = :id", [':id' => $id]);
+    }
+
+    public function deleteTopic(int $id): void
+    {
+        $posts = $this->db->select("SELECT id FROM %%FORUM_POSTS%% WHERE topic_id = :topic", [':topic' => $id]);
+        foreach ($posts as $post) {
+            $this->db->delete("DELETE FROM %%FORUM_POST_LIKES%% WHERE post_id = :id", [':id' => $post['id']]);
+            $this->db->delete("DELETE FROM %%FORUM_MENTIONS%% WHERE post_id = :id", [':id' => $post['id']]);
+        }
+        $this->db->delete("DELETE FROM %%FORUM_POSTS%% WHERE topic_id = :id", [':id' => $id]);
+        $this->db->delete("DELETE FROM %%FORUM_TOPICS%% WHERE id = :id", [':id' => $id]);
+    }
+
+    public function deletePost(int $id): void
+    {
+        $this->db->delete("DELETE FROM %%FORUM_POST_LIKES%% WHERE post_id = :id", [':id' => $id]);
+        $this->db->delete("DELETE FROM %%FORUM_MENTIONS%% WHERE post_id = :id", [':id' => $id]);
+        $this->db->delete("DELETE FROM %%FORUM_POSTS%% WHERE id = :id", [':id' => $id]);
+    }
+
+    public function getFlatCategories(): array
+    {
+        return $this->db->select("SELECT id, title, parent_id FROM %%FORUM_CATEGORIES%% ORDER BY sort_order ASC, id ASC");
+    }
+
+    public function getTopicsAdmin(int $page = 1, int $limit = 30): array
+    {
+        $offset = ($page - 1) * $limit;
+        return $this->db->select(
+            "SELECT t.*, u.username, c.title as category_title
+             FROM %%FORUM_TOPICS%% t
+             LEFT JOIN %%USERS%% u ON t.user_id = u.id
+             LEFT JOIN %%FORUM_CATEGORIES%% c ON t.category_id = c.id
+             ORDER BY t.created_at DESC
+             LIMIT :limit OFFSET :offset",
+            [':limit' => $limit, ':offset' => $offset]
+        );
+    }
+
+    public function getPostsAdmin(int $page = 1, int $limit = 30): array
+    {
+        $offset = ($page - 1) * $limit;
+        return $this->db->select(
+            "SELECT p.*, u.username, t.title as topic_title
+             FROM %%FORUM_POSTS%% p
+             LEFT JOIN %%USERS%% u ON p.user_id = u.id
+             LEFT JOIN %%FORUM_TOPICS%% t ON p.topic_id = t.id
+             WHERE p.is_deleted = 0
+             ORDER BY p.created_at DESC
+             LIMIT :limit OFFSET :offset",
+            [':limit' => $limit, ':offset' => $offset]
+        );
+    }
+
+    public function getStats(): array
+    {
+        return [
+            'total_categories' => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_CATEGORIES%%", [], 'c'),
+            'total_topics'     => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_TOPICS%%", [], 'c'),
+            'total_posts'      => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_POSTS%% WHERE is_deleted = 0", [], 'c'),
+            'total_users'      => (int)$this->db->selectSingle("SELECT COUNT(DISTINCT user_id) as c FROM %%FORUM_POSTS%%", [], 'c'),
+        ];
+    }
+
+    public function getUserMentions(int $userId): array
+    {
+        return $this->db->select(
+            "SELECT m.*, p.content, p.topic_id, t.title as topic_title, u.username as mentioned_by
+             FROM %%FORUM_MENTIONS%% m
+             LEFT JOIN %%FORUM_POSTS%% p ON m.post_id = p.id
+             LEFT JOIN %%FORUM_TOPICS%% t ON p.topic_id = t.id
+             LEFT JOIN %%USERS%% u ON p.user_id = u.id
+             WHERE m.user_id = :user
+             ORDER BY m.created_at DESC
+             LIMIT 50",
+            [':user' => $userId]
+        );
+    }
+
+    public function markMentionRead(int $mentionId): void
+    {
+        $this->db->update(
+            "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE id = :id",
+            [':id' => $mentionId]
+        );
+    }
+
+    public function getTopicForEdit(int $id): ?array
+    {
+        $res = $this->db->selectSingle(
+            "SELECT t.*, c.title as category_title FROM %%FORUM_TOPICS%% t LEFT JOIN %%FORUM_CATEGORIES%% c ON t.category_id = c.id WHERE t.id = :id",
+            [':id' => $id]
+        );
+        return $res ?: null;
+    }
+
+    public function updateTopic(int $id, array $data): void
+    {
+        $this->db->update(
+            "UPDATE %%FORUM_TOPICS%% SET title = :title, is_sticky = :sticky, is_locked = :locked WHERE id = :id",
+            [
+                ':title'  => $data['title'] ?? '',
+                ':sticky' => (int)($data['is_sticky'] ?? 0),
+                ':locked' => (int)($data['is_locked'] ?? 0),
+                ':id'     => $id,
+            ]
+        );
+    }
+
+    public function getTopicCount(int $categoryId): int
+    {
+        return (int)$this->db->selectSingle(
+            "SELECT COUNT(*) as c FROM %%FORUM_TOPICS%% WHERE category_id = :cat",
+            [':cat' => $categoryId],
+            'c'
+        );
+    }
+
+    public function getPostCount(int $topicId): int
+    {
+        return (int)$this->db->selectSingle(
+            "SELECT COUNT(*) as c FROM %%FORUM_POSTS%% WHERE topic_id = :topic AND is_deleted = 0",
+            [':topic' => $topicId],
+            'c'
+        );
     }
 }

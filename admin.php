@@ -208,6 +208,11 @@ switch($page)
 		require_once('includes/pages/adm/ShowDumpPage.php');
 		ShowDumpPage();
 	break;
+	case 'ForumAdmin':
+	case 'ForumAdminPage':
+		require_once('includes/pages/adm/ShowForumAdminPage.php');
+		ShowForumAdminPage();
+	break;
 	default:
 		require_once('includes/pages/adm/ShowIndexPage.php');
 		ShowIndexPage();

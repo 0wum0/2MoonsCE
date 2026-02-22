@@ -133,7 +133,7 @@
             {% endif %}
             
             {% if allowedTo('ShowForumAdminPage') %}
-            <a href="admin.php?page=ForumAdminPage" class="sidebar-link{% if GET.page is defined and GET.page == 'ForumAdmin' %} active{% endif %}">
+            <a href="admin.php?page=ForumAdmin&mode=categories" class="sidebar-link{% if GET.page is defined and GET.page in ['ForumAdmin', 'ForumAdminPage'] %} active{% endif %}">
                 <span class="sidebar-link-icon">&#128172;</span> Forum Management
             </a>
             {% endif %}

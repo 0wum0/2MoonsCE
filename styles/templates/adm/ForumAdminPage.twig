@@ -199,6 +199,42 @@
 </div>
 {% endif %}
 
+{# ==================== EDIT TOPIC ==================== #}
+{% elseif mode == 'edit_topic' %}
+
+<a href="admin.php?page=ForumAdmin&mode=topics" style="color: var(--forum-text-muted); text-decoration: none;">← Zurück</a>
+
+{% if topic is defined %}
+<div class="forum-editor" style="margin-top: 20px;">
+    <h3 style="margin-top: 0; color: var(--forum-accent);">✏️ Topic bearbeiten</h3>
+    <form method="post" action="admin.php?page=ForumAdmin&mode=edit_topic&id={{ topic.id }}">
+        <input type="hidden" name="topic_id" value="{{ topic.id }}">
+
+        <div class="forum-input-group">
+            <label class="forum-label">Titel *</label>
+            <input type="text" name="title" class="forum-input" value="{{ topic.title }}" required>
+        </div>
+
+        <div style="display: flex; gap: 20px; margin-top: 15px;">
+            <label style="display: flex; align-items: center; gap: 8px; color: var(--forum-text); cursor: pointer;">
+                <input type="checkbox" name="is_sticky" {% if topic.is_sticky %}checked{% endif %}>
+                📌 Angepinnt
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; color: var(--forum-text); cursor: pointer;">
+                <input type="checkbox" name="is_locked" {% if topic.is_locked %}checked{% endif %}>
+                🔒 Gesperrt
+            </label>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" name="update_topic" value="1" class="forum-btn forum-btn-primary">
+                💾 Speichern
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
 {# ==================== TOPICS ==================== #}
 {% elseif mode == 'topics' %}
 

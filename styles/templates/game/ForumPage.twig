@@ -82,84 +82,186 @@
         </div>
     </div>
 
+    {# MESSAGE #}
+    {% if message.text is defined %}
+    <div style="padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; background: {% if message.class == 'error' %}rgba(239,68,68,0.15); border: 1px solid #ef4444{% else %}rgba(16,185,129,0.15); border: 1px solid #10b981{% endif %}; color: #fff;">
+        {{ message.text }}
+    </div>
+    {% endif %}
+
     {# INDEX #}
     {% if mode == 'index' %}
-        {% for category in categories %}
-            <div class="fl-box">
-                <div style="padding: 10px 25px; background: rgba(56, 189, 248, 0.1); font-weight: 800; color: var(--fl-accent); font-size: 11px; text-transform: uppercase;">{{ category.title }}</div>
-                {% for sub in category.children %}
-                    <div class="fl-item">
-                        <div class="fl-avatar-circle" style="border-radius: 10px; background: {{ sub.color }}20; color: {{ sub.color }};">{{ sub.icon|default('📁') }}</div>
-                        <div class="fl-content-main">
-                            <a href="game.php?page=forum&mode=category&id={{ sub.id }}" class="fl-link-title">{{ sub.title }}</a>
-                            <div style="font-size: 13px; color: var(--fl-muted);">{{ sub.description }}</div>
-                        </div>
-                        <div style="text-align: right; min-width: 120px; font-size: 12px; color: var(--fl-muted);">
-                            <b style="color: var(--fl-accent)">{{ sub.topic_count }}</b> Themen<br>
-                            <b>{{ sub.post_count }}</b> Posts
-                        </div>
-                    </div>
-                {% endfor %}
+        {% if categories is defined and categories|length > 0 %}
+            {% for category in categories %}
+                <div class="fl-box">
+                    <div style="padding: 10px 25px; background: rgba(56, 189, 248, 0.1); font-weight: 800; color: var(--fl-accent); font-size: 11px; text-transform: uppercase;">{{ category.title }}</div>
+                    {% if category.children is defined and category.children|length > 0 %}
+                        {% for sub in category.children %}
+                            <div class="fl-item">
+                                <div class="fl-avatar-circle" style="border-radius: 10px; background: {{ sub.color|default('#38bdf8') }}20; color: {{ sub.color|default('#38bdf8') }};">{{ sub.icon|default('📁') }}</div>
+                                <div class="fl-content-main">
+                                    <a href="game.php?page=forum&mode=category&id={{ sub.id }}" class="fl-link-title">{{ sub.title }}</a>
+                                    <div style="font-size: 13px; color: var(--fl-muted);">{{ sub.description }}</div>
+                                </div>
+                                <div style="text-align: right; min-width: 120px; font-size: 12px; color: var(--fl-muted);">
+                                    <b style="color: var(--fl-accent)">{{ sub.topic_count|default(0) }}</b> Themen<br>
+                                    <b>{{ sub.post_count|default(0) }}</b> Posts
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="fl-item" style="color: var(--fl-muted); font-size: 13px;">Keine Unterkategorien vorhanden.</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="fl-box" style="padding: 30px; text-align: center; color: var(--fl-muted);">
+                Noch keine Kategorien vorhanden. Ein Administrator muss zuerst Kategorien anlegen.
             </div>
-        {% endfor %}
+        {% endif %}
+
+    {# CATEGORY VIEW #}
+    {% elseif mode == 'category' %}
+        {% if category is defined %}
+            <div style="margin-bottom: 20px;">
+                <a href="game.php?page=forum" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← Forum</a>
+                <h1 style="font-size: 22px; margin: 10px 0; color:#fff; font-weight: 800;">{{ category.title }}</h1>
+                {% if category.description %}<p style="color: var(--fl-muted); margin: 0 0 15px;">{{ category.description }}</p>{% endif %}
+            </div>
+
+            <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+                {% if not category.is_locked %}
+                <a href="game.php?page=forum&mode=new_topic&category_id={{ category.id }}" class="fl-btn-main">✏️ Neues Thema</a>
+                {% endif %}
+            </div>
+
+            <div class="fl-box">
+                {% if topics is defined and topics|length > 0 %}
+                    {% for topic in topics %}
+                        <div class="fl-item">
+                            <div class="fl-avatar-circle" style="border-radius: 10px; font-size: 18px; background: {% if topic.is_sticky %}rgba(245,158,11,0.15){% elseif topic.is_locked %}rgba(239,68,68,0.15){% else %}rgba(56,189,248,0.1){% endif %}; color: {% if topic.is_sticky %}#f59e0b{% elseif topic.is_locked %}#ef4444{% else %}var(--fl-accent){% endif %};">
+                                {% if topic.is_sticky %}📌{% elseif topic.is_locked %}🔒{% else %}💬{% endif %}
+                            </div>
+                            <div class="fl-content-main">
+                                <a href="game.php?page=forum&mode=topic&id={{ topic.id }}" class="fl-link-title">{{ topic.title }}</a>
+                                <div style="font-size: 12px; color: var(--fl-muted);">
+                                    von <b style="color:#fff">{{ topic.username|default('Unbekannt') }}</b>
+                                    &nbsp;·&nbsp; {{ topic.created_at|date('d.m.Y H:i') }}
+                                </div>
+                            </div>
+                            <div style="text-align: right; min-width: 100px; font-size: 12px; color: var(--fl-muted);">
+                                <b style="color: var(--fl-accent)">{{ topic.post_count|default(0) }}</b> Posts<br>
+                                <b>{{ topic.views|default(0) }}</b> Views
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="padding: 30px; text-align: center; color: var(--fl-muted);">Noch keine Themen vorhanden.</div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    {# NEW TOPIC FORM #}
+    {% elseif mode == 'new_topic' %}
+        {% if category is defined %}
+            <div style="margin-bottom: 20px;">
+                <a href="game.php?page=forum&mode=category&id={{ category.id }}" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← {{ category.title }}</a>
+                <h1 style="font-size: 22px; margin: 10px 0; color:#fff; font-weight: 800;">✏️ Neues Thema erstellen</h1>
+            </div>
+
+            <div class="fl-box" style="padding: 25px;">
+                <form action="game.php?page=forum&mode=new_topic" method="POST">
+                    <input type="hidden" name="create_topic" value="1">
+                    <input type="hidden" name="category_id" value="{{ category.id }}">
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Betreff</label>
+                        <input type="text" name="title" required maxlength="255"
+                               style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 8px; color: #fff; padding: 12px 15px; font-size: 15px; box-sizing: border-box;">
+                    </div>
+
+                    <div class="editor-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="insertBB('b', 'forum-content')"><b>B</b></button>
+                        <button type="button" class="toolbar-btn" onclick="insertBB('i', 'forum-content')"><i>I</i></button>
+                        <button type="button" class="toolbar-btn" onclick="insertBB('u', 'forum-content')"><u>U</u></button>
+                        <button type="button" class="toolbar-btn" onclick="insertBB('url', 'forum-content')">🔗</button>
+                        <button type="button" class="toolbar-btn" onclick="insertBB('img', 'forum-content')">🖼️</button>
+                        <button type="button" class="toolbar-btn" onclick="insertBB('quote', 'forum-content')">❝</button>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Inhalt</label>
+                        <textarea name="content" id="forum-content" required
+                                  style="width: 100%; height: 200px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 15px; font-family: inherit; font-size: 15px; box-sizing: border-box; resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" class="fl-btn-main">🚀 Thema erstellen</button>
+                </form>
+            </div>
+        {% endif %}
 
     {# TOPIC (THREAD CONTENT) #}
     {% elseif mode == 'topic' %}
+        {% if topic is defined %}
         <div style="margin-bottom: 20px;">
             <a href="game.php?page=forum&mode=category&id={{ topic.category_id }}" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← Zum Sektor</a>
             <h1 style="font-size: 26px; margin: 10px 0; color:#fff; font-weight: 800;">{{ topic.title }}</h1>
+            {% if topic.is_locked %}<span style="color: #ef4444; font-size: 12px; font-weight: 700;">🔒 Gesperrt</span>{% endif %}
         </div>
 
         {% for post in posts %}
             <div class="fl-post">
                 <div class="fl-author-info">
-                    <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|slice(0, 1)|upper }}</div>
-                    <a href="game.php?page=profile&id={{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username }}</a>
+                    <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|default('?')|slice(0, 1)|upper }}</div>
+                    <a href="game.php?page=profile&id={{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default('Unbekannt') }}</a>
                     <span class="fl-rank-tag">Platz {{ post.user_rank|default('?') }}</span>
-                    <span class="fl-points"><b>{{ post.user_points|number_format(0, ',', '.') }}</b> Pkt.</span>
+                    <span class="fl-points"><b>{{ post.user_points|default(0)|number_format(0, ',', '.') }}</b> Pkt.</span>
                 </div>
                 <div class="fl-post-body-container">
                     <div class="fl-post-header">
                         <span>Signal-Eingang: {{ post.created_at|date('d.m.Y H:i') }}</span>
-                        {% if post.authlevel > 0 %}<span style="color: #f87171; font-weight: 900; font-size: 10px;">[STAFF]</span>{% endif %}
+                        {% if post.authlevel is defined and post.authlevel > 0 %}<span style="color: #f87171; font-weight: 900; font-size: 10px;">[STAFF]</span>{% endif %}
                     </div>
-                    <div class="fl-post-text" id="post-data-{{ post.id }}">{{ post.content_html|raw }}</div>
+                    <div class="fl-post-text" id="post-data-{{ post.id }}">{{ post.content_html|default('')|raw }}</div>
                     <div class="fl-actions">
                         <span class="fl-action-btn" onclick="likePost({{ post.id }})">❤️ Like (<span id="lc-{{ post.id }}">{{ post.like_count|default(0) }}</span>)</span>
-                        <span class="fl-action-btn" onclick="quotePost('{{ post.username }}', 'post-data-{{ post.id }}')">💬 Zitieren</span>
+                        <span class="fl-action-btn" onclick="quotePost('{{ post.username|default('') }}', 'post-data-{{ post.id }}')">💬 Zitieren</span>
                     </div>
                 </div>
             </div>
+        {% else %}
+            <div class="fl-box" style="padding: 30px; text-align: center; color: var(--fl-muted);">Noch keine Beiträge vorhanden.</div>
         {% endfor %}
 
         {% if not topic.is_locked %}
             <div class="fl-box" style="padding: 25px;">
                 <h3 style="margin-top:0; font-size: 16px; font-weight: 800; color: var(--fl-accent); text-transform: uppercase;">📡 Übertragung senden</h3>
-                
-                {# BB-Code Toolbar #}
+
                 <div class="editor-toolbar">
-                    <button type="button" class="toolbar-btn" onclick="insertBB('b')"><b>B</b></button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('i')"><i>I</i></button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('u')"><u>U</u></button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('url')">🔗</button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('img')">🖼️</button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('quote')">❝</button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('b', 'forum-content')"><b>B</b></button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('i', 'forum-content')"><i>I</i></button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('u', 'forum-content')"><u>U</u></button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('url', 'forum-content')">🔗</button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('img', 'forum-content')">🖼️</button>
+                    <button type="button" class="toolbar-btn" onclick="insertBB('quote', 'forum-content')">❝</button>
                 </div>
 
                 <form action="game.php?page=forum&mode=topic&id={{ topic.id }}" method="POST">
                     <input type="hidden" name="create_post" value="1">
-                    <textarea name="content" id="forum-content" style="width: 100%; height: 160px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 18px; font-family: inherit; font-size: 15px; margin-bottom: 15px;"></textarea>
+                    <textarea name="content" id="forum-content" style="width: 100%; height: 160px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 18px; font-family: inherit; font-size: 15px; margin-bottom: 15px; box-sizing: border-box; resize: vertical;"></textarea>
                     <button type="submit" class="fl-btn-main">🚀 Absenden</button>
                 </form>
             </div>
         {% endif %}
+        {% endif %}
+
     {% endif %}
 
 </div>
 
 <script>
-function insertBB(tag) {
-    const area = document.getElementById('forum-content');
+function insertBB(tag, areaId) {
+    const area = document.getElementById(areaId || 'forum-content');
     const start = area.selectionStart;
     const end = area.selectionEnd;
     const text = area.value;
