@@ -220,6 +220,12 @@ class BuildFunctions
 
     public static function isElementBuyable($USER, $PLANET, $Element, $elementPrice = NULL, $forDestroy = false, $forLevel = NULL)
     {
+        if (!isset($elementPrice)) {
+            $elementPrice = self::getElementPrice($USER, $PLANET, $Element, $forDestroy, $forLevel);
+        }
+        if (empty($elementPrice)) {
+            return false;
+        }
         $rest = self::getRestPrice($USER, $PLANET, $Element, $elementPrice);
         return count(array_filter($rest)) === 0;
     }
@@ -262,7 +268,7 @@ class BuildFunctions
             return 0;
         }
 
-        return min($maxElement);
+        return max(0, (int)min($maxElement));
     }
 
     public static function getMaxConstructibleRockets($USER, $PLANET, $Missiles = NULL)
