@@ -87,20 +87,13 @@ class BuildFunctions
         $level = 0;
 
         if ($isCountBased) {
-            // forLevel means: "how many"
+            // forLevel means: "how many units to price"
             if (isset($forLevel)) {
                 $amount = (int)$forLevel;
-            } else {
-                // If no amount given, try to read current amount from planet (usual for missiles/def) or user
-                if (isset($PLANET[$resource[$Element]])) {
-                    $amount = (int)$PLANET[$resource[$Element]];
-                } elseif (isset($USER[$resource[$Element]])) {
-                    $amount = (int)$USER[$resource[$Element]];
-                } else {
-                    // default to 1 (price of a single unit)
-                    $amount = 1;
-                }
             }
+            // else: $amount stays 1 — always price a single unit for display/buyability checks.
+            // Ships/defense/missiles do not scale with existing count; reading the planet's
+            // current stock as "amount" caused costs to be 0 when the planet had 0 units.
 
             // In classic 2Moons, ships/def/missiles do not scale with "level".
             $level = 0;
