@@ -27,13 +27,53 @@
     .fl-link-title { font-size: 16.5px; font-weight: 700; color: #fff; text-decoration: none; display: block; margin-bottom: 3px; }
     .fl-link-title:hover { color: var(--fl-accent); }
 
-    .fl-post { display: flex; gap: 20px; padding: 25px; background: var(--fl-card); border-radius: 15px; border: 1px solid var(--fl-border); margin-bottom: 15px; }
-    .fl-author-info { width: 170px; flex-shrink: 0; text-align: center; border-right: 1px solid var(--fl-border); padding-right: 20px; }
-    .fl-rank-tag { font-size: 10px; color: var(--fl-accent); font-weight: 800; text-transform: uppercase; margin-top: 10px; display: block; background: rgba(56, 189, 248, 0.1); border-radius: 4px; padding: 2px; }
-    .fl-points { font-size: 11px; color: var(--fl-muted); margin-top: 8px; display: block; }
+    /* ── Post card ── */
+    .fl-post { display: flex; flex-direction: row; gap: 20px; padding: 25px; background: var(--fl-card); border-radius: 15px; border: 1px solid var(--fl-border); margin-bottom: 15px; }
+
+    /* Desktop: fixed-width left column */
+    .fl-author-info { width: 170px; flex-shrink: 0; text-align: center; border-right: 1px solid var(--fl-border); padding-right: 20px; display: flex; flex-direction: column; align-items: center; }
+    .fl-rank-tag { font-size: 10px; color: var(--fl-accent); font-weight: 800; text-transform: uppercase; margin-top: 10px; display: block; background: rgba(56, 189, 248, 0.1); border-radius: 4px; padding: 2px 5px; }
+    .fl-points { font-size: 11px; color: var(--fl-muted); margin-top: 6px; display: block; }
     .fl-points b { color: #fff; }
+    /* stat chips (mobile) */
+    .fl-stat-chips { display: none; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .fl-stat-chip { font-size: 10px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); border-radius: 20px; padding: 2px 8px; color: var(--fl-muted); white-space: nowrap; }
+    .fl-stat-chip b { color: #fff; }
 
     .fl-post-body-container { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; }
+
+    /* ── Mobile layout ── */
+    @media (max-width: 768px) {
+        .fl-post { flex-direction: column; gap: 0; padding: 16px; }
+
+        /* Author block becomes a compact horizontal header */
+        .fl-author-info {
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+            text-align: left;
+            border-right: none;
+            border-bottom: 1px solid var(--fl-border);
+            padding-right: 0;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+        /* Avatar smaller on mobile */
+        .fl-author-info .fl-avatar-circle {
+            width: 44px !important;
+            height: 44px !important;
+            font-size: 18px !important;
+            margin: 0 !important;
+            flex-shrink: 0;
+        }
+        /* Name + rank + points stack vertically beside avatar */
+        .fl-author-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .fl-rank-tag { margin-top: 0; }
+        /* Hide the desktop-style stacked points, show chips instead */
+        .fl-points { display: none; }
+        .fl-stat-chips { display: flex; }
+    }
     .fl-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; color: var(--fl-muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
     .fl-post-text { flex-grow: 1; line-height: 1.75; font-size: 15px; color: #d1d5db; }
 
@@ -209,9 +249,15 @@
             <div class="fl-post">
                 <div class="fl-author-info">
                     <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|default('?')|slice(0, 1)|upper }}</div>
-                    <a href="game.php?page=profile&id={{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default('Unbekannt') }}</a>
-                    <span class="fl-rank-tag">Platz {{ post.user_rank|default('?') }}</span>
-                    <span class="fl-points"><b>{{ post.user_points|default(0)|number_format(0, ',', '.') }}</b> Pkt.</span>
+                    <div class="fl-author-meta">
+                        <a href="game.php?page=profile&id={{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default('Unbekannt') }}</a>
+                        <span class="fl-rank-tag">Platz {{ post.user_rank|default('?') }}</span>
+                        <span class="fl-points"><b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> Pkt.</span>
+                        <div class="fl-stat-chips">
+                            <span class="fl-stat-chip">🏆 <b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> Pkt.</span>
+                            <span class="fl-stat-chip">📊 #{{ post.user_rank|default('?') }}</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="fl-post-body-container">
                     <div class="fl-post-header">
@@ -264,6 +310,21 @@
 </div>
 
 <script>
+/* ── Compact number formatter ── */
+function fmtNum(n) {
+    n = parseFloat(n);
+    if (isNaN(n)) return n;
+    if (n >= 1e9)  return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (n >= 1e6)  return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1e3)  return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+    return String(Math.round(n));
+}
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-number]').forEach(function(el) {
+        el.textContent = fmtNum(el.getAttribute('data-number'));
+    });
+});
+
 function bbInsert(areaId, tag) {
     const area = document.getElementById(areaId);
     if (!area) return;
