@@ -154,6 +154,8 @@ class ShowForumPage extends AbstractGamePage
             return;
         }
 
+        $this->forum->markTopicRead($id, (int)$USER['id']);
+
         $canModerate = $this->canModerateForum($USER);
         $currentUserId = (int)$USER['id'];
 

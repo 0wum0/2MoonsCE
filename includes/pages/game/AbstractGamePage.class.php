@@ -161,6 +161,17 @@ abstract class AbstractGamePage
 			$globalFleetJSON = '[]';
 		}
 
+		$forumNotifCount = 0;
+		try {
+			if (!class_exists('Forum')) {
+				require_once ROOT_PATH . 'includes/classes/Forum.class.php';
+			}
+			$forumObj = new Forum();
+			$forumNotifCount = $forumObj->getForumNotificationCount((int)$USER['id']);
+		} catch (Throwable $e) {
+			$forumNotifCount = 0;
+		}
+
 		$this->assign(array(
 			'PlanetSelect'		=> $PlanetSelect,
 			'globalFleetMovements' => $fleetMovements,
@@ -170,6 +181,7 @@ abstract class AbstractGamePage
 			'newMessageCount'	=> (int) $USER['messages'],
 			'buildQueue'		=> $this->getGlobalBuildQueues(),
 			'recentMessages'	=> $this->getRecentMessages(),
+			'forum_notif_count'	=> $forumNotifCount,
 			'vacation'			=> $USER['urlaubs_modus'] ? _date($LNG['php_tdformat'], $USER['urlaubs_until'], $USER['timezone']) : false,
 			'delete'			=> $USER['db_deaktjava'] ? sprintf($LNG['tn_delete_mode'], _date($LNG['php_tdformat'], $USER['db_deaktjava'] + ($config->del_user_manually * 86400)), $USER['timezone']) : false,
 			'darkmatter'		=> $USER['darkmatter'],

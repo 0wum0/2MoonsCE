@@ -119,7 +119,240 @@ class Forum
         $this->db->insert("INSERT INTO %%FORUM_POSTS%% SET topic_id = :topic, user_id = :user, content = :content, created_at = :now, updated_at = :now",
             [':topic' => $topicId, ':user' => $userId, ':content' => $content, ':now' => $now]
         );
+        $postId = (int)$this->db->lastInsertId();
         $this->db->update("UPDATE %%FORUM_TOPICS%% SET last_post_time = :now WHERE id = :topic", [':now' => $now, ':topic' => $topicId]);
+        $this->ensureSubscription($topicId, $userId);
+        $this->extractAndSaveMentions($postId, $userId, $content);
+        $this->updateSubscriberUnreads($topicId, $postId, $userId);
+    }
+
+    // ── Notification helpers ──────────────────────────────────────────────────
+
+    /**
+     * Auto-subscribe the poster to the topic (idempotent).
+     */
+    public function ensureSubscription(int $topicId, int $userId): void
+    {
+        $exists = $this->db->selectSingle(
+            "SELECT id FROM %%FORUM_SUBSCRIPTIONS%% WHERE topic_id = :t AND user_id = :u",
+            [':t' => $topicId, ':u' => $userId]
+        );
+        if (!$exists) {
+            $this->db->insert(
+                "INSERT INTO %%FORUM_SUBSCRIPTIONS%% SET topic_id = :t, user_id = :u, created_at = :now",
+                [':t' => $topicId, ':u' => $userId, ':now' => TIMESTAMP]
+            );
+        }
+    }
+
+    /**
+     * Parse @mentions from raw post content and insert rows into forum_mentions.
+     * Deduplicates per post+user. Does NOT mention the poster themselves.
+     */
+    public function extractAndSaveMentions(int $postId, int $byUserId, string $content): void
+    {
+        if (!class_exists('BBCode')) {
+            require_once ROOT_PATH . 'includes/classes/BBCode.class.php';
+        }
+        $mentionedUserIds = $this->bbcode->extractMentions($content);
+        $now = TIMESTAMP;
+        foreach ($mentionedUserIds as $mentionedUserId) {
+            if ($mentionedUserId === $byUserId) {
+                continue;
+            }
+            $exists = $this->db->selectSingle(
+                "SELECT id FROM %%FORUM_MENTIONS%% WHERE post_id = :p AND user_id = :u",
+                [':p' => $postId, ':u' => $mentionedUserId]
+            );
+            if (!$exists) {
+                $this->db->insert(
+                    "INSERT INTO %%FORUM_MENTIONS%% SET post_id = :p, user_id = :u, by_user_id = :by, is_read = 0, created_at = :now",
+                    [':p' => $postId, ':u' => $mentionedUserId, ':by' => $byUserId, ':now' => $now]
+                );
+            }
+        }
+    }
+
+    /**
+     * For every subscriber of a topic (except the poster), upsert an unread row
+     * pointing at the new post_id.
+     */
+    public function updateSubscriberUnreads(int $topicId, int $newPostId, int $posterUserId): void
+    {
+        $subscribers = $this->db->select(
+            "SELECT user_id FROM %%FORUM_SUBSCRIPTIONS%% WHERE topic_id = :t AND user_id != :u",
+            [':t' => $topicId, ':u' => $posterUserId]
+        );
+        $now = TIMESTAMP;
+        foreach ($subscribers as $row) {
+            $uid = (int)$row['user_id'];
+            $exists = $this->db->selectSingle(
+                "SELECT id FROM %%FORUM_TOPIC_UNREADS%% WHERE topic_id = :t AND user_id = :u",
+                [':t' => $topicId, ':u' => $uid]
+            );
+            if ($exists) {
+                $this->db->update(
+                    "UPDATE %%FORUM_TOPIC_UNREADS%% SET last_post_id = :p, updated_at = :now WHERE id = :id",
+                    [':p' => $newPostId, ':now' => $now, ':id' => (int)$exists['id']]
+                );
+            } else {
+                $this->db->insert(
+                    "INSERT INTO %%FORUM_TOPIC_UNREADS%% SET topic_id = :t, user_id = :u, last_post_id = :p, updated_at = :now",
+                    [':t' => $topicId, ':u' => $uid, ':p' => $newPostId, ':now' => $now]
+                );
+            }
+        }
+    }
+
+    /**
+     * Mark all unread notifications for a topic as read for this user.
+     * Called when the user opens a topic view.
+     */
+    public function markTopicRead(int $topicId, int $userId): void
+    {
+        $this->db->delete(
+            "DELETE FROM %%FORUM_TOPIC_UNREADS%% WHERE topic_id = :t AND user_id = :u",
+            [':t' => $topicId, ':u' => $userId]
+        );
+    }
+
+    /**
+     * Total unread forum notification count for a user (mentions + topic unreads).
+     */
+    public function getForumNotificationCount(int $userId): int
+    {
+        $mentions = (int)$this->db->selectSingle(
+            "SELECT COUNT(*) as c FROM %%FORUM_MENTIONS%% WHERE user_id = :u AND is_read = 0",
+            [':u' => $userId],
+            'c'
+        );
+        $unreads = (int)$this->db->selectSingle(
+            "SELECT COUNT(*) as c FROM %%FORUM_TOPIC_UNREADS%% WHERE user_id = :u",
+            [':u' => $userId],
+            'c'
+        );
+        return $mentions + $unreads;
+    }
+
+    /**
+     * Returns structured notification list for the dropdown.
+     * type=mention: post where user was @mentioned
+     * type=new_post: subscribed topic with new posts
+     */
+    public function getForumNotifications(int $userId, int $limit = 20): array
+    {
+        $notifications = [];
+
+        $mentions = $this->db->select(
+            "SELECT m.id, m.post_id, m.is_read, m.created_at, m.by_user_id,
+                    p.topic_id, p.content,
+                    t.title as topic_title,
+                    u.username as by_username
+             FROM %%FORUM_MENTIONS%% m
+             LEFT JOIN %%FORUM_POSTS%% p ON m.post_id = p.id
+             LEFT JOIN %%FORUM_TOPICS%% t ON p.topic_id = t.id
+             LEFT JOIN %%USERS%% u ON m.by_user_id = u.id
+             WHERE m.user_id = :u AND m.is_read = 0
+             ORDER BY m.created_at DESC
+             LIMIT {$limit}",
+            [':u' => $userId]
+        );
+        foreach ($mentions as $row) {
+            $notifications[] = [
+                'type'        => 'mention',
+                'id'          => (int)$row['id'],
+                'post_id'     => (int)$row['post_id'],
+                'topic_id'    => (int)$row['topic_id'],
+                'topic_title' => $row['topic_title'] ?? '',
+                'by_username' => $row['by_username'] ?? '',
+                'snippet'     => $this->makeSnippet((string)($row['content'] ?? '')),
+                'created_at'  => (int)$row['created_at'],
+                'is_read'     => 0,
+            ];
+        }
+
+        $unreads = $this->db->select(
+            "SELECT u.id, u.topic_id, u.last_post_id, u.updated_at,
+                    t.title as topic_title,
+                    p.user_id as last_poster_id,
+                    pu.username as last_poster_name,
+                    p.content as last_content
+             FROM %%FORUM_TOPIC_UNREADS%% u
+             LEFT JOIN %%FORUM_TOPICS%% t ON u.topic_id = t.id
+             LEFT JOIN %%FORUM_POSTS%% p ON u.last_post_id = p.id
+             LEFT JOIN %%USERS%% pu ON p.user_id = pu.id
+             WHERE u.user_id = :u
+             ORDER BY u.updated_at DESC
+             LIMIT {$limit}",
+            [':u' => $userId]
+        );
+        foreach ($unreads as $row) {
+            $notifications[] = [
+                'type'        => 'new_post',
+                'id'          => (int)$row['id'],
+                'post_id'     => (int)$row['last_post_id'],
+                'topic_id'    => (int)$row['topic_id'],
+                'topic_title' => $row['topic_title'] ?? '',
+                'by_username' => $row['last_poster_name'] ?? '',
+                'snippet'     => $this->makeSnippet((string)($row['last_content'] ?? '')),
+                'created_at'  => (int)$row['updated_at'],
+                'is_read'     => 0,
+            ];
+        }
+
+        usort($notifications, fn($a, $b) => $b['created_at'] - $a['created_at']);
+        return array_slice($notifications, 0, $limit);
+    }
+
+    /**
+     * Mark a single notification as read.
+     * type=mention: set is_read=1 in forum_mentions
+     * type=new_post: delete from forum_topic_unreads
+     */
+    public function markNotificationRead(int $userId, string $type, int $id): void
+    {
+        if ($type === 'mention') {
+            $this->db->update(
+                "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE id = :id AND user_id = :u",
+                [':id' => $id, ':u' => $userId]
+            );
+        } elseif ($type === 'new_post') {
+            $this->db->delete(
+                "DELETE FROM %%FORUM_TOPIC_UNREADS%% WHERE id = :id AND user_id = :u",
+                [':id' => $id, ':u' => $userId]
+            );
+        }
+    }
+
+    /**
+     * Mark all forum notifications as read for a user.
+     */
+    public function markAllNotificationsRead(int $userId): void
+    {
+        $this->db->update(
+            "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE user_id = :u AND is_read = 0",
+            [':u' => $userId]
+        );
+        $this->db->delete(
+            "DELETE FROM %%FORUM_TOPIC_UNREADS%% WHERE user_id = :u",
+            [':u' => $userId]
+        );
+    }
+
+    /**
+     * Strip BBCode/HTML from content and return a short plain-text snippet.
+     */
+    private function makeSnippet(string $content, int $maxLen = 80): string
+    {
+        $text = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/\[[^\]]*\]/', '', $text) ?? $text;
+        $text = strip_tags($text);
+        $text = preg_replace('/\s+/', ' ', $text) ?? $text;
+        $text = trim($text);
+        if (mb_strlen($text) > $maxLen) {
+            $text = mb_substr($text, 0, $maxLen) . '…';
+        }
+        return $text;
     }
 
     public function toggleLike(int $postId, int $userId): bool

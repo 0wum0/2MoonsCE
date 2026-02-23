@@ -14,7 +14,7 @@ declare(strict_types=1);
  * @version 1.8.0
  * @link https://github.com/jkroepke/2Moons
  */
-define('DB_VERSION_REQUIRED', 6);
+define('DB_VERSION_REQUIRED', 7);
 define('DB_NAME'			, $databaseConfig['dbname']);
 define('DB_PREFIX'			, $databaseConfig['prefix']);
 
@@ -26,6 +26,7 @@ define('DB_PREFIX_FORUM_POST_LIKES', DB_PREFIX.'forum_post_likes');
 define('DB_PREFIX_FORUM_MENTIONS', DB_PREFIX.'forum_mentions');
 define('DB_PREFIX_FORUM_SUBSCRIPTIONS', DB_PREFIX.'forum_subscriptions');
 define('DB_PREFIX_FORUM_REPORTS', DB_PREFIX.'forum_reports');
+define('DB_PREFIX_FORUM_TOPIC_UNREADS', DB_PREFIX.'forum_topic_unreads');
 
 // Data Tabells
 $dbTableNames	= array(
@@ -57,6 +58,7 @@ $dbTableNames	= array(
 	'FORUM_MENTIONS'	=> DB_PREFIX.'forum_mentions',
 	'FORUM_SUBSCRIPTIONS' => DB_PREFIX.'forum_subscriptions',
 	'FORUM_REPORTS'		=> DB_PREFIX.'forum_reports',
+	'FORUM_TOPIC_UNREADS' => DB_PREFIX.'forum_topic_unreads',
 	'LOG'				=> DB_PREFIX.'log',
 	'LOG_FLEETS'		=> DB_PREFIX.'log_fleets',
 	'LOSTPASSWORD'		=> DB_PREFIX.'lostpassword',

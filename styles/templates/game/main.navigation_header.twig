@@ -195,6 +195,29 @@
                 </div>
             </div>
 
+            <!-- FORUM BENACHRICHTIGUNGEN -->
+            <div class="notif-icon-wrap" id="forum-notif-wrap">
+                <button class="notif-btn{% if forum_notif_count is defined and forum_notif_count > 0 %} notif-btn-active{% endif %}" id="forum-notif-btn" onclick="SmartNotif.toggle('forum')">
+                    <i class="fas fa-comments"></i><span class="notif-badge" id="forum-notif-badge"{% if forum_notif_count is not defined or forum_notif_count < 1 %} style="display:none;"{% endif %}>{% if forum_notif_count is defined and forum_notif_count > 0 %}{{ forum_notif_count > 99 ? '99+' : forum_notif_count }}{% endif %}</span>
+                </button>
+                <div class="notif-dropdown notif-dropdown-forum" id="notif-forum-dropdown">
+                    <div class="notif-dropdown-header">
+                        <span><i class="fas fa-comments"></i> Forum</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <button class="forum-notif-mark-all notif-header-link" id="forum-mark-all-btn" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--notif-accent,#38bdf8);padding:0;" title="Alle als gelesen markieren"><i class="fas fa-check-double"></i></button>
+                            <a href="game.php?page=forum" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <div class="notif-dropdown-tabs">
+                        <button class="forum-notif-tab active" data-tab="mention"><i class="fas fa-at"></i> Erwähnungen</button>
+                        <button class="forum-notif-tab" data-tab="new_post"><i class="fas fa-reply"></i> Neue Beiträge</button>
+                    </div>
+                    <div class="notif-dropdown-body" id="forum-notif-list">
+                        <div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> Lade…</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ======== USER AVATAR MENU ======== -->
             <div class="notif-icon-wrap user-avatar-wrap">
                 <button class="user-avatar-btn" type="button" onclick="SmartNotif.toggle('usermenu')" aria-label="Profil" aria-haspopup="true" aria-expanded="false">
@@ -577,7 +600,7 @@ window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|js
 <script>
 var SmartNotif=(function(){
     var openPanel=null;
-    var panels=['fleets','messages','building','research','hangar','usermenu'];
+    var panels=['fleets','messages','building','research','hangar','forum','usermenu'];
     var fleetTickHandle=null;
     var queueTickHandle=null;
 
@@ -824,7 +847,189 @@ var SmartNotif=(function(){
     window.addEventListener('load', function() {
         setTimeout(doInit, 50);
     });
-
     return {toggle:toggle, closeAll:closeAll, setBadge:setBadge, setAttackMode:setAttackMode, toast:toast};
+})();
+</script>
+
+<!-- FORUM NOTIFICATIONS CSS -->
+<style>
+.notif-dropdown-forum { min-width: 340px; }
+.notif-dropdown-tabs { display:flex; border-bottom:1px solid rgba(56,189,248,0.15); }
+.forum-notif-tab { flex:1; background:none; border:none; color:#94a3b8; font-size:12px; font-weight:700; padding:8px 4px; cursor:pointer; border-bottom:2px solid transparent; transition:color .15s,border-color .15s; }
+.forum-notif-tab.active { color:#38bdf8; border-bottom-color:#38bdf8; }
+.forum-notif-item { display:block; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.05); text-decoration:none; color:inherit; cursor:pointer; transition:background .12s; }
+.forum-notif-item:hover { background:rgba(56,189,248,0.07); }
+.forum-notif-icon { font-size:13px; margin-right:6px; }
+.forum-notif-icon.fn-mention { color:#a78bfa; }
+.forum-notif-icon.fn-newpost { color:#34d399; }
+.forum-notif-title { font-size:12px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px; display:inline-block; vertical-align:middle; }
+.forum-notif-by { font-size:10px; color:#94a3b8; margin-top:2px; }
+.forum-notif-snippet { font-size:11px; color:#94a3b8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px; }
+.forum-notif-time { font-size:10px; color:rgba(148,163,184,0.6); margin-top:2px; }
+.forum-notif-read-btn { background:none; border:none; color:#38bdf8; font-size:10px; cursor:pointer; padding:0; opacity:0.7; }
+.forum-notif-read-btn:hover { opacity:1; }
+</style>
+
+<!-- FORUM NOTIFICATIONS JS -->
+<script>
+(function(){
+    var _items = [];
+    var _activeTab = 'mention';
+    var _loaded = false;
+
+    function relTime(ts) {
+        var diff = Math.floor(Date.now()/1000) - ts;
+        if (diff < 60)   return 'gerade eben';
+        if (diff < 3600) return Math.floor(diff/60) + ' Min.';
+        if (diff < 86400) return Math.floor(diff/3600) + ' Std.';
+        return Math.floor(diff/86400) + ' Tg.';
+    }
+
+    function updateBadge(count) {
+        var badge = document.getElementById('forum-notif-badge');
+        var btn   = document.getElementById('forum-notif-btn');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+            if (btn) btn.classList.add('notif-btn-active');
+        } else {
+            badge.style.display = 'none';
+            if (btn) btn.classList.remove('notif-btn-active');
+        }
+    }
+
+    function renderList() {
+        var list = document.getElementById('forum-notif-list');
+        if (!list) return;
+        var filtered = _items.filter(function(i){ return i.type === _activeTab; });
+        if (!filtered.length) {
+            list.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> Keine neuen ' + (_activeTab === 'mention' ? 'Erw\u00e4hnungen' : 'Beitr\u00e4ge') + '</div>';
+            return;
+        }
+        var html = '';
+        filtered.forEach(function(item) {
+            var icon = item.type === 'mention'
+                ? '<i class="fas fa-at forum-notif-icon fn-mention"></i>'
+                : '<i class="fas fa-reply forum-notif-icon fn-newpost"></i>';
+            var link = 'game.php?page=forum&mode=topic&id=' + item.topic_id + '#post-' + item.post_id;
+            html += '<div class="forum-notif-item" data-id="' + item.id + '" data-type="' + item.type + '" data-link="' + link + '">';
+            html += '<div>' + icon + '<span class="forum-notif-title">' + item.topic_title + '</span></div>';
+            html += '<div class="forum-notif-by">von ' + item.by_username + '</div>';
+            if (item.snippet) html += '<div class="forum-notif-snippet">' + item.snippet + '</div>';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+            html += '<span class="forum-notif-time">' + relTime(item.created_at) + '</span>';
+            html += '<button class="forum-notif-read-btn" data-id="' + item.id + '" data-type="' + item.type + '" title="Als gelesen markieren"><i class="fas fa-check"></i></button>';
+            html += '</div></div>';
+        });
+        list.innerHTML = html;
+
+        list.querySelectorAll('.forum-notif-item').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                if (e.target.closest('.forum-notif-read-btn')) return;
+                var id   = parseInt(el.getAttribute('data-id'));
+                var type = el.getAttribute('data-type');
+                var link = el.getAttribute('data-link');
+                markRead(type, id, function(){ window.location.href = link; });
+            });
+        });
+
+        list.querySelectorAll('.forum-notif-read-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var id   = parseInt(btn.getAttribute('data-id'));
+                var type = btn.getAttribute('data-type');
+                markRead(type, id, null);
+            });
+        });
+    }
+
+    function markRead(type, id, callback) {
+        var fd = new FormData();
+        fd.append('type', type);
+        fd.append('id', id);
+        fetch('game.php?page=forumNotif&mode=mark_read&ajax=1', {method:'POST', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(data) {
+                _items = _items.filter(function(i){ return !(i.id === id && i.type === type); });
+                updateBadge(data.count !== undefined ? data.count : _items.length);
+                renderList();
+                if (callback) callback();
+            })
+            .catch(function(){});
+    }
+
+    function markAllRead() {
+        var fd = new FormData();
+        fetch('game.php?page=forumNotif&mode=mark_all_read&ajax=1', {method:'POST', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function() {
+                _items = [];
+                updateBadge(0);
+                renderList();
+            })
+            .catch(function(){});
+    }
+
+    function fetchCount() {
+        fetch('game.php?page=forumNotif&mode=notif_count&ajax=1')
+            .then(function(r){ return r.json(); })
+            .then(function(data) { updateBadge(data.count || 0); })
+            .catch(function(){});
+    }
+
+    function fetchList() {
+        var list = document.getElementById('forum-notif-list');
+        if (list) list.innerHTML = '<div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> Lade\u2026</div>';
+        fetch('game.php?page=forumNotif&mode=notifications&ajax=1')
+            .then(function(r){ return r.json(); })
+            .then(function(data) {
+                _items = data.items || [];
+                _loaded = true;
+                updateBadge(data.count || 0);
+                renderList();
+            })
+            .catch(function() {
+                var list2 = document.getElementById('forum-notif-list');
+                if (list2) list2.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i> Fehler beim Laden</div>';
+            });
+    }
+
+    function initForumNotif() {
+        var btn = document.getElementById('forum-notif-btn');
+        if (!btn || btn._fnBound) return;
+        btn._fnBound = true;
+
+        btn.addEventListener('click', function() {
+            if (!_loaded) fetchList();
+        });
+
+        document.querySelectorAll('.forum-notif-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.forum-notif-tab').forEach(function(t){ t.classList.remove('active'); });
+                tab.classList.add('active');
+                _activeTab = tab.getAttribute('data-tab');
+                renderList();
+            });
+        });
+
+        var markAllBtn = document.getElementById('forum-mark-all-btn');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                markAllRead();
+            });
+        }
+
+        fetchCount();
+        setInterval(fetchCount, 20000);
+    }
+
+    if (typeof jQuery !== 'undefined') {
+        jQuery(initForumNotif);
+    } else {
+        document.addEventListener('DOMContentLoaded', initForumNotif);
+    }
+    window.addEventListener('load', function(){ setTimeout(initForumNotif, 100); });
 })();
 </script>
