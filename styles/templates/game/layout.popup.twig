@@ -2,70 +2,60 @@
 
 <script type="text/javascript">
 (function() {
-    try {
-        if (window.parent && window.parent.document) {
-            // Wir erstellen einen neuen Style-Block für das Eltern-Fenster
-            var styleElement = window.parent.document.createElement('style');
-            styleElement.type = 'text/css';
-            styleElement.id = 'aerospace-fancybox-override';
-            
-            // CSS, das den weißen Kasten unsichtbar macht
-            var cssCode = `
-                /* 1. Den äußeren Rahmen unsichtbar machen */
-                #fancybox-outer {
-                    background: transparent !important;
-                    box-shadow: none !important;
-                    -moz-box-shadow: none !important;
-                    -webkit-box-shadow: none !important;
-                }
-                
-                /* 2. Den Inhalts-Container unsichtbar machen (nur den Hintergrund/Rahmen) */
-                #fancybox-content {
-                    background: transparent !important;
-                    border: none !important;
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    box-shadow: none !important;
-                }
+    /* ------------------------------------------------------------------
+       Bootstrap the glass modal system into the PARENT window.
+       This runs inside the iframe; the parent is the real game page.
+       We inject the CSS link and the modalManager script once, then
+       call ModalManager.open() / close() on the parent.
+    ------------------------------------------------------------------ */
+    function _bootstrapParent() {
+        try {
+            var p = window.parent;
+            if (!p || p === window) { return; }
+            var pd = p.document;
 
-                /* 3. Die Schatten-Grafiken von Fancybox ausblenden */
-                .fancybox-bg {
-                    display: none !important;
-                }
-
-                /* 4. Das Standard-X ausblenden */
-                #fancybox-close {
-                    display: none !important;
-                }
-                
-                /* 5. Sicherstellen, dass kein weißer Hintergrund durchscheint */
-                .fancybox-inner {
-                    background: transparent !important;
-                }
-            `;
-
-            // Style einfügen
-            if (styleElement.styleSheet) {
-                styleElement.styleSheet.cssText = cssCode; // IE
-            } else {
-                styleElement.appendChild(window.parent.document.createTextNode(cssCode)); // Andere
+            /* Inject modalManager.js into parent <head> (once).
+               modalManager.js self-injects its own CSS on load. */
+            if (!pd.getElementById('mm-js') && !p.ModalManager) {
+                var script = pd.createElement('script');
+                script.id   = 'mm-js';
+                script.type = 'text/javascript';
+                script.src  = 'scripts/game/modalManager.js';
+                pd.getElementsByTagName('head')[0].appendChild(script);
             }
-            
-            // Alten Style entfernen falls vorhanden, um Duplikate zu vermeiden
-            var oldStyle = window.parent.document.getElementById('aerospace-fancybox-override');
-            if (oldStyle) oldStyle.remove();
 
-            window.parent.document.getElementsByTagName('head')[0].appendChild(styleElement);
+        } catch(e) {
+            /* cross-origin or standalone — silently ignore */
         }
-    } catch(e) {
-        console.log("Access denied to parent window styling: " + e);
     }
+
+    _bootstrapParent();
+
+    /* ------------------------------------------------------------------
+       Close helper: prefer ModalManager on parent, fall back to fancybox
+    ------------------------------------------------------------------ */
+    function closeParentModal() {
+        try {
+            var p = window.parent;
+            if (p && p !== window) {
+                if (p.ModalManager && typeof p.ModalManager.close === 'function') {
+                    p.ModalManager.close();
+                    return;
+                }
+                if (p.$ && p.$.fancybox && typeof p.$.fancybox.close === 'function') {
+                    p.$.fancybox.close();
+                }
+            }
+        } catch(e) {}
+    }
+
+    window._closeParentModal = closeParentModal;
 })();
 </script>
 
 <div class="aerospace-modal-wrapper">
-    
-    <div class="modal-close-btn" onclick="parent.$.fancybox.close();">
+
+    <div class="modal-close-btn" onclick="window._closeParentModal();">
         <i class="fas fa-times"></i>
     </div>
 
