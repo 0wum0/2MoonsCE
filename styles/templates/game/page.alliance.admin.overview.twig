@@ -113,10 +113,23 @@
                     </div>
                 </div>
                 
-                <div class="bbcode-editor-wrap">
-                    <div data-bbcode-toolbar="ally-text"></div>
-                    <textarea name="text" id="ally-text" class="glass-textarea" rows="14" style="min-height:220px;">{{ text }}</textarea>
+                <div class="bb-toolbar">
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','b')"><b>B</b></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','i')"><i>I</i></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','u')"><u>U</u></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','s')"><s>S</s></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','url')">🔗 Link</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','img')">🖼 Bild</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','quote')">❝ Zitat</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','code')">⌨ Code</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertHr('ally-text')">— HR</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertList('ally-text')">≡ Liste</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertOList('ally-text')">1. Liste</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertTable('ally-text')">⊞ Tabelle</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','color=red')">🎨 Farbe</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('ally-text','size=16')">Aa Größe</button>
                 </div>
+                <textarea name="text" id="ally-text" class="glass-textarea" rows="14" style="min-height:220px;">{{ text }}</textarea>
 
                 <div class="action-bar">
                     <button type="reset" class="btn-ghost">{{ LNG.al_circular_reset }}</button>
@@ -130,5 +143,5 @@
 </div>
 {% endblock %}
 {% block script %}
-<script src="scripts/game/bbcodeToolbar.js"></script>
+<script src="scripts/game/bbcode.js"></script>
 {% endblock %}

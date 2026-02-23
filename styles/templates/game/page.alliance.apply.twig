@@ -13,10 +13,23 @@
         <form action="game.php?page=alliance&amp;mode=apply&amp;id={{ allyid }}" method="post">
             <div class="form-group">
                 <label for="apply-message" class="form-label">{{ LNG.al_message }}</label>
-                <div class="bbcode-editor-wrap">
-                    <div data-bbcode-toolbar="apply-message"></div>
-                    <textarea name="text" id="apply-message" class="glass-textarea" rows="15">{{ applytext }}</textarea>
+                <div class="bb-toolbar">
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','b')"><b>B</b></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','i')"><i>I</i></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','u')"><u>U</u></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','s')"><s>S</s></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','url')">🔗 Link</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','img')">🖼 Bild</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','quote')">❝ Zitat</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','code')">⌨ Code</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertHr('apply-message')">— HR</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertList('apply-message')">≡ Liste</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertOList('apply-message')">1. Liste</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertTable('apply-message')">⊞ Tabelle</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','color=red')">🎨 Farbe</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('apply-message','size=16')">Aa Größe</button>
                 </div>
+                <textarea name="text" id="apply-message" class="glass-textarea" rows="15">{{ applytext }}</textarea>
             </div>
 
             <div class="action-bar-bottom">
@@ -31,5 +44,5 @@
 </div>
 {% endblock %}
 {% block script %}
-<script src="scripts/game/bbcodeToolbar.js"></script>
+<script src="scripts/game/bbcode.js"></script>
 {% endblock %}

@@ -29,10 +29,23 @@
                 {{ LNG.al_message }} 
                 <span class="char-count">(<span id="cntChars">0</span> / 5000)</span>
             </label>
-            <div class="bbcode-editor-wrap">
-                <div data-bbcode-toolbar="circular-text"></div>
-                <textarea name="text" id="circular-text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
+            <div class="bb-toolbar">
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','b')"><b>B</b></button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','i')"><i>I</i></button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','u')"><u>U</u></button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','s')"><s>S</s></button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','url')">🔗 Link</button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','img')">🖼 Bild</button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','quote')">❝ Zitat</button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','code')">⌨ Code</button>
+                <button type="button" class="bb-btn" onclick="bbInsertHr('circular-text')">— HR</button>
+                <button type="button" class="bb-btn" onclick="bbInsertList('circular-text')">≡ Liste</button>
+                <button type="button" class="bb-btn" onclick="bbInsertOList('circular-text')">1. Liste</button>
+                <button type="button" class="bb-btn" onclick="bbInsertTable('circular-text')">⊞ Tabelle</button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','color=red')">🎨 Farbe</button>
+                <button type="button" class="bb-btn" onclick="bbInsert('circular-text','size=16')">Aa Größe</button>
             </div>
+            <textarea name="text" id="circular-text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
         </div>
 
         <div class="modal-actions">
@@ -45,7 +58,7 @@
     </form>
 </div>
 
-<script src="scripts/game/bbcodeToolbar.js"></script>
+<script src="scripts/game/bbcode.js"></script>
 <script type="text/javascript">
 function check(){
     if(document.message.text.value == '') {
