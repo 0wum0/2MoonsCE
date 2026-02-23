@@ -114,6 +114,7 @@ class ShowAlliancePage extends AbstractGamePage
 		}
 
 		require_once 'includes/classes/BBCode.class.php';
+		$bbcode = new BBCode();
 
 		if ($this->allianceData['ally_diplo'] == 1)
 		{
@@ -154,7 +155,7 @@ class ShowAlliancePage extends AbstractGamePage
 		$this->assign(array(
 			'diplomaticData'				=> $diplomaticmaticData,
 			'statisticData'					=> $statisticData,
-			'ally_description' 				=> BBCode::parse($this->allianceData['ally_description'] ?? ''),
+			'ally_description' 				=> $bbcode->parse($this->allianceData['ally_description'] ?? ''),
 			'ally_id'	 					=> $this->allianceData['id'],
 			'ally_image' 					=> $this->allianceData['ally_image'],
 			'ally_web'						=> $this->allianceData['ally_web'],
@@ -499,6 +500,7 @@ class ShowAlliancePage extends AbstractGamePage
 		global $USER, $LNG;
 
 		require_once 'includes/classes/BBCode.class.php';
+		$bbcode = new BBCode();
 
 		$db	= Database::get();
 
@@ -560,8 +562,8 @@ class ShowAlliancePage extends AbstractGamePage
 			'ally_max_members'	 		=> $this->allianceData['ally_members'],
 			'ally_name'					=> $this->allianceData['ally_name'],
 			'ally_image'				=> $this->allianceData['ally_image'],
-			'ally_description'			=> BBCode::parse($this->allianceData['ally_description'] ?? ''),
-			'ally_text' 				=> BBCode::parse($this->allianceData['ally_text'] ?? ''),
+			'ally_description'			=> $bbcode->parse($this->allianceData['ally_description'] ?? ''),
+			'ally_text' 				=> $bbcode->parse($this->allianceData['ally_text'] ?? ''),
 			'rankName'					=> $rankName,
 			'requests'					=> sprintf($LNG['al_new_requests'], $ApplyCount),
 			'applyCount'				=> $ApplyCount,
@@ -1104,8 +1106,9 @@ class ShowAlliancePage extends AbstractGamePage
 		}
 
 		require_once 'includes/classes/BBCode.class.php';
+		$bbcode = new BBCode();
 
-		$applyDetail['text']    	= BBCode::parse($applyDetail['text']);
+		$applyDetail['text']    	= $bbcode->parse($applyDetail['text']);
 		$applyDetail['kbmetal']    	= pretty_number($applyDetail['kbmetal']);
 		$applyDetail['kbcrystal']   = pretty_number($applyDetail['kbcrystal']);
 		$applyDetail['lostunits']   = pretty_number($applyDetail['lostunits']);

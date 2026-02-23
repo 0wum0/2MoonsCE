@@ -143,7 +143,8 @@ function ShowAccountDataPage()
 			}
 			elseif ($alianza != NULL && $AliID != 0)
 			{
-				include_once('includes/classes/BBCode.class.php');	
+				include_once('includes/classes/BBCode.class.php');
+			$bbcode = new BBCode();
 				
 				$AllianceHave	= '<a href="#" onclick="$(\'#alianza\').slideToggle();return false" class="link">
 							<img src="./styles/resource/images/admin/arrowright.png" width="16" height="10"> '.$LNG['ac_alliance'].'</a>';
@@ -169,7 +170,7 @@ function ShowAccountDataPage()
 					
 				if($AllianceQuery['ally_description'] != NULL)
 				{
-					$ali_ext2 = BBCode::parse($AllianceQuery['ally_description']);
+					$ali_ext2 = $bbcode->parse($AllianceQuery['ally_description']);
 					$ali_ext  = "<a href=\"#\" rel=\"toggle[externo]\">".$LNG['ac_view_text_ext']."</a>";
 				}
 				else
@@ -180,7 +181,7 @@ function ShowAccountDataPage()
 					
 				if($AllianceQuery['ally_text'] != NULL)
 				{
-					$ali_int2 = BBCode::parse($AllianceQuery['ally_text']);
+					$ali_int2 = $bbcode->parse($AllianceQuery['ally_text']);
 					$ali_int  = "<a href=\"#\" rel=\"toggle[interno]\">".$LNG['ac_view_text_int']."</a>";
 				}
 				else
@@ -191,7 +192,7 @@ function ShowAccountDataPage()
 					
 				if($AllianceQuery['ally_request'] != NULL)
 				{
-					$ali_sol2 = BBCode::parse($AllianceQuery['ally_request']);
+					$ali_sol2 = $bbcode->parse($AllianceQuery['ally_request']);
 					$ali_sol  = "<a href=\"#\" rel=\"toggle[solicitud]\">".$LNG['ac_view_text_sol']."</a>";
 				}
 				else
