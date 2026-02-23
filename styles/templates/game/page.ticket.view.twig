@@ -1,4 +1,4 @@
-{% extends "layout.full.twig" %}
+﻿{% extends "layout.full.twig" %}
 
 {% block title %}{{ LNG.ti_read }}{% endblock %}
 {% block content %}
@@ -7,15 +7,26 @@
     .ticket-msg { background: rgba(20,25,35,0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
     .msg-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 15px; font-size: 12px; color: #8b949e; display: flex; justify-content: space-between; }
     .msg-body { color: #d1d5db; line-height: 1.7; font-size: 15px; }
-    .glass-textarea { width: 100% !important; min-height: 150px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; resize: vertical; }
-    .bb-toolbar { display: flex; gap: 5px; margin-bottom: 8px; }
-    .bb-btn { padding: 4px 10px; background: #38bdf8; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .msg-body ul.bb-list, .msg-body ol.bb-list { margin: 8px 0 8px 24px; padding: 0; }
+    .msg-body ul.bb-list li, .msg-body ol.bb-list li { margin-bottom: 4px; }
+    .msg-body table.bb-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .msg-body table.bb-table th.bb-th, .msg-body table.bb-table td.bb-td { border: 1px solid rgba(56,189,248,0.25); padding: 8px 12px; text-align: left; }
+    .msg-body table.bb-table th.bb-th { background: rgba(56,189,248,0.1); color: #38bdf8; font-weight: 700; }
+    .msg-body hr.bb-hr { border: none; border-top: 1px solid rgba(56,189,248,0.25); margin: 14px 0; }
+    .msg-body .forum-quote { background: rgba(255,255,255,0.04); border-left: 3px solid #38bdf8; padding: 10px 14px; margin: 8px 0; border-radius: 4px; }
+    .msg-body .forum-quote-author { font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 5px; }
+    .msg-body .forum-code { background: rgba(0,0,0,0.5); border: 1px solid rgba(56,189,248,0.2); border-radius: 6px; margin: 8px 0; overflow: auto; }
+    .msg-body .forum-code pre { margin: 0; padding: 12px; font-size: 13px; }
+    .glass-textarea { width: 100% !important; min-height: 150px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; resize: vertical; font-family: inherit; }
+    .bb-toolbar { display: flex; gap: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; flex-wrap: wrap; }
+    .bb-btn { min-width: 30px; height: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; transition: 0.15s; white-space: nowrap; }
+    .bb-btn:hover { background: #38bdf8; color: #000; border-color: #38bdf8; }
 </style>
 
 <div class="content_page support-full">
     <h1 style="color: #fff;">📡 {{ answerList[0].subject }}</h1>
-    
-    {% for answerRow in answerList %} 
+
+    {% for answerRow in answerList %}
     <div class="ticket-msg">
         <div class="msg-header">
             <span style="color: #38bdf8; font-weight: bold;">👤 {{ answerRow.ownerName }}</span>
@@ -31,9 +42,20 @@
     <div class="glass-panel" style="margin-top: 25px;">
         <h3 style="color: #38bdf8;">💬 {{ LNG.ti_answer }}</h3>
         <div class="bb-toolbar">
-            <button type="button" class="bb-btn" onclick="addBB('b')">B</button>
-            <button type="button" class="bb-btn" onclick="addBB('i')">I</button>
-            <button type="button" class="bb-btn" onclick="addBB('quote')">Zitat</button>
+            <button type="button" class="bb-btn" onclick="tkBB('b')"><b>B</b></button>
+            <button type="button" class="bb-btn" onclick="tkBB('i')"><i>I</i></button>
+            <button type="button" class="bb-btn" onclick="tkBB('u')"><u>U</u></button>
+            <button type="button" class="bb-btn" onclick="tkBB('s')"><s>S</s></button>
+            <button type="button" class="bb-btn" onclick="tkBB('url')">🔗 Link</button>
+            <button type="button" class="bb-btn" onclick="tkBB('img')">🖼 Bild</button>
+            <button type="button" class="bb-btn" onclick="tkBB('quote')">❝ Zitat</button>
+            <button type="button" class="bb-btn" onclick="tkBB('code')">⌨ Code</button>
+            <button type="button" class="bb-btn" onclick="tkBBHr()">— HR</button>
+            <button type="button" class="bb-btn" onclick="tkBBList()">≡ Liste</button>
+            <button type="button" class="bb-btn" onclick="tkBBOList()">1. Liste</button>
+            <button type="button" class="bb-btn" onclick="tkBBTable()">⊞ Tabelle</button>
+            <button type="button" class="bb-btn" onclick="tkBB('color=red')">🎨 Farbe</button>
+            <button type="button" class="bb-btn" onclick="tkBB('size=16')">Aa Größe</button>
         </div>
         <form action="game.php?page=ticket&mode=send" method="post">
             <input type="hidden" name="id" value="{{ ticketID }}">
@@ -45,14 +67,48 @@
 </div>
 
 <script>
-function addBB(tag) {
+function tkBB(tag) {
     const area = document.getElementById('message');
-    const start = area.selectionStart;
-    const end = area.selectionEnd;
-    const text = area.value;
-    const sel = text.substring(start, end);
-    const res = "[" + tag + "]" + sel + "[/" + tag + "]";
-    area.value = text.substring(0, start) + res + text.substring(end);
+    if (!area) return;
+    const start = area.selectionStart, end = area.selectionEnd;
+    const sel = area.value.substring(start, end);
+    let open = tag, close = tag;
+    if (tag.indexOf('=') !== -1) { close = tag.split('=')[0]; }
+    if (tag === 'url') { open = 'url=https://'; close = 'url'; }
+    const insert = '[' + open + ']' + sel + '[/' + close + ']';
+    area.value = area.value.substring(0, start) + insert + area.value.substring(end);
+    area.selectionStart = area.selectionEnd = start + insert.length;
+    area.focus();
+}
+function tkBBHr() {
+    const area = document.getElementById('message');
+    const pos = area.selectionStart;
+    area.value = area.value.substring(0, pos) + '[hr]\n' + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + 5;
+    area.focus();
+}
+function tkBBList() {
+    const area = document.getElementById('message');
+    const pos = area.selectionStart;
+    const tpl = '[list]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
+    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + tpl.length;
+    area.focus();
+}
+function tkBBOList() {
+    const area = document.getElementById('message');
+    const pos = area.selectionStart;
+    const tpl = '[list=1]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
+    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + tpl.length;
+    area.focus();
+}
+function tkBBTable() {
+    const area = document.getElementById('message');
+    const pos = area.selectionStart;
+    const tpl = '[table]\n[tr][th]Spalte 1[/th][th]Spalte 2[/th][/tr]\n[tr][td]Zelle 1[/td][td]Zelle 2[/td][/tr]\n[/table]\n';
+    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + tpl.length;
     area.focus();
 }
 </script>

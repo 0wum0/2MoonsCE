@@ -62,6 +62,15 @@ class BBCode
         // 1. Normalise entities stored in DB (e.g. &amp; -> &, &quot; -> ")
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
+        // 1b. Strip legacy HTML stored in DB by old code (e.g. <span class="admin">,
+        //     <br />, <strong>, <span class="mod"> etc.).
+        //     Convert <br> variants to newlines so line breaks are preserved,
+        //     then strip all remaining HTML tags.
+        if (!$allowHTML) {
+            $text = preg_replace('/<br\s*\/?>/i', "\n", $text) ?? $text;
+            $text = strip_tags($text);
+        }
+
         // 2. Escape all user HTML so no raw tags survive
         if (!$allowHTML) {
             $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

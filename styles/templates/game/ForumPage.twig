@@ -1,4 +1,4 @@
-{% extends "layout.full.twig" %}
+﻿{% extends "layout.full.twig" %}
 
 {% block title %}Forum - {{ game_name|default('SmartMoons') }}{% endblock %}
 
@@ -13,43 +13,20 @@
         --fl-muted: #94a3b8;
     }
 
-    /* Volle Breite ohne Quetschung */
-    .forum-container { 
-        width: 100%; 
-        padding: 5px; 
-        box-sizing: border-box;
-        color: var(--fl-text);
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-    }
+    .forum-container { width: 100%; padding: 5px; box-sizing: border-box; color: var(--fl-text); font-family: 'Inter', 'Segoe UI', sans-serif; }
 
-    .fl-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--fl-bg);
-        padding: 18px 25px;
-        border-radius: 10px;
-        border: 1px solid var(--fl-border);
-        margin-bottom: 25px;
-    }
+    .fl-header { display: flex; justify-content: space-between; align-items: center; background: var(--fl-bg); padding: 18px 25px; border-radius: 10px; border: 1px solid var(--fl-border); margin-bottom: 25px; }
 
     .fl-box { background: var(--fl-bg); border-radius: 10px; border: 1px solid var(--fl-border); margin-bottom: 30px; overflow: hidden; }
     .fl-item { display: flex; padding: 18px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
     .fl-item:hover { background: rgba(56, 189, 248, 0.05); }
-    
-    .fl-avatar-circle {
-        width: 50px; height: 50px; border-radius: 50%;
-        background: var(--fl-accent); color: #000; font-weight: 800;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 20px; flex-shrink: 0; margin-right: 20px;
-        border: 2px solid rgba(255,255,255,0.1);
-    }
+
+    .fl-avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: var(--fl-accent); color: #000; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; margin-right: 20px; border: 2px solid rgba(255,255,255,0.1); }
 
     .fl-content-main { flex-grow: 1; min-width: 0; }
     .fl-link-title { font-size: 16.5px; font-weight: 700; color: #fff; text-decoration: none; display: block; margin-bottom: 3px; }
     .fl-link-title:hover { color: var(--fl-accent); }
 
-    /* Post Layout & Rankings */
     .fl-post { display: flex; gap: 20px; padding: 25px; background: var(--fl-card); border-radius: 15px; border: 1px solid var(--fl-border); margin-bottom: 15px; }
     .fl-author-info { width: 170px; flex-shrink: 0; text-align: center; border-right: 1px solid var(--fl-border); padding-right: 20px; }
     .fl-rank-tag { font-size: 10px; color: var(--fl-accent); font-weight: 800; text-transform: uppercase; margin-top: 10px; display: block; background: rgba(56, 189, 248, 0.1); border-radius: 4px; padding: 2px; }
@@ -64,11 +41,23 @@
     .fl-action-btn { color: var(--fl-muted); cursor: pointer; text-decoration: none; }
     .fl-action-btn:hover { color: var(--fl-accent); }
 
-    /* BB-Code Toolbar Design */
-    .editor-toolbar { display: flex; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid var(--fl-border); flex-wrap: wrap; }
-    .toolbar-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--fl-border); border-radius: 6px; color: #fff; cursor: pointer; transition: 0.2s; font-size: 16px; }
-    .toolbar-btn:hover { background: var(--fl-accent); color: #000; }
-    
+    /* BBCode Toolbar */
+    .bb-toolbar { display: flex; gap: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid var(--fl-border); flex-wrap: wrap; }
+    .bb-btn { min-width: 32px; height: 32px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.07); border: 1px solid var(--fl-border); border-radius: 5px; color: #fff; cursor: pointer; font-size: 12px; font-weight: 700; transition: 0.15s; white-space: nowrap; }
+    .bb-btn:hover { background: var(--fl-accent); color: #000; border-color: var(--fl-accent); }
+
+    /* BBCode rendered output styles */
+    .fl-post-text ul.bb-list, .fl-post-text ol.bb-list { margin: 8px 0 8px 24px; padding: 0; }
+    .fl-post-text ul.bb-list li, .fl-post-text ol.bb-list li { margin-bottom: 4px; }
+    .fl-post-text table.bb-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .fl-post-text table.bb-table th.bb-th, .fl-post-text table.bb-table td.bb-td { border: 1px solid var(--fl-border); padding: 8px 12px; text-align: left; }
+    .fl-post-text table.bb-table th.bb-th { background: rgba(56,189,248,0.1); color: var(--fl-accent); font-weight: 700; }
+    .fl-post-text hr.bb-hr { border: none; border-top: 1px solid var(--fl-border); margin: 14px 0; }
+    .fl-post-text .forum-quote { background: rgba(255,255,255,0.04); border-left: 3px solid var(--fl-accent); padding: 10px 14px; margin: 8px 0; border-radius: 4px; }
+    .fl-post-text .forum-quote-author { font-size: 11px; color: var(--fl-accent); font-weight: 700; margin-bottom: 5px; }
+    .fl-post-text .forum-code { background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 6px; margin: 8px 0; overflow: auto; }
+    .fl-post-text .forum-code pre { margin: 0; padding: 12px; font-size: 13px; }
+
     .fl-btn-main { padding: 9px 18px; border-radius: 8px; background: var(--fl-accent); color: #000 !important; font-weight: 800; text-decoration: none; border: none; cursor: pointer; font-size: 13px; }
 </style>
 
@@ -180,22 +169,29 @@
                                style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 8px; color: #fff; padding: 12px 15px; font-size: 15px; box-sizing: border-box;">
                     </div>
 
-                    <div class="editor-toolbar">
-                        <button type="button" class="toolbar-btn" onclick="insertBB('b', 'forum-content')"><b>B</b></button>
-                        <button type="button" class="toolbar-btn" onclick="insertBB('i', 'forum-content')"><i>I</i></button>
-                        <button type="button" class="toolbar-btn" onclick="insertBB('u', 'forum-content')"><u>U</u></button>
-                        <button type="button" class="toolbar-btn" onclick="insertBB('url', 'forum-content')">🔗</button>
-                        <button type="button" class="toolbar-btn" onclick="insertBB('img', 'forum-content')">🖼️</button>
-                        <button type="button" class="toolbar-btn" onclick="insertBB('quote', 'forum-content')">❝</button>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 6px;">
                         <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Inhalt</label>
+                        <div class="bb-toolbar">
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','b')"><b>B</b></button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','i')"><i>I</i></button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','u')"><u>U</u></button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','s')"><s>S</s></button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','url')">🔗 Link</button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','img')">🖼 Bild</button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','quote')">❝ Zitat</button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','code')">⌨ Code</button>
+                            <button type="button" class="bb-btn" onclick="bbInsertHr('forum-content')">— HR</button>
+                            <button type="button" class="bb-btn" onclick="bbInsertList('forum-content')">≡ Liste</button>
+                            <button type="button" class="bb-btn" onclick="bbInsertOList('forum-content')">1. Liste</button>
+                            <button type="button" class="bb-btn" onclick="bbInsertTable('forum-content')">⊞ Tabelle</button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','color=red')">🎨 Farbe</button>
+                            <button type="button" class="bb-btn" onclick="bbInsert('forum-content','size=16')">Aa Größe</button>
+                        </div>
                         <textarea name="content" id="forum-content" required
-                                  style="width: 100%; height: 200px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 15px; font-family: inherit; font-size: 15px; box-sizing: border-box; resize: vertical;"></textarea>
+                                  style="width: 100%; height: 220px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 15px; font-family: inherit; font-size: 15px; box-sizing: border-box; resize: vertical;"></textarea>
                     </div>
 
-                    <button type="submit" class="fl-btn-main">🚀 Thema erstellen</button>
+                    <button type="submit" class="fl-btn-main" style="margin-top: 12px;">🚀 Thema erstellen</button>
                 </form>
             </div>
         {% endif %}
@@ -237,13 +233,21 @@
             <div class="fl-box" style="padding: 25px;">
                 <h3 style="margin-top:0; font-size: 16px; font-weight: 800; color: var(--fl-accent); text-transform: uppercase;">📡 Übertragung senden</h3>
 
-                <div class="editor-toolbar">
-                    <button type="button" class="toolbar-btn" onclick="insertBB('b', 'forum-content')"><b>B</b></button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('i', 'forum-content')"><i>I</i></button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('u', 'forum-content')"><u>U</u></button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('url', 'forum-content')">🔗</button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('img', 'forum-content')">🖼️</button>
-                    <button type="button" class="toolbar-btn" onclick="insertBB('quote', 'forum-content')">❝</button>
+                <div class="bb-toolbar">
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','b')"><b>B</b></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','i')"><i>I</i></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','u')"><u>U</u></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','s')"><s>S</s></button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','url')">🔗 Link</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','img')">🖼 Bild</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','quote')">❝ Zitat</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','code')">⌨ Code</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertHr('forum-content')">— HR</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertList('forum-content')">≡ Liste</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertOList('forum-content')">1. Liste</button>
+                    <button type="button" class="bb-btn" onclick="bbInsertTable('forum-content')">⊞ Tabelle</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','color=red')">🎨 Farbe</button>
+                    <button type="button" class="bb-btn" onclick="bbInsert('forum-content','size=16')">Aa Größe</button>
                 </div>
 
                 <form action="game.php?page=forum&mode=topic&id={{ topic.id }}" method="POST">
@@ -260,16 +264,63 @@
 </div>
 
 <script>
-function insertBB(tag, areaId) {
-    const area = document.getElementById(areaId || 'forum-content');
+function bbInsert(areaId, tag) {
+    const area = document.getElementById(areaId);
+    if (!area) return;
     const start = area.selectionStart;
-    const end = area.selectionEnd;
-    const text = area.value;
-    const sel = text.substring(start, end);
-    let res = "";
-    if(tag === 'url') res = "[url=https://]" + (sel || "Link") + "[/url]";
-    else res = "[" + tag + "]" + sel + "[/" + tag + "]";
-    area.value = text.substring(0, start) + res + text.substring(end);
+    const end   = area.selectionEnd;
+    const sel   = area.value.substring(start, end);
+    let open = tag, close = tag;
+    if (tag.indexOf('=') !== -1) {
+        open  = tag;
+        close = tag.split('=')[0];
+    }
+    if (tag === 'url') {
+        open  = 'url=https://';
+        close = 'url';
+    }
+    const insert = '[' + open + ']' + sel + '[/' + close + ']';
+    area.value = area.value.substring(0, start) + insert + area.value.substring(end);
+    area.selectionStart = area.selectionEnd = start + insert.length;
+    area.focus();
+}
+
+function bbInsertHr(areaId) {
+    const area = document.getElementById(areaId);
+    if (!area) return;
+    const pos = area.selectionStart;
+    area.value = area.value.substring(0, pos) + '[hr]\n' + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + 5;
+    area.focus();
+}
+
+function bbInsertList(areaId) {
+    const area = document.getElementById(areaId);
+    if (!area) return;
+    const pos = area.selectionStart;
+    const tpl = '[list]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
+    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + tpl.length;
+    area.focus();
+}
+
+function bbInsertOList(areaId) {
+    const area = document.getElementById(areaId);
+    if (!area) return;
+    const pos = area.selectionStart;
+    const tpl = '[list=1]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
+    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + tpl.length;
+    area.focus();
+}
+
+function bbInsertTable(areaId) {
+    const area = document.getElementById(areaId);
+    if (!area) return;
+    const pos = area.selectionStart;
+    const tpl = '[table]\n[tr][th]Spalte 1[/th][th]Spalte 2[/th][/tr]\n[tr][td]Zelle 1[/td][td]Zelle 2[/td][/tr]\n[/table]\n';
+    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
+    area.selectionStart = area.selectionEnd = pos + tpl.length;
     area.focus();
 }
 
@@ -284,8 +335,9 @@ function likePost(id) {
 
 function quotePost(user, dataId) {
     const area = document.getElementById('forum-content');
+    if (!area) return;
     const content = document.getElementById(dataId).innerText;
-    area.value += "[quote=" + user + "]" + content.substring(0, 150) + "...[/quote]\n";
+    area.value += '[quote=' + user + ']' + content.substring(0, 150) + '...[/quote]\n';
     area.focus();
     area.scrollIntoView({ behavior: 'smooth' });
 }

@@ -33,15 +33,10 @@ function ShowSendMessagesPage() {
 
 		if (!empty($Message) && !empty($Subject))
 		{
-			if (!class_exists('BBCode')) {
-                require_once 'includes/classes/BBCode.class.php';
-            }
-            $bbcode = new BBCode();
-
 			if($Mode == 0 || $Mode == 2) {
-				$From    	= '<span class="'.$class.'">'.$LNG['user_level_'.$USER['authlevel']].' '.$USER['username'].'</span>';
-				$pmSubject 	= '<span class="'.$class.'">'.$Subject.'</span>';
-				$pmMessage 	= '<span class="'.$class.'">'.$bbcode->parse($Message).'</span>';
+				$From    	= $LNG['user_level_'.$USER['authlevel']] . ' ' . $USER['username'];
+				$pmSubject 	= $Subject;
+				$pmMessage 	= $Message;
 				
                 $USERS = $GLOBALS['DATABASE']->query("SELECT `id`, `username` FROM ".USERS." WHERE `universe` = '".Universe::getEmulated()."'".(!empty($Lang) ? " AND `lang` = '".$GLOBALS['DATABASE']->sql_escape($Lang)."'": "").";");
 				

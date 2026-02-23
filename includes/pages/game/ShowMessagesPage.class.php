@@ -133,7 +133,7 @@ class ShowMessagesPage extends AbstractGamePage
         if (empty($receiverID) || empty($text) || !$validToken) $this->sendJSON($LNG['mg_error']);
 
 		$session->messageToken = NULL;
-		PlayerUtil::sendMessage($receiverID, $USER['id'], $senderName, 1, $subject, makebr($text), TIMESTAMP);
+		PlayerUtil::sendMessage($receiverID, $USER['id'], $senderName, 1, $subject, $text, TIMESTAMP);
         $this->sendJSON($LNG['mg_message_send']);
     }
 
