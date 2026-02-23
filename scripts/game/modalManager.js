@@ -144,6 +144,8 @@
     /* ------------------------------------------------------------------ */
     /*  Fancybox compatibility shim                                         */
     /*  Intercepts: .fancybox class, [data-fancybox], rel="fancybox"       */
+    /*  Uses CAPTURE phase + stopImmediatePropagation so jQuery handlers   */
+    /*  (which run in bubble phase) never receive the event.               */
     /* ------------------------------------------------------------------ */
     function _bindFancyboxCompat() {
         document.addEventListener('click', function (e) {
@@ -153,6 +155,7 @@
                 if (el.tagName === 'A' && _isFancyboxTrigger(el)) {
                     e.preventDefault();
                     e.stopPropagation();
+                    e.stopImmediatePropagation();
                     var url   = el.getAttribute('href') || el.getAttribute('data-href') || '';
                     var title = el.getAttribute('title') || el.getAttribute('data-title') || '';
                     if (url && url !== '#') {
@@ -162,7 +165,7 @@
                 }
                 el = el.parentElement;
             }
-        }, true);
+        }, true); /* true = capture phase — fires before any bubble-phase handler */
     }
 
     function _isFancyboxTrigger(el) {
@@ -176,30 +179,21 @@
 
     /* ------------------------------------------------------------------ */
     /*  jQuery $.fancybox shim (for Dialog.open / gate.js / etc.)          */
+    /*  Called immediately AND re-applied after DOMContentLoaded in case   */
+    /*  jQuery loads after this script.                                     */
     /* ------------------------------------------------------------------ */
     function _shimJqueryFancybox() {
-        if (typeof global.$ === 'undefined' && typeof global.jQuery === 'undefined') { return; }
-        var jq = global.$ || global.jQuery;
+        var jq = global.jQuery || global.$;
+        if (!jq) { return; }
 
-        if (typeof jq.fancybox !== 'function') {
-            jq.fancybox = function (opts) {
-                opts = opts || {};
-                var url = opts.href || opts.content || '';
-                ModalManager.open(url, { title: opts.title || '' });
-            };
-            jq.fancybox.close = function () { ModalManager.close(); };
-        } else {
-            var _orig = jq.fancybox;
-            jq.fancybox = function (opts) {
-                opts = opts || {};
-                if (opts.type === 'iframe' && opts.href) {
-                    ModalManager.open(opts.href, { title: opts.title || '' });
-                } else {
-                    _orig.apply(this, arguments);
-                }
-            };
-            jq.fancybox.close = function () { ModalManager.close(); };
-        }
+        /* Always replace — even if $.fancybox already exists (the real one) */
+        jq.fancybox = function (opts) {
+            opts = opts || {};
+            var url = opts.href || opts.content || '';
+            ModalManager.open(url, { title: opts.title || '' });
+        };
+        jq.fancybox.close = function () { ModalManager.close(); };
+        jq.fancybox.open  = jq.fancybox;
     }
 
     /* ------------------------------------------------------------------ */
@@ -248,12 +242,17 @@
     /* ------------------------------------------------------------------ */
     function _init() {
         _build();
-        _bindFancyboxCompat();
-        _shimJqueryFancybox();
-        _shimOpenPopup();
-        _shimParentClose();
+        _shimJqueryFancybox(); /* re-apply after all scripts have loaded */
         _shimDialog();
     }
+
+    /* Run capture-phase interceptor and jQuery shim immediately so they are
+       active before base.js or any inline $(function(){}) handler executes.
+       DOM-dependent setup (_build, _shimDialog) still waits for DOMContentLoaded. */
+    _bindFancyboxCompat();
+    _shimJqueryFancybox();
+    _shimOpenPopup();
+    _shimParentClose();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', _init);

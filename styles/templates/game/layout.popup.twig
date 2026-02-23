@@ -32,19 +32,13 @@
     _bootstrapParent();
 
     /* ------------------------------------------------------------------
-       Close helper: prefer ModalManager on parent, fall back to fancybox
+       Close helper: close the ModalManager on the parent window.
     ------------------------------------------------------------------ */
     function closeParentModal() {
         try {
             var p = window.parent;
-            if (p && p !== window) {
-                if (p.ModalManager && typeof p.ModalManager.close === 'function') {
-                    p.ModalManager.close();
-                    return;
-                }
-                if (p.$ && p.$.fancybox && typeof p.$.fancybox.close === 'function') {
-                    p.$.fancybox.close();
-                }
+            if (p && p !== window && p.ModalManager && typeof p.ModalManager.close === 'function') {
+                p.ModalManager.close();
             }
         } catch(e) {}
     }
