@@ -29,7 +29,10 @@
                 {{ LNG.al_message }} 
                 <span class="char-count">(<span id="cntChars">0</span> / 5000)</span>
             </label>
-            <textarea name="text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
+            <div class="bbcode-editor-wrap">
+                <div data-bbcode-toolbar="circular-text"></div>
+                <textarea name="text" id="circular-text" class="glass-textarea full-width" rows="10" onkeyup="$('#cntChars').text($(this).val().length);"></textarea>
+            </div>
         </div>
 
         <div class="modal-actions">
@@ -42,6 +45,7 @@
     </form>
 </div>
 
+<script src="scripts/game/bbcodeToolbar.js"></script>
 <script type="text/javascript">
 function check(){
     if(document.message.text.value == '') {
