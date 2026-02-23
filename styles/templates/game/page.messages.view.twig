@@ -27,8 +27,7 @@
                             <span>👤 {{ Message.from }}</span>
                             <span>📅 {{ Message.time }}</span>
                         </div>
-                        {# Betreff mit raw ausgeben falls HTML enthalten #}
-                        <div class="msg-subject-line">{{ Message.subject|raw }}</div>
+                        <div class="msg-subject-line">{{ Message.subject }}</div>
                     </div>
                 </summary>
                 

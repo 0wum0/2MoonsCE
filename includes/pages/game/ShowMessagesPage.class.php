@@ -81,9 +81,7 @@ class ShowMessagesPage extends AbstractGamePage
         foreach ($MessageResult as $MessageRow) {
             $MessagesID[] = $MessageRow['message_id'];
             
-            // Erst Entities decodieren, dann BBCode parsen
-            $cleanText = html_entity_decode($MessageRow['message_text'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $parsedText = $bbcode->parse($cleanText);
+            $parsedText = $bbcode->parse($MessageRow['message_text']);
 
             $MessageList[] = array(
                 'id'		=> $MessageRow['message_id'],
