@@ -108,14 +108,21 @@ function ShowCronjobEdit($post_id)
 	if (count($error_msg) == 0)
 	{
 		$db = Database::get();
-		if ($post_id != 0)
-			$db->update("UPDATE ".CRONJOBS." SET name = :name, min = :min, hours = :hours, month = :month, dow = :dow, dom = :dom, class = :class WHERE cronjobID = :id;", [
+		require_once 'includes/classes/Cronjob.class.php';
+		if ($post_id != 0) {
+			$db->update('UPDATE %%CRONJOBS%% SET name = :name, min = :min, hours = :hours, month = :month, dow = :dow, dom = :dom, class = :class WHERE cronjobID = :id;', [
 				':name' => $post_name, ':min' => $post_min, ':hours' => $post_hours, ':month' => $post_month, ':dow' => $post_dow, ':dom' => $post_dom, ':class' => $post_class, ':id' => $post_id
 			]);
-		else
-			$db->insert("INSERT INTO ".CRONJOBS." SET name = :name, min = :min, hours = :hours, month = :month, dow = :dow, dom = :dom, class = :class;", [
+			Cronjob::reCalculateCronjobs((int)$post_id);
+		} else {
+			$db->insert('INSERT INTO %%CRONJOBS%% SET name = :name, min = :min, hours = :hours, month = :month, dow = :dow, dom = :dom, class = :class, nextTime = 0, isActive = 1;', [
 				':name' => $post_name, ':min' => $post_min, ':hours' => $post_hours, ':month' => $post_month, ':dow' => $post_dow, ':dom' => $post_dom, ':class' => $post_class
 			]);
+			$newId = (int)$db->lastInsertId();
+			if ($newId > 0) {
+				Cronjob::reCalculateCronjobs($newId);
+			}
+		}
 
 		HTTP::redirectTo('admin.php?page=cronjob');
 	} else {
@@ -125,23 +132,25 @@ function ShowCronjobEdit($post_id)
 
 function ShowCronjobDelete($cronjobId) {
     $db = Database::get();
-    $db->delete("DELETE FROM ".CRONJOBS." WHERE cronjobID = :id;", [':id' => $cronjobId]);
-    $db->delete("DELETE FROM ".CRONJOBS_LOG." WHERE cronjobId = :id;", [':id' => $cronjobId]);
+    $db->delete('DELETE FROM %%CRONJOBS%% WHERE cronjobID = :id;', [':id' => $cronjobId]);
+    $db->delete('DELETE FROM %%CRONJOBS_LOG%% WHERE cronjobId = :id;', [':id' => $cronjobId]);
     HTTP::redirectTo('admin.php?page=cronjob');
 }
 
 function ShowCronjobLock($cronjobId) {
-    Database::get()->update("UPDATE ".CRONJOBS." SET `lock` = :lock WHERE cronjobID = :id;", [':lock' => md5((string)TIMESTAMP), ':id' => $cronjobId]);
+    Database::get()->update('UPDATE %%CRONJOBS%% SET `lock` = :lock, `lockTime` = :lockTime WHERE cronjobID = :id;', [':lock' => md5((string)TIMESTAMP), ':lockTime' => TIMESTAMP, ':id' => $cronjobId]);
     HTTP::redirectTo('admin.php?page=cronjob');
 }
 
 function ShowCronjobUnlock($cronjobId) {
-    Database::get()->update("UPDATE ".CRONJOBS." SET `lock` = NULL WHERE cronjobID = :id;", [':id' => $cronjobId]);
+    Database::get()->update('UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE cronjobID = :id;', [':id' => $cronjobId]);
     HTTP::redirectTo('admin.php?page=cronjob');
 }
 
 function ShowCronjobEnable($cronjobId) {
-    Database::get()->update("UPDATE ".CRONJOBS." SET `isActive` = :active WHERE cronjobID = :id;", [':active' => HTTP::_GP('enable', 0), ':id' => $cronjobId]);
+    require_once 'includes/classes/Cronjob.class.php';
+    Database::get()->update('UPDATE %%CRONJOBS%% SET `isActive` = :active WHERE cronjobID = :id;', [':active' => HTTP::_GP('enable', 0), ':id' => $cronjobId]);
+    Cronjob::reCalculateCronjobs((int)$cronjobId);
     HTTP::redirectTo('admin.php?page=cronjob');
 }
 
@@ -149,7 +158,7 @@ function ShowCronjobOverview()
 {
 	global $LNG;
 	$db = Database::get();
-	$data = $db->select("SELECT * FROM ".CRONJOBS.";");
+	$data = $db->select('SELECT * FROM %%CRONJOBS%%;');
 
 	$CronjobArray = array();
 	foreach($data as $CronjobRow)
@@ -194,7 +203,7 @@ function ShowCronjobDetail($detail, $error_msg = NULL)
 	if ($detail != 0)
 	{
 		$db = Database::get();
-		$CronjobRow = $db->selectSingle("SELECT * FROM ".CRONJOBS." WHERE cronjobID = :id", [':id' => $detail]);
+		$CronjobRow = $db->selectSingle('SELECT * FROM %%CRONJOBS%% WHERE cronjobID = :id;', [':id' => $detail]);
 		
 		$template->assign_vars(array(	
 			'id'			=> $CronjobRow['cronjobID'],

@@ -93,8 +93,12 @@ class Cronjob
             self::cronLog("execute() ERROR: class file not found: $cronjobPath");
         }
 
-        // 4. Nächste Ausführungszeit berechnen
-        self::reCalculateCronjobs((int)$cronjobID);
+        // 4. Nächste Ausführungszeit berechnen (always release lock even if this fails)
+        try {
+            self::reCalculateCronjobs((int)$cronjobID);
+        } catch (Throwable $e) {
+            self::cronLog("execute() WARNING: reCalculateCronjobs failed for $cronjobID: " . $e->getMessage());
+        }
 
         // 5. Sperre aufheben
         $sql = 'UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE cronjobID = :cronjobId;';
@@ -122,10 +126,25 @@ class Cronjob
     
     static function getNeedTodoExecutedJobs()
     {
-        // Also include jobs whose lock is stale (older than LOCK_EXPIRY_SECONDS)
+        $db = Database::get();
+
+        // Auto-heal: recalculate nextTime for any active jobs stuck at 0 (epoch)
+        $zeroJobs = $db->select(
+            'SELECT cronjobID FROM %%CRONJOBS%% WHERE isActive = :isActive AND nextTime = 0;',
+            [':isActive' => 1]
+        );
+        if (!empty($zeroJobs)) {
+            foreach ($zeroJobs as $zRow) {
+                self::cronLog('getNeedTodoExecutedJobs() auto-healing nextTime=0 for cronjobID=' . $zRow['cronjobID']);
+                self::reCalculateCronjobs((int)$zRow['cronjobID']);
+            }
+        }
+
+        // COALESCE(lockTime, 0) ensures NULL lockTime is treated as epoch (0),
+        // so stale-lock expiry works even when lockTime was never set.
         $sql = 'SELECT cronjobID FROM %%CRONJOBS%% WHERE isActive = :isActive AND nextTime < :time
-                AND (`lock` IS NULL OR `lockTime` < :expiry);';
-        $cronjobResult = Database::get()->select($sql, array(
+                AND (`lock` IS NULL OR COALESCE(`lockTime`, 0) < :expiry);';
+        $cronjobResult = $db->select($sql, array(
             ':isActive' => 1,
             ':time'     => TIMESTAMP,
             ':expiry'   => TIMESTAMP - self::LOCK_EXPIRY_SECONDS

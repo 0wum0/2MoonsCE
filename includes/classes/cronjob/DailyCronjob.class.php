@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
-class DailyCronJob implements CronjobTask
+class DailyCronjob implements CronjobTask
 {
 	function run()
 	{

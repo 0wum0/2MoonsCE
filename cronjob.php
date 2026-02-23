@@ -66,21 +66,31 @@ try {
     // Column may already exist or DB doesn't support IF NOT EXISTS — ignore
 }
 
+// ── Repair: clear phantom locks (lock set but lockTime NULL, or lockTime expired) ──
+try {
+    $db = Database::get();
+    $expiry = TIMESTAMP - Cronjob::LOCK_EXPIRY_SECONDS;
+    $db->update(
+        'UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE `lock` IS NOT NULL AND (COALESCE(`lockTime`, 0) = 0 OR `lockTime` < :expiry);',
+        [':expiry' => $expiry]
+    );
+} catch (Throwable $e) {
+    // Non-fatal — log and continue
+    @file_put_contents(ROOT_PATH . 'cache/cron_debug.log',
+        '[' . date('Y-m-d H:i:s') . '] WARNING: phantom-lock repair failed: ' . $e->getMessage() . PHP_EOL,
+        FILE_APPEND | LOCK_EX
+    );
+}
+
 // ── Determine which jobs are due ─────────────────────────────────────────────
 $cronjobsTodo = Cronjob::getNeedTodoExecutedJobs();
-
-// ── Admin HTTP override: allow admin session to force-run any job ─────────────
-$session      = Session::load();
-$adminForce   = !$isImageRequest && $session->isValidSession() && !empty($session->adminAccess);
 $isDue        = in_array($cronjobID, $cronjobsTodo, true);
 
-if ($isDue || $adminForce) {
+if ($isDue) {
     try {
         Cronjob::execute($cronjobID);
         if (PHP_SAPI === 'cli') {
             echo "Cronjob $cronjobID executed successfully.\n";
-        } elseif ($adminForce && !$isImageRequest) {
-            echo "Cronjob $cronjobID executed successfully.";
         }
     } catch (Throwable $e) {
         $msg = "Cronjob $cronjobID ERROR: " . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine();
