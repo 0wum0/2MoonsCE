@@ -24,10 +24,10 @@
                     {% endif %}
                     <div class="msg-meta-wrap">
                         <div class="msg-info-top">
-                            <span>👤 {{ Message.from }}</span>
+                            <span>👤 {{ Message.from|striptags|e }}</span>
                             <span>📅 {{ Message.time }}</span>
                         </div>
-                        <div class="msg-subject-line">{{ Message.subject }}</div>
+                        <div class="msg-subject-line">{{ Message.subject|striptags|e }}</div>
                     </div>
                 </summary>
                 
@@ -38,9 +38,9 @@
                 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 10px 20px; background: rgba(0,0,0,0.2);">
                     {% if MessID != 999 and Message.sender != -1 %}
-                    <button type="button" class="btn-galactic-sm" onclick="Dialog.PM({{ Message.sender }}, 'RE: {{ Message.subject|striptags|e('js') }}');">Antworten</button>
+                    <button type="button" class="btn-msg-reply" onclick="Dialog.PM({{ Message.sender }}, 'RE: {{ Message.subject|striptags|e('js') }}');"><i class="fas fa-reply"></i> Antworten</button>
                     {% endif %}
-                    <button type="button" class="btn-galactic-sm" onclick="Message.deleteMessage({{ Message.id }}, {{ MessID }}, {{ page }});" style="color: #f87171;">Löschen</button>
+                    <button type="button" class="btn-msg-delete" onclick="Message.deleteMessage({{ Message.id }}, {{ MessID }}, {{ page }});"><i class="fas fa-trash-alt"></i> Löschen</button>
                 </div>
             </details>
         </div>

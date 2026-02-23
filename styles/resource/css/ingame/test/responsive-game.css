@@ -842,6 +842,68 @@ body {
     }
 }
 
+/* ============================================
+   MESSAGE ACTION BUTTONS (Glass Style)
+   ============================================ */
+.btn-msg-reply,
+.btn-msg-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.3px;
+}
+
+.btn-msg-reply {
+    border: 1px solid rgba(74, 222, 128, 0.55);
+    color: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.2);
+}
+
+.btn-msg-reply:hover {
+    background: rgba(74, 222, 128, 0.12);
+    box-shadow: 0 0 16px rgba(74, 222, 128, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-msg-reply:active {
+    transform: translateY(0);
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.25);
+}
+
+.btn-msg-delete {
+    border: 1px solid rgba(248, 113, 113, 0.55);
+    color: #f87171;
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.2);
+}
+
+.btn-msg-delete:hover {
+    background: rgba(248, 113, 113, 0.12);
+    box-shadow: 0 0 16px rgba(248, 113, 113, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-msg-delete:active {
+    transform: translateY(0);
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.25);
+}
+
+@media (max-width: 575px) {
+    .btn-msg-reply,
+    .btn-msg-delete {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
     *,
