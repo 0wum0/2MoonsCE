@@ -161,12 +161,12 @@ class Forum
                 continue;
             }
             $exists = $this->db->selectSingle(
-                "SELECT id FROM %%FORUM_MENTIONS%% WHERE post_id = :p AND user_id = :u",
+                "SELECT id FROM %%FORUM_MENTIONS%% WHERE post_id = :p AND mentioned_user_id = :u",
                 [':p' => $postId, ':u' => $mentionedUserId]
             );
             if (!$exists) {
                 $this->db->insert(
-                    "INSERT INTO %%FORUM_MENTIONS%% SET post_id = :p, user_id = :u, by_user_id = :by, is_read = 0, created_at = :now",
+                    "INSERT INTO %%FORUM_MENTIONS%% SET post_id = :p, mentioned_user_id = :u, by_user_id = :by, is_read = 0, created_at = :now",
                     [':p' => $postId, ':u' => $mentionedUserId, ':by' => $byUserId, ':now' => $now]
                 );
             }
@@ -222,7 +222,7 @@ class Forum
     public function getForumNotificationCount(int $userId): int
     {
         $mentions = (int)$this->db->selectSingle(
-            "SELECT COUNT(*) as c FROM %%FORUM_MENTIONS%% WHERE user_id = :u AND is_read = 0",
+            "SELECT COUNT(*) as c FROM %%FORUM_MENTIONS%% WHERE mentioned_user_id = :u AND is_read = 0",
             [':u' => $userId],
             'c'
         );
@@ -252,7 +252,7 @@ class Forum
              LEFT JOIN %%FORUM_POSTS%% p ON m.post_id = p.id
              LEFT JOIN %%FORUM_TOPICS%% t ON p.topic_id = t.id
              LEFT JOIN %%USERS%% u ON m.by_user_id = u.id
-             WHERE m.user_id = :u AND m.is_read = 0
+             WHERE m.mentioned_user_id = :u AND m.is_read = 0
              ORDER BY m.created_at DESC
              LIMIT {$limit}",
             [':u' => $userId]
@@ -313,7 +313,7 @@ class Forum
     {
         if ($type === 'mention') {
             $this->db->update(
-                "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE id = :id AND user_id = :u",
+                "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE id = :id AND mentioned_user_id = :u",
                 [':id' => $id, ':u' => $userId]
             );
         } elseif ($type === 'new_post') {
@@ -330,7 +330,7 @@ class Forum
     public function markAllNotificationsRead(int $userId): void
     {
         $this->db->update(
-            "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE user_id = :u AND is_read = 0",
+            "UPDATE %%FORUM_MENTIONS%% SET is_read = 1 WHERE mentioned_user_id = :u AND is_read = 0",
             [':u' => $userId]
         );
         $this->db->delete(
