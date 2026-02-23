@@ -58,16 +58,17 @@ class Forum
 
     public function getTopics(int $categoryId, int $page = 1, int $limit = 20): array
     {
-        $offset = ($page - 1) * $limit;
+        $offset = (int)(($page - 1) * $limit);
+        $limit  = (int)$limit;
         return $this->db->select(
-            "SELECT t.*, u.username, 
-            (SELECT COUNT(*) FROM %%FORUM_POSTS%% WHERE topic_id = t.id AND is_deleted = 0) as post_count 
-             FROM %%FORUM_TOPICS%% t 
-             LEFT JOIN %%USERS%% u ON t.user_id = u.id 
-             WHERE t.category_id = :cat 
-             ORDER BY t.is_sticky DESC, t.last_post_time DESC 
-             LIMIT :limit OFFSET :offset",
-            [':cat' => $categoryId, ':limit' => $limit, ':offset' => $offset]
+            "SELECT t.*, u.username,
+            (SELECT COUNT(*) FROM %%FORUM_POSTS%% WHERE topic_id = t.id AND is_deleted = 0) as post_count
+             FROM %%FORUM_TOPICS%% t
+             LEFT JOIN %%USERS%% u ON t.user_id = u.id
+             WHERE t.category_id = :cat
+             ORDER BY t.is_sticky DESC, t.last_post_time DESC
+             LIMIT {$limit} OFFSET {$offset}",
+            [':cat' => $categoryId]
         );
     }
 
@@ -90,11 +91,11 @@ class Forum
                 LEFT JOIN %%USERS%% u ON p.user_id = u.id 
                 LEFT JOIN %%ALLIANCE%% a ON u.ally_id = a.id 
                 LEFT JOIN %%STATPOINTS%% s ON s.id_owner = u.id AND s.stat_type = 1
-                WHERE p.topic_id = :topic AND p.is_deleted = 0 
-                ORDER BY p.created_at ASC 
-                LIMIT :limit OFFSET :offset";
+                WHERE p.topic_id = :topic AND p.is_deleted = 0
+                ORDER BY p.created_at ASC
+                LIMIT {$limit} OFFSET {$offset}";
 
-        $posts = $this->db->select($sql, [':topic' => $topicId, ':limit' => $limit, ':offset' => $offset]);
+        $posts = $this->db->select($sql, [':topic' => $topicId]);
         foreach ($posts as &$post) {
             $post['content_html'] = $this->bbcode->parse($post['content']);
         }
@@ -226,9 +227,8 @@ class Forum
     public function getTopicsAdmin(int $page = 1, int $limit = 30, int $catId = 0, string $search = '', string $status = ''): array
     {
         [$where, $params] = $this->buildTopicAdminWhere($catId, $search, $status);
-        $offset = ($page - 1) * $limit;
-        $params[':limit']  = $limit;
-        $params[':offset'] = $offset;
+        $offset = (int)(($page - 1) * $limit);
+        $limit  = (int)$limit;
         return $this->db->select(
             "SELECT t.*, u.username, c.title as category_title,
                     (SELECT COUNT(*) FROM %%FORUM_POSTS%% WHERE topic_id = t.id AND is_deleted = 0) as post_count
@@ -237,7 +237,7 @@ class Forum
              LEFT JOIN %%FORUM_CATEGORIES%% c ON t.category_id = c.id
              {$where}
              ORDER BY t.created_at DESC
-             LIMIT :limit OFFSET :offset",
+             LIMIT {$limit} OFFSET {$offset}",
             $params
         );
     }
@@ -281,9 +281,8 @@ class Forum
     public function getPostsAdmin(int $page = 1, int $limit = 30, int $catId = 0, int $topicId = 0, string $search = ''): array
     {
         [$where, $params] = $this->buildPostAdminWhere($catId, $topicId, $search);
-        $offset = ($page - 1) * $limit;
-        $params[':limit']  = $limit;
-        $params[':offset'] = $offset;
+        $offset = (int)(($page - 1) * $limit);
+        $limit  = (int)$limit;
         return $this->db->select(
             "SELECT p.*, u.username, t.title as topic_title, c.title as category_title
              FROM %%FORUM_POSTS%% p
@@ -292,7 +291,7 @@ class Forum
              LEFT JOIN %%FORUM_CATEGORIES%% c ON t.category_id = c.id
              {$where}
              ORDER BY p.created_at DESC
-             LIMIT :limit OFFSET :offset",
+             LIMIT {$limit} OFFSET {$offset}",
             $params
         );
     }
@@ -341,8 +340,8 @@ class Forum
              WHERE p.is_deleted = 0
              GROUP BY p.user_id
              ORDER BY post_count DESC
-             LIMIT :limit OFFSET :offset",
-            [':limit' => 5, ':offset' => 0]
+             LIMIT 5",
+            []
         );
         return [
             'total_categories'    => (int)$this->db->selectSingle("SELECT COUNT(*) as c FROM %%FORUM_CATEGORIES%%", [], 'c'),

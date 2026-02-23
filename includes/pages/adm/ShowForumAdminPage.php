@@ -15,11 +15,33 @@ function ShowForumAdminPage(): void
         require_once ROOT_PATH . 'includes/classes/Forum.class.php';
     }
 
-    $forum    = new Forum();
     $template = new template();
+    $mode     = HTTP::_GP('mode', 'categories');
+    $message  = [];
 
-    $mode    = HTTP::_GP('mode', 'categories');
-    $message = [];
+    // ── TABLE EXISTENCE CHECK ──────────────────────────────────────────────────
+    // Detect missing forum tables early and show a clear admin message instead
+    // of a blank page or swallowed exception.
+    try {
+        $db = Database::get();
+        $db->selectSingle("SELECT 1 FROM %%FORUM_CATEGORIES%% LIMIT 1");
+    } catch (Exception $e) {
+        $template->assign_vars([
+            'mode'            => $mode,
+            'message'         => [
+                'class' => 'error',
+                'text'  => 'Forum-Tabellen fehlen oder sind nicht erreichbar. '
+                         . 'Bitte fuehre das Datenbank-Upgrade unter install/index.php?mode=upgrade aus. '
+                         . '(Fehler: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . ')',
+            ],
+            'categories'      => [],
+            'flat_categories' => [],
+        ]);
+        $template->show('ForumAdminPage.twig');
+        return;
+    }
+
+    $forum = new Forum();
 
     // ── POST HANDLERS ──────────────────────────────────────────────────────────
 
@@ -61,7 +83,7 @@ function ShowForumAdminPage(): void
                 HTTP::redirectTo('admin.php?page=ForumAdmin&mode=categories&msg=category_updated');
                 return;
             }
-            $message = ['class' => 'error', 'text' => 'Ungültige Daten.'];
+            $message = ['class' => 'error', 'text' => 'Ungueltige Daten.'];
         }
 
         // Category: delete
@@ -83,8 +105,8 @@ function ShowForumAdminPage(): void
                     'page'          => 'ForumAdmin',
                     'mode'          => 'topics',
                     'msg'           => 'topic_deleted',
-                    'p'             => HTTP::_GP('p', 1) > 1 ? HTTP::_GP('p', 1) : null,
-                    'cat_filter'    => HTTP::_GP('cat_filter', 0) > 0 ? HTTP::_GP('cat_filter', 0) : null,
+                    'p'             => (int)HTTP::_GP('p', 1) > 1 ? (int)HTTP::_GP('p', 1) : null,
+                    'cat_filter'    => (int)HTTP::_GP('cat_filter', 0) > 0 ? (int)HTTP::_GP('cat_filter', 0) : null,
                     'search'        => HTTP::_GP('search', '') !== '' ? HTTP::_GP('search', '') : null,
                     'status_filter' => HTTP::_GP('status_filter', '') !== '' ? HTTP::_GP('status_filter', '') : null,
                 ]));
@@ -118,16 +140,16 @@ function ShowForumAdminPage(): void
                 if ($topic !== null) {
                     $forum->updateTopic($topicId, [
                         'title'     => $topic['title'],
-                        'is_sticky' => $action === 'stick' ? 1 : ($action === 'unstick' ? 0 : (int)$topic['is_sticky']),
-                        'is_locked' => $action === 'lock'  ? 1 : ($action === 'unlock'  ? 0 : (int)$topic['is_locked']),
+                        'is_sticky' => $action === 'stick'  ? 1 : ($action === 'unstick' ? 0 : (int)$topic['is_sticky']),
+                        'is_locked' => $action === 'lock'   ? 1 : ($action === 'unlock'  ? 0 : (int)$topic['is_locked']),
                     ]);
                 }
                 $qs = http_build_query(array_filter([
                     'page'          => 'ForumAdmin',
                     'mode'          => 'topics',
                     'msg'           => 'topic_updated',
-                    'p'             => HTTP::_GP('p', 1) > 1 ? HTTP::_GP('p', 1) : null,
-                    'cat_filter'    => HTTP::_GP('cat_filter', 0) > 0 ? HTTP::_GP('cat_filter', 0) : null,
+                    'p'             => (int)HTTP::_GP('p', 1) > 1 ? (int)HTTP::_GP('p', 1) : null,
+                    'cat_filter'    => (int)HTTP::_GP('cat_filter', 0) > 0 ? (int)HTTP::_GP('cat_filter', 0) : null,
                     'search'        => HTTP::_GP('search', '') !== '' ? HTTP::_GP('search', '') : null,
                     'status_filter' => HTTP::_GP('status_filter', '') !== '' ? HTTP::_GP('status_filter', '') : null,
                 ]));
@@ -145,9 +167,9 @@ function ShowForumAdminPage(): void
                     'page'         => 'ForumAdmin',
                     'mode'         => 'posts',
                     'msg'          => 'post_deleted',
-                    'p'            => HTTP::_GP('p', 1) > 1 ? HTTP::_GP('p', 1) : null,
-                    'cat_filter'   => HTTP::_GP('cat_filter', 0) > 0 ? HTTP::_GP('cat_filter', 0) : null,
-                    'topic_filter' => HTTP::_GP('topic_filter', 0) > 0 ? HTTP::_GP('topic_filter', 0) : null,
+                    'p'            => (int)HTTP::_GP('p', 1) > 1 ? (int)HTTP::_GP('p', 1) : null,
+                    'cat_filter'   => (int)HTTP::_GP('cat_filter', 0) > 0 ? (int)HTTP::_GP('cat_filter', 0) : null,
+                    'topic_filter' => (int)HTTP::_GP('topic_filter', 0) > 0 ? (int)HTTP::_GP('topic_filter', 0) : null,
                     'search'       => HTTP::_GP('search', '') !== '' ? HTTP::_GP('search', '') : null,
                 ]));
                 HTTP::redirectTo('admin.php?' . $qs);
@@ -163,10 +185,10 @@ function ShowForumAdminPage(): void
         $msgMap = [
             'category_created' => ['class' => 'success', 'text' => 'Kategorie erstellt.'],
             'category_updated' => ['class' => 'success', 'text' => 'Kategorie gespeichert.'],
-            'category_deleted' => ['class' => 'success', 'text' => 'Kategorie gelöscht.'],
-            'topic_deleted'    => ['class' => 'success', 'text' => 'Topic gelöscht.'],
+            'category_deleted' => ['class' => 'success', 'text' => 'Kategorie geloescht.'],
+            'topic_deleted'    => ['class' => 'success', 'text' => 'Topic geloescht.'],
             'topic_updated'    => ['class' => 'success', 'text' => 'Topic gespeichert.'],
-            'post_deleted'     => ['class' => 'success', 'text' => 'Post gelöscht.'],
+            'post_deleted'     => ['class' => 'success', 'text' => 'Post geloescht.'],
         ];
         if (isset($msgMap[$msgKey])) {
             $message = $msgMap[$msgKey];
@@ -188,7 +210,6 @@ function ShowForumAdminPage(): void
         switch ($mode) {
 
             case 'categories':
-                // nothing extra — categories + flat_categories already loaded
                 break;
 
             case 'edit_category':
@@ -212,9 +233,9 @@ function ShowForumAdminPage(): void
                 $statusFilter = HTTP::_GP('status_filter', '');
                 $limit        = 25;
 
-                $total    = $forum->getTopicsAdminCount($catFilter, $search, $statusFilter);
-                $maxPage  = max(1, (int)ceil($total / $limit));
-                $page     = min($page, $maxPage);
+                $total   = $forum->getTopicsAdminCount($catFilter, $search, $statusFilter);
+                $maxPage = max(1, (int)ceil($total / $limit));
+                $page    = min($page, $maxPage);
 
                 $tplData['topics']        = $forum->getTopicsAdmin($page, $limit, $catFilter, $search, $statusFilter);
                 $tplData['topics_total']  = $total;
@@ -251,14 +272,14 @@ function ShowForumAdminPage(): void
                 $maxPage = max(1, (int)ceil($total / $limit));
                 $page    = min($page, $maxPage);
 
-                $tplData['posts']         = $forum->getPostsAdmin($page, $limit, $catFilter, $topicFilter, $search);
-                $tplData['posts_total']   = $total;
-                $tplData['posts_page']    = $page;
-                $tplData['posts_pages']   = $maxPage;
-                $tplData['posts_limit']   = $limit;
-                $tplData['cat_filter']    = $catFilter;
-                $tplData['topic_filter']  = $topicFilter;
-                $tplData['search']        = $search;
+                $tplData['posts']        = $forum->getPostsAdmin($page, $limit, $catFilter, $topicFilter, $search);
+                $tplData['posts_total']  = $total;
+                $tplData['posts_page']   = $page;
+                $tplData['posts_pages']  = $maxPage;
+                $tplData['posts_limit']  = $limit;
+                $tplData['cat_filter']   = $catFilter;
+                $tplData['topic_filter'] = $topicFilter;
+                $tplData['search']       = $search;
                 break;
 
             case 'stats':
@@ -266,8 +287,11 @@ function ShowForumAdminPage(): void
                 break;
         }
     } catch (Exception $e) {
-        $tplData['message'] = ['class' => 'error', 'text' => 'Fehler: ' . $e->getMessage()];
-        error_log('ForumAdmin Error: ' . $e->getMessage());
+        $tplData['message'] = [
+            'class' => 'error',
+            'text'  => 'Datenbankfehler: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES),
+        ];
+        error_log('ForumAdmin Error [mode=' . $mode . ']: ' . $e->getMessage());
     }
 
     $template->assign_vars($tplData);
