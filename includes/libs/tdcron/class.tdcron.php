@@ -177,7 +177,7 @@ declare(strict_types=1);
 				// a little odd but thats the easiest way of adding/substracting a day without
 				// screwing up the date. Just trust me on that one ;-)
 
-				$rtime			= explode(',', date('i,H,d,m,w,Y', mktime((int)$rtime[IDX_HOUR], (int)$rtime[IDX_MINUTE], 0, (int)$rtime[IDX_MONTH], (int)$rtime[IDX_DAY], (int)$rtime[IDX_YEAR]) + ((($next) ? 1 : -1) * 86400)));
+				$rtime			= array_map('intval', explode(',', date('i,H,d,m,w,Y', mktime((int)$rtime[IDX_HOUR], (int)$rtime[IDX_MINUTE], 0, (int)$rtime[IDX_MONTH], (int)$rtime[IDX_DAY], (int)$rtime[IDX_YEAR]) + ((($next) ? 1 : -1) * 86400))));
 
 				} else {
 
@@ -206,7 +206,7 @@ declare(strict_types=1);
 						%Y Year  0000-9999 (Y)
 						
 						*/
-						$rtime		= explode(',', date('i,H,d,m,w,Y', mktime((int)$nhour, (int)$nminute, 0, (int)$rtime[IDX_MONTH], (int)$rtime[IDX_DAY], (int)$rtime[IDX_YEAR]) + ((($next) ? 1 : -1) * 86400)));
+						$rtime		= array_map('intval', explode(',', date('i,H,d,m,w,Y', mktime((int)$nhour, (int)$nminute, 0, (int)$rtime[IDX_MONTH], (int)$rtime[IDX_DAY], (int)$rtime[IDX_YEAR]) + ((($next) ? 1 : -1) * 86400))));
 
 						} else {
 
@@ -272,9 +272,9 @@ declare(strict_types=1);
 
 							foreach ($cron[IDX_DAY] as $nday) {
 
-							if (checkdate($nmonth,$nday,$nyear)) {
+							if (checkdate((int)$nmonth, (int)$nday, (int)$nyear)) {
 
-								$ndate	= mktime(0, 0, 1, (int)$nmonth, (int)$nday, (int)$nyear);
+						$ndate	= mktime(0, 0, 1, (int)$nmonth, (int)$nday, (int)$nyear);
 
 									if (($next) ? ($ndate >= $cdate) : ($ndate <= $cdate)) {
 
@@ -286,7 +286,7 @@ declare(strict_types=1);
 
 										// WIN! :-) We found a valid date...
 
-										$rtime			= explode(',', date('i,H,d,m,w,Y', mktime((int)$rtime[IDX_HOUR], (int)$rtime[IDX_MINUTE], 0, (int)$nmonth, (int)$nday, (int)$nyear)));
+										$rtime			= array_map('intval', explode(',', date('i,H,d,m,w,Y', mktime((int)$rtime[IDX_HOUR], (int)$rtime[IDX_MINUTE], 0, (int)$nmonth, (int)$nday, (int)$nyear))));
 
 										return mktime((int)$rtime[1], (int)$rtime[0], 0, (int)$rtime[3], (int)$rtime[2], (int)$rtime[5]);
 

@@ -220,8 +220,9 @@ class Cronjob
 
             try {
                 $nextTime = tdCron::getNextOccurrence($cronTabString, TIMESTAMP);
-            } catch (Exception $e) {
-                // Falls der String ungültig ist, auf Standard setzen (nächste volle Stunde)
+            } catch (Throwable $e) {
+                // Invalid/unparseable expression or PHP 8 TypeError — fall back to next hour
+                self::cronLog('reCalculateCronjobs() WARNING: cronjobID=' . $cronjobRow['cronjobID'] . ' expr="' . $cronTabString . '" error=' . $e->getMessage());
                 $nextTime = TIMESTAMP + 3600;
             }
 
