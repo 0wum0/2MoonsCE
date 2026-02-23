@@ -258,8 +258,6 @@
         </div>
 
         {% for post in posts %}
-            {% set can_edit = can_moderate or (post.user_id == current_user_id) %}
-            {% set can_report = (post.user_id != current_user_id) %}
             <div class="fl-post" id="post-{{ post.id }}">
                 <div class="fl-author-info">
                     <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|default('?')|slice(0, 1)|upper }}</div>
@@ -281,7 +279,7 @@
                     <div class="fl-post-text" id="post-data-{{ post.id }}">{{ post.content_html|default('')|raw }}</div>
 
                     {# ── Inline edit form (hidden by default) ── #}
-                    {% if can_edit %}
+                    {% if post.can_edit %}
                     <div class="fl-inline-edit" id="edit-form-{{ post.id }}">
                         <form action="game.php?page=forum&mode=edit_post" method="POST">
                             <input type="hidden" name="post_id" value="{{ post.id }}">
@@ -296,7 +294,7 @@
                     {% endif %}
 
                     {# ── Report form (hidden by default) ── #}
-                    {% if can_report %}
+                    {% if post.can_report %}
                     <div class="fl-report-form" id="report-form-{{ post.id }}">
                         <form action="game.php?page=forum&mode=report_post" method="POST">
                             <input type="hidden" name="post_id" value="{{ post.id }}">
@@ -313,15 +311,17 @@
                     <div class="fl-actions">
                         <span class="fl-action-btn" onclick="likePost({{ post.id }})">❤️ Like (<span id="lc-{{ post.id }}">{{ post.like_count|default(0) }}</span>)</span>
                         <span class="fl-action-btn" onclick="quotePost('{{ post.username|default('') }}', 'post-data-{{ post.id }}')">💬 Zitieren</span>
-                        {% if can_edit %}
+                        {% if post.can_edit %}
                         <span class="fl-action-btn fl-action-btn-edit" onclick="toggleEdit({{ post.id }})">✏️ Bearbeiten</span>
+                        {% endif %}
+                        {% if post.can_delete %}
                         <form action="game.php?page=forum&mode=delete_post" method="POST" style="display:inline;" onsubmit="return confirm('Beitrag wirklich löschen?');">
                             <input type="hidden" name="post_id" value="{{ post.id }}">
                             <input type="hidden" name="topic_id" value="{{ topic.id }}">
                             <button type="submit" class="fl-action-btn fl-action-btn-delete" style="background:none;border:none;padding:0;cursor:pointer;font-size:12px;font-weight:700;">🗑 Löschen</button>
                         </form>
                         {% endif %}
-                        {% if can_report %}
+                        {% if post.can_report %}
                         <span class="fl-action-btn fl-action-btn-report" onclick="toggleReport({{ post.id }})">🚩 Melden</span>
                         {% endif %}
                     </div>

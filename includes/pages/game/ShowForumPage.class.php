@@ -4,7 +4,16 @@ declare(strict_types=1);
 
 /**
  * SmartMoons Forum - Frontend Controller
- * FIX: Routing für Like & Edit
+ *
+ * Permission system (canonical source: includes/constants.php + GeneralFunctions.php):
+ *   AUTH_USR = 0  (normal player)
+ *   AUTH_MOD = 1  (moderator)
+ *   AUTH_OPS = 2  (operator)
+ *   AUTH_ADM = 3  (admin)
+ *
+ * $USER['authlevel'] is the only game-side permission field.
+ * allowedTo() is admin-panel only and is NOT used here.
+ * No hasPermission(), no rights bitmask exists for game-side forum.
  */
 
 class ShowForumPage extends AbstractGamePage
@@ -19,6 +28,48 @@ class ShowForumPage extends AbstractGamePage
         }
         $this->forum = new Forum();
     }
+
+    // ── Permission helpers ────────────────────────────────────────────────────
+
+    /**
+     * True if the user has moderator-level access or higher.
+     * Source: $USER['authlevel'] >= AUTH_MOD (= 1).
+     * Same check used by ShowForumAdminPage and the existing topic() method.
+     */
+    private function canModerateForum(array $user): bool
+    {
+        return (int)$user['authlevel'] >= AUTH_MOD;
+    }
+
+    /**
+     * Moderators can edit any post; players can only edit their own.
+     */
+    private function canEditPost(array $user, array $post): bool
+    {
+        return $this->canModerateForum($user)
+            || (int)$post['user_id'] === (int)$user['id'];
+    }
+
+    /**
+     * Moderators can delete any post; players can only delete their own.
+     */
+    private function canDeletePost(array $user, array $post): bool
+    {
+        return $this->canModerateForum($user)
+            || (int)$post['user_id'] === (int)$user['id'];
+    }
+
+    /**
+     * Any logged-in user can report a post that is not their own.
+     * Moderators can also report (they may want to escalate to admins),
+     * but reporting your own post is silently blocked.
+     */
+    private function canReportPost(array $user, array $post): bool
+    {
+        return (int)$post['user_id'] !== (int)$user['id'];
+    }
+
+    // ── Public page actions ───────────────────────────────────────────────────
 
     public function show(): void {
         global $USER;
@@ -102,14 +153,26 @@ class ShowForumPage extends AbstractGamePage
             $this->redirectTo('game.php?page=forum');
             return;
         }
+
+        $canModerate = $this->canModerateForum($USER);
+        $currentUserId = (int)$USER['id'];
+
+        $posts = $this->forum->getPosts($id, $page, 15);
+        foreach ($posts as &$post) {
+            $post['can_edit']   = $this->canEditPost($USER, $post);
+            $post['can_delete'] = $this->canDeletePost($USER, $post);
+            $post['can_report'] = $this->canReportPost($USER, $post);
+        }
+        unset($post);
+
         $this->assign([
-            'mode'            => 'topic',
-            'topic'           => $topic,
-            'posts'           => $this->forum->getPosts($id, $page, 15),
-            'p'               => $page,
-            'can_moderate'    => ($USER['authlevel'] >= AUTH_MOD),
-            'current_user_id' => (int)$USER['id'],
-            'message'         => $message,
+            'mode'             => 'topic',
+            'topic'            => $topic,
+            'posts'            => $posts,
+            'p'                => $page,
+            'can_moderate'     => $canModerate,
+            'current_user_id'  => $currentUserId,
+            'message'          => $message,
         ]);
         $this->display('ForumPage.twig');
     }
@@ -172,15 +235,7 @@ class ShowForumPage extends AbstractGamePage
         }
 
         $post = $this->forum->getPost($postId);
-        if (empty($post)) {
-            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
-            return;
-        }
-
-        $isMod = ((int)$USER['authlevel'] >= AUTH_MOD);
-        $isOwner = ((int)$post['user_id'] === (int)$USER['id']);
-
-        if (!$isMod && !$isOwner) {
+        if (empty($post) || !$this->canEditPost($USER, $post)) {
             $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
             return;
         }
@@ -204,15 +259,7 @@ class ShowForumPage extends AbstractGamePage
         }
 
         $post = $this->forum->getPost($postId);
-        if (empty($post)) {
-            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
-            return;
-        }
-
-        $isMod   = ((int)$USER['authlevel'] >= AUTH_MOD);
-        $isOwner = ((int)$post['user_id'] === (int)$USER['id']);
-
-        if (!$isMod && !$isOwner) {
+        if (empty($post) || !$this->canDeletePost($USER, $post)) {
             $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
             return;
         }
@@ -237,7 +284,7 @@ class ShowForumPage extends AbstractGamePage
         }
 
         $post = $this->forum->getPost($postId);
-        if (empty($post) || (int)$post['user_id'] === (int)$USER['id']) {
+        if (empty($post) || !$this->canReportPost($USER, $post)) {
             $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
             return;
         }
