@@ -1,44 +1,63 @@
-{% extends "layout.popup.twig" %}
+{% extends "layout.full.twig" %}
 
 {% block title %}{{ LNG.lm_alliance }}{% endblock %}
 {% block content %}
 
-<div class="glass-panel popup-panel">
-    <div class="panel-header">
-        <i class="fas fa-user-clock"></i> {{ LNG.al_request_from }} {{ applyDetail.username }}
+<div class="aerospace-container">
+    <div class="glass-panel header-panel">
+        <h2 class="page-title"><i class="fas fa-user-clock"></i> {{ LNG.al_request_from_user }}: {{ applyDetail.username }}</h2>
+        <a href="game.php?page=alliance&amp;mode=admin&amp;action=mangeApply" class="btn-ghost small">{{ LNG.al_back }}</a>
     </div>
 
-    <div class="apply-grid">
-        <div class="apply-info">
-            <div class="info-row">
-                <span class="label">{{ LNG.pl_homeplanet }}:</span>
-                <span class="value">{{ applyDetail.name }} [{{ applyDetail.coordinates }}]</span>
+    <div class="glass-panel">
+        <div class="apply-grid">
+            <div class="apply-info">
+                <div class="info-row">
+                    <span class="label">{{ LNG.al_coords }}:</span>
+                    <span class="value">{{ applyDetail.name }} [{{ applyDetail.coordinates }}]</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">{{ LNG.al_request_date }}:</span>
+                    <span class="value">{{ apply_time }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">{{ LNG.al_request_register_time }}:</span>
+                    <span class="value">{{ register_time }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">{{ LNG.al_request_last_onlinetime }}:</span>
+                    <span class="value">{{ onlinetime }}</span>
+                </div>
+                {% if applyDetail.total_points is defined and applyDetail.total_points is not null %}
+                <div class="info-row">
+                    <span class="label">{{ LNG.al_points }}:</span>
+                    <span class="value">{{ applyDetail.total_points }}</span>
+                </div>
+                {% endif %}
             </div>
-            <div class="info-row">
-                <span class="label">{{ LNG.al_request_date }}:</span>
-                <span class="value">{{ apply_time }}</span>
-            </div>
-        </div>
 
-        <div class="apply-message-box">
-             <div class="message-content">{{ text|nl2br }}</div>
+            <div class="apply-message-box">
+                <div class="message-content">{{ applyDetail.text|nl2br }}</div>
+            </div>
         </div>
     </div>
 
-    <form action="game.php?page=alliance&amp;mode=admin&amp;action=sendAnswer&amp;id={{ applyID }}" method="post" class="apply-form">
-        <div class="form-group">
-            <label>{{ LNG.al_reply_to_request }}</label>
-            <textarea name="text" id="text" class="glass-textarea full-width" rows="5"></textarea>
-        </div>
-        
-        <div class="apply-actions">
-            <button type="submit" name="answer" value="yes" class="btn-success">
-                <i class="fas fa-check"></i> {{ LNG.al_acept_request }}
-            </button>
-            <button type="submit" name="answer" value="no" class="btn-danger">
-                <i class="fas fa-times"></i> {{ LNG.al_decline_request }}
-            </button>
-        </div>
-    </form>
+    <div class="glass-panel">
+        <form action="game.php?page=alliance&amp;mode=admin&amp;action=sendAnswerToApply&amp;id={{ applyDetail.applyID }}" method="post" class="apply-form">
+            <div class="form-group">
+                <label>{{ LNG.al_reply_to_request }}</label>
+                <textarea name="text" id="text" class="glass-textarea full-width" rows="5"></textarea>
+            </div>
+
+            <div class="apply-actions">
+                <button type="submit" name="answer" value="yes" class="btn-success">
+                    <i class="fas fa-check"></i> {{ LNG.al_acept_request }}
+                </button>
+                <button type="submit" name="answer" value="no" class="btn-danger">
+                    <i class="fas fa-times"></i> {{ LNG.al_decline_request }}
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

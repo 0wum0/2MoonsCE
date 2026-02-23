@@ -1087,8 +1087,8 @@ class ShowAlliancePage extends AbstractGamePage
 			%%ALLIANCE_REQUEST%% AS r
 		LEFT JOIN
 			%%USERS%% AS u ON r.userId = u.id
-		INNER JOIN
-			%%STATPOINTS%% AS stat
+		LEFT JOIN
+			%%STATPOINTS%% AS stat ON stat.id_owner = u.id AND stat.stat_type = 1
 		LEFT JOIN
 			%%PLANETS%% AS p ON p.id = u.id_planet
 		WHERE
