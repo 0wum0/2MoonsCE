@@ -142,6 +142,30 @@
     }
 
     /* ------------------------------------------------------------------ */
+    /*  PlayerCard: .js-playercard[data-player-id] click handler           */
+    /* ------------------------------------------------------------------ */
+    function _bindPlayerCard() {
+        document.addEventListener('click', function (e) {
+            var el = e.target;
+            while (el && el !== document) {
+                if (el.classList && el.classList.contains('js-playercard')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var pid = parseInt(el.getAttribute('data-player-id'), 10);
+                    if (pid && pid > 0) {
+                        ModalManager.open(
+                            'game.php?page=playercard&mode=show&id=' + pid,
+                            { title: '' }
+                        );
+                    }
+                    return;
+                }
+                el = el.parentElement;
+            }
+        }, false);
+    }
+
+    /* ------------------------------------------------------------------ */
     /*  Fancybox compatibility shim                                         */
     /*  Intercepts: .fancybox class, [data-fancybox], rel="fancybox"       */
     /*  Uses CAPTURE phase + stopImmediatePropagation so jQuery handlers   */
@@ -244,6 +268,7 @@
         _build();
         _shimJqueryFancybox(); /* re-apply after all scripts have loaded */
         _shimDialog();
+        _bindPlayerCard();
     }
 
     /* Run capture-phase interceptor and jQuery shim immediately so they are

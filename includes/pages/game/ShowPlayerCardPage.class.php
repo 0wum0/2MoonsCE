@@ -66,9 +66,21 @@ class ShowPlayerCardPage extends AbstractGamePage
 			$drawsprozent               = 100 / $totalfights * $query['draws'];
 		}
 
+		$buddyExists = false;
+		if ($PlayerID !== $USER['id']) {
+			$buddyCount = $db->selectSingle(
+				'SELECT COUNT(*) as cnt FROM %%BUDDY%% WHERE (sender = :me AND owner = :them) OR (owner = :me AND sender = :them);',
+				[':me' => $USER['id'], ':them' => $PlayerID],
+				'cnt'
+			);
+			$buddyExists = (int)$buddyCount > 0;
+		}
+
 		$this->assign(array(
 			'id'			=> $PlayerID,
 			'yourid'		=> $USER['id'],
+			'is_self'		=> ($PlayerID === $USER['id']),
+			'buddy_exists'	=> $buddyExists,
 			'name'			=> $query['username'],
 			'homeplanet'	=> $query['name'],
 			'galaxy'		=> $query['galaxy'],

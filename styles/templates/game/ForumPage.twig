@@ -174,7 +174,7 @@
                             <div class="fl-content-main">
                                 <a href="game.php?page=forum&mode=topic&id={{ topic.id }}" class="fl-link-title">{{ topic.title }}</a>
                                 <div style="font-size: 12px; color: var(--fl-muted);">
-                                    von <b style="color:#fff">{{ topic.username|default('Unbekannt') }}</b>
+                                    von <b style="color:#fff"><a href="#" class="js-playercard" data-player-id="{{ topic.user_id|default(0) }}" style="color:#fff;text-decoration:none;">{{ topic.username|default('Unbekannt') }}</a></b>
                                     &nbsp;·&nbsp; {{ topic.created_at|date('d.m.Y H:i') }}
                                 </div>
                             </div>
@@ -250,7 +250,7 @@
                 <div class="fl-author-info">
                     <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|default('?')|slice(0, 1)|upper }}</div>
                     <div class="fl-author-meta">
-                        <a href="game.php?page=profile&id={{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default('Unbekannt') }}</a>
+                        <a href="#" class="js-playercard" data-player-id="{{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default('Unbekannt') }}</a>
                         <span class="fl-rank-tag">Platz {{ post.user_rank|default('?') }}</span>
                         <span class="fl-points"><b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> Pkt.</span>
                         <div class="fl-stat-chips">

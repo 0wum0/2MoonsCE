@@ -14,22 +14,40 @@
             <div class="player-meta">
                 {% if allyname %}
                     <span class="meta-item">
-                        <i class="fas fa-users"></i> 
-                        <a href="#" onclick="window.opener.location.href = 'game.php?page=alliance&mode=info&id={{ allyid }}'; window.close(); return false;">
+                        <i class="fas fa-users"></i>
+                        <a href="#" onclick="pcNavParent('game.php?page=alliance&mode=info&id={{ allyid }}'); return false;">
                             {{ allyname }}
                         </a>
                     </span>
                 {% else %}
                     <span class="meta-item text-muted"><i class="fas fa-users-slash"></i> -</span>
                 {% endif %}
-                
+
                 <span class="meta-item">
-                    <i class="fas fa-globe"></i> 
-                    <a href="#" onclick="window.opener.location.href = 'game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}'; window.close(); return false;">
+                    <i class="fas fa-globe"></i>
+                    <a href="#" onclick="pcNavParent('game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}'); return false;">
                         {{ homeplanet }} [{{ galaxy }}:{{ system }}:{{ planet }}]
                     </a>
                 </span>
             </div>
+
+            {% if not is_self %}
+            <div class="pc-actions" style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                <button type="button" class="pc-btn pc-btn-msg" onclick="pcOpenMessage({{ id }})">
+                    <i class="fas fa-envelope"></i> Nachricht senden
+                </button>
+                {% if not buddy_exists %}
+                <button type="button" class="pc-btn pc-btn-buddy" id="pc-buddy-btn" onclick="pcSendBuddy({{ id }}, this)">
+                    <i class="fas fa-user-plus"></i> Freundschaftsanfrage
+                </button>
+                {% else %}
+                <span class="pc-btn pc-btn-buddy-done">
+                    <i class="fas fa-user-check"></i> Bereits befreundet
+                </span>
+                {% endif %}
+            </div>
+            <div id="pc-toast" style="display:none;margin-top:10px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;"></div>
+            {% endif %}
         </div>
     </div>
 
@@ -129,4 +147,101 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<style>
+.pc-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    border: none; cursor: pointer; transition: opacity .15s, transform .1s;
+    text-decoration: none;
+}
+.pc-btn:active { transform: scale(.97); }
+.pc-btn-msg   { background: #38bdf8; color: #000; }
+.pc-btn-msg:hover { opacity: .85; }
+.pc-btn-buddy { background: rgba(56,189,248,.15); color: #38bdf8; border: 1px solid rgba(56,189,248,.4); }
+.pc-btn-buddy:hover { background: rgba(56,189,248,.25); }
+.pc-btn-buddy-done { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:700; background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+</style>
+<script>
+/* Navigate the parent game window and close the modal */
+function pcNavParent(url) {
+    try {
+        var p = window.parent;
+        if (p && p !== window) {
+            if (p.ModalManager && typeof p.ModalManager.close === 'function') {
+                p.ModalManager.close();
+            }
+            p.location.href = url;
+        } else {
+            window.location.href = url;
+        }
+    } catch(e) { window.location.href = url; }
+}
+
+/* Swap the modal to the message compose view */
+function pcOpenMessage(playerId) {
+    try {
+        var p = window.parent;
+        if (p && p !== window && p.ModalManager && typeof p.ModalManager.open === 'function') {
+            p.ModalManager.open(
+                'game.php?page=messages&mode=write&id=' + playerId,
+                { title: 'Nachricht senden' }
+            );
+        } else {
+            window.location.href = 'game.php?page=messages&mode=write&id=' + playerId;
+        }
+    } catch(e) {
+        window.location.href = 'game.php?page=messages&mode=write&id=' + playerId;
+    }
+}
+
+/* POST buddy request, show inline toast */
+function pcSendBuddy(playerId, btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    var toast = document.getElementById('pc-toast');
+
+    fetch('game.php?page=buddyList&mode=send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id=' + encodeURIComponent(playerId) + '&text='
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+        var isError = html.indexOf('bu_request_exists') !== -1
+                   || html.indexOf('cannot_request') !== -1
+                   || html.toLowerCase().indexOf('error') !== -1;
+        if (toast) {
+            toast.style.display = 'block';
+            if (isError) {
+                toast.style.background = 'rgba(239,68,68,.15)';
+                toast.style.border     = '1px solid #ef4444';
+                toast.style.color      = '#f87171';
+                toast.textContent      = 'Anfrage konnte nicht gesendet werden.';
+                btn.disabled    = false;
+                btn.style.opacity = '1';
+            } else {
+                toast.style.background = 'rgba(16,185,129,.15)';
+                toast.style.border     = '1px solid #10b981';
+                toast.style.color      = '#10b981';
+                toast.textContent      = '✓ Freundschaftsanfrage gesendet!';
+                btn.style.display      = 'none';
+            }
+        }
+    })
+    .catch(function() {
+        if (toast) {
+            toast.style.display = 'block';
+            toast.style.background = 'rgba(239,68,68,.15)';
+            toast.style.border     = '1px solid #ef4444';
+            toast.style.color      = '#f87171';
+            toast.textContent      = 'Netzwerkfehler. Bitte erneut versuchen.';
+        }
+        btn.disabled    = false;
+        btn.style.opacity = '1';
+    });
+}
+</script>
 {% endblock %}
