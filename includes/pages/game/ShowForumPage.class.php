@@ -155,4 +155,94 @@ class ShowForumPage extends AbstractGamePage
             exit;
         }
     }
+
+    public function edit_post(): void {
+        global $USER;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
+        $postId  = (int)HTTP::_GP('post_id', 0);
+        $content = HTTP::_GP('content', '', true);
+        $topicId = (int)HTTP::_GP('topic_id', 0);
+
+        if ($postId <= 0 || $content === '') {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $post = $this->forum->getPost($postId);
+        if (empty($post)) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $isMod = ((int)$USER['authlevel'] >= AUTH_MOD);
+        $isOwner = ((int)$post['user_id'] === (int)$USER['id']);
+
+        if (!$isMod && !$isOwner) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $this->forum->updatePost($postId, (int)$USER['id'], $content);
+        $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId . '#post-' . $postId);
+    }
+
+    public function delete_post(): void {
+        global $USER;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
+        $postId  = (int)HTTP::_GP('post_id', 0);
+        $topicId = (int)HTTP::_GP('topic_id', 0);
+
+        if ($postId <= 0) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $post = $this->forum->getPost($postId);
+        if (empty($post)) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $isMod   = ((int)$USER['authlevel'] >= AUTH_MOD);
+        $isOwner = ((int)$post['user_id'] === (int)$USER['id']);
+
+        if (!$isMod && !$isOwner) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $this->forum->softDeletePost($postId);
+        $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+    }
+
+    public function report_post(): void {
+        global $USER;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirectTo('game.php?page=forum');
+            return;
+        }
+        $postId  = (int)HTTP::_GP('post_id', 0);
+        $topicId = (int)HTTP::_GP('topic_id', 0);
+        $reason  = HTTP::_GP('reason', '', true);
+
+        if ($postId <= 0) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $post = $this->forum->getPost($postId);
+        if (empty($post) || (int)$post['user_id'] === (int)$USER['id']) {
+            $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
+            return;
+        }
+
+        $this->forum->reportPost($postId, (int)$USER['id'], $reason);
+        $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId . '#post-' . $postId);
+    }
 }

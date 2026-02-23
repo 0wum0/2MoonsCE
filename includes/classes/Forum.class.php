@@ -414,6 +414,31 @@ class Forum
         }
     }
 
+    public function getPost(int $id): ?array
+    {
+        $res = $this->db->selectSingle(
+            "SELECT * FROM %%FORUM_POSTS%% WHERE id = :id AND is_deleted = 0",
+            [':id' => $id]
+        );
+        return $res ?: null;
+    }
+
+    public function softDeletePost(int $id): void
+    {
+        $this->db->update(
+            "UPDATE %%FORUM_POSTS%% SET is_deleted = 1, updated_at = :now WHERE id = :id",
+            [':now' => TIMESTAMP, ':id' => $id]
+        );
+    }
+
+    public function reportPost(int $postId, int $reporterId, string $reason): void
+    {
+        $this->db->insert(
+            "INSERT INTO %%FORUM_REPORTS%% SET post_id = :post, reporter_id = :reporter, reason = :reason, status = 'open', created_at = :now",
+            [':post' => $postId, ':reporter' => $reporterId, ':reason' => $reason, ':now' => TIMESTAMP]
+        );
+    }
+
     public function getTopicCount(int $categoryId): int
     {
         return (int)$this->db->selectSingle(

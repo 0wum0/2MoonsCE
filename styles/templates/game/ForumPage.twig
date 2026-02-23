@@ -99,6 +99,18 @@
     .fl-post-text .forum-code pre { margin: 0; padding: 12px; font-size: 13px; }
 
     .fl-btn-main { padding: 9px 18px; border-radius: 8px; background: var(--fl-accent); color: #000 !important; font-weight: 800; text-decoration: none; border: none; cursor: pointer; font-size: 13px; }
+
+    .fl-action-btn-edit   { color: #38bdf8; }
+    .fl-action-btn-delete { color: #f87171; }
+    .fl-action-btn-report { color: #f59e0b; }
+    .fl-inline-edit { display:none; margin-top: 14px; }
+    .fl-inline-edit textarea { width: 100%; height: 130px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 14px; font-family: inherit; font-size: 14px; box-sizing: border-box; resize: vertical; }
+    .fl-inline-edit-actions { display: flex; gap: 10px; margin-top: 8px; }
+    .fl-inline-save   { padding: 7px 16px; border-radius: 7px; background: #38bdf8; color: #000; font-weight: 800; border: none; cursor: pointer; font-size: 13px; }
+    .fl-inline-cancel { padding: 7px 16px; border-radius: 7px; background: rgba(255,255,255,0.08); color: #94a3b8; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 13px; }
+    .fl-report-form { display:none; margin-top: 10px; }
+    .fl-report-form input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--fl-border); border-radius: 7px; color: #fff; padding: 9px 12px; font-size: 13px; box-sizing: border-box; }
+    .fl-report-form-actions { display: flex; gap: 8px; margin-top: 6px; }
 </style>
 
 <div class="forum-container">
@@ -246,7 +258,9 @@
         </div>
 
         {% for post in posts %}
-            <div class="fl-post">
+            {% set can_edit = can_moderate or (post.user_id == current_user_id) %}
+            {% set can_report = (post.user_id != current_user_id) %}
+            <div class="fl-post" id="post-{{ post.id }}">
                 <div class="fl-author-info">
                     <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|default('?')|slice(0, 1)|upper }}</div>
                     <div class="fl-author-meta">
@@ -265,9 +279,51 @@
                         {% if post.authlevel is defined and post.authlevel > 0 %}<span style="color: #f87171; font-weight: 900; font-size: 10px;">[STAFF]</span>{% endif %}
                     </div>
                     <div class="fl-post-text" id="post-data-{{ post.id }}">{{ post.content_html|default('')|raw }}</div>
+
+                    {# ── Inline edit form (hidden by default) ── #}
+                    {% if can_edit %}
+                    <div class="fl-inline-edit" id="edit-form-{{ post.id }}">
+                        <form action="game.php?page=forum&mode=edit_post" method="POST">
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                            <textarea name="content" id="edit-content-{{ post.id }}">{{ post.content|e }}</textarea>
+                            <div class="fl-inline-edit-actions">
+                                <button type="submit" class="fl-inline-save">💾 Speichern</button>
+                                <button type="button" class="fl-inline-cancel" onclick="toggleEdit({{ post.id }})">✕ Abbrechen</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    {# ── Report form (hidden by default) ── #}
+                    {% if can_report %}
+                    <div class="fl-report-form" id="report-form-{{ post.id }}">
+                        <form action="game.php?page=forum&mode=report_post" method="POST">
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                            <input type="text" name="reason" placeholder="Grund (optional)" maxlength="500">
+                            <div class="fl-report-form-actions">
+                                <button type="submit" class="fl-inline-save" style="background:#f59e0b;">🚩 Melden</button>
+                                <button type="button" class="fl-inline-cancel" onclick="toggleReport({{ post.id }})">✕ Abbrechen</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
                     <div class="fl-actions">
                         <span class="fl-action-btn" onclick="likePost({{ post.id }})">❤️ Like (<span id="lc-{{ post.id }}">{{ post.like_count|default(0) }}</span>)</span>
                         <span class="fl-action-btn" onclick="quotePost('{{ post.username|default('') }}', 'post-data-{{ post.id }}')">💬 Zitieren</span>
+                        {% if can_edit %}
+                        <span class="fl-action-btn fl-action-btn-edit" onclick="toggleEdit({{ post.id }})">✏️ Bearbeiten</span>
+                        <form action="game.php?page=forum&mode=delete_post" method="POST" style="display:inline;" onsubmit="return confirm('Beitrag wirklich löschen?');">
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                            <button type="submit" class="fl-action-btn fl-action-btn-delete" style="background:none;border:none;padding:0;cursor:pointer;font-size:12px;font-weight:700;">🗑 Löschen</button>
+                        </form>
+                        {% endif %}
+                        {% if can_report %}
+                        <span class="fl-action-btn fl-action-btn-report" onclick="toggleReport({{ post.id }})">🚩 Melden</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -401,6 +457,23 @@ function quotePost(user, dataId) {
     area.value += '[quote=' + user + ']' + content.substring(0, 150) + '...[/quote]\n';
     area.focus();
     area.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleEdit(id) {
+    const form = document.getElementById('edit-form-' + id);
+    if (!form) return;
+    const visible = form.style.display === 'block';
+    form.style.display = visible ? 'none' : 'block';
+    if (!visible) {
+        const ta = document.getElementById('edit-content-' + id);
+        if (ta) ta.focus();
+    }
+}
+
+function toggleReport(id) {
+    const form = document.getElementById('report-form-' + id);
+    if (!form) return;
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
 }
 </script>
 {% endblock %}
