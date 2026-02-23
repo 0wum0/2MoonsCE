@@ -12,70 +12,123 @@ declare(strict_types=1);
 
 class Cronjob
 {
+    const LOCK_EXPIRY_SECONDS = 600; // 10 minutes stale-lock threshold
+    const LOG_FILE = 'cache/cron_debug.log';
+
+    private static function cronLog(string $message): void
+    {
+        $logPath = ROOT_PATH . self::LOG_FILE;
+        $line    = '[' . date('Y-m-d H:i:s') . '] ' . $message . PHP_EOL;
+        @file_put_contents($logPath, $line, FILE_APPEND | LOCK_EX);
+    }
     function __construct()
     {
     }
     
     static function execute($cronjobID)
     {
-        $lockToken = md5((string)TIMESTAMP);
+        $lockToken = md5((string)TIMESTAMP . (string)$cronjobID . (string)rand());
         $db = Database::get();
 
-        // 1. Prüfen ob Job aktiv und nicht gesperrt
-        $sql = 'SELECT class FROM %%CRONJOBS%% WHERE isActive = :isActive AND cronjobID = :cronjobId AND `lock` IS NULL;';
-        $cronjobClassName = $db->selectSingle($sql, array(
+        self::cronLog("execute() start: cronjobID=$cronjobID");
+
+        // 1. Stale-lock recovery: fetch job including locked ones
+        $sql = 'SELECT class, `lock`, `lockTime` FROM %%CRONJOBS%% WHERE isActive = :isActive AND cronjobID = :cronjobId;';
+        $cronjobRow = $db->selectSingle($sql, array(
             ':isActive'  => 1,
             ':cronjobId' => $cronjobID
-        ), 'class');
+        ));
 
-        if(empty($cronjobClassName))
-        {
-            return; 
+        if (empty($cronjobRow)) {
+            self::cronLog("execute() abort: job $cronjobID not found or inactive");
+            return;
         }
-        
-        // 2. Job sperren (Lock)
-        $sql = 'UPDATE %%CRONJOBS%% SET `lock` = :lock WHERE cronjobID = :cronjobId;';
+
+        $cronjobClassName = $cronjobRow['class'];
+
+        // If locked, check if lock is stale (older than LOCK_EXPIRY_SECONDS)
+        if (!is_null($cronjobRow['lock'])) {
+            $lockAge = TIMESTAMP - (int)($cronjobRow['lockTime'] ?? 0);
+            if ($lockAge < self::LOCK_EXPIRY_SECONDS) {
+                self::cronLog("execute() abort: job $cronjobID is locked (age={$lockAge}s, token={$cronjobRow['lock']})");
+                return;
+            }
+            // Stale lock — remove it and continue
+            self::cronLog("execute() stale lock detected (age={$lockAge}s) for job $cronjobID — clearing and continuing");
+            $db->update('UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE cronjobID = :cronjobId;', [
+                ':cronjobId' => $cronjobID
+            ]);
+        }
+
+        // 2. Job sperren (Lock) with timestamp
+        $sql = 'UPDATE %%CRONJOBS%% SET `lock` = :lock, `lockTime` = :lockTime WHERE cronjobID = :cronjobId;';
         $db->update($sql, array(
             ':lock'      => $lockToken,
+            ':lockTime'  => TIMESTAMP,
             ':cronjobId' => $cronjobID
         ));
-        
+
+        self::cronLog("execute() lock acquired: cronjobID=$cronjobID class=$cronjobClassName token=$lockToken");
+
         $cronjobPath = ROOT_PATH . 'includes/classes/cronjob/'.$cronjobClassName.'.class.php';
-        
+
         // 3. Job ausführen
-        if(file_exists($cronjobPath))
-        {
+        if (file_exists($cronjobPath)) {
             require_once($cronjobPath);
             /** @var $cronjobObj CronjobTask */
             $cronjobObj = new $cronjobClassName;
-            $cronjobObj->run();
+            self::cronLog("execute() running: $cronjobClassName");
+            try {
+                $cronjobObj->run();
+                self::cronLog("execute() finished: $cronjobClassName");
+            } catch (Throwable $e) {
+                self::cronLog("execute() ERROR in $cronjobClassName: " . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+                // Release lock before re-throwing so next run isn't blocked
+                $db->update('UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE cronjobID = :cronjobId;', [
+                    ':cronjobId' => $cronjobID
+                ]);
+                throw $e;
+            }
+        } else {
+            self::cronLog("execute() ERROR: class file not found: $cronjobPath");
         }
 
         // 4. Nächste Ausführungszeit berechnen
         self::reCalculateCronjobs((int)$cronjobID);
 
         // 5. Sperre aufheben
-        $sql = 'UPDATE %%CRONJOBS%% SET `lock` = NULL WHERE cronjobID = :cronjobId;';
+        $sql = 'UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE cronjobID = :cronjobId;';
         $db->update($sql, array(
             ':cronjobId' => $cronjobID
         ));
 
+        self::cronLog("execute() lock released: cronjobID=$cronjobID");
+
         // 6. Log-Eintrag schreiben (Wichtig für die Statistik-Anzeige)
-        $sql = 'INSERT INTO %%CRONJOBS_LOG%% SET `cronjobId` = :cronjobId,
-        `executionTime` = :executionTime, `lockToken` = :lockToken';
-        $db->insert($sql, array(
-            ':cronjobId'     => $cronjobID,
-            ':executionTime' => Database::formatDate(TIMESTAMP),
-            ':lockToken'     => $lockToken
-        ));
+        try {
+            $sql = 'INSERT INTO %%CRONJOBS_LOG%% SET `cronjobId` = :cronjobId,
+            `executionTime` = :executionTime, `lockToken` = :lockToken';
+            $db->insert($sql, array(
+                ':cronjobId'     => $cronjobID,
+                ':executionTime' => Database::formatDate(TIMESTAMP),
+                ':lockToken'     => $lockToken
+            ));
+        } catch (Throwable $e) {
+            self::cronLog("execute() WARNING: could not write to CRONJOBS_LOG: " . $e->getMessage());
+        }
+
+        self::cronLog("execute() complete: cronjobID=$cronjobID");
     }
     
     static function getNeedTodoExecutedJobs()
     {
-        $sql = 'SELECT cronjobID FROM %%CRONJOBS%% WHERE isActive = :isActive AND nextTime < :time AND `lock` IS NULL;';
+        // Also include jobs whose lock is stale (older than LOCK_EXPIRY_SECONDS)
+        $sql = 'SELECT cronjobID FROM %%CRONJOBS%% WHERE isActive = :isActive AND nextTime < :time
+                AND (`lock` IS NULL OR `lockTime` < :expiry);';
         $cronjobResult = Database::get()->select($sql, array(
             ':isActive' => 1,
-            ':time'     => TIMESTAMP
+            ':time'     => TIMESTAMP,
+            ':expiry'   => TIMESTAMP - self::LOCK_EXPIRY_SECONDS
         ));
 
         $cronjobList = array();
@@ -83,7 +136,8 @@ class Cronjob
         {
             $cronjobList[] = (int)$cronjobRow['cronjobID'];
         }
-        
+
+        self::cronLog('getNeedTodoExecutedJobs() due jobs: [' . implode(',', $cronjobList) . ']');
         return $cronjobList;
     }
 

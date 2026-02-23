@@ -17,6 +17,12 @@ class statbuilder
 	private $recordData = [];
 	private $Unis = [];
 
+	private function log(string $msg): void
+	{
+		$logPath = ROOT_PATH . 'cache/cron_debug.log';
+		@file_put_contents($logPath, '[' . date('Y-m-d H:i:s') . '] [statbuilder] ' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
+	}
+
 	function __construct()
 	{
 		$this->starttime   	= microtime(true);
@@ -28,6 +34,7 @@ class statbuilder
 		{
 			$this->Unis[]	= (int) $uni['uni'];
 		}
+		$this->log('__construct() unis=[' . implode(',', $this->Unis) . ']');
 	}
 
 	private function SomeStatsInfos(): array
@@ -157,7 +164,12 @@ class statbuilder
 		$queries	= array_filter($queries);
 		foreach($queries as $query)
 		{
-			Database::get()->nativeQuery($query);
+			try {
+				Database::get()->nativeQuery($query);
+			} catch (Throwable $e) {
+				$this->log('SaveDataIntoDB() ERROR: ' . $e->getMessage() . ' | query=' . substr(trim($query), 0, 200));
+				throw $e;
+			}
 		}
 	}
 
@@ -257,22 +269,29 @@ class statbuilder
 	
 	private function SetNewRanks(): void
 	{
+		$this->log('SetNewRanks() start');
 		$db = Database::get();
 		foreach($this->Unis as $uni)
 		{
 			foreach(['tech', 'build', 'defs', 'fleet', 'total'] as $type)
 			{
-				$db->nativeQuery('SET @i := 0;');
-				$sql = 'UPDATE %%STATPOINTS%% SET '.$type.'_rank = (SELECT @i := @i + 1)
-				WHERE universe = :uni AND stat_type = :type
-				ORDER BY '.$type.'_points DESC, id_owner ASC;';
+				try {
+					$db->nativeQuery('SET @i := 0;');
+					$sql = 'UPDATE %%STATPOINTS%% SET '.$type.'_rank = (SELECT @i := @i + 1)
+					WHERE universe = :uni AND stat_type = :type
+					ORDER BY '.$type.'_points DESC, id_owner ASC;';
 
-				$db->update($sql, [':uni' => $uni, ':type' => 1]);
+					$db->update($sql, [':uni' => $uni, ':type' => 1]);
 
-				$db->nativeQuery('SET @i := 0;');
-				$db->update($sql, [':uni' => $uni, ':type' => 2]);
+					$db->nativeQuery('SET @i := 0;');
+					$db->update($sql, [':uni' => $uni, ':type' => 2]);
+				} catch (Throwable $e) {
+					$this->log("SetNewRanks() ERROR uni=$uni type=$type: " . $e->getMessage());
+					throw $e;
+				}
 			}
 		}
+		$this->log('SetNewRanks() done');
 	}
 	
 	final public function MakeStats(): array
@@ -280,7 +299,9 @@ class statbuilder
 		global $resource;
 		$AllyPoints	= [];
 		$UserPoints	= [];
+		$this->log('MakeStats() start — fetching DB data');
 		$TotalData	= $this->GetUsersInfosFromDB();
+		$this->log('MakeStats() DB fetch done — planets=' . count($TotalData['Planets']) . ' users=' . count($TotalData['Users']) . ' alliances=' . count($TotalData['Alliance']));
 		
 		$this->SaveDataIntoDB('TRUNCATE TABLE %%STATPOINTS%%;');
 
@@ -430,10 +451,17 @@ class statbuilder
 		$this->CheckUniverseAccounts($UniData);		
 		$this->writeRecordData();
 
-		$config = Config::get();
-		$config->stat_last_db_update = TIMESTAMP;
-		$config->save();
+		try {
+			$config = Config::get();
+			$config->stat_last_db_update = TIMESTAMP;
+			$config->save();
+			$this->log('MakeStats() stat_last_db_update saved: ' . TIMESTAMP);
+		} catch (Throwable $e) {
+			$this->log('MakeStats() WARNING: could not save stat_last_db_update: ' . $e->getMessage());
+		}
 
-		return $this->SomeStatsInfos();
+		$info = $this->SomeStatsInfos();
+		$this->log('MakeStats() finished — totaltime=' . $info['totaltime'] . 's sql_count=' . $info['sql_count']);
+		return $info;
 	}
 }
