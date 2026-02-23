@@ -34,29 +34,29 @@ CREATE TABLE `%PREFIX%aks` (
 
 CREATE TABLE `%PREFIX%alliance` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `ally_name` varchar(50) DEFAULT '',
-  `ally_tag` varchar(20) DEFAULT '',
+  `ally_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ally_tag` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ally_owner` int(11) unsigned NOT NULL DEFAULT '0',
   `ally_register_time` int(11) NOT NULL DEFAULT '0',
-  `ally_description` text,
-  `ally_web` varchar(255) DEFAULT '',
-  `ally_text` text,
-  `ally_image` varchar(255) DEFAULT '',
-  `ally_request` varchar(1000) DEFAULT NULL,
+  `ally_description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ally_web` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ally_text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ally_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `ally_request` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ally_request_notallow` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `ally_request_min_points` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `ally_owner_range` varchar(32) DEFAULT '',
+  `ally_owner_range` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ally_members` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `ally_stats` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `ally_diplo` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `ally_universe` tinyint(3) unsigned NOT NULL,
   `ally_max_members` int(5) unsigned NOT NULL DEFAULT 20,
-  `ally_events` varchar(55) NOT NULL DEFAULT '',
+  `ally_events` varchar(55) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `ally_tag` (`ally_tag`),
   KEY `ally_name` (`ally_name`),
   KEY `ally_universe` (`ally_universe`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `%PREFIX%alliance_ranks` (
   `rankID` int(11) NOT NULL AUTO_INCREMENT,
