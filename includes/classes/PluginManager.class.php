@@ -281,6 +281,9 @@ class PluginManager
     /** @var array<string, callable> plugin id → registerElements callback */
     private array $elementCallbacks = [];
 
+    /** @var array<string, string[]> plugin id → list of module file paths (relative to plugin dir) */
+    private array $moduleFiles = [];
+
     /**
      * Called from a plugin's bootstrap (plugin.php) to register a
      * registerElements() callback for Plugin System v1.2.
@@ -344,8 +347,99 @@ class PluginManager
                 }
             }
 
+            // Load v2 modules declared in manifest["modules"]
+            $this->loadPluginModules($id, $row);
+
             $this->loadedPlugins[$id] = $row;
         }
+    }
+
+    // ── v2 Module support ────────────────────────────────────────────────────
+
+    /**
+     * Load module files declared in a plugin's manifest and register them
+     * with ModuleManager.  Called during loadActivePlugins().
+     *
+     * Manifest format:
+     *   "modules": ["modules/MyModule.php"]
+     *
+     * Each file must define a class that implements GameModuleInterface.
+     * The class name is derived from the filename (without .php extension).
+     *
+     * @param string              $id   Plugin id
+     * @param array<string,mixed> $row  DB row (unused, reserved for future use)
+     */
+    private function loadPluginModules(string $id, array $row): void
+    {
+        $dir = $this->pluginDir($id);
+        $manifestPath = $dir . self::MANIFEST;
+
+        if (!file_exists($manifestPath)) {
+            return;
+        }
+
+        $raw = file_get_contents($manifestPath);
+        if ($raw === false) {
+            return;
+        }
+
+        $manifest = json_decode($raw, true);
+        if (!is_array($manifest) || empty($manifest['modules']) || !is_array($manifest['modules'])) {
+            return;
+        }
+
+        if (!class_exists('ModuleManager') || !interface_exists('GameModuleInterface')) {
+            return;
+        }
+
+        foreach ($manifest['modules'] as $relPath) {
+            if (!is_string($relPath) || $relPath === '') {
+                continue;
+            }
+
+            $absPath = $dir . ltrim($relPath, '/');
+
+            if (!file_exists($absPath)) {
+                error_log('[PluginManager] Module file not found for plugin "' . $id . '": ' . $absPath);
+                continue;
+            }
+
+            try {
+                require_once $absPath;
+
+                // Derive class name from filename (strip .php, use basename)
+                $className = basename($relPath, '.php');
+
+                if (!class_exists($className)) {
+                    error_log('[PluginManager] Module class "' . $className . '" not found after including ' . $absPath);
+                    continue;
+                }
+
+                if (!in_array('GameModuleInterface', class_implements($className) ?: [], true)) {
+                    error_log('[PluginManager] Class "' . $className . '" does not implement GameModuleInterface — skipped');
+                    continue;
+                }
+
+                /** @var GameModuleInterface $moduleObj */
+                $moduleObj = new $className();
+                ModuleManager::get()->register($moduleObj, 100);
+
+                $this->moduleFiles[$id][] = $relPath;
+
+            } catch (Throwable $e) {
+                error_log('[PluginManager] Error loading module "' . $relPath . '" from plugin "' . $id . '": ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Return the list of module relative paths loaded for a given plugin id.
+     *
+     * @return string[]
+     */
+    public function getLoadedModuleFiles(string $pluginId): array
+    {
+        return $this->moduleFiles[$pluginId] ?? [];
     }
 
     // ── Language ─────────────────────────────────────────────────────────────

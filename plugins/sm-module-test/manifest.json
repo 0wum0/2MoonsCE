@@ -1,0 +1,9 @@
+{
+    "id": "sm-module-test",
+    "name": "SmartMoons Module Test Plugin",
+    "version": "1.0.0",
+    "type": "game",
+    "description": "Testplugin für das v2 ModuleManager-System. Liefert HelloModule als Beispiel-Modul.",
+    "author": "SmartMoons Dev",
+    "modules": ["modules/HelloModule.php"]
+}

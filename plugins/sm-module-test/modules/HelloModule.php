@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * HelloModule – sm-module-test plugin, v2 Module example
+ *
+ * Demonstrates the GameModuleInterface lifecycle:
+ *   - boot()          : registers a 'content_top' action hook that outputs a debug banner
+ *   - beforeRequest() : sets a template variable via the global template object
+ *   - afterRequest()  : writes a debug log entry
+ *
+ * No gameplay changes are made.  The module is enabled by default when the
+ * sm-module-test plugin is active.  Set config key 'module_hello_enabled' to 0
+ * to disable without deactivating the plugin.
+ */
+class HelloModule implements GameModuleInterface
+{
+    public function getId(): string
+    {
+        return 'sm-module-test.hello';
+    }
+
+    public function isEnabled(): bool
+    {
+        try {
+            $cfg = Config::get();
+            if (isset($cfg->module_hello_enabled)) {
+                return (bool)(int)$cfg->module_hello_enabled;
+            }
+        } catch (Throwable $e) {
+            // Config not available — stay enabled
+        }
+        return true;
+    }
+
+    public function boot(GameContext $ctx): void
+    {
+        // Register a content_top action hook that renders a small debug banner.
+        // This is visible in the game UI when the plugin is active.
+        HookManager::get()->addAction('content_top', function (array $hookCtx): string {
+            if (!defined('MODE') || MODE !== 'INGAME') {
+                return '';
+            }
+            return '<div style="background:#1a3a1a;color:#7fff7f;padding:4px 10px;font-size:11px;border-bottom:1px solid #2a5a2a;">'
+                . '&#x1F9E9; HelloModule (sm-module-test) active &mdash; v2 ModuleManager OK'
+                . '</div>';
+        }, 5);
+
+        // Log that boot ran (only in debug mode to avoid log spam)
+        if (defined('MODE')) {
+            error_log('[HelloModule] boot() called, mode=' . MODE);
+        }
+    }
+
+    public function beforeRequest(GameContext $ctx): void
+    {
+        // Inject a template variable so Twig templates can read it.
+        // Uses the global $tplObj if available (set by AbstractGamePage).
+        // This is a demonstration — the variable 'helloModuleActive' will be
+        // available in any Twig template as {{ helloModuleActive }}.
+        if (isset($GLOBALS['tplObj']) && is_object($GLOBALS['tplObj']) && method_exists($GLOBALS['tplObj'], 'assign_vars')) {
+            $GLOBALS['tplObj']->assign_vars(['helloModuleActive' => true], true);
+        }
+
+        // Store a value in the shared context bag for other modules to read
+        $ctx->set('sm-module-test.hello.booted', true);
+        $ctx->set('sm-module-test.hello.bootTime', $ctx->time);
+
+        error_log('[HelloModule] beforeRequest() called, user_id=' . ($ctx->user['id'] ?? 'n/a'));
+    }
+
+    public function afterRequest(GameContext $ctx): void
+    {
+        $bootTime = $ctx->get('sm-module-test.hello.bootTime', 0);
+        $elapsed  = $ctx->time - (int)$bootTime;
+        error_log('[HelloModule] afterRequest() called, elapsed=' . $elapsed . 's');
+    }
+}

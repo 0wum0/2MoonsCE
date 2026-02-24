@@ -78,6 +78,18 @@ require_once 'includes/classes/AssetRegistry.class.php';
 require_once 'includes/classes/PluginManager.class.php';
 require_once __DIR__ . '/classes/ElementRegistry.class.php';
 
+// ── v2 Full Modular Gameplay Engine ──────────────────────────────────────────
+require_once __DIR__ . '/classes/GameModuleInterface.php';
+require_once __DIR__ . '/classes/GameContext.class.php';
+require_once __DIR__ . '/classes/ModuleManager.class.php';
+require_once __DIR__ . '/classes/modules/ProductionModule.class.php';
+require_once __DIR__ . '/classes/modules/QueueModule.class.php';
+
+// Register core wrapper modules (priority 10 = before plugin modules at 100)
+ModuleManager::get()->register(new ProductionModule(), 10);
+ModuleManager::get()->register(new QueueModule(), 10);
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Say Browsers to Allow ThirdParty Cookies (Thanks to morktadela)
 HTTP::sendHeader('P3P', 'CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 define('AJAX_REQUEST', HTTP::_GP('ajax', 0));
@@ -269,6 +281,14 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 		// Injects 0-defaults for any nameKey that is not a real DB column, so that
 		// $PLANET[$resource[$Element]] never triggers E_WARNING for missing keys.
 		$PLANET = HookManager::get()->applyFilters('game.planet', $PLANET);
+
+		// ── v2 ModuleManager boot (INGAME) ────────────────────────────────────
+		// USER, PLANET, resource, pricelist etc. are all fully populated here.
+		$_modCtx = GameContext::fromGlobals();
+		ModuleManager::get()->boot($_modCtx);
+		ModuleManager::get()->beforeRequest($_modCtx);
+		unset($_modCtx);
+		// ─────────────────────────────────────────────────────────────────────
 	}
 	elseif (MODE === 'ADMIN')
 	{
@@ -287,6 +307,13 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 		}
 
 		$LNG->includeData(array('ADMIN', 'CUSTOM'));
+
+		// ── v2 ModuleManager boot (ADMIN) ─────────────────────────────────────
+		$_modCtx = GameContext::fromGlobals();
+		ModuleManager::get()->boot($_modCtx);
+		ModuleManager::get()->beforeRequest($_modCtx);
+		unset($_modCtx);
+		// ─────────────────────────────────────────────────────────────────────
 	}
 }
 elseif(MODE === 'LOGIN')
