@@ -286,6 +286,175 @@ class PluginManager
         }
     }
 
+    // ── Plugin Page Routes ───────────────────────────────────────────────────
+
+    /**
+     * page name → ['file' => abs path, 'class' => class name]
+     * @var array<string, array{file: string, class: string}>
+     */
+    private array $pageRoutes = [];
+
+    /**
+     * admin page name → ['file' => abs path, 'fn' => function name]
+     * @var array<string, array{file: string, fn: string}>
+     */
+    private array $adminRoutes = [];
+
+    /**
+     * Register a plugin ingame page route.
+     * Called from plugin.php:
+     *   PluginManager::get()->registerPageRoute('sm-relics', 'relics',
+     *       'pages/game/RelicsPage.php', 'RelicsPage');
+     *
+     * game.php will require the file and instantiate $class->show() when
+     * page=<pageName> is requested.
+     */
+    public function registerPageRoute(
+        string $pluginId,
+        string $pageName,
+        string $relativeFile,
+        string $className
+    ): void {
+        $absFile = $this->pluginDir($pluginId) . ltrim($relativeFile, '/');
+        $this->pageRoutes[$pageName] = ['file' => $absFile, 'class' => $className];
+    }
+
+    /**
+     * Register a plugin admin page route.
+     * Called from plugin.php:
+     *   PluginManager::get()->registerAdminRoute('sm-relics', 'relicsAdmin',
+     *       'pages/admin/RelicsAdminPage.php', 'ShowRelicsAdminPage');
+     *
+     * admin.php will require the file and call $fn() when page=<pageName>.
+     */
+    public function registerAdminRoute(
+        string $pluginId,
+        string $pageName,
+        string $relativeFile,
+        string $functionName
+    ): void {
+        $absFile = $this->pluginDir($pluginId) . ltrim($relativeFile, '/');
+        $this->adminRoutes[$pageName] = ['file' => $absFile, 'fn' => $functionName];
+    }
+
+    /**
+     * Dispatch an ingame page route registered by a plugin.
+     * Returns true if the route was handled (caller must exit after).
+     * Returns false if no plugin handles this page name.
+     */
+    public function dispatchPageRoute(string $pageName): bool
+    {
+        if (!isset($this->pageRoutes[$pageName])) {
+            return false;
+        }
+        $route = $this->pageRoutes[$pageName];
+        if (!file_exists($route['file'])) {
+            error_log('[PluginManager] Plugin page file not found: ' . $route['file']);
+            return false;
+        }
+        require_once $route['file'];
+        $class = $route['class'];
+        if (!class_exists($class)) {
+            error_log('[PluginManager] Plugin page class not found: ' . $class);
+            return false;
+        }
+        $obj = new $class();
+        $mode = \HTTP::_GP('mode', 'show');
+        if (!is_callable([$obj, $mode])) {
+            $props = get_class_vars($class);
+            $mode = $props['defaultController'] ?? 'show';
+        }
+        if (is_callable([$obj, $mode])) {
+            $obj->{$mode}();
+        }
+        return true;
+    }
+
+    /**
+     * Dispatch an admin page route registered by a plugin.
+     * Returns true if handled, false if not found.
+     */
+    public function dispatchAdminRoute(string $pageName): bool
+    {
+        if (!isset($this->adminRoutes[$pageName])) {
+            return false;
+        }
+        $route = $this->adminRoutes[$pageName];
+        if (!file_exists($route['file'])) {
+            error_log('[PluginManager] Plugin admin file not found: ' . $route['file']);
+            return false;
+        }
+        require_once $route['file'];
+        $fn = $route['fn'];
+        if (!function_exists($fn)) {
+            error_log('[PluginManager] Plugin admin function not found: ' . $fn);
+            return false;
+        }
+        $fn();
+        return true;
+    }
+
+    // ── Plugin Twig Namespaces ───────────────────────────────────────────────
+
+    /**
+     * plugin id → absolute template directory
+     * @var array<string, string>
+     */
+    private array $twigNamespaces = [];
+
+    /**
+     * Register a Twig template namespace for a plugin.
+     * Called from plugin.php:
+     *   PluginManager::get()->registerTwigNamespace('sm-relics', 'templates');
+     *
+     * Templates can then be referenced as @sm-relics/game/relics.twig
+     */
+    public function registerTwigNamespace(string $pluginId, string $relativeDir = 'templates'): void
+    {
+        $absDir = $this->pluginDir($pluginId) . ltrim($relativeDir, '/');
+        $this->twigNamespaces[$pluginId] = $absDir;
+    }
+
+    /**
+     * Return all registered Twig namespaces: pluginId → absDir
+     * @return array<string, string>
+     */
+    public function getTwigNamespaces(): array
+    {
+        return $this->twigNamespaces;
+    }
+
+    // ── Plugin Cronjob Paths ─────────────────────────────────────────────────
+
+    /**
+     * class name → absolute file path
+     * @var array<string, string>
+     */
+    private array $cronjobPaths = [];
+
+    /**
+     * Register a plugin cronjob class file.
+     * Called from plugin.php:
+     *   PluginManager::get()->registerCronjob('sm-relics', 'RelicsTick',
+     *       'cron/RelicsTick.php');
+     *
+     * Cronjob::execute() will find this path when the DB row has class=RelicsTick.
+     */
+    public function registerCronjob(string $pluginId, string $className, string $relativeFile): void
+    {
+        $absFile = $this->pluginDir($pluginId) . ltrim($relativeFile, '/');
+        $this->cronjobPaths[$className] = $absFile;
+    }
+
+    /**
+     * Resolve a cronjob class name to its file path.
+     * Returns null if not registered by any plugin (fall back to core path).
+     */
+    public function resolveCronjobPath(string $className): ?string
+    {
+        return $this->cronjobPaths[$className] ?? null;
+    }
+
     // ── Load active plugins ──────────────────────────────────────────────────
 
     /** @var array<string, callable> plugin id → registerElements callback */

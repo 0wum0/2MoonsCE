@@ -1,0 +1,212 @@
+{% include 'overall_header.twig' %}
+
+<style>
+.smra-section{background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:10px;padding:22px;margin-bottom:22px;}
+.smra-section h3{margin:0 0 16px;color:var(--adm-accent,#7c3aed);font-size:1.05rem;display:flex;align-items:center;gap:8px;}
+.smra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.smra-field label{display:block;font-size:.8rem;color:#94a3b8;margin-bottom:4px;}
+.smra-field input{width:100%;background:#0d1525;border:1px solid #1e2d4a;border-radius:6px;padding:7px 10px;color:#e2e8f0;font-size:.9rem;}
+.smra-btn{padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-size:.9rem;}
+.smra-btn-primary{background:var(--adm-accent,#7c3aed);color:#fff;}
+.smra-btn-primary:hover{background:#6d28d9;}
+.smra-alert{padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:.9rem;}
+.smra-ok{background:#14532d;color:#86efac;border:1px solid #16a34a;}
+.smra-err{background:#450a0a;color:#fca5a5;border:1px solid #dc2626;}
+.smra-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.smra-table th{background:#0d1525;padding:8px 12px;text-align:left;color:#94a3b8;border-bottom:1px solid #1e2d4a;}
+.smra-table td{padding:7px 12px;border-bottom:1px solid #1a2540;color:#cbd5e1;}
+.smra-table tr:hover td{background:#0f1e35;}
+.smra-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.75rem;}
+.smra-badge-industry{background:#7c3aed22;color:#a78bfa;}
+.smra-badge-research{background:#0e7490;color:#67e8f9;}
+.smra-badge-economy{background:#065f46;color:#6ee7b7;}
+.smra-badge-war{background:#7f1d1d;color:#fca5a5;}
+.smra-badge-none{background:#1e293b;color:#64748b;}
+.smra-cron-row{display:flex;gap:24px;flex-wrap:wrap;}
+.smra-cron-item{flex:1;min-width:140px;background:#0d1525;border-radius:8px;padding:12px 16px;}
+.smra-cron-item .label{font-size:.75rem;color:#64748b;margin-bottom:4px;}
+.smra-cron-item .val{font-size:.95rem;color:#e2e8f0;font-weight:600;}
+</style>
+
+<h1 style="color:var(--adm-accent,#7c3aed);margin-bottom:20px;">
+    <i class="fas fa-gem"></i> Relikte &amp; Doktrinen — Admin
+</h1>
+
+{% if message is defined and message %}
+<div class="smra-alert smra-ok">{{ message }}</div>
+{% endif %}
+{% if error is defined and error %}
+<div class="smra-alert smra-err">{{ error }}</div>
+{% endif %}
+
+<!-- ── SETTINGS ── -->
+<div class="smra-section">
+    <h3><i class="fas fa-cog"></i> Plugin-Einstellungen</h3>
+    <form method="post" action="admin.php?page=relicsAdmin">
+        <input type="hidden" name="action" value="saveSettings">
+        <div class="smra-grid">
+            <div class="smra-field">
+                <label>Basispunkte pro Tick</label>
+                <input type="number" name="base_points_per_tick" min="0"
+                       value="{{ settings.base_points_per_tick|default('5') }}">
+            </div>
+            <div class="smra-field">
+                <label>Archiv-Multiplikator</label>
+                <input type="number" name="archive_multiplier" min="0"
+                       value="{{ settings.archive_multiplier|default('2') }}">
+            </div>
+            <div class="smra-field">
+                <label>Industrie-Doktrin Bonus (%)</label>
+                <input type="number" name="doctrine_build_bonus" min="0" max="100"
+                       value="{{ settings.doctrine_build_bonus|default('10') }}">
+            </div>
+            <div class="smra-field">
+                <label>Forschungs-Doktrin Bonus (%)</label>
+                <input type="number" name="doctrine_research_bonus" min="0" max="100"
+                       value="{{ settings.doctrine_research_bonus|default('10') }}">
+            </div>
+            <div class="smra-field">
+                <label>Wirtschafts-Doktrin Bonus (%)</label>
+                <input type="number" name="doctrine_prod_bonus" min="0" max="100"
+                       value="{{ settings.doctrine_prod_bonus|default('5') }}">
+            </div>
+            <div class="smra-field">
+                <label>Kriegs-Doktrin Bonus (%)</label>
+                <input type="number" name="doctrine_combat_bonus" min="0" max="100"
+                       value="{{ settings.doctrine_combat_bonus|default('5') }}">
+            </div>
+            <div class="smra-field">
+                <label>Debug-Modus (0/1)</label>
+                <input type="number" name="debug_mode" min="0" max="1"
+                       value="{{ settings.debug_mode|default('0') }}">
+            </div>
+            <div class="smra-field">
+                <label>Plugin aktiv (0/1)</label>
+                <input type="number" name="enabled" min="0" max="1"
+                       value="{{ settings.enabled|default('1') }}">
+            </div>
+        </div>
+        <div style="margin-top:16px;">
+            <button type="submit" class="smra-btn smra-btn-primary">
+                <i class="fas fa-save"></i> Speichern
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ── GIVE POINTS ── -->
+<div class="smra-section">
+    <h3><i class="fas fa-gift"></i> Reliktpunkte vergeben</h3>
+    <form method="post" action="admin.php?page=relicsAdmin" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <input type="hidden" name="action" value="givePoints">
+        <div class="smra-field" style="flex:2;min-width:160px;">
+            <label>Spielername</label>
+            <input type="text" name="target_user" placeholder="Username">
+        </div>
+        <div class="smra-field" style="flex:1;min-width:100px;">
+            <label>Punkte</label>
+            <input type="number" name="points" min="1" value="100">
+        </div>
+        <div class="smra-field" style="flex:2;min-width:160px;">
+            <label>Grund</label>
+            <input type="text" name="reason" value="admin_grant" maxlength="64">
+        </div>
+        <div>
+            <button type="submit" class="smra-btn smra-btn-primary">
+                <i class="fas fa-plus"></i> Vergeben
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ── TOP PLAYERS ── -->
+<div class="smra-section">
+    <h3><i class="fas fa-trophy"></i> Top Spieler</h3>
+    {% if topPlayers is not empty %}
+    <table class="smra-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Spieler</th>
+                <th>Punkte</th>
+                <th>Doktrin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i, row in topPlayers %}
+            <tr>
+                <td>{{ i + 1 }}</td>
+                <td>
+                    <a href="admin.php?page=userlist&username={{ row.username|url_encode }}"
+                       style="color:#a78bfa;">{{ row.username }}</a>
+                </td>
+                <td style="font-weight:700;color:#a78bfa;">{{ row.relic_points|number_format(0, '.', ',') }}</td>
+                <td>
+                    {% if row.doctrine %}
+                    <span class="smra-badge smra-badge-{{ row.doctrine }}">{{ row.doctrine }}</span>
+                    {% else %}
+                    <span class="smra-badge smra-badge-none">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#64748b;">Keine Spielerdaten vorhanden.</p>
+    {% endif %}
+</div>
+
+<!-- ── DOCTRINE STATS ── -->
+<div class="smra-section">
+    <h3><i class="fas fa-chart-pie"></i> Doktrin-Verteilung</h3>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        {% for doc, cnt in doctrineStats %}
+        <div style="background:#0d1525;border-radius:8px;padding:12px 20px;text-align:center;">
+            <div class="smra-badge smra-badge-{{ doc }}" style="font-size:.9rem;padding:4px 12px;">{{ doc }}</div>
+            <div style="font-size:1.4rem;font-weight:700;color:#e2e8f0;margin-top:6px;">{{ cnt }}</div>
+        </div>
+        {% else %}
+        <p style="color:#64748b;">Keine Daten.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── CRONJOB STATUS ── -->
+<div class="smra-section">
+    <h3><i class="fas fa-clock"></i> Cronjob Status (relics_tick)</h3>
+    {% if cronStatus is not empty %}
+    <div class="smra-cron-row">
+        <div class="smra-cron-item">
+            <div class="label">Nächste Ausführung</div>
+            <div class="val">
+                {% if cronStatus.nextTime %}
+                    {{ cronStatus.nextTime|date('d.m.Y H:i:s') }}
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+        <div class="smra-cron-item">
+            <div class="label">Gesperrt</div>
+            <div class="val" style="color:{% if cronStatus.lock %}#fca5a5{% else %}#6ee7b7{% endif %};">
+                {{ cronStatus.lock ? 'Ja' : 'Nein' }}
+            </div>
+        </div>
+        <div class="smra-cron-item">
+            <div class="label">Lock-Zeit</div>
+            <div class="val">
+                {% if cronStatus.lockTime %}
+                    {{ cronStatus.lockTime|date('d.m.Y H:i:s') }}
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p style="color:#fca5a5;">Cronjob nicht registriert. Plugin neu installieren.</p>
+    {% endif %}
+</div>
+
+{% include 'overall_footer.twig' %}

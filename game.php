@@ -29,6 +29,15 @@ require_once 'includes/common.php';
 $page 		= HTTP::_GP('page', 'overview');
 $mode 		= HTTP::_GP('mode', 'show');
 $page		= str_replace(array('_', '\\', '/', '.', "\0"), '', $page);
+
+// ── Plugin page route dispatch ────────────────────────────────────────────────
+// Plugins register routes via PluginManager::registerPageRoute() in plugin.php.
+// If a plugin handles this page name, it renders and exits; no core file needed.
+if (PluginManager::get()->dispatchPageRoute($page)) {
+	exit;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 $pageClass	= 'Show'.ucwords($page).'Page';
 
 $path		= 'includes/pages/game/'.$pageClass.'.class.php';

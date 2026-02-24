@@ -86,4 +86,8 @@ $dbTableNames	= array(
 	'VARS_RAPIDFIRE'	=> DB_PREFIX.'vars_rapidfire',
 	'VARS_REQUIRE'	 	=> DB_PREFIX.'vars_requriements',
 	'PLUGINS'			=> DB_PREFIX.'plugins',
+	// sm-relics plugin tables (registered here so %%ALIAS%% substitution works in SQL)
+	'RELICS_USER'		=> DB_PREFIX.'relics_user',
+	'RELICS_LOG'		=> DB_PREFIX.'relics_log',
+	'RELICS_SETTINGS'	=> DB_PREFIX.'relics_settings',
 );

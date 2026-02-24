@@ -46,6 +46,14 @@ if($USER['authlevel'] == AUTH_ADM && !empty($uni))
 }
 
 $page	= HTTP::_GP('page', '');
+
+// ── Plugin admin route dispatch ───────────────────────────────────────────────
+// Plugins register admin routes via PluginManager::registerAdminRoute() in plugin.php.
+if (PluginManager::get()->dispatchAdminRoute($page)) {
+	exit;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 switch($page)
 {
 	case 'logout':

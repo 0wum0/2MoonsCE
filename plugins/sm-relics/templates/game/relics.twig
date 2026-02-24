@@ -1,0 +1,167 @@
+{% extends "@game/layout.full.twig" %}
+
+{% block title %}{{ LNG_relics.page_title }}{% endblock %}
+
+{% block content %}
+<div class="smr-relics-page">
+
+    {% if message %}
+    <div class="smr-alert smr-alert-ok">{{ message }}</div>
+    {% endif %}
+    {% if error %}
+    <div class="smr-alert smr-alert-err">{{ error }}</div>
+    {% endif %}
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="smr-page-header">
+        <h2><i class="fas fa-gem"></i> {{ LNG_relics.page_title }}</h2>
+        <div class="smr-rp-badge">
+            <i class="fas fa-star"></i>
+            <span class="smr-rp-value">{{ relic_points|number_format(0, '.', ',') }}</span>
+            <span class="smr-rp-label">{{ LNG_relics.relic_points }}</span>
+        </div>
+    </div>
+
+    <!-- ── TABS ── -->
+    <div class="smr-tabs">
+        <button class="smr-tab active" data-tab="tab-buildings">
+            <i class="fas fa-building"></i> {{ LNG_relics.tab_relics }}
+        </button>
+        <button class="smr-tab" data-tab="tab-doctrine">
+            <i class="fas fa-scroll"></i> {{ LNG_relics.tab_doctrine }}
+        </button>
+        <button class="smr-tab" data-tab="tab-points">
+            <i class="fas fa-history"></i> {{ LNG_relics.tab_points }}
+        </button>
+    </div>
+
+    <!-- ── TAB: BUILDINGS ── -->
+    <div id="tab-buildings" class="smr-tab-content active">
+        <div class="smr-buildings-grid">
+            {% for id, level in building_levels %}
+            <div class="smr-building-card">
+                <div class="smr-building-icon">
+                    <img src="{{ dpath }}gebaeude/{{ id }}.gif" alt="{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}"
+                         onerror="this.style.display='none'">
+                </div>
+                <div class="smr-building-info">
+                    <div class="smr-building-name">{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}</div>
+                    <div class="smr-building-level">
+                        {{ LNG_relics.building_level }}: <strong>{{ level }}</strong>
+                        {% if max_levels[id] is defined and max_levels[id] > level %}
+                        <span class="smr-max-note">(max: {{ max_levels[id] }})</span>
+                        {% endif %}
+                    </div>
+                    <div class="smr-building-effect">{{ LNG_relics['effect_' ~ id]|default('') }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ── TAB: DOCTRINE ── -->
+    <div id="tab-doctrine" class="smr-tab-content">
+
+        {% if active_doctrine %}
+        <div class="smr-doctrine-active">
+            <i class="fas fa-check-circle"></i>
+            {{ LNG_relics.doctrine_active }}:
+            <strong>{{ LNG_relics['doctrine_' ~ active_doctrine] }}</strong>
+        </div>
+        {% else %}
+        <div class="smr-doctrine-none">{{ LNG_relics.doctrine_none }}</div>
+        {% endif %}
+
+        {% if cooldown_left > 0 %}
+        <div class="smr-cooldown">
+            <i class="fas fa-clock"></i>
+            {{ LNG_relics.doctrine_cooldown|replace({'%s': cooldown_left|date('H:i:s')}) }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="game.php?page=relics">
+            <div class="smr-doctrine-grid">
+                {% for doc in ['industry', 'research', 'economy', 'war'] %}
+                {% set available = doctrine_avail[doc]|default(false) %}
+                <div class="smr-doctrine-card {% if active_doctrine == doc %}selected{% endif %} {% if not available %}locked{% endif %}">
+                    <div class="smr-doctrine-header">
+                        {% if doc == 'industry' %}<i class="fas fa-hammer"></i>
+                        {% elseif doc == 'research' %}<i class="fas fa-flask"></i>
+                        {% elseif doc == 'economy' %}<i class="fas fa-coins"></i>
+                        {% else %}<i class="fas fa-sword"></i>{% endif %}
+                        <span>{{ LNG_relics['doctrine_' ~ doc] }}</span>
+                    </div>
+                    <div class="smr-doctrine-desc">{{ LNG_relics['doctrine_' ~ doc ~ '_desc'] }}</div>
+                    {% if available %}
+                        {% if cooldown_left == 0 and active_doctrine != doc %}
+                        <button type="submit" name="doctrine" value="{{ doc }}" class="smr-btn smr-btn-select">
+                            {{ LNG_relics.doctrine_select }}
+                        </button>
+                        {% elseif active_doctrine == doc %}
+                        <span class="smr-badge-active">✓ Aktiv</span>
+                        {% else %}
+                        <span class="smr-badge-cooldown"><i class="fas fa-clock"></i></span>
+                        {% endif %}
+                    {% else %}
+                    <span class="smr-badge-locked"><i class="fas fa-lock"></i> {{ LNG_relics.doctrine_locked }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+
+    <!-- ── TAB: POINTS ── -->
+    <div id="tab-points" class="smr-tab-content">
+        <div class="smr-points-summary">
+            <i class="fas fa-star"></i> {{ LNG_relics.your_points }}:
+            <span class="smr-rp-big">{{ relic_points|number_format(0, '.', ',') }}</span>
+            <span class="smr-rp-unit">{{ LNG_relics.relic_points }}</span>
+        </div>
+        <p class="smr-rp-desc">{{ LNG_relics.relic_points_desc }}</p>
+
+        {% if points_log is not empty %}
+        <table class="smr-log-table">
+            <thead>
+                <tr>
+                    <th>{{ LNG_relics.log_delta }}</th>
+                    <th>{{ LNG_relics.log_reason }}</th>
+                    <th>{{ LNG_relics.log_time }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in points_log %}
+                <tr>
+                    <td class="{% if entry.delta > 0 %}smr-pos{% else %}smr-neg{% endif %}">
+                        {{ entry.delta > 0 ? '+' : '' }}{{ entry.delta }}
+                    </td>
+                    <td>{{ entry.reason }}</td>
+                    <td>{{ entry.created_at|date('d.m.Y H:i') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="smr-empty">{{ LNG_relics.points_log_empty }}</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+(function() {
+    var tabs = document.querySelectorAll('.smr-tab');
+    var contents = document.querySelectorAll('.smr-tab-content');
+    tabs.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            contents.forEach(function(c) { c.classList.remove('active'); });
+            btn.classList.add('active');
+            var target = document.getElementById(btn.dataset.tab);
+            if (target) { target.classList.add('active'); }
+        });
+    });
+})();
+</script>
+
+{% endblock %}

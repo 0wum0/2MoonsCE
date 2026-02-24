@@ -1,0 +1,11 @@
+{
+    "id": "sm-relics",
+    "name": "Relics & Specializations",
+    "version": "2.0.0",
+    "type": "game",
+    "description": "Adds relic buildings (910-914), Reliktpunkte resource, and four doctrines affecting build/research time, production, and combat. Fully self-contained plugin.",
+    "author": "SmartMoons",
+    "modules": [
+        "modules/RelicsModule.php"
+    ]
+}

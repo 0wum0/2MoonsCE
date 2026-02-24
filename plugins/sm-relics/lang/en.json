@@ -1,0 +1,53 @@
+﻿{
+    "nav_label": "Relics",
+
+    "page_title": "Relics & Doctrines",
+    "tab_relics": "Buildings",
+    "tab_doctrine": "Doctrine",
+    "tab_points": "Points",
+
+    "relic_points": "Relic Points",
+    "relic_points_desc": "Relic points are awarded every 10 minutes based on your Relic Archive level.",
+
+    "building_910": "Relic Archive",
+    "building_911": "Quantum Reactor",
+    "building_912": "Spacetime Lab",
+    "building_913": "Military Academy",
+    "building_914": "Economic Center",
+
+    "building_level": "Level",
+    "building_effect": "Effect",
+
+    "effect_910": "Generates relic points each tick",
+    "effect_911": "Increases energy production",
+    "effect_912": "Reduces build and research time",
+    "effect_913": "Unlocks War Doctrine",
+    "effect_914": "Unlocks Economy Doctrine",
+
+    "doctrine_title": "Active Doctrine",
+    "doctrine_active": "Active Doctrine",
+    "doctrine_none": "No doctrine active",
+
+    "doctrine_industry": "Industry Doctrine",
+    "doctrine_research": "Research Doctrine",
+    "doctrine_economy": "Economy Doctrine",
+    "doctrine_war": "War Doctrine",
+
+    "doctrine_industry_desc": "Reduces all build times.",
+    "doctrine_research_desc": "Reduces research times.",
+    "doctrine_economy_desc": "Increases all resource production.",
+    "doctrine_war_desc": "Increases attack and shield strength.",
+
+    "doctrine_select": "Select",
+    "doctrine_locked": "Locked",
+    "doctrine_cooldown": "Doctrine change available in %s.",
+    "doctrine_set_ok": "Doctrine set successfully.",
+    "doctrine_req_not_met": "Requirements not met.",
+
+    "points_history": "Points History",
+    "points_log_empty": "No entries yet.",
+    "log_delta": "Change",
+    "log_reason": "Reason",
+    "log_time": "Time",
+    "your_points": "Your Relic Points"
+}

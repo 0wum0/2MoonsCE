@@ -1,0 +1,53 @@
+﻿{
+    "nav_label": "Relikte",
+
+    "page_title": "Relikte & Doktrinen",
+    "tab_relics": "Geb\u00e4ude",
+    "tab_doctrine": "Doktrin",
+    "tab_points": "Punkte",
+
+    "relic_points": "Reliktpunkte",
+    "relic_points_desc": "Reliktpunkte werden alle 10 Minuten basierend auf deinem Relikt-Archiv-Level vergeben.",
+
+    "building_910": "Relikt-Archiv",
+    "building_911": "Quantum-Reaktor",
+    "building_912": "Raumzeit-Labor",
+    "building_913": "Milit\u00e4r-Akademie",
+    "building_914": "Wirtschaftszentrum",
+
+    "building_level": "Level",
+    "building_effect": "Effekt",
+
+    "effect_910": "Generiert Reliktpunkte pro Tick",
+    "effect_911": "Erh\u00f6ht Energieproduktion",
+    "effect_912": "Reduziert Bau- und Forschungszeit",
+    "effect_913": "Schaltet Kriegs-Doktrin frei",
+    "effect_914": "Schaltet Wirtschafts-Doktrin frei",
+
+    "doctrine_title": "Aktive Doktrin",
+    "doctrine_active": "Aktive Doktrin",
+    "doctrine_none": "Keine Doktrin aktiv",
+
+    "doctrine_industry": "Industrie-Doktrin",
+    "doctrine_research": "Forschungs-Doktrin",
+    "doctrine_economy": "Wirtschafts-Doktrin",
+    "doctrine_war": "Kriegs-Doktrin",
+
+    "doctrine_industry_desc": "Reduziert alle Bauzeiten.",
+    "doctrine_research_desc": "Reduziert Forschungszeiten.",
+    "doctrine_economy_desc": "Erh\u00f6ht alle Ressourcenproduktion.",
+    "doctrine_war_desc": "Erh\u00f6ht Angriffs- und Schildst\u00e4rke.",
+
+    "doctrine_select": "Ausw\u00e4hlen",
+    "doctrine_locked": "Gesperrt",
+    "doctrine_cooldown": "Doktrin-Wechsel in %s verf\u00fcgbar.",
+    "doctrine_set_ok": "Doktrin erfolgreich gesetzt.",
+    "doctrine_req_not_met": "Anforderungen nicht erf\u00fcllt.",
+
+    "points_history": "Punkteverlauf",
+    "points_log_empty": "Noch keine Eintr\u00e4ge.",
+    "log_delta": "\u00c4nderung",
+    "log_reason": "Grund",
+    "log_time": "Zeit",
+    "your_points": "Deine Reliktpunkte"
+}

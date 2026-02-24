@@ -1,0 +1,184 @@
+/* sm-relics plugin styles — loaded only on game.php?page=relics */
+
+.smr-relics-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 8px 40px;
+}
+
+/* ── Alerts ── */
+.smr-alert {
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: .9rem;
+}
+.smr-alert-ok  { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+.smr-alert-err { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; }
+
+/* ── Page header ── */
+.smr-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.smr-page-header h2 {
+    margin: 0;
+    color: #a78bfa;
+    font-size: 1.3rem;
+}
+.smr-rp-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e1040;
+    border: 1px solid #7c3aed;
+    border-radius: 20px;
+    padding: 6px 16px;
+    color: #a78bfa;
+    font-weight: 700;
+}
+.smr-rp-value { font-size: 1.2rem; }
+.smr-rp-label { font-size: .8rem; opacity: .8; }
+
+/* ── Tabs ── */
+.smr-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #1e2d4a;
+}
+.smr-tab {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #94a3b8;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-size: .9rem;
+    margin-bottom: -2px;
+    transition: color .2s, border-color .2s;
+}
+.smr-tab:hover  { color: #e2e8f0; }
+.smr-tab.active { color: #a78bfa; border-bottom-color: #7c3aed; }
+
+/* ── Tab content ── */
+.smr-tab-content { display: none; }
+.smr-tab-content.active { display: block; }
+
+/* ── Buildings grid ── */
+.smr-buildings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+}
+.smr-building-card {
+    background: #0d1525;
+    border: 1px solid #1e2d4a;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+.smr-building-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #131929;
+}
+.smr-building-name  { font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+.smr-building-level { font-size: .85rem; color: #94a3b8; }
+.smr-building-level strong { color: #a78bfa; }
+.smr-building-effect { font-size: .8rem; color: #64748b; margin-top: 4px; }
+.smr-max-note { font-size: .75rem; color: #475569; margin-left: 4px; }
+
+/* ── Doctrine grid ── */
+.smr-doctrine-active {
+    background: #14532d;
+    color: #86efac;
+    border: 1px solid #16a34a;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    font-size: .9rem;
+}
+.smr-doctrine-none {
+    color: #64748b;
+    margin-bottom: 14px;
+    font-size: .9rem;
+}
+.smr-cooldown {
+    background: #1c1917;
+    color: #fbbf24;
+    border: 1px solid #92400e;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    font-size: .85rem;
+}
+.smr-doctrine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+}
+.smr-doctrine-card {
+    background: #0d1525;
+    border: 1px solid #1e2d4a;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color .2s;
+}
+.smr-doctrine-card.selected { border-color: #7c3aed; background: #1e1040; }
+.smr-doctrine-card.locked   { opacity: .5; }
+.smr-doctrine-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.smr-doctrine-desc { font-size: .82rem; color: #94a3b8; flex: 1; }
+
+.smr-btn { padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: .85rem; }
+.smr-btn-select { background: #7c3aed; color: #fff; }
+.smr-btn-select:hover { background: #6d28d9; }
+
+.smr-badge-active  { color: #86efac; font-size: .85rem; }
+.smr-badge-cooldown { color: #fbbf24; font-size: .85rem; }
+.smr-badge-locked  { color: #64748b; font-size: .82rem; }
+
+/* ── Points tab ── */
+.smr-points-summary {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+.smr-rp-big  { font-size: 1.6rem; font-weight: 700; color: #a78bfa; }
+.smr-rp-unit { font-size: .85rem; color: #64748b; margin-left: 4px; }
+.smr-rp-desc { font-size: .85rem; color: #64748b; margin-bottom: 16px; }
+
+.smr-log-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.smr-log-table th {
+    background: #0d1525;
+    padding: 8px 12px;
+    text-align: left;
+    color: #94a3b8;
+    border-bottom: 1px solid #1e2d4a;
+}
+.smr-log-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #1a2540;
+    color: #cbd5e1;
+}
+.smr-log-table tr:hover td { background: #0f1e35; }
+.smr-pos { color: #86efac; font-weight: 700; }
+.smr-neg { color: #fca5a5; font-weight: 700; }
+.smr-empty { color: #64748b; font-size: .9rem; }

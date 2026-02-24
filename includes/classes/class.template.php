@@ -49,6 +49,15 @@ class template
 		$loader->addPath($this->templateDir . 'game', 'game');
 		$loader->addPath($this->templateDir . 'adm', 'adm');
 		$loader->addPath($this->templateDir . 'install', 'install');
+
+		// Load plugin Twig namespaces (@pluginId/path/to/template.twig)
+		if (class_exists('PluginManager')) {
+			foreach (PluginManager::get()->getTwigNamespaces() as $pluginId => $absDir) {
+				if (is_dir($absDir)) {
+					$loader->addPath($absDir, $pluginId);
+				}
+			}
+		}
 		
 		// Ensure twig cache dir exists (and is writable) - prevents silent failures
 		$twigCacheDir = CACHE_PATH . 'twig/';
@@ -337,8 +346,14 @@ class template
 		}
 
 		if($this->currentSubDir !== '') {
-			$loader = new FilesystemLoader($templatePath . $this->currentSubDir);
-			$this->twig->setLoader($loader);
+			// Prepend the subdir path to the existing loader so plugin namespaces are preserved.
+			$existingLoader = $this->twig->getLoader();
+			if ($existingLoader instanceof FilesystemLoader) {
+				$existingLoader->prependPath($templatePath . $this->currentSubDir);
+			} else {
+				$loader = new FilesystemLoader($templatePath . $this->currentSubDir);
+				$this->twig->setLoader($loader);
+			}
 		}
 
 		$pluginCss = [];

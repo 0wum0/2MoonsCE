@@ -70,7 +70,11 @@ class Cronjob
 
         self::cronLog("execute() lock acquired: cronjobID=$cronjobID class=$cronjobClassName token=$lockToken");
 
-        $cronjobPath = ROOT_PATH . 'includes/classes/cronjob/'.$cronjobClassName.'.class.php';
+        // Check plugin-registered cronjob paths first, then fall back to core path
+        $pluginPath  = class_exists('PluginManager') ? PluginManager::get()->resolveCronjobPath($cronjobClassName) : null;
+        $cronjobPath = ($pluginPath !== null && file_exists($pluginPath))
+            ? $pluginPath
+            : ROOT_PATH . 'includes/classes/cronjob/'.$cronjobClassName.'.class.php';
 
         // 3. Job ausführen
         if (file_exists($cronjobPath)) {
