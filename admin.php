@@ -217,6 +217,10 @@ switch($page)
 		require_once('includes/pages/adm/ShowPluginAdminPage.php');
 		ShowPluginAdminPage();
 	break;
+	case 'systemDebug':
+		require_once('includes/pages/adm/ShowSystemDebugPage.php');
+		ShowSystemDebugPage();
+	break;
 	default:
 		require_once('includes/pages/adm/ShowIndexPage.php');
 		ShowIndexPage();

@@ -1,0 +1,490 @@
+{% include 'overall_header.twig' %}
+
+<style>
+/* ── System Debug Panel ─────────────────────────────────────────────────── */
+.sdp-header{margin-bottom:24px;}
+.sdp-header h1{color:var(--adm-neon-blue,#38bdf8);font-size:1.4rem;margin:0 0 4px;}
+.sdp-header p{color:#64748b;font-size:0.875rem;margin:0;}
+
+/* Tab bar */
+.sdp-tabs{display:flex;gap:4px;border-bottom:2px solid #1e2d4a;margin-bottom:24px;flex-wrap:wrap;}
+.sdp-tab{background:transparent;border:none;color:#64748b;padding:10px 20px;font-size:0.875rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;white-space:nowrap;}
+.sdp-tab:hover{color:#94a3b8;}
+.sdp-tab.active{color:#38bdf8;border-bottom-color:#38bdf8;}
+.sdp-tab .sdp-badge{display:inline-block;background:rgba(56,189,248,0.15);color:#7dd3fc;border-radius:10px;padding:1px 7px;font-size:0.72rem;margin-left:6px;font-weight:700;}
+
+/* Panels */
+.sdp-panel{display:none;}
+.sdp-panel.active{display:block;}
+
+/* Search bar */
+.sdp-search-wrap{margin-bottom:16px;}
+.sdp-search{width:100%;max-width:380px;background:#0d1526;border:1px solid #1e2d4a;border-radius:8px;color:#e2e8f0;padding:8px 14px;font-size:0.875rem;outline:none;transition:border-color .15s;}
+.sdp-search:focus{border-color:#38bdf8;}
+
+/* Cards */
+.sdp-card{background:var(--adm-card-bg,#131929);border:1px solid #1e2d4a;border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.sdp-card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;gap:12px;}
+.sdp-card-head:hover{background:rgba(56,189,248,0.04);}
+.sdp-card-title{font-size:0.9rem;font-weight:700;color:#e2e8f0;display:flex;align-items:center;gap:10px;}
+.sdp-card-meta{font-size:0.78rem;color:#475569;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.sdp-card-arrow{font-size:0.7rem;color:#475569;transition:transform .2s;flex-shrink:0;}
+.sdp-card.open .sdp-card-arrow{transform:rotate(90deg);color:#38bdf8;}
+.sdp-card-body{display:none;padding:0 16px 16px;}
+.sdp-card.open .sdp-card-body{display:block;}
+
+/* Status badges */
+.sdp-pill{display:inline-block;border-radius:6px;padding:2px 9px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.sdp-pill-green{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.3);}
+.sdp-pill-red{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);}
+.sdp-pill-blue{background:rgba(56,189,248,0.15);color:#7dd3fc;border:1px solid rgba(56,189,248,0.3);}
+.sdp-pill-yellow{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);}
+.sdp-pill-gray{background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.3);}
+.sdp-pill-purple{background:rgba(168,85,247,0.15);color:#d8b4fe;border:1px solid rgba(168,85,247,0.3);}
+
+/* Tables */
+.sdp-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:10px;}
+.sdp-table th{text-align:left;color:#475569;font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;border-bottom:1px solid #1e2d4a;}
+.sdp-table td{padding:7px 10px;border-bottom:1px solid rgba(30,45,74,0.5);color:#94a3b8;vertical-align:top;}
+.sdp-table tr:last-child td{border-bottom:none;}
+.sdp-table tr:hover td{background:rgba(56,189,248,0.03);}
+.sdp-table code{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:4px;padding:1px 5px;font-family:'Courier New',monospace;font-size:0.78rem;color:#7dd3fc;word-break:break-all;}
+
+/* Handler sub-table */
+.sdp-handlers{margin-top:10px;}
+.sdp-handler-row{display:flex;align-items:baseline;gap:10px;padding:4px 0;border-bottom:1px solid rgba(30,45,74,0.4);font-size:0.8rem;}
+.sdp-handler-row:last-child{border-bottom:none;}
+.sdp-handler-prio{min-width:36px;text-align:right;color:#475569;font-size:0.72rem;}
+.sdp-handler-sig{color:#94a3b8;font-family:'Courier New',monospace;font-size:0.78rem;word-break:break-all;}
+
+/* Copy button */
+.sdp-copy{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:#7dd3fc;border-radius:4px;padding:1px 8px;font-size:0.7rem;cursor:pointer;transition:background .15s;flex-shrink:0;}
+.sdp-copy:hover{background:rgba(56,189,248,0.22);}
+.sdp-copy.copied{color:#86efac;border-color:#22c55e;background:rgba(34,197,94,0.12);}
+
+/* Empty state */
+.sdp-empty{color:#475569;font-size:0.85rem;padding:20px 0;text-align:center;}
+
+/* Grid for plugin details */
+.sdp-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:10px;}
+.sdp-detail-cell{background:rgba(255,255,255,0.02);border:1px solid #1e2d4a;border-radius:6px;padding:10px 12px;}
+.sdp-detail-cell strong{display:block;color:#475569;font-size:0.7rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.sdp-detail-cell span{color:#e2e8f0;font-size:0.82rem;word-break:break-all;}
+
+/* Module origin tag */
+.sdp-origin-core{color:#7dd3fc;}
+.sdp-origin-plugin{color:#d8b4fe;}
+
+@media(max-width:600px){
+    .sdp-tab{padding:8px 12px;font-size:0.8rem;}
+    .sdp-card-meta{display:none;}
+}
+</style>
+
+<div class="sdp-header">
+    <h1>&#128295; System Debug Panel</h1>
+    <p>Read-only inspector for Plugins, Hooks, Assets and v2 Modules. Visible to full admins only.</p>
+</div>
+
+<!-- Tab bar -->
+<div class="sdp-tabs" role="tablist">
+    <button class="sdp-tab active" onclick="sdpTab(this,'sdp-plugins')" role="tab">
+        &#128230; Plugins
+        <span class="sdp-badge">{{ plugins|length }}</span>
+    </button>
+    <button class="sdp-tab" onclick="sdpTab(this,'sdp-hooks')" role="tab">
+        &#128279; Hooks
+        <span class="sdp-badge">{{ hooks|length }}</span>
+    </button>
+    <button class="sdp-tab" onclick="sdpTab(this,'sdp-assets')" role="tab">
+        &#127912; Assets
+        <span class="sdp-badge">{{ cssAssets|length + jsAssets|length }}</span>
+    </button>
+    <button class="sdp-tab" onclick="sdpTab(this,'sdp-modules')" role="tab">
+        &#129513; Modules
+        <span class="sdp-badge">{{ modules|length }}</span>
+    </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PANEL A – PLUGINS
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="sdp-panel active" id="sdp-plugins">
+    <div class="sdp-search-wrap">
+        <input class="sdp-search" type="text" placeholder="&#128269; Plugin suchen (ID, Name, Typ)…" oninput="sdpFilter(this,'sdp-plugins-list')">
+    </div>
+
+    {% if plugins is empty %}
+    <div class="sdp-empty">&#128230; Keine Plugins in der Datenbank gefunden.</div>
+    {% else %}
+    <div id="sdp-plugins-list">
+    {% for plugin in plugins %}
+    <div class="sdp-card" data-search="{{ plugin.id|lower }} {{ plugin.name|lower }} {{ plugin.type|lower }}">
+        <div class="sdp-card-head" onclick="sdpToggle(this)">
+            <div class="sdp-card-title">
+                {% if plugin.is_active == 1 %}
+                <span class="sdp-pill sdp-pill-green">&#10004; aktiv</span>
+                {% else %}
+                <span class="sdp-pill sdp-pill-red">&#10006; inaktiv</span>
+                {% endif %}
+                <span>{{ plugin.name|default(plugin.id) }}</span>
+                <span style="color:#475569;font-weight:400;font-size:0.8rem;">v{{ plugin.version }}</span>
+            </div>
+            <div class="sdp-card-meta">
+                <span>ID: <code style="background:none;border:none;color:#475569;font-family:monospace;">{{ plugin.id }}</code></span>
+                <span class="sdp-pill sdp-pill-gray">{{ plugin.type|default('game') }}</span>
+                {% if plugin._modules|length > 0 %}
+                <span class="sdp-pill sdp-pill-purple">{{ plugin._modules|length }} module(s)</span>
+                {% endif %}
+            </div>
+            <span class="sdp-card-arrow">&#9658;</span>
+        </div>
+        <div class="sdp-card-body">
+            <div class="sdp-detail-grid">
+                <div class="sdp-detail-cell">
+                    <strong>Plugin-ID</strong>
+                    <span>
+                        {{ plugin.id }}
+                        <button class="sdp-copy" onclick="sdpCopy(this,'{{ plugin.id }}')" type="button">Kopieren</button>
+                    </span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Version</strong>
+                    <span>{{ plugin.version }}</span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Typ</strong>
+                    <span>{{ plugin.type|default('game') }}</span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Status</strong>
+                    <span>{% if plugin.is_active == 1 %}<span class="sdp-pill sdp-pill-green">Aktiv</span>{% else %}<span class="sdp-pill sdp-pill-red">Inaktiv</span>{% endif %}</span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Installiert</strong>
+                    <span>{% if plugin.installed_at %}{{ plugin.installed_at|date('d.m.Y H:i') }}{% else %}–{% endif %}</span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Aktualisiert</strong>
+                    <span>{% if plugin.updated_at %}{{ plugin.updated_at|date('d.m.Y H:i') }}{% else %}–{% endif %}</span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Verzeichnis</strong>
+                    <span><code>{{ plugin._dir }}</code></span>
+                </div>
+                {% if plugin._manifest.description is defined and plugin._manifest.description %}
+                <div class="sdp-detail-cell" style="grid-column:1/-1;">
+                    <strong>Beschreibung</strong>
+                    <span>{{ plugin._manifest.description }}</span>
+                </div>
+                {% endif %}
+                {% if plugin._manifest.author is defined and plugin._manifest.author %}
+                <div class="sdp-detail-cell">
+                    <strong>Autor</strong>
+                    <span>{{ plugin._manifest.author }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if plugin._modules|length > 0 %}
+            <div style="margin-top:14px;">
+                <div style="color:#475569;font-size:0.72rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">v2 Module deklariert</div>
+                {% for modPath in plugin._modules %}
+                <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(30,45,74,0.4);">
+                    <span class="sdp-pill sdp-pill-purple">MOD</span>
+                    <code style="color:#d8b4fe;font-family:monospace;font-size:0.8rem;">{{ modPath }}</code>
+                    <button class="sdp-copy" onclick="sdpCopy(this,'{{ modPath }}')" type="button">Kopieren</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PANEL B – HOOKS
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="sdp-panel" id="sdp-hooks">
+    <div class="sdp-search-wrap">
+        <input class="sdp-search" type="text" placeholder="&#128269; Hook suchen (Name, Typ, Callback)…" oninput="sdpFilter(this,'sdp-hooks-list')">
+    </div>
+
+    {% if hooks is empty %}
+    <div class="sdp-empty">&#128279; Keine Hooks registriert.</div>
+    {% else %}
+    <div id="sdp-hooks-list">
+    {% for hook in hooks %}
+    <div class="sdp-card" data-search="{{ hook.name|lower }} {{ hook.type|lower }}{% for h in hook.handlers %} {{ h.signature|lower }}{% endfor %}">
+        <div class="sdp-card-head" onclick="sdpToggle(this)">
+            <div class="sdp-card-title">
+                {% if hook.type == 'action' %}
+                <span class="sdp-pill sdp-pill-blue">ACTION</span>
+                {% else %}
+                <span class="sdp-pill sdp-pill-yellow">FILTER</span>
+                {% endif %}
+                <span>{{ hook.name }}</span>
+                <button class="sdp-copy" onclick="event.stopPropagation();sdpCopy(this,'{{ hook.name }}')" type="button">Kopieren</button>
+            </div>
+            <div class="sdp-card-meta">
+                <span>{{ hook.count }} Handler</span>
+            </div>
+            <span class="sdp-card-arrow">&#9658;</span>
+        </div>
+        <div class="sdp-card-body">
+            <div class="sdp-handlers">
+                {% for handler in hook.handlers %}
+                <div class="sdp-handler-row">
+                    <span class="sdp-handler-prio" title="Priority">P{{ handler.priority }}</span>
+                    <span class="sdp-handler-sig">{{ handler.signature }}</span>
+                    <button class="sdp-copy" onclick="sdpCopy(this,'{{ handler.signature|replace({"'": "\\'"}) }}')" type="button">Kopieren</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PANEL C – ASSETS
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="sdp-panel" id="sdp-assets">
+    <div class="sdp-search-wrap">
+        <input class="sdp-search" type="text" placeholder="&#128269; Asset suchen (Pfad, Plugin-ID)…" oninput="sdpFilter(this,'sdp-assets-list')">
+    </div>
+
+    <div id="sdp-assets-list">
+
+    {% if cssAssets is empty and jsAssets is empty %}
+    <div class="sdp-empty">&#127912; Keine Assets registriert.</div>
+    {% else %}
+
+    {% if cssAssets|length > 0 %}
+    <div class="sdp-card open" data-search="css stylesheet">
+        <div class="sdp-card-head" onclick="sdpToggle(this)">
+            <div class="sdp-card-title">
+                <span class="sdp-pill sdp-pill-blue">CSS</span>
+                Stylesheets
+            </div>
+            <div class="sdp-card-meta"><span>{{ cssAssets|length }} registriert</span></div>
+            <span class="sdp-card-arrow">&#9658;</span>
+        </div>
+        <div class="sdp-card-body">
+            <table class="sdp-table">
+                <thead>
+                    <tr>
+                        <th>Plugin-ID</th>
+                        <th>Pfad</th>
+                        <th>Scope (Seiten)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for asset in cssAssets %}
+                <tr data-search="{{ asset.pluginId|lower }} {{ asset.path|lower }}">
+                    <td><span class="sdp-pill sdp-pill-gray">{{ asset.pluginId }}</span></td>
+                    <td><code>{{ asset.path }}</code></td>
+                    <td>
+                        {% if asset.pages|length == 0 %}
+                        <span class="sdp-pill sdp-pill-green">global</span>
+                        {% else %}
+                        {% for p in asset.pages %}<span class="sdp-pill sdp-pill-yellow" style="margin-right:3px;">{{ p }}</span>{% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if jsAssets|length > 0 %}
+    <div class="sdp-card open" data-search="js javascript script">
+        <div class="sdp-card-head" onclick="sdpToggle(this)">
+            <div class="sdp-card-title">
+                <span class="sdp-pill sdp-pill-yellow">JS</span>
+                Scripts
+            </div>
+            <div class="sdp-card-meta"><span>{{ jsAssets|length }} registriert</span></div>
+            <span class="sdp-card-arrow">&#9658;</span>
+        </div>
+        <div class="sdp-card-body">
+            <table class="sdp-table">
+                <thead>
+                    <tr>
+                        <th>Plugin-ID</th>
+                        <th>Pfad</th>
+                        <th>Scope (Seiten)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for asset in jsAssets %}
+                <tr data-search="{{ asset.pluginId|lower }} {{ asset.path|lower }}">
+                    <td><span class="sdp-pill sdp-pill-gray">{{ asset.pluginId }}</span></td>
+                    <td><code>{{ asset.path }}</code></td>
+                    <td>
+                        {% if asset.pages|length == 0 %}
+                        <span class="sdp-pill sdp-pill-green">global</span>
+                        {% else %}
+                        {% for p in asset.pages %}<span class="sdp-pill sdp-pill-yellow" style="margin-right:3px;">{{ p }}</span>{% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PANEL D – MODULES
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="sdp-panel" id="sdp-modules">
+
+    {% if not hasModuleManager %}
+    <div class="sdp-empty" style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:20px;text-align:left;color:#fcd34d;">
+        &#9888; <strong>ModuleManager nicht geladen.</strong><br>
+        Das v2 Full Modular Gameplay Engine System ist in dieser Umgebung nicht aktiv.
+        Stelle sicher, dass <code>includes/classes/ModuleManager.class.php</code> in <code>common.php</code> eingebunden ist.
+    </div>
+    {% elseif modules is empty %}
+    <div class="sdp-empty">&#129513; Keine Module registriert.</div>
+    {% else %}
+
+    <div class="sdp-search-wrap">
+        <input class="sdp-search" type="text" placeholder="&#128269; Modul suchen (ID, Klasse, Origin)…" oninput="sdpFilter(this,'sdp-modules-list')">
+    </div>
+
+    <div id="sdp-modules-list">
+    {% for mod in modules %}
+    <div class="sdp-card" data-search="{{ mod.id|lower }} {{ mod.class|lower }} {{ mod.origin|lower }}">
+        <div class="sdp-card-head" onclick="sdpToggle(this)">
+            <div class="sdp-card-title">
+                {% if mod.enabled %}
+                <span class="sdp-pill sdp-pill-green">&#10004; enabled</span>
+                {% else %}
+                <span class="sdp-pill sdp-pill-red">&#10006; disabled</span>
+                {% endif %}
+                <span>{{ mod.id }}</span>
+                {% if mod.origin == 'core' %}
+                <span class="sdp-pill sdp-pill-blue sdp-origin-core">core</span>
+                {% else %}
+                <span class="sdp-pill sdp-pill-purple sdp-origin-plugin">plugin</span>
+                {% endif %}
+            </div>
+            <div class="sdp-card-meta">
+                <span>Priority: {{ mod.priority }}</span>
+                <span>{{ mod.class }}</span>
+            </div>
+            <span class="sdp-card-arrow">&#9658;</span>
+        </div>
+        <div class="sdp-card-body">
+            <div class="sdp-detail-grid">
+                <div class="sdp-detail-cell">
+                    <strong>Modul-ID</strong>
+                    <span>
+                        {{ mod.id }}
+                        <button class="sdp-copy" onclick="sdpCopy(this,'{{ mod.id }}')" type="button">Kopieren</button>
+                    </span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>PHP-Klasse</strong>
+                    <span><code>{{ mod.class }}</code></span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Priority</strong>
+                    <span>{{ mod.priority }}</span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Origin</strong>
+                    <span>
+                        {% if mod.origin == 'core' %}
+                        <span class="sdp-pill sdp-pill-blue">Core</span>
+                        {% else %}
+                        <span class="sdp-pill sdp-pill-purple">Plugin</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="sdp-detail-cell">
+                    <strong>Status</strong>
+                    <span>
+                        {% if mod.enabled %}
+                        <span class="sdp-pill sdp-pill-green">Enabled</span>
+                        {% else %}
+                        <span class="sdp-pill sdp-pill-red">Disabled</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    // Tab switching
+    window.sdpTab = function(btn, panelId) {
+        document.querySelectorAll('.sdp-tab').forEach(function(t){ t.classList.remove('active'); });
+        document.querySelectorAll('.sdp-panel').forEach(function(p){ p.classList.remove('active'); });
+        btn.classList.add('active');
+        var panel = document.getElementById(panelId);
+        if (panel) panel.classList.add('active');
+    };
+
+    // Card toggle
+    window.sdpToggle = function(head) {
+        var card = head.closest('.sdp-card');
+        if (card) card.classList.toggle('open');
+    };
+
+    // Search/filter within a list container
+    window.sdpFilter = function(input, listId) {
+        var q = input.value.toLowerCase().trim();
+        var list = document.getElementById(listId);
+        if (!list) return;
+        list.querySelectorAll('[data-search]').forEach(function(el) {
+            var hay = (el.getAttribute('data-search') || '').toLowerCase();
+            el.style.display = (!q || hay.indexOf(q) !== -1) ? '' : 'none';
+        });
+    };
+
+    // Copy to clipboard
+    window.sdpCopy = function(btn, text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+                btn.textContent = '&#10003; Kopiert';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.textContent = 'Kopieren'; btn.classList.remove('copied'); }, 1800);
+            });
+        } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch(e) {}
+            document.body.removeChild(ta);
+            btn.textContent = '&#10003; Kopiert';
+            btn.classList.add('copied');
+            setTimeout(function(){ btn.textContent = 'Kopieren'; btn.classList.remove('copied'); }, 1800);
+        }
+    };
+})();
+</script>
+
+{% include 'overall_footer.twig' %}

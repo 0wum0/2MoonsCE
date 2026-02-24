@@ -79,6 +79,30 @@ class AssetRegistry
         return $this->filterAssets($this->jsAssets, $currentPage);
     }
 
+    // ── Debug / Introspection ─────────────────────────────────────────────────
+
+    /**
+     * Return all registered CSS assets (unfiltered) for debug inspection.
+     *
+     * @return array<int, array{pluginId: string, path: string, pages: string[]}>
+     */
+    public function getAllCssAssets(): array
+    {
+        return $this->cssAssets;
+    }
+
+    /**
+     * Return all registered JS assets (unfiltered) for debug inspection.
+     *
+     * @return array<int, array{pluginId: string, path: string, pages: string[]}>
+     */
+    public function getAllJsAssets(): array
+    {
+        return $this->jsAssets;
+    }
+
+    // ── Internal ──────────────────────────────────────────────────────────────
+
     /**
      * @param array<int, array{pluginId: string, path: string, pages: string[]}> $assets
      * @return string[]

@@ -212,6 +212,11 @@
             <a href="admin.php?page=pluginAdmin" class="sidebar-link{% if GET.page is defined and GET.page == 'pluginAdmin' %} active{% endif %}">
                 <span class="sidebar-link-icon">&#128230;</span> Plugins
             </a>
+            {% if authlevel is defined and authlevel == constant('AUTH_ADM') %}
+            <a href="admin.php?page=systemDebug" class="sidebar-link{% if GET.page is defined and GET.page == 'systemDebug' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128295;</span> System Debug
+            </a>
+            {% endif %}
             {% if authlevel is defined and authlevel == constant('AUTH_ADM') and currentUser is defined and currentUser.id == 1 %}
             <a href="admin.php?page=reset" class="sidebar-link{% if GET.page is defined and GET.page == 'reset' %} active{% endif %}" style="color:var(--adm-neon-red);">
                 <span class="sidebar-link-icon">&#9888;</span> Reset Universe

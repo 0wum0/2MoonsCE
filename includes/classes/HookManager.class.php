@@ -85,6 +85,58 @@ class HookManager
         return $value;
     }
 
+    // ── Debug / Introspection ─────────────────────────────────────────────────
+
+    /**
+     * Return the full actions registry for read-only inspection.
+     * Structure: array<hookName, array<priority, callable[]>>
+     *
+     * @return array<string, array<int, array<int, callable>>>
+     */
+    public function getRegisteredActions(): array
+    {
+        return $this->actions;
+    }
+
+    /**
+     * Return the full filters registry for read-only inspection.
+     * Structure: array<hookName, array<priority, callable[]>>
+     *
+     * @return array<string, array<int, array<int, callable>>>
+     */
+    public function getRegisteredFilters(): array
+    {
+        return $this->filters;
+    }
+
+    /**
+     * Produce a human-readable signature string for a callable.
+     * Used by the debug panel to display callback info without exposing internals.
+     */
+    public static function callbackSignature(callable $callback): string
+    {
+        if (is_string($callback)) {
+            return $callback . '()';
+        }
+        if (is_array($callback)) {
+            $class  = is_object($callback[0]) ? get_class($callback[0]) : (string) $callback[0];
+            return $class . '::' . $callback[1] . '()';
+        }
+        if ($callback instanceof Closure) {
+            try {
+                $ref  = new ReflectionFunction($callback);
+                $file = basename($ref->getFileName() ?: '?');
+                return 'Closure@' . $file . ':' . $ref->getStartLine();
+            } catch (Throwable $e) {
+                return 'Closure';
+            }
+        }
+        if (is_object($callback) && method_exists($callback, '__invoke')) {
+            return get_class($callback) . '::__invoke()';
+        }
+        return '(unknown)';
+    }
+
     // ── Twig hook() helper ───────────────────────────────────────────────────
 
     /**
