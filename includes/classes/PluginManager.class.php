@@ -20,6 +20,16 @@ class PluginManager
     /** @var array<string, array<string, string>> */
     private array $langCache = [];
 
+    /**
+     * Notices collected during safe-mode auto-deactivations this request.
+     * Each entry: ['plugin' => id, 'reason' => message, 'type' => 'plugin'|'module']
+     * @var array<int, array{plugin: string, reason: string, type: string}>
+     */
+    private array $safeModeNotices = [];
+
+    /** Path to the safe-mode lock file (relative to ROOT_PATH). */
+    private const SAFE_MODE_LOCK = 'cache/safe_mode.lock';
+
     private function __construct() {}
     private function __clone() {}
 
@@ -314,12 +324,149 @@ class PluginManager
         }
     }
 
+    // ── Safe Mode ─────────────────────────────────────────────────────────────
+
+    /**
+     * Return the absolute path to the safe-mode lock file.
+     */
+    public static function safeModeLocKPath(): string
+    {
+        return ROOT_PATH . self::SAFE_MODE_LOCK;
+    }
+
+    /**
+     * Return true if the safe-mode lock file is present.
+     * When locked, all plugins are skipped until the admin clears the lock.
+     */
+    public function isSafeModeLocked(): bool
+    {
+        return file_exists(self::safeModeLocKPath());
+    }
+
+    /**
+     * Write the safe-mode lock file.
+     * Content is a JSON summary of what triggered the lock.
+     */
+    public function writeSafeModeLock(string $reason): void
+    {
+        $path = self::safeModeLocKPath();
+        $dir  = dirname($path);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        @file_put_contents($path, json_encode([
+            'time'   => date('Y-m-d H:i:s'),
+            'reason' => $reason,
+        ], JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * Delete the safe-mode lock file (admin clears it).
+     */
+    public function clearSafeModeLock(): void
+    {
+        $path = self::safeModeLocKPath();
+        if (file_exists($path)) {
+            @unlink($path);
+        }
+    }
+
+    /**
+     * Read the safe-mode lock file contents (for display).
+     * Returns null if not locked.
+     */
+    public function getSafeModeLockInfo(): ?array
+    {
+        $path = self::safeModeLocKPath();
+        if (!file_exists($path)) {
+            return null;
+        }
+        $raw = @file_get_contents($path);
+        if ($raw === false) {
+            return ['time' => '?', 'reason' => '?'];
+        }
+        $data = json_decode($raw, true);
+        return is_array($data) ? $data : ['time' => '?', 'reason' => $raw];
+    }
+
+    /**
+     * Record a safe-mode notice (plugin or module crash → auto-deactivated).
+     *
+     * @param string $pluginId  The plugin that was deactivated
+     * @param string $reason    Human-readable error summary
+     * @param string $type      'plugin' or 'module'
+     */
+    public function addSafeModeNotice(string $pluginId, string $reason, string $type = 'plugin'): void
+    {
+        $this->safeModeNotices[] = [
+            'plugin' => $pluginId,
+            'reason' => $reason,
+            'type'   => $type,
+        ];
+    }
+
+    /**
+     * Return all safe-mode notices collected this request.
+     *
+     * @return array<int, array{plugin: string, reason: string, type: string}>
+     */
+    public function getSafeModeNotices(): array
+    {
+        return $this->safeModeNotices;
+    }
+
+    /**
+     * Auto-deactivate a plugin in the DB due to a crash.
+     * Logs the event, records a notice, and optionally writes the lock file.
+     *
+     * @param string $id      Plugin id
+     * @param string $reason  Error message
+     * @param string $type    'plugin' or 'module'
+     * @param bool   $lock    Whether to also write the safe-mode lock file
+     */
+    public function safeDeactivate(string $id, string $reason, string $type = 'plugin', bool $lock = false): void
+    {
+        error_log('[PluginManager][SafeMode] Auto-deactivating plugin "' . $id . '" (' . $type . '): ' . $reason);
+
+        // Guard: never attempt DB deactivation if DB is not ready
+        try {
+            $this->deactivate($id);
+        } catch (Throwable $dbErr) {
+            error_log('[PluginManager][SafeMode] DB deactivate failed for "' . $id . '": ' . $dbErr->getMessage());
+            // If deactivation itself fails, write lock to prevent infinite crash loop
+            $lock = true;
+        }
+
+        $this->addSafeModeNotice($id, $reason, $type);
+
+        if ($lock) {
+            $this->writeSafeModeLock('Plugin "' . $id . '" crashed and DB deactivation failed: ' . $reason);
+        }
+    }
+
     /**
      * Load all active plugins: include their bootstrap, register hooks/assets/lang.
      * Called once from common.php after DB is ready.
+     *
+     * Safe-Mode behaviour:
+     *  - If the lock file is present, all plugins are skipped.
+     *  - If a plugin bootstrap throws, it is auto-deactivated and loading continues.
      */
     public function loadActivePlugins(): void
     {
+        // ── Safe-Mode lock check ──────────────────────────────────────────────
+        if ($this->isSafeModeLocked()) {
+            $info = $this->getSafeModeLockInfo();
+            $reason = $info['reason'] ?? 'unknown';
+            error_log('[PluginManager][SafeMode] Lock file present – all plugins skipped. Reason: ' . $reason);
+            $this->addSafeModeNotice(
+                'ALL',
+                'Safe-Mode Lock aktiv (seit ' . ($info['time'] ?? '?') . '): ' . $reason . '. Alle Plugins übersprungen.',
+                'lock'
+            );
+            return;
+        }
+
         $plugins = $this->getAllPlugins();
 
         foreach ($plugins as $row) {
@@ -334,16 +481,23 @@ class PluginManager
                 continue;
             }
 
-            // Load language
-            $this->loadLanguage($id);
+            // Load language (non-fatal if it fails)
+            try {
+                $this->loadLanguage($id);
+            } catch (Throwable $e) {
+                error_log('[PluginManager] Language load error in plugin "' . $id . '": ' . $e->getMessage());
+            }
 
-            // Include plugin bootstrap
+            // Include plugin bootstrap – auto-deactivate on crash
             $bootstrap = $dir . 'plugin.php';
             if (file_exists($bootstrap)) {
                 try {
                     require_once $bootstrap;
                 } catch (Throwable $e) {
-                    error_log('[PluginManager] Bootstrap error in plugin "' . $id . '": ' . $e->getMessage());
+                    $msg = get_class($e) . ': ' . $e->getMessage()
+                         . ' in ' . basename($e->getFile()) . ':' . $e->getLine();
+                    $this->safeDeactivate($id, $msg, 'plugin');
+                    continue; // Skip module loading for this plugin too
                 }
             }
 
@@ -427,7 +581,11 @@ class PluginManager
                 $this->moduleFiles[$id][] = $relPath;
 
             } catch (Throwable $e) {
-                error_log('[PluginManager] Error loading module "' . $relPath . '" from plugin "' . $id . '": ' . $e->getMessage());
+                $msg = get_class($e) . ': ' . $e->getMessage()
+                     . ' in ' . basename($e->getFile()) . ':' . $e->getLine();
+                $this->safeDeactivate($id, 'Module "' . basename($relPath) . '" crash: ' . $msg, 'module');
+                // Stop loading further modules from this plugin too
+                break;
             }
         }
     }
@@ -440,6 +598,17 @@ class PluginManager
     public function getLoadedModuleFiles(string $pluginId): array
     {
         return $this->moduleFiles[$pluginId] ?? [];
+    }
+
+    /**
+     * Return all successfully loaded plugins keyed by id.
+     * Used by ModuleManager to resolve plugin ownership for safe-mode deactivation.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getLoadedPlugins(): array
+    {
+        return $this->loadedPlugins;
     }
 
     // ── Language ─────────────────────────────────────────────────────────────

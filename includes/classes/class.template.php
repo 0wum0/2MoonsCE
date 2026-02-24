@@ -286,6 +286,16 @@ class template
 			$supportTicketCount = 0;
 		}
 
+		// ── Safe-Mode notices ─────────────────────────────────────────────────
+		$safeModeNotices = [];
+		$safeModeLocked  = false;
+		if (class_exists('PluginManager')) {
+			$_pm             = PluginManager::get();
+			$safeModeNotices = $_pm->getSafeModeNotices();
+			$safeModeLocked  = $_pm->isSafeModeLocked();
+			unset($_pm);
+		}
+
 		$this->assign_vars(array(
 			'scripts'			=> $this->script,
 			'title'				=> $config->game_name.' - '.$LNG['adm_cp_title'],
@@ -305,6 +315,9 @@ class template
 			'UNI'				=> Universe::getEmulated(),
 			'sid'				=> session_id(),
 			'supportTicketCount'=> $supportTicketCount,
+			// Safe-Mode
+			'safeModeNotices'	=> $safeModeNotices,
+			'safeModeLocked'	=> $safeModeLocked,
 		));
 	}
 	

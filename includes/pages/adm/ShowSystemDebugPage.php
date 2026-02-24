@@ -25,8 +25,20 @@ function ShowSystemDebugPage(): void
         HTTP::redirectTo('admin.php');
     }
 
+    $pm = PluginManager::get();
+
+    // ── Action: clear safe-mode lock ──────────────────────────────────────────
+    $action = HTTP::_GP('action', '');
+    if ($action === 'clearSafeModeLock') {
+        $pm->clearSafeModeLock();
+        HTTP::redirectTo('admin.php?page=systemDebug&cleared=1');
+    }
+
+    $safeModeCleared  = HTTP::_GP('cleared', 0) === 1;
+    $safeModeLocked   = $pm->isSafeModeLocked();
+    $safeModeInfo     = $pm->getSafeModeLockInfo();
+
     // ── A) Plugins ────────────────────────────────────────────────────────────
-    $pm               = PluginManager::get();
     $installedPlugins = $pm->getAllPlugins();
 
     // Enrich each DB row with manifest data (name, description, author, modules)
@@ -177,12 +189,15 @@ function ShowSystemDebugPage(): void
     // ── Render ────────────────────────────────────────────────────────────────
     $template = new template();
     $template->assign_vars([
-        'plugins'   => $installedPlugins,
-        'hooks'     => $hooks,
-        'cssAssets' => $cssAssets,
-        'jsAssets'  => $jsAssets,
-        'modules'   => $modules,
+        'plugins'          => $installedPlugins,
+        'hooks'            => $hooks,
+        'cssAssets'        => $cssAssets,
+        'jsAssets'         => $jsAssets,
+        'modules'          => $modules,
         'hasModuleManager' => class_exists('ModuleManager'),
+        'safeModeLocked'   => $safeModeLocked,
+        'safeModeInfo'     => $safeModeInfo,
+        'safeModeCleared'  => $safeModeCleared,
     ]);
     $template->show('SystemDebugPage.twig');
 }

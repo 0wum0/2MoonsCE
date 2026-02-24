@@ -86,6 +86,33 @@
     <p>Read-only inspector for Plugins, Hooks, Assets and v2 Modules. Visible to full admins only.</p>
 </div>
 
+{% if safeModeCleared is defined and safeModeCleared %}
+<div style="background:rgba(34,197,94,0.12);border:1px solid #22c55e;color:#86efac;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+    &#10004; <strong>Safe-Mode Lock erfolgreich entfernt.</strong> Plugins werden beim nächsten Request wieder geladen.
+</div>
+{% endif %}
+
+{% if safeModeLocked is defined and safeModeLocked %}
+<div style="background:rgba(239,68,68,0.12);border:1px solid #ef4444;border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.3rem;">&#128274;</span>
+        <strong style="color:#f87171;font-size:1rem;">SAFE-MODE LOCK aktiv</strong>
+        <span style="background:rgba(239,68,68,0.2);color:#fca5a5;border-radius:6px;padding:2px 10px;font-size:0.72rem;font-weight:700;">ALLE PLUGINS DEAKTIVIERT</span>
+    </div>
+    {% if safeModeInfo is defined and safeModeInfo %}
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:0.82rem;color:#94a3b8;margin-bottom:12px;">
+        <span style="color:#475569;">Seit:</span><span>{{ safeModeInfo.time|default('?') }}</span>
+        <span style="color:#475569;">Grund:</span><span style="color:#fca5a5;">{{ safeModeInfo.reason|default('?') }}</span>
+    </div>
+    {% endif %}
+    <a href="admin.php?page=systemDebug&action=clearSafeModeLock"
+       style="display:inline-block;background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#fca5a5;border-radius:6px;padding:6px 16px;text-decoration:none;font-weight:600;font-size:0.875rem;transition:background .15s;"
+       onclick="return confirm('Safe-Mode Lock wirklich entfernen? Alle Plugins werden beim nächsten Request wieder geladen.');">
+        &#10006; Lock entfernen &amp; Plugins wieder aktivieren
+    </a>
+</div>
+{% endif %}
+
 <!-- Tab bar -->
 <div class="sdp-tabs" role="tablist">
     <button class="sdp-tab active" onclick="sdpTab(this,'sdp-plugins')" role="tab">

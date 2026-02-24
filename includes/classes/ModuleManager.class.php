@@ -103,6 +103,93 @@ class ModuleManager
         );
     }
 
+    // ── Safe Mode helpers ─────────────────────────────────────────────────────
+
+    /**
+     * Handle a module lifecycle crash:
+     *  1. Deregister the module so it won't run again this request.
+     *  2. If it is a plugin module (priority > 10), ask PluginManager to
+     *     auto-deactivate the owning plugin in the DB.
+     *  3. Core modules (priority ≤ 10) are NEVER deactivated – only logged.
+     *
+     * @param GameModuleInterface $module  The crashing module
+     * @param string              $phase   'boot', 'beforeRequest', or 'afterRequest'
+     * @param Throwable           $e       The caught exception/error
+     */
+    private function handleModuleCrash(GameModuleInterface $module, string $phase, Throwable $e): void
+    {
+        $id       = $module->getId();
+        $priority = $this->registry[$id]['priority'] ?? 0;
+        $msg      = get_class($e) . ': ' . $e->getMessage()
+                  . ' in ' . basename($e->getFile()) . ':' . $e->getLine();
+
+        error_log('[ModuleManager][SafeMode] ' . $phase . '() crash in module "' . $id . '" (priority=' . $priority . '): ' . $msg);
+
+        // Always deregister so it won't run again this request
+        $this->deregister($id);
+
+        // Only auto-deactivate plugin modules (priority > 10)
+        if ($priority > 10 && class_exists('PluginManager')) {
+            // Derive the owning plugin id: module id format is "pluginId.moduleName"
+            // Fall back to searching loadedPlugins via moduleFiles.
+            $owningPlugin = $this->resolveOwningPlugin($id);
+            if ($owningPlugin !== null) {
+                PluginManager::get()->safeDeactivate(
+                    $owningPlugin,
+                    'Module "' . $id . '" crashed in ' . $phase . '(): ' . $msg,
+                    'module'
+                );
+            } else {
+                // Can't identify owner – just log, don't deactivate blindly
+                error_log('[ModuleManager][SafeMode] Cannot identify owning plugin for module "' . $id . '" – skipping auto-deactivate.');
+            }
+        }
+        // Core modules: log only, never deactivate
+    }
+
+    /**
+     * Resolve the plugin id that owns a given module id.
+     *
+     * Strategy:
+     *  1. Module id often follows "pluginId.moduleName" convention → try prefix.
+     *  2. Fall back to scanning PluginManager::getLoadedModuleFiles().
+     *
+     * Returns null if the owning plugin cannot be determined.
+     */
+    private function resolveOwningPlugin(string $moduleId): ?string
+    {
+        if (!class_exists('PluginManager')) {
+            return null;
+        }
+        $pm = PluginManager::get();
+
+        // Strategy 1: "pluginId.something" convention
+        if (str_contains($moduleId, '.')) {
+            $candidate = explode('.', $moduleId, 2)[0];
+            // Verify the candidate is actually a loaded plugin
+            $loaded = $pm->getLoadedPlugins();
+            if (isset($loaded[$candidate])) {
+                return $candidate;
+            }
+        }
+
+        // Strategy 2: scan moduleFiles for all loaded plugins
+        $loaded = $pm->getLoadedPlugins();
+        foreach (array_keys($loaded) as $pluginId) {
+            $files = $pm->getLoadedModuleFiles($pluginId);
+            foreach ($files as $relPath) {
+                $className = basename($relPath, '.php');
+                // Try to match by class name against module id suffix
+                if (str_ends_with($moduleId, '.' . strtolower($className))
+                    || strtolower($className) === strtolower($moduleId)) {
+                    return $pluginId;
+                }
+            }
+        }
+
+        return null;
+    }
+
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
     /**
@@ -122,7 +209,7 @@ class ModuleManager
             try {
                 $module->boot($ctx);
             } catch (Throwable $e) {
-                error_log('[ModuleManager] boot() error in module "' . $module->getId() . '": ' . $e->getMessage());
+                $this->handleModuleCrash($module, 'boot', $e);
             }
         }
 
@@ -143,7 +230,7 @@ class ModuleManager
             try {
                 $module->beforeRequest($ctx);
             } catch (Throwable $e) {
-                error_log('[ModuleManager] beforeRequest() error in module "' . $module->getId() . '": ' . $e->getMessage());
+                $this->handleModuleCrash($module, 'beforeRequest', $e);
             }
         }
     }
@@ -158,7 +245,7 @@ class ModuleManager
             try {
                 $module->afterRequest($ctx);
             } catch (Throwable $e) {
-                error_log('[ModuleManager] afterRequest() error in module "' . $module->getId() . '": ' . $e->getMessage());
+                $this->handleModuleCrash($module, 'afterRequest', $e);
             }
         }
     }

@@ -34,6 +34,39 @@
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+{% if authlevel is defined and authlevel == constant('AUTH_ADM') %}
+{% if safeModeLocked is defined and safeModeLocked %}
+<div style="background:rgba(239,68,68,0.18);border-bottom:2px solid #ef4444;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:0.875rem;color:#fca5a5;z-index:9999;position:relative;">
+    <span style="font-size:1.1rem;">&#128274;</span>
+    <strong style="color:#f87171;">SAFE-MODE LOCK aktiv</strong>
+    <span>Alle Plugins wurden deaktiviert. Bitte Fehler beheben und Lock entfernen.</span>
+    <a href="admin.php?page=systemDebug&action=clearSafeModeLock" style="background:rgba(239,68,68,0.25);border:1px solid #ef4444;color:#fca5a5;border-radius:6px;padding:3px 12px;text-decoration:none;font-weight:600;white-space:nowrap;">&#10006; Lock entfernen</a>
+    <a href="admin.php?page=systemDebug" style="color:#7dd3fc;text-decoration:none;white-space:nowrap;">&#128295; Debug Panel</a>
+</div>
+{% elseif safeModeNotices is defined and safeModeNotices|length > 0 %}
+<div style="background:rgba(239,68,68,0.15);border-bottom:2px solid #ef4444;padding:10px 20px;font-size:0.875rem;color:#fca5a5;z-index:9999;position:relative;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:1.1rem;">&#9888;</span>
+        <strong style="color:#f87171;">Safe-Mode: {{ safeModeNotices|length }} Plugin(s) automatisch deaktiviert</strong>
+        <a href="admin.php?page=systemDebug" style="color:#7dd3fc;text-decoration:none;font-size:0.8rem;margin-left:8px;">&#128295; Debug Panel &rarr;</a>
+    </div>
+    {% for notice in safeModeNotices %}
+    <div style="display:flex;gap:8px;align-items:baseline;padding:2px 0;border-top:1px solid rgba(239,68,68,0.2);margin-top:4px;">
+        {% if notice.type == 'lock' %}
+        <span style="background:rgba(239,68,68,0.2);border-radius:4px;padding:1px 6px;font-size:0.7rem;font-weight:700;white-space:nowrap;">LOCK</span>
+        {% elseif notice.type == 'module' %}
+        <span style="background:rgba(168,85,247,0.2);border-radius:4px;padding:1px 6px;font-size:0.7rem;font-weight:700;white-space:nowrap;color:#d8b4fe;">MODULE</span>
+        {% else %}
+        <span style="background:rgba(239,68,68,0.2);border-radius:4px;padding:1px 6px;font-size:0.7rem;font-weight:700;white-space:nowrap;">PLUGIN</span>
+        {% endif %}
+        <strong style="color:#fca5a5;white-space:nowrap;">{{ notice.plugin }}</strong>
+        <span style="color:#94a3b8;font-size:0.8rem;overflow:hidden;text-overflow:ellipsis;">{{ notice.reason|slice(0, 120) }}{% if notice.reason|length > 120 %}&hellip;{% endif %}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+
 <div class="admin-wrapper">
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-brand">
