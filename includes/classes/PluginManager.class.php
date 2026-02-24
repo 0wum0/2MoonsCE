@@ -510,10 +510,25 @@ class PluginManager
 
         try {
             $db = Database::get();
-            // Split on semicolons and run each statement
+
+            // Apply %%TABLE%% → real table name replacement (same as Database::_query)
+            $tableNames = $db->getDbTableNames();
+            if (!empty($tableNames['keys'])) {
+                $sql = str_replace($tableNames['keys'], $tableNames['names'], $sql);
+            }
+
+            // Split on semicolons, strip leading comment lines, skip empty results
             $statements = array_filter(
-                array_map('trim', explode(';', $sql)),
-                static fn(string $s): bool => $s !== '' && !str_starts_with($s, '--')
+                array_map(static function(string $s): string {
+                    // Remove leading -- comment lines so they don't cause the
+                    // statement to be mistakenly treated as a comment block
+                    $lines = array_filter(
+                        explode("\n", $s),
+                        static fn(string $l): bool => !str_starts_with(trim($l), '--')
+                    );
+                    return trim(implode("\n", $lines));
+                }, explode(';', $sql)),
+                static fn(string $s): bool => $s !== ''
             );
             foreach ($statements as $stmt) {
                 $db->query($stmt . ';');

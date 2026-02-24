@@ -22,10 +22,13 @@ function ShowPluginAdminPage(): void
 
     // ── Actions ──────────────────────────────────────────────────────────────
 
+    $cacheChanged = false;
+
     if ($action === 'activate' && $id !== '') {
         try {
             $pm->activate($id);
             $message = 'Plugin "' . htmlspecialchars($id) . '" aktiviert.';
+            $cacheChanged = true;
         } catch (Throwable $e) {
             $error = 'Fehler beim Aktivieren: ' . htmlspecialchars($e->getMessage());
         }
@@ -35,6 +38,7 @@ function ShowPluginAdminPage(): void
         try {
             $pm->deactivate($id);
             $message = 'Plugin "' . htmlspecialchars($id) . '" deaktiviert.';
+            $cacheChanged = true;
         } catch (Throwable $e) {
             $error = 'Fehler beim Deaktivieren: ' . htmlspecialchars($e->getMessage());
         }
@@ -44,6 +48,7 @@ function ShowPluginAdminPage(): void
         try {
             $pm->uninstall($id);
             $message = 'Plugin "' . htmlspecialchars($id) . '" deinstalliert.';
+            $cacheChanged = true;
         } catch (Throwable $e) {
             $error = 'Fehler beim Deinstallieren: ' . htmlspecialchars($e->getMessage());
         }
@@ -54,6 +59,7 @@ function ShowPluginAdminPage(): void
             $manifest = $pm->readManifest(ROOT_PATH . 'plugins/' . $id);
             $pm->install($manifest);
             $message = 'Plugin "' . htmlspecialchars($manifest['name']) . '" installiert.';
+            $cacheChanged = true;
         } catch (Throwable $e) {
             $error = 'Installationsfehler: ' . htmlspecialchars($e->getMessage());
         }
@@ -72,10 +78,16 @@ function ShowPluginAdminPage(): void
                 $manifest = $pm->installFromZip($tmpPath);
                 $pm->install($manifest);
                 $message = 'Plugin "' . htmlspecialchars($manifest['name']) . '" (v' . htmlspecialchars($manifest['version']) . ') erfolgreich installiert.';
+                $cacheChanged = true;
             } catch (Throwable $e) {
                 $error = 'Installationsfehler: ' . htmlspecialchars($e->getMessage());
             }
         }
+    }
+
+    // Flush vars cache so VarsBuildCache picks up any DB changes from plugin SQL migrations
+    if ($cacheChanged) {
+        Cache::get()->flush('vars');
     }
 
     // ── Load plugin list ──────────────────────────────────────────────────────
