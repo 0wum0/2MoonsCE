@@ -37,6 +37,9 @@ declare(strict_types=1);
  *   ],
  *   'metadata'    => array,             // arbitrary plugin data
  * ]
+ *
+ * Query API note: use ElementRegistry::get() to retrieve the singleton instance,
+ * then call ->find(int $id) to look up an element by ID.
  */
 if (class_exists('ElementRegistry', false)) {
     return;
@@ -213,7 +216,7 @@ class ElementRegistry
 
     // ── Query ────────────────────────────────────────────────────────────────
 
-    public function get(int $id): ?array
+    public function find(int $id): ?array
     {
         return $this->elements[$id] ?? null;
     }
