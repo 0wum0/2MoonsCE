@@ -20,7 +20,7 @@ require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
 class DailyCronjob implements CronjobTask
 {
-	function run()
+	function run(): void
 	{
 		$this->optimizeTables();
 		$this->clearCache();
@@ -28,7 +28,7 @@ class DailyCronjob implements CronjobTask
 		$this->clearEcoCache();
 	}
 	
-	function optimizeTables()
+	function optimizeTables(): void
 	{
 		$sql			= "SHOW TABLE STATUS FROM `".DB_NAME."`;";
 		$sqlTableRaw	= Database::get()->nativeQuery($sql);
@@ -49,17 +49,17 @@ class DailyCronjob implements CronjobTask
 		}
 	}
 
-	function clearCache()
+	function clearCache(): void
 	{
 		ClearCache();
 	}
 	
-	function reCalculateCronjobs()
+	function reCalculateCronjobs(): void
 	{
 		Cronjob::reCalculateCronjobs();
 	}
 	
-	function clearEcoCache()
+	function clearEcoCache(): void
 	{
 		$sql	= "UPDATE %%PLANETS%% SET eco_hash = '';";
 		Database::get()->update($sql);

@@ -132,7 +132,7 @@ class VarsBuildCache implements BuildCache
 					$reslist['build'][]	= $varsRow['elementID'];
 					$tmp	= explode(',', $varsRow['onPlanetType']);
 					foreach($tmp as $type) 
-						$reslist['allow'][$type][]	= $varsRow['elementID'];
+						$reslist['allow'][(int)$type][]	= $varsRow['elementID'];
 				break;
 				case 100: 
 					$reslist['tech'][]	= $varsRow['elementID'];

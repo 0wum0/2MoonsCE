@@ -20,7 +20,7 @@ require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
 class CleanerCronjob implements CronjobTask
 {
-	function run()
+	function run(): void
 	{
         $config	= Config::get(ROOT_UNI);
 

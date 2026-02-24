@@ -20,7 +20,7 @@ require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
 class DumpCronjob implements CronjobTask
 {
-	function run()
+	function run(): void
 	{
 		$prefixCounts	= strlen(DB_PREFIX);
 		$dbTables		= array();

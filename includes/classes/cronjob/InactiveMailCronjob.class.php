@@ -18,9 +18,9 @@ declare(strict_types=1);
 
 require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
-class InactiveMailCronjob
+class InactiveMailCronjob implements CronjobTask
 {
-	function run()
+	function run(): void
 	{
 		global $LNG;
 

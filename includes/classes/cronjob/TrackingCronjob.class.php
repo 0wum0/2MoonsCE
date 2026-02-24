@@ -20,7 +20,7 @@ require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
 class TrackingCronjob implements CronjobTask
 {
-	function run()
+	function run(): void
 	{
 		$serverData['php']			= PHP_VERSION;
 		

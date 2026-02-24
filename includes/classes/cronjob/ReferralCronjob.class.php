@@ -18,13 +18,13 @@ declare(strict_types=1);
 
 require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
-class ReferralCronJob implements CronjobTask
+class ReferralCronjob implements CronjobTask
 {
-	function run()
+	function run(): void
 	{		
 		if(Config::get(ROOT_UNI)->ref_active != 1)
 		{
-			return null;
+			return;
 		}
 		/** @var $langObjects Language[] */
 		$langObjects	= array();
@@ -70,6 +70,5 @@ class ReferralCronJob implements CronjobTask
 			PlayerUtil::sendMessage($user['ref_id'], '', $LNG['sys_refferal_from'], 4, sprintf($LNG['sys_refferal_title'], $user['username']), $Message, TIMESTAMP);
 		}
 
-		return true;
 	}
 }
