@@ -180,12 +180,12 @@ HTML;
 			
 		$userDefend[$fleetDefend[0]['player']['id']]	= $fleetDefend[0]['player']['username'];
 		
-		require_once 'includes/classes/missions/functions/calculateAttack.php';
+		require_once 'includes/classes/CombatFramework.class.php';
 
 		$fleetIntoDebris	= $config->Fleet_Cdr;
 		$defIntoDebris		= $config->Defs_Cdr;
 		
-		$combatResult 		= calculateAttack($fleetAttack, $fleetDefend, $fleetIntoDebris, $defIntoDebris);
+		$combatResult 		= CombatFramework::run($fleetAttack, $fleetDefend, (float)$fleetIntoDebris, (float)$defIntoDebris);
 
 		foreach ($fleetAttack as $fleetID => $fleetDetail)
 		{

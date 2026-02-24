@@ -1,0 +1,8 @@
+{
+    "id": "sm-combat-test",
+    "name": "SmartMoons Combat Hook Test",
+    "version": "1.0.0",
+    "type": "game",
+    "description": "Testplugin für das CombatFramework v1.2. Beweist, dass combat.pre_calculate und combat.post_calculate feuern, ohne das Kampfergebnis zu verändern.",
+    "author": "SmartMoons Dev"
+}
