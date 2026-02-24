@@ -101,7 +101,8 @@ class Language implements ArrayAccess {
 		}
 		elseif(MODE !== 'INSTALL')
 		{
-			$this->language	= Config::get()->lang;
+			$lang = Config::get()->lang;
+			$this->language = (!empty($lang) && in_array($lang, self::getAllowedLangs())) ? $lang : DEFAULT_LANG;
 		}
 		else
 		{
@@ -136,7 +137,11 @@ class Language implements ArrayAccess {
 		ob_start();
 		$LNG	= array();
 
-		$path	= 'language/'.$this->getLanguage().'/';
+		$lang	= trim((string) $this->getLanguage(), '/\\');
+		if ($lang === '') {
+			$lang = DEFAULT_LANG;
+		}
+		$path	= 'language' . DIRECTORY_SEPARATOR . $lang . DIRECTORY_SEPARATOR;
 
         foreach($files as $file) {
 			$filePath	= $path.$file.'.php';
@@ -146,8 +151,6 @@ class Language implements ArrayAccess {
 			}
 		}
 
-		$filePath	= $path.'CUSTOM.php';
-		require $filePath;
 		ob_end_clean();
 
 		$this->addData($LNG);
