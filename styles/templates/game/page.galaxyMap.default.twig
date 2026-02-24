@@ -1,0 +1,921 @@
+{% extends "layout.full.twig" %}
+
+{% block title %}Galaxy Map{% endblock %}
+
+{% block script %}
+<script>
+  window.SM = {
+    userId:  {{ USER.id|default(0) }},
+    allyId:  {{ USER.ally_id|default(0) }},
+    galaxy:  {{ PLANET.galaxy|default(1) }},
+    system:  {{ PLANET.system|default(1) }},
+    planet:  {{ PLANET.planet|default(1) }},
+    apiUrl:  'includes/pages/game/galaxy_map_api.php'
+  };
+</script>
+{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
+
+/* ── Escape the game layout container ─────────────────────────────── */
+/* The map needs to cover the full viewport over the game UI */
+#gm-root {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9000;
+  background: #020510;
+  font-family: 'Rajdhani', sans-serif;
+  color: #c8e6ff;
+  overflow: hidden;
+}
+
+#gm-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  cursor: grab;
+}
+#gm-canvas:active { cursor: grabbing; }
+
+/* ── CSS Variables ───────────────────────────────────────────────── */
+#gm-root {
+  --cyan:   #00d4ff;
+  --gold:   #ffd700;
+  --red:    #ff3060;
+  --green:  #00ff88;
+  --purple: #a855f7;
+  --dim:    #4a6a8a;
+  --text:   #c8e6ff;
+  --panel:  rgba(4,14,38,0.90);
+  --border: rgba(0,200,255,0.18);
+}
+
+/* ── HUD top bar ─────────────────────────────────────────────────── */
+#gm-hud {
+  position: absolute; top: 0; left: 0; right: 0; height: 50px;
+  background: linear-gradient(180deg,rgba(2,5,16,.97) 55%,transparent);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px; z-index: 100; pointer-events: none;
+}
+.hud-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px; font-weight: 900;
+  color: var(--cyan); letter-spacing: 4px;
+  text-shadow: 0 0 20px var(--cyan);
+}
+.hud-sep { width: 1px; height: 18px; background: var(--border); }
+.hud-pill {
+  padding: 2px 10px; border-radius: 20px;
+  font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 1px;
+}
+.hud-pill.c { border:1px solid rgba(0,212,255,.3);  color:var(--cyan);   background:rgba(0,212,255,.07); }
+.hud-pill.g { border:1px solid rgba(0,255,136,.3);  color:var(--green);  background:rgba(0,255,136,.07); }
+.hud-pill.r { border:1px solid rgba(255,48,96,.35); color:var(--red);    background:rgba(255,48,96,.09); }
+
+/* Close button to go back to game */
+#gm-close {
+  margin-left: auto;
+  pointer-events: all;
+  background: rgba(255,48,96,.1);
+  border: 1px solid rgba(255,48,96,.3);
+  color: var(--red);
+  padding: 4px 12px; border-radius: 6px;
+  font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px;
+  cursor: pointer; transition: all .2s;
+}
+#gm-close:hover { background: rgba(255,48,96,.25); }
+
+/* ── Side panel ──────────────────────────────────────────────────── */
+#gm-side {
+  position: absolute; top: 58px; left: 12px;
+  width: 236px;
+  background: var(--panel); backdrop-filter: blur(18px);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 14px; z-index: 100;
+  box-shadow: 0 8px 30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.sp-h { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2.5px; color:var(--cyan); margin-bottom:7px; }
+.sp-row { display:flex; gap:7px; margin-bottom:7px; }
+.sp-col { flex:1; }
+.sp-lbl { font-size:10px; color:var(--dim); font-family:'Orbitron',monospace; letter-spacing:1px; margin-bottom:3px; }
+.sp-inp {
+  width:100%; background:rgba(0,0,0,.5);
+  border:1px solid rgba(0,212,255,.2); border-radius:6px;
+  padding:5px 7px; color:#fff;
+  font-family:'Orbitron',monospace; font-size:12px; outline:none; box-sizing:border-box;
+  transition:border-color .2s;
+}
+.sp-inp:focus { border-color:var(--cyan); }
+.sp-btn {
+  width:100%; padding:7px; border-radius:7px; border:none;
+  cursor:pointer; font-family:'Orbitron',monospace; font-size:9px;
+  letter-spacing:1.5px; transition:all .2s; margin-top:4px;
+}
+.sp-btn.c { background:rgba(0,212,255,.1);  border:1px solid rgba(0,212,255,.3);  color:var(--cyan); }
+.sp-btn.g { background:rgba(0,255,136,.08); border:1px solid rgba(0,255,136,.28); color:var(--green); }
+.sp-btn.c:hover { background:rgba(0,212,255,.22); }
+.sp-btn.g:hover { background:rgba(0,255,136,.18); }
+.sp-sep { border:none; border-top:1px solid rgba(0,212,255,.09); margin:9px 0; }
+.leg { display:flex; align-items:center; gap:6px; margin-bottom:3px; font-size:11px; color:var(--dim); }
+.leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.vw-row { display:flex; gap:6px; }
+.vw-btn {
+  flex:1; padding:6px; text-align:center; border-radius:7px;
+  cursor:pointer; font-size:9px; font-family:'Orbitron',monospace; letter-spacing:1px;
+  background:rgba(0,0,0,.3); border:1px solid rgba(0,212,255,.1); color:var(--dim);
+  transition:all .2s;
+}
+.vw-btn.on { background:rgba(0,212,255,.14); border-color:var(--cyan); color:var(--cyan); }
+.st-row { display:flex; justify-content:space-between; margin-bottom:3px; font-size:11px; }
+.sk { color:var(--dim); }
+.sv { font-family:'Orbitron',monospace; font-size:10px; }
+
+/* ── Action panel ────────────────────────────────────────────────── */
+#gm-action {
+  position:absolute; bottom:65px; left:50%; transform:translateX(-50%);
+  min-width:430px; max-width:590px;
+  background:var(--panel); backdrop-filter:blur(22px);
+  border:1px solid var(--border); border-radius:13px;
+  padding:15px 17px 13px; z-index:200; display:none;
+  box-shadow:0 16px 50px rgba(0,0,0,.85);
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp {
+  from{opacity:0;transform:translateX(-50%) translateY(14px)}
+  to  {opacity:1;transform:translateX(-50%) translateY(0)}
+}
+.ap-x { position:absolute;top:8px;right:12px;background:none;border:none;color:var(--dim);font-size:17px;cursor:pointer; }
+.ap-x:hover { color:var(--red); }
+.ap-name { font-family:'Orbitron',monospace;font-size:13px;color:var(--cyan);letter-spacing:2px;margin-bottom:2px; }
+.ap-coord { font-size:11px;color:var(--dim);font-family:'Orbitron',monospace;margin-bottom:10px; }
+.ap-meta { display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:11px; }
+.ap-box { background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.05);border-radius:7px;padding:7px 9px;text-align:center; }
+.ap-box-lbl { font-size:9px;color:var(--dim);font-family:'Orbitron',monospace;letter-spacing:1px; }
+.ap-box-val { font-size:12px;margin-top:2px; }
+.ap-btns { display:flex;flex-wrap:wrap;gap:7px;justify-content:center; }
+.ap-btn {
+  padding:7px 13px;border-radius:7px;border:none;cursor:pointer;
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:all .2s;text-decoration:none;line-height:1;
+}
+.ap-btn:hover { filter:brightness(1.45);transform:translateY(-1px); }
+.ab-spy  { background:rgba(255,255,0,.09);  border:1px solid rgba(255,255,0,.28);  color:#ffee00; }
+.ab-atk  { background:rgba(255,48,96,.1);   border:1px solid rgba(255,48,96,.35);  color:var(--red); }
+.ab-flt  { background:rgba(0,212,255,.09);  border:1px solid rgba(0,212,255,.28);  color:var(--cyan); }
+.ab-msg  { background:rgba(168,85,247,.09); border:1px solid rgba(168,85,247,.3);  color:var(--purple); }
+.ab-card { background:rgba(255,215,0,.07);  border:1px solid rgba(255,215,0,.25);  color:var(--gold); }
+.ab-rec  { background:rgba(255,153,0,.09);  border:1px solid rgba(255,153,0,.28);  color:#ff9900; }
+.ap-own  { text-align:center;padding:7px;font-size:11px;color:var(--green);font-family:'Orbitron',monospace;letter-spacing:1px; }
+
+/* ── Player card ─────────────────────────────────────────────────── */
+#gm-card {
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:395px;background:var(--panel);backdrop-filter:blur(26px);
+  border:1px solid rgba(168,85,247,.32);border-radius:14px;
+  padding:20px;z-index:300;display:none;
+  box-shadow:0 20px 60px rgba(0,0,0,.92),0 0 50px rgba(168,85,247,.1);
+  animation:fadeScale .25s ease;
+}
+@keyframes fadeScale {
+  from{opacity:0;transform:translate(-50%,-50%) scale(.88)}
+  to  {opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+.pc-x { position:absolute;top:10px;right:14px;background:none;border:none;color:var(--dim);font-size:19px;cursor:pointer; }
+.pc-x:hover { color:var(--red); }
+.pc-hdr { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
+.pc-av {
+  width:46px;height:46px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;color:#fff;font-family:'Orbitron',monospace;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+}
+.pc-nm { font-family:'Orbitron',monospace;font-size:14px;color:#fff; }
+.pc-al { font-size:12px;color:var(--purple);margin-top:2px; }
+.pc-on { font-size:10px;color:var(--dim);margin-top:3px; }
+.pc-on .dot { display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px; }
+.dot-on  { background:var(--green);box-shadow:0 0 5px var(--green); }
+.dot-off { background:var(--dim); }
+.pc-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px; }
+.pc-st { background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.05);border-radius:7px;padding:7px 9px; }
+.pc-st-lbl { font-size:9px;color:var(--dim);font-family:'Orbitron',monospace;letter-spacing:1px; }
+.pc-st-val { font-size:13px;color:#fff;margin-top:1px; }
+.pc-st-rnk { font-size:9px;color:var(--dim); }
+.pc-fights { display:flex;justify-content:space-around;margin-bottom:10px; }
+.pcf { text-align:center; }
+.pcf-n { font-family:'Orbitron',monospace;font-size:14px; }
+.pcf-l { font-size:10px;color:var(--dim);margin-top:2px; }
+.pc-acts { display:flex;gap:7px;flex-wrap:wrap;justify-content:center; }
+
+/* ── Tooltip ─────────────────────────────────────────────────────── */
+#gm-tip {
+  position:fixed;
+  background:rgba(2,5,16,.96);backdrop-filter:blur(10px);
+  border:1px solid rgba(0,212,255,.2);border-radius:8px;
+  padding:9px 12px;font-size:12px;color:var(--text);
+  pointer-events:none;display:none;
+  min-width:140px;z-index:600;
+  box-shadow:0 6px 20px rgba(0,0,0,.7);
+}
+.tt-h { font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1.5px;margin-bottom:4px; }
+.tt-l { margin:2px 0;color:var(--dim); }
+.tt-l span { color:var(--text); }
+
+/* ── Loader ──────────────────────────────────────────────────────── */
+#gm-load {
+  position:absolute;inset:0;background:#020510;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:2000;transition:opacity .45s;
+}
+.ld-ring {
+  width:52px;height:52px;
+  border:2px solid rgba(0,212,255,.12);
+  border-top:2px solid var(--cyan);
+  border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-txt { font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan); }
+
+#gm-hint {
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;
+  color:rgba(74,106,138,.55);pointer-events:none;white-space:nowrap;
+}
+</style>
+
+<!-- The map root: position:fixed so it sits OVER the game layout -->
+<div id="gm-root">
+  <!-- Loader -->
+  <div id="gm-load">
+    <div class="ld-ring"></div>
+    <div class="ld-txt" id="ld-txt">SCANNING UNIVERSE…</div>
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="gm-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="gm-hud">
+    <span class="hud-title"><i class="fas fa-meteor" style="margin-right:8px"></i>GALAXY MAP</span>
+    <div class="hud-sep"></div>
+    <span class="hud-pill c" id="h-planets">– PLANETS</span>
+    <span class="hud-pill g" id="h-fleets">– FLEETS</span>
+    <span class="hud-pill r" id="h-hostile">– HOSTILE</span>
+    <button id="gm-close" onclick="window.history.back()"><i class="fas fa-times" style="margin-right:5px"></i>CLOSE MAP</button>
+  </div>
+
+  <!-- Side panel -->
+  <div id="gm-side">
+    <div style="margin-bottom:11px">
+      <div class="sp-h"><i class="fas fa-sliders-h" style="margin-right:5px"></i>VIEW MODE</div>
+      <div class="vw-row">
+        <div class="vw-btn on" id="vb-3d" onclick="GM.setView('3d')">3D</div>
+        <div class="vw-btn"   id="vb-2d" onclick="GM.setView('2d')">2D</div>
+      </div>
+    </div>
+    <hr class="sp-sep">
+    <div style="margin-bottom:11px">
+      <div class="sp-h"><i class="fas fa-location-arrow" style="margin-right:5px"></i>NAVIGATION</div>
+      <div class="sp-row">
+        <div class="sp-col">
+          <div class="sp-lbl">GALAXY</div>
+          <input type="number" id="nav-g" class="sp-inp" value="{{ PLANET.galaxy|default(1) }}" min="1" max="9">
+        </div>
+        <div class="sp-col">
+          <div class="sp-lbl">SYSTEM</div>
+          <input type="number" id="nav-s" class="sp-inp" value="{{ PLANET.system|default(1) }}" min="1" max="499">
+        </div>
+      </div>
+      <button class="sp-btn c" onclick="GM.navJump()"><i class="fas fa-arrow-right" style="margin-right:5px"></i>JUMP TO SYSTEM</button>
+      <button class="sp-btn g" onclick="GM.navHome()" style="margin-top:5px"><i class="fas fa-home" style="margin-right:5px"></i>MY HOME PLANET</button>
+    </div>
+    <hr class="sp-sep">
+    <div style="margin-bottom:11px">
+      <div class="sp-h"><i class="fas fa-circle-info" style="margin-right:5px"></i>LEGEND</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff88"></div>Your Planets</div>
+      <div class="leg"><div class="leg-dot" style="background:#a855f7"></div>Alliance Members</div>
+      <div class="leg"><div class="leg-dot" style="background:#00d4ff"></div>Other Players</div>
+      <div class="leg"><div class="leg-dot" style="background:#ff3060"></div>Hostile Fleet</div>
+      <div class="leg"><div class="leg-dot" style="background:rgba(0,212,255,.5)"></div>Your Fleet</div>
+      <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>Debris Field</div>
+      <div class="leg"><div class="leg-dot" style="background:#aaa"></div>Moon</div>
+    </div>
+    <hr class="sp-sep">
+    <div style="margin-bottom:10px">
+      <div class="sp-h"><i class="fas fa-chart-bar" style="margin-right:5px"></i>UNIVERSE STATS</div>
+      <div class="st-row"><span class="sk">Planets</span><span class="sv c" id="st-p">–</span></div>
+      <div class="st-row"><span class="sk">Active Fleets</span><span class="sv g" id="st-f">–</span></div>
+      <div class="st-row"><span class="sk">Hostile</span><span class="sv r" id="st-h">–</span></div>
+      <div class="st-row"><span class="sk">Alliances</span><span class="sv c" id="st-a">–</span></div>
+      <div class="st-row"><span class="sk">Debris Fields</span><span class="sv" id="st-d" style="color:#ff9900">–</span></div>
+    </div>
+    <button class="sp-btn c" onclick="GM.reloadFleets()" style="font-size:9px"><i class="fas fa-sync-alt" style="margin-right:5px"></i>REFRESH FLEETS</button>
+    <div style="text-align:center;font-size:9px;color:var(--dim);margin-top:5px;font-family:'Orbitron',monospace" id="upd-time">Auto-refresh: 30s</div>
+  </div>
+
+  <!-- Action panel -->
+  <div id="gm-action">
+    <button class="ap-x" onclick="GM.closeAction()"><i class="fas fa-times"></i></button>
+    <div class="ap-name" id="ap-name">–</div>
+    <div class="ap-coord" id="ap-coord">–</div>
+    <div class="ap-meta" id="ap-meta"></div>
+    <div class="ap-btns" id="ap-btns"></div>
+  </div>
+
+  <!-- Player card -->
+  <div id="gm-card">
+    <button class="pc-x" onclick="GM.closeCard()"><i class="fas fa-times"></i></button>
+    <div id="pc-body"></div>
+  </div>
+
+  <!-- Tooltip -->
+  <div id="gm-tip"></div>
+
+  <div id="gm-hint">SCROLL = ZOOM  •  DRAG = ROTATE / PAN  •  CLICK PLANET = ACTIONS</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============================================================
+   SmartMoons Galaxy Map v3
+   Planeten = THREE.Sprite mit Canvas-Kreis-Textur → immer rund
+   ============================================================ */
+const GM = (() => {
+'use strict';
+
+// ── State ──────────────────────────────────────────────────
+let scene, camera, renderer;
+let is3D  = true;
+let frame = 0;
+
+let orb = { theta: 0.4, phi: 1.05, r: 750 };
+let pan = { x: 0, z: 0 };
+let drag = { down:false, startX:0, startY:0, moved:0,
+             snapTheta:0, snapPhi:0, snapPanX:0, snapPanZ:0 };
+
+let starField   = null;
+let planetGroup = null;
+let fleetGroup  = null;
+let posMap      = {};   // "g:s:p" → THREE.Vector3
+
+let galaxyData  = null;
+let fleetData   = null;
+
+// ── DOM ────────────────────────────────────────────────────
+const canvas   = document.getElementById('gm-canvas');
+const loadEl   = document.getElementById('gm-load');
+const ldTxt    = document.getElementById('ld-txt');
+const actionEl = document.getElementById('gm-action');
+const cardEl   = document.getElementById('gm-card');
+const tipEl    = document.getElementById('gm-tip');
+
+// ── Sprite texture factory ─────────────────────────────────
+// Off-screen canvas → perfekter Kreis → CanvasTexture
+// THREE.Sprite dreht sich immer zur Kamera → immer rund!
+const texCache = {};
+function circleTex(hex) {
+  if (texCache[hex]) return texCache[hex];
+  const S = 128, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d'), cx = S/2, r = S/2 - 2;
+
+  // Glow halo
+  const g1 = ctx.createRadialGradient(cx, cx, r*.15, cx, cx, r);
+  g1.addColorStop(0,   hex + 'bb');
+  g1.addColorStop(0.6, hex + '55');
+  g1.addColorStop(1,   hex + '00');
+  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI*2);
+  ctx.fillStyle = g1; ctx.fill();
+
+  // Planet sphere gradient
+  const g2 = ctx.createRadialGradient(cx-r*.2, cx-r*.2, 0, cx, cx, r*.5);
+  g2.addColorStop(0,   '#ffffff');
+  g2.addColorStop(0.2, hex);
+  g2.addColorStop(1,   darken(hex));
+  ctx.beginPath(); ctx.arc(cx, cx, r*.46, 0, Math.PI*2);
+  ctx.fillStyle = g2; ctx.fill();
+
+  texCache[hex] = new THREE.CanvasTexture(c);
+  return texCache[hex];
+}
+function darken(hex) {
+  hex = hex.replace('#','');
+  const d = v => Math.max(0, Math.round(parseInt(v,16)*0.45)).toString(16).padStart(2,'0');
+  return '#'+d(hex.slice(0,2))+d(hex.slice(2,4))+d(hex.slice(4,6));
+}
+
+// ── Init Three.js ──────────────────────────────────────────
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x020510);
+  scene.fog = new THREE.FogExp2(0x020510, 0.00022);
+
+  camera = new THREE.PerspectiveCamera(58, innerWidth/innerHeight, 0.5, 12000);
+  syncCamera();
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+  scene.add(new THREE.AmbientLight(0x304060, 2));
+  const dl = new THREE.DirectionalLight(0x5599ff, 0.6);
+  dl.position.set(200, 400, 100); scene.add(dl);
+
+  planetGroup = new THREE.Group(); scene.add(planetGroup);
+  fleetGroup  = new THREE.Group(); scene.add(fleetGroup);
+
+  buildStars();
+  buildNebula();
+  bindEvents();
+
+  Promise.all([fetchGalaxy(), fetchFleets()])
+    .then(() => hideLoader())
+    .catch(() => { ldTxt.textContent = 'DEMO MODE'; loadDemo(); hideLoader(800); });
+
+  setInterval(fetchFleets, 30000);
+  animate();
+}
+
+function hideLoader(delay=0) {
+  setTimeout(() => {
+    loadEl.style.opacity='0';
+    setTimeout(()=>loadEl.style.display='none', 450);
+  }, delay);
+}
+
+// ── Starfield ──────────────────────────────────────────────
+function buildStars() {
+  const N=8000, pos=new Float32Array(N*3), col=new Float32Array(N*3);
+  for (let i=0;i<N;i++) {
+    const rr=1000+Math.random()*4500, t=Math.random()*Math.PI*2, p=Math.acos(2*Math.random()-1);
+    pos[i*3]=rr*Math.sin(p)*Math.cos(t); pos[i*3+1]=rr*Math.sin(p)*Math.sin(t)*.22; pos[i*3+2]=rr*Math.cos(p);
+    const v=0.5+Math.random()*.5;
+    col[i*3]=v*(0.7+Math.random()*.3); col[i*3+1]=v*(0.8+Math.random()*.2); col[i*3+2]=v;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  starField=new THREE.Points(geo,new THREE.PointsMaterial({
+    size:1.3,vertexColors:true,sizeAttenuation:true,transparent:true,opacity:.88,depthWrite:false
+  }));
+  scene.add(starField);
+}
+
+function buildNebula() {
+  const N=2500, pos=new Float32Array(N*3);
+  for (let i=0;i<N;i++) {
+    const t=(i/N)*Math.PI*9+Math.random()*.9, rr=(i/N)*500;
+    const arm=Math.floor(Math.random()*3)*(Math.PI*2/3);
+    pos[i*3]=Math.cos(t+arm)*rr+(Math.random()-.5)*22;
+    pos[i*3+1]=(Math.random()-.5)*6;
+    pos[i*3+2]=Math.sin(t+arm)*rr+(Math.random()-.5)*22;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(geo,new THREE.PointsMaterial({
+    color:0x1a2d99,size:2.8,sizeAttenuation:true,transparent:true,opacity:.18,depthWrite:false
+  })));
+}
+
+// ── Koordinaten → 3D-Position ──────────────────────────────
+function toWorld(g, s, p) {
+  const gAngle=((g-1)/9)*Math.PI*2, gR=480;
+  const gx=Math.cos(gAngle)*gR, gz=Math.sin(gAngle)*gR;
+  const sAngle=gAngle+((s-1)/499)*Math.PI*5.2, sR=((s-1)/499)*390;
+  const sx=gx+Math.cos(sAngle)*sR, sz=gz+Math.sin(sAngle)*sR;
+  const pAngle=((p-1)/15)*Math.PI*2, pR=3+p*2.5;
+  return new THREE.Vector3(sx+Math.cos(pAngle)*pR, 0, sz+Math.sin(pAngle)*pR);
+}
+
+// ── Planeten als Sprites ───────────────────────────────────
+function buildPlanets(planets) {
+  while (planetGroup.children.length) planetGroup.remove(planetGroup.children[0]);
+  posMap = {};
+
+  planets.forEach(pl => {
+    const key = `${pl.galaxy}:${pl.system}:${pl.planet}`;
+    const pos = toWorld(pl.galaxy, pl.system, pl.planet);
+    posMap[key] = pos.clone();
+
+    let hex = '#00d4ff';
+    if (pl.is_own)       hex = '#00ff88';
+    else if (pl.is_ally) hex = '#a855f7';
+    else if (pl.ally_color && pl.ally_color !== 'null') hex = pl.ally_color;
+
+    const rankScale = pl.total_rank > 0
+      ? Math.max(0.55, Math.min(2.2, 350/Math.max(pl.total_rank,1))) : 1.0;
+    const sz = 11 * rankScale;
+
+    // Sprite → immer zur Kamera gewandt → immer perfekt rund
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: circleTex(hex), transparent:true, depthWrite:false, sizeAttenuation:true
+    }));
+    sprite.position.copy(pos);
+    sprite.scale.setScalar(sz);
+    sprite.userData = { planet:pl, baseScale:sz, key };
+    planetGroup.add(sprite);
+
+    // Mond
+    if (pl.has_moon) {
+      const ms = new THREE.Sprite(new THREE.SpriteMaterial({
+        map:circleTex('#aaaaaa'), transparent:true, depthWrite:false, sizeAttenuation:true
+      }));
+      ms.position.copy(pos).add(new THREE.Vector3(sz*.72, sz*.45, 0));
+      ms.scale.setScalar(sz*.34);
+      planetGroup.add(ms);
+    }
+
+    // Trümmerfeld
+    if (pl.has_debris) {
+      const tg = new THREE.TorusGeometry(sz*.7, 0.26, 6, 28);
+      const mesh = new THREE.Mesh(tg, new THREE.MeshBasicMaterial({
+        color:0xff9900, transparent:true, opacity:.5
+      }));
+      mesh.position.copy(pos); mesh.rotation.x = Math.PI/2;
+      planetGroup.add(mesh);
+    }
+  });
+}
+
+// ── Flottenlinien ──────────────────────────────────────────
+function buildFleets(fleets) {
+  while (fleetGroup.children.length) fleetGroup.remove(fleetGroup.children[0]);
+  fleets.forEach(f => {
+    const sk=`${f.start.g}:${f.start.s}:${f.start.p}`;
+    const ek=`${f.end.g}:${f.end.s}:${f.end.p}`;
+    const sPos = posMap[sk] || toWorld(f.start.g, f.start.s, f.start.p);
+    const ePos = posMap[ek] || toWorld(f.end.g,   f.end.s,   f.end.p);
+    const prg  = Math.min(1, Math.max(0, f.progress||0));
+    const cur  = sPos.clone().lerp(ePos, prg);
+    const col  = parseInt((f.color||'#00d4ff').replace('#',''), 16);
+
+    // Trail start→current
+    const lg = new THREE.BufferGeometry().setFromPoints([sPos, cur]);
+    const lm = new THREE.LineBasicMaterial({color:col, transparent:true, opacity:.7, depthWrite:false});
+    const ln = new THREE.Line(lg, lm);
+    ln.userData = { fleet:f };
+    fleetGroup.add(ln);
+
+    // Remaining dim
+    const dg = new THREE.BufferGeometry().setFromPoints([cur, ePos]);
+    fleetGroup.add(new THREE.Line(dg, new THREE.LineBasicMaterial({
+      color:col, transparent:true, opacity:.14, depthWrite:false
+    })));
+
+    // Fleet dot
+    const ds = new THREE.Sprite(new THREE.SpriteMaterial({
+      map:circleTex(f.color||'#00d4ff'), transparent:true, depthWrite:false, sizeAttenuation:true
+    }));
+    ds.position.copy(cur); ds.scale.setScalar(5); ds.userData={fleet:f, isFleetDot:true};
+    fleetGroup.add(ds);
+  });
+}
+
+// ── Data fetching ──────────────────────────────────────────
+async function fetchGalaxy() {
+  const r = await fetch(window.SM.apiUrl+'?action=galaxy_data');
+  if (!r.ok) throw new Error('API error');
+  galaxyData = await r.json();
+  if (galaxyData.planets) { buildPlanets(galaxyData.planets); updateStats(); }
+}
+
+async function fetchFleets() {
+  try {
+    const r = await fetch(window.SM.apiUrl+'?action=fleet_data');
+    if (!r.ok) return;
+    fleetData = await r.json();
+    if (fleetData.fleets) { buildFleets(fleetData.fleets); updateStats(); }
+    set('upd-time','Updated '+new Date().toLocaleTimeString());
+  } catch(e){}
+}
+
+// ── Demo fallback ──────────────────────────────────────────
+function loadDemo() {
+  const cols=['#00d4ff','#a855f7','#ff6b35','#ffd700','#00ffcc','#ff3399'];
+  const planets=[];
+  for (let g=1;g<=4;g++) for (let s=1;s<=120;s++) {
+    if (Math.random()>.4) continue;
+    const n=Math.floor(Math.random()*4)+1;
+    for (let k=0;k<n;k++) {
+      const p=Math.floor(Math.random()*15)+1, ai=Math.floor(Math.random()*7);
+      const uid=Math.floor(Math.random()*300)+1;
+      planets.push({
+        id:g*1e6+s*1e3+p+k, name:`Kepler-${g}${s}`, galaxy:g, system:s, planet:p,
+        user_id:uid, username:`Cmdr${uid}`,
+        ally_id:ai, ally_name:ai?`Empire${ai}`:'', ally_tag:ai?`E${ai}`:'',
+        ally_color:ai?cols[ai%cols.length]:null,
+        total_rank:Math.floor(Math.random()*500)+1, total_points:Math.floor(Math.random()*800000),
+        is_own:g===window.SM.galaxy&&s===window.SM.system&&p===window.SM.planet,
+        is_ally:ai>0&&ai===window.SM.allyId,
+        has_moon:Math.random()>.72, has_debris:Math.random()>.88, online:Math.random()>.55
+      });
+    }
+  }
+  galaxyData={planets, current_user_id:window.SM.userId};
+  buildPlanets(planets);
+
+  const demoFleets=[];
+  for (let i=0;i<30;i++) {
+    const sp=planets[Math.floor(Math.random()*planets.length)];
+    const ep=planets[Math.floor(Math.random()*planets.length)];
+    if (!sp||!ep||sp.id===ep.id) continue;
+    const m=[1,3,6,8][Math.floor(Math.random()*4)];
+    const hostile=m===1&&sp.user_id!==window.SM.userId;
+    demoFleets.push({
+      id:i, mission:m, owner:sp.username, ally_tag:sp.ally_tag,
+      is_own:sp.user_id===window.SM.userId, is_hostile:hostile,
+      color:hostile?'#ff3060':m===6?'#ffee00':m===8?'#ff9900':'#00d4ff',
+      start:{g:sp.galaxy,s:sp.system,p:sp.planet},
+      end:{g:ep.galaxy,s:ep.system,p:ep.planet},
+      progress:Math.random()
+    });
+  }
+  fleetData={fleets:demoFleets};
+  buildFleets(demoFleets);
+  updateStats();
+}
+
+// ── Stats update ───────────────────────────────────────────
+function updateStats() {
+  const pl=galaxyData?.planets||[], fl=fleetData?.fleets||[];
+  const hs=fl.filter(f=>f.is_hostile);
+  const al=new Set(pl.map(p=>p.ally_id).filter(id=>id>0));
+  set('st-p',pl.length); set('h-planets',pl.length+' PLANETS');
+  set('st-f',fl.length); set('h-fleets', fl.length+' FLEETS');
+  set('st-h',hs.length); set('h-hostile',hs.length+' HOSTILE');
+  set('st-a',al.size);   set('st-d',pl.filter(p=>p.has_debris).length);
+}
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+// ── Camera sync ────────────────────────────────────────────
+function syncCamera() {
+  if (!camera) return;
+  if (is3D) {
+    camera.position.set(
+      orb.r*Math.sin(orb.phi)*Math.sin(orb.theta),
+      orb.r*Math.cos(orb.phi),
+      orb.r*Math.sin(orb.phi)*Math.cos(orb.theta)
+    );
+    camera.lookAt(0,0,0);
+  } else {
+    camera.position.set(pan.x, orb.r*.75, pan.z);
+    camera.lookAt(pan.x, 0, pan.z);
+  }
+}
+
+// ── Input events ───────────────────────────────────────────
+function bindEvents() {
+  canvas.addEventListener('mousedown', e=>{
+    drag.down=true; drag.moved=0;
+    drag.startX=e.clientX; drag.startY=e.clientY;
+    drag.snapTheta=orb.theta; drag.snapPhi=orb.phi;
+    drag.snapPanX=pan.x; drag.snapPanZ=pan.z;
+    canvas.style.cursor='grabbing';
+  });
+  window.addEventListener('mouseup',()=>{drag.down=false;canvas.style.cursor='grab';});
+  window.addEventListener('mousemove', e=>{
+    if (drag.down) {
+      const dx=e.clientX-drag.startX, dy=e.clientY-drag.startY;
+      drag.moved=Math.max(drag.moved,Math.abs(dx)+Math.abs(dy));
+      if (is3D) {
+        orb.theta=drag.snapTheta-dx*.0055;
+        orb.phi=Math.max(.12,Math.min(1.55,drag.snapPhi+dy*.0055));
+      } else {
+        pan.x=drag.snapPanX-dx*orb.r*.0016;
+        pan.z=drag.snapPanZ-dy*orb.r*.0016;
+      }
+      syncCamera();
+    } else { doHover(e.clientX,e.clientY); }
+  });
+
+  canvas.addEventListener('click', e=>{if(drag.moved<6)doClick(e.clientX,e.clientY);});
+
+  canvas.addEventListener('wheel', e=>{
+    e.preventDefault();
+    orb.r=Math.max(50,Math.min(3000,orb.r+e.deltaY*.55));
+    syncCamera();
+  },{passive:false});
+
+  // Touch
+  let tStart=null,tDist=0;
+  canvas.addEventListener('touchstart',e=>{
+    if(e.touches.length===1){
+      tStart={x:e.touches[0].clientX,y:e.touches[0].clientY,
+              theta:orb.theta,phi:orb.phi,px:pan.x,pz:pan.z};
+    } else if(e.touches.length===2){
+      tDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,
+                       e.touches[0].clientY-e.touches[1].clientY);
+    }
+  },{passive:true});
+  canvas.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    if(e.touches.length===1&&tStart){
+      const dx=e.touches[0].clientX-tStart.x, dy=e.touches[0].clientY-tStart.y;
+      if(is3D){orb.theta=tStart.theta-dx*.007;orb.phi=Math.max(.12,Math.min(1.55,tStart.phi+dy*.007));}
+      else{pan.x=tStart.px-dx*orb.r*.002;pan.z=tStart.pz-dy*orb.r*.002;}
+      syncCamera();
+    } else if(e.touches.length===2){
+      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,
+                         e.touches[0].clientY-e.touches[1].clientY);
+      orb.r=Math.max(50,Math.min(3000,orb.r*(tDist/d)));
+      tDist=d; syncCamera();
+    }
+  },{passive:false});
+
+  window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+}
+
+// ── Raycasting ─────────────────────────────────────────────
+const RC=new THREE.Raycaster(), MV=new THREE.Vector2();
+function setMV(cx,cy){MV.x=(cx/innerWidth)*2-1;MV.y=-(cy/innerHeight)*2+1;}
+
+function hitPlanet(cx,cy){
+  setMV(cx,cy); RC.setFromCamera(MV,camera);
+  const hits=RC.intersectObjects(planetGroup.children.filter(c=>c.userData.planet));
+  return hits.length?hits[0].object.userData.planet:null;
+}
+
+function doHover(cx,cy){
+  const pl=hitPlanet(cx,cy);
+  if(pl){
+    canvas.style.cursor='pointer';
+    tipEl.style.display='block';
+    tipEl.style.left=(cx+16)+'px'; tipEl.style.top=(cy+10)+'px';
+    const c=pl.is_own?'var(--green)':pl.is_ally?'var(--purple)':'var(--cyan)';
+    tipEl.innerHTML=`
+      <div class="tt-h" style="color:${c}">${pl.name.toUpperCase()}</div>
+      <div class="tt-l">[${pl.galaxy}:${pl.system}:${pl.planet}]</div>
+      <div class="tt-l">Player: <span>${pl.username}</span></div>
+      ${pl.ally_tag?`<div class="tt-l">Alliance: <span>[${pl.ally_tag}]</span></div>`:''}
+      <div class="tt-l">Rank: <span>#${pl.total_rank||'?'}</span></div>
+      ${pl.has_moon?'<div class="tt-l" style="color:#aaa"><i class="fas fa-moon fa-xs"></i> Moon</div>':''}
+      ${pl.has_debris?'<div class="tt-l" style="color:#ff9900"><i class="fas fa-ring fa-xs"></i> Debris</div>':''}
+    `;
+  } else {
+    canvas.style.cursor='grab';
+    tipEl.style.display='none';
+  }
+}
+
+function doClick(cx,cy){
+  const pl=hitPlanet(cx,cy);
+  if(pl){showAction(pl);tipEl.style.display='none';}
+  else closeAction();
+}
+
+// ── Action panel ───────────────────────────────────────────
+function showAction(pl){
+  set('ap-name', pl.name.toUpperCase());
+  set('ap-coord',`[${pl.galaxy}:${pl.system}:${pl.planet}]`);
+  document.getElementById('ap-meta').innerHTML=`
+    <div class="ap-box"><div class="ap-box-lbl">PLAYER</div><div class="ap-box-val" style="color:var(--cyan)">${pl.username}</div></div>
+    <div class="ap-box"><div class="ap-box-lbl">RANK</div><div class="ap-box-val" style="color:var(--gold)">#${pl.total_rank||'?'}</div></div>
+    <div class="ap-box"><div class="ap-box-lbl">ALLIANCE</div><div class="ap-box-val">${pl.ally_tag?'['+pl.ally_tag+']':'–'}</div></div>
+  `;
+  const btn=document.getElementById('ap-btns');
+  if(pl.is_own){
+    btn.innerHTML=`<div class="ap-own"><i class="fas fa-check" style="margin-right:6px"></i>YOUR PLANET</div>`;
+  } else {
+    const {galaxy:g,system:s,planet:p,user_id:uid} = pl;
+    const base=`game.php?page=fleetTable&galaxy=${g}&system=${s}&planet=${p}&planettype=1`;
+    btn.innerHTML=`
+      <a class="ap-btn ab-spy"  href="${base}&target_mission=6"><i class="fas fa-satellite"></i> SPY</a>
+      <a class="ap-btn ab-atk"  href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ATTACK</a>
+      <a class="ap-btn ab-flt"  href="${base}"><i class="fas fa-rocket"></i> FLEET</a>
+      <a class="ap-btn ab-msg"  href="game.php?page=messages&mode=write&player_id=${uid}"><i class="fas fa-envelope"></i> MESSAGE</a>
+      <a class="ap-btn ab-card" href="javascript:GM.showCard(${uid})"><i class="fas fa-id-card"></i> PLAYERCARD</a>
+      ${pl.has_debris?`<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>`:''}
+    `;
+  }
+  actionEl.style.display='block';
+  const key=`${pl.galaxy}:${pl.system}:${pl.planet}`;
+  if(posMap[key]) flyTo(posMap[key],110);
+}
+function closeAction(){actionEl.style.display='none';}
+
+// ── Player card ────────────────────────────────────────────
+async function showCard(userId){
+  cardEl.style.display='block';
+  document.getElementById('pc-body').innerHTML=
+    '<div style="text-align:center;padding:30px;color:var(--dim);font-family:\'Orbitron\',monospace;font-size:10px;letter-spacing:2px">LOADING…</div>';
+  try{
+    const r=await fetch(`${window.SM.apiUrl}?action=player_card&player_id=${userId}`);
+    const d=await r.json();
+    if(d.error) throw new Error(d.error);
+    renderCard(d);
+  }catch{
+    renderCard({
+      id:userId,username:'Commander'+userId,planet_name:'HomePlanet',
+      galaxy:1,system:1,planet:1,ally_id:0,ally_name:'',ally_tag:'',
+      total_rank:Math.floor(Math.random()*300)+1,total_points:'123.456',
+      fleet_rank:50,fleet_points:'50.000',tech_rank:80,tech_points:'30.000',
+      build_rank:60,build_points:'40.000',defs_rank:90,defs_points:'3.000',
+      wons:25,loos:10,draws:5,win_pct:71.4,online:true,
+      is_self:userId===window.SM.userId
+    });
+  }
+}
+
+function renderCard(d){
+  const isSelf=d.is_self||d.id===window.SM.userId;
+  const onTxt=d.online
+    ?'<span class="dot dot-on"></span>Online now'
+    :'<span class="dot dot-off"></span>Offline';
+  document.getElementById('pc-body').innerHTML=`
+    <div class="pc-hdr">
+      <div class="pc-av">${(d.username||'?')[0].toUpperCase()}</div>
+      <div>
+        <div class="pc-nm">${d.username}</div>
+        <div class="pc-al">${d.ally_tag?`[${d.ally_tag}] ${d.ally_name}`:'No Alliance'}</div>
+        <div class="pc-on">${onTxt}</div>
+      </div>
+    </div>
+    <div class="pc-grid">
+      <div class="pc-st"><div class="pc-st-lbl">TOTAL POINTS</div><div class="pc-st-val">${d.total_points}</div><div class="pc-st-rnk">Rank #${d.total_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">FLEET POINTS</div><div class="pc-st-val">${d.fleet_points}</div><div class="pc-st-rnk">Rank #${d.fleet_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">TECH POINTS</div><div class="pc-st-val">${d.tech_points}</div><div class="pc-st-rnk">Rank #${d.tech_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">BUILD POINTS</div><div class="pc-st-val">${d.build_points}</div><div class="pc-st-rnk">Rank #${d.build_rank}</div></div>
+    </div>
+    <div class="pc-fights">
+      <div class="pcf"><div class="pcf-n" style="color:var(--green)">${d.wons}</div><div class="pcf-l">WINS</div></div>
+      <div class="pcf"><div class="pcf-n" style="color:var(--red)">${d.loos}</div><div class="pcf-l">LOSSES</div></div>
+      <div class="pcf"><div class="pcf-n" style="color:var(--dim)">${d.draws}</div><div class="pcf-l">DRAWS</div></div>
+      <div class="pcf"><div class="pcf-n" style="color:var(--gold)">${d.win_pct}%</div><div class="pcf-l">WIN RATE</div></div>
+    </div>
+    ${!isSelf?`<div class="pc-acts">
+      <a class="ap-btn ab-spy" href="game.php?page=fleetTable&galaxy=${d.galaxy}&system=${d.system}&planet=${d.planet}&planettype=1&target_mission=6"><i class="fas fa-satellite"></i> SPY</a>
+      <a class="ap-btn ab-atk" href="game.php?page=fleetTable&galaxy=${d.galaxy}&system=${d.system}&planet=${d.planet}&planettype=1&target_mission=1"><i class="fas fa-crosshairs"></i> ATTACK</a>
+      <a class="ap-btn ab-msg" href="game.php?page=messages&mode=write&player_id=${d.id}"><i class="fas fa-envelope"></i> MESSAGE</a>
+    </div>`:'<div class="ap-own"><i class="fas fa-user" style="margin-right:6px"></i>YOUR PROFILE</div>'}
+  `;
+}
+function closeCard(){cardEl.style.display='none';}
+
+// ── Fly-to ─────────────────────────────────────────────────
+function flyTo(target,dist){
+  const sp=camera.position.clone();
+  const ep=new THREE.Vector3(target.x+dist*.35, dist*.5, target.z+dist);
+  let t=0;
+  const go=()=>{
+    t++; const a=Math.min(1,t/52), e=1-Math.pow(1-a,3);
+    camera.position.lerpVectors(sp,ep,e); camera.lookAt(target);
+    if(a<1) requestAnimationFrame(go);
+    else{orb.r=dist;syncCamera();}
+  };
+  requestAnimationFrame(go);
+}
+
+// ── Public controls ────────────────────────────────────────
+function setView(mode){
+  is3D=mode==='3d';
+  document.getElementById('vb-3d').classList.toggle('on', is3D);
+  document.getElementById('vb-2d').classList.toggle('on',!is3D);
+  if(!is3D){orb.r=650;orb.phi=0.02;pan.x=pan.z=0;}
+  else     {orb.r=750;orb.phi=1.05;}
+  syncCamera();
+}
+function navJump(){
+  const g=parseInt(document.getElementById('nav-g').value)||1;
+  const s=parseInt(document.getElementById('nav-s').value)||1;
+  flyTo(toWorld(g,s,8),180);
+}
+function navHome(){ flyTo(toWorld(window.SM.galaxy,window.SM.system,window.SM.planet),110); }
+function reloadFleets(){ fetchFleets(); }
+
+// ── Render loop ────────────────────────────────────────────
+function animate(){
+  requestAnimationFrame(animate); frame++;
+  if(starField) starField.rotation.y+=.000012;
+
+  // Planet pulse
+  const pulse=Math.sin(frame*.022)*.05+1.0;
+  planetGroup.children.forEach(obj=>{
+    if(obj.isSprite&&obj.userData.planet){
+      obj.scale.setScalar(obj.userData.baseScale*pulse);
+    }
+  });
+
+  // Hostile blink
+  fleetGroup.children.forEach(obj=>{
+    if(obj.isLine&&obj.userData?.fleet?.is_hostile&&obj.material){
+      obj.material.opacity=.28+Math.abs(Math.sin(frame*.07))*.52;
+    }
+  });
+
+  renderer.render(scene,camera);
+}
+
+// Boot
+init();
+return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard};
+})();
+</script>
+{% endblock %}
