@@ -430,8 +430,13 @@ class template
 	public function setTemplateDir(string $dir): void
 	{
 		$this->templateDir = rtrim($dir, '/') . '/';
-		$loader = new FilesystemLoader($this->templateDir);
-		$this->twig->setLoader($loader);
+		$existingLoader = $this->twig->getLoader();
+		if ($existingLoader instanceof FilesystemLoader) {
+			$existingLoader->prependPath($this->templateDir);
+		} else {
+			$loader = new FilesystemLoader($this->templateDir);
+			$this->twig->setLoader($loader);
+		}
 	}
 	
 	public function getCompileDir(): string
