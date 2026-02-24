@@ -21,6 +21,15 @@ function calculateAttack(&$attackers, &$defenders, $FleetTF, $DefTF)
 {
 	global $pricelist, $CombatCaps, $resource;
 
+	// Plugin System v1.1 – combat modifier filter hook
+	// Plugins receive and return ['attackers' => ..., 'defenders' => ...].
+	$combatData = HookManager::get()->applyFilters('game.combatModifier', [
+		'attackers' => $attackers,
+		'defenders' => $defenders,
+	]);
+	if (isset($combatData['attackers'])) $attackers = $combatData['attackers'];
+	if (isset($combatData['defenders'])) $defenders = $combatData['defenders'];
+
 	$TRES 	= array('attacker' => 0, 'defender' => 0);
 	$ARES 	= $DRES = array('metal' => 0, 'crystal' => 0);
 	$ROUND	= array();

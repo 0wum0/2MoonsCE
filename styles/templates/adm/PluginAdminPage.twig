@@ -78,6 +78,7 @@
             <a href="#pfaq9">9. Migrationen</a>
             <a href="#pfaq10">10. Debugging</a>
             <a href="#pfaq11">11. Best Practices</a>
+            <a href="#pfaq12">12. v1.1 Gameplay Hooks</a>
         </div>
 
         <!-- 1. Grundidee -->
@@ -581,6 +582,111 @@ HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
                     </div>
                 </div>
                 <div class="pfaq-tip">&#9989; Halte dein Plugin so klein wie möglich. Ein Plugin das nur einen Hook registriert und eine CSS-Datei lädt ist besser als ein Monolith der alles macht.</div>
+            </div>
+        </details>
+
+        <!-- 12. v1.1 Gameplay Hooks -->
+        <details class="pfaq-section" id="pfaq12">
+            <summary>&#127918; 12. Plugin System v1.1 &ndash; Gameplay Hooks <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Ab v1.1 k&ouml;nnen Plugins Gameplay-Systeme erweitern: neue Geb&auml;ude, Forschungen, Schiffe, Verteidigung, Produktions- und Bauzeitmodifikatoren, Fleet-Dispatch und Kampf &ndash; alles ohne Core-Dateien zu &uuml;berschreiben.</p>
+                <h4>Wo die Hooks feuern</h4>
+                <div class="pfaq-grid2">
+                    <div><strong>game.resourceMap</strong>Neuen Element-Namen registrieren.<br><code>$resource[900] = 'mein_gebaeude';</code></div>
+                    <div><strong>game.pricelist</strong>Kosten, Faktor, Boni f&uuml;r ein Element definieren.</div>
+                    <div><strong>game.requirements</strong>Voraussetzungen (ID =&gt; Level) f&uuml;r ein Element setzen.</div>
+                    <div><strong>game.prodGrid</strong>Produktionsformel (eval-String) f&uuml;r ein Element hinterlegen.</div>
+                    <div><strong>game.reslist</strong>Element in <code>build</code>, <code>tech</code>, <code>fleet</code>, <code>defense</code>, <code>prod</code> etc. eintragen.</div>
+                    <div><strong>game.combatCaps</strong>Angriffs- und Schildwerte eines Elements setzen oder &auml;ndern.</div>
+                    <div><strong>game.production</strong>Rohproduktions-Array (<code>$temp</code>) vor Multiplikatoren modifizieren.</div>
+                    <div><strong>game.buildTime</strong>Berechnete Bauzeit in Sekunden modifizieren.</div>
+                    <div><strong>game.beforeFleetDispatch</strong>Action-Hook: wird ausgef&uuml;hrt bevor die Flotte in die DB geschrieben wird.</div>
+                    <div><strong>game.combatModifier</strong>Angreifer/Verteidiger-Arrays vor der Kampfberechnung modifizieren.</div>
+                </div>
+                <h4>Timing: Wann feuern die Hooks?</h4>
+                <ul>
+                    <li><strong>game.resourceMap / pricelist / requirements / prodGrid / reslist / combatCaps</strong> &ndash; einmal pro Request in <code>common.php</code>, direkt nach <code>loadActivePlugins()</code>. Die Basis-Daten kommen aus dem Cache (DB), Plugins erweitern sie im Arbeitsspeicher.</li>
+                    <li><strong>game.production</strong> &ndash; bei jeder Produktionsberechnung (<code>ResourceUpdate::ReBuildCache()</code>), nach Aufsummierung aller Produktionswerte, vor Anwendung der Multiplikatoren.</li>
+                    <li><strong>game.buildTime</strong> &ndash; am Ende von <code>BuildFunctions::getBuildingTime()</code>, nach der Grundberechnung.</li>
+                    <li><strong>game.beforeFleetDispatch</strong> &ndash; in <code>FleetFunctions::sendFleet()</code>, nach Abzug der Schiffe vom Planeten, vor dem INSERT in <code>%%FLEETS%%</code>.</li>
+                    <li><strong>game.combatModifier</strong> &ndash; am Anfang von <code>calculateAttack()</code>, vor allen Kampfrunden.</li>
+                </ul>
+                <h4>Vollst&auml;ndiges Beispiel: Neues Geb&auml;ude ID 900</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>&lt;?php
+// 1. Element-Name
+HookManager::get()-&gt;addFilter('game.resourceMap', function(array $r): array {
+    $r[900] = 'mein_gebaeude';
+    return $r;
+}, 10);
+
+// 2. Preisliste
+HookManager::get()-&gt;addFilter('game.pricelist', function(array $p): array {
+    $p[900] = [
+        'cost'   =&gt; [901 =&gt; 80000, 902 =&gt; 40000, 903 =&gt; 0, 911 =&gt; 0, 921 =&gt; 0],
+        'factor' =&gt; 1.5, 'max' =&gt; 0,
+        'consumption' =&gt; 0, 'consumption2' =&gt; 0,
+        'speed' =&gt; 0, 'speed2' =&gt; 0, 'capacity' =&gt; 0,
+        'tech' =&gt; 0, 'time' =&gt; 0,
+        'bonus' =&gt; array_fill_keys(BuildFunctions::getBonusList(), [0, 0]),
+    ];
+    return $p;
+}, 10);
+
+// 3. Voraussetzungen
+HookManager::get()-&gt;addFilter('game.requirements', function(array $r): array {
+    $r[900] = [1 =&gt; 15, 113 =&gt; 5]; // Metallmine Lv15, Energietech Lv5
+    return $r;
+}, 10);
+
+// 4. Produktionsformel (eval-String, Variablen: $BuildLevel, $BuildLevelFactor)
+HookManager::get()-&gt;addFilter('game.prodGrid', function(array $g): array {
+    $g[900] = [
+        'production' =&gt; [
+            901 =&gt; '30 * $BuildLevel * pow(1.1, $BuildLevel) * ($BuildLevelFactor / 10)',
+            911 =&gt; '-15 * $BuildLevel * pow(1.1, $BuildLevel) * ($BuildLevelFactor / 10)',
+        ],
+        'storage' =&gt; [],
+    ];
+    return $g;
+}, 10);
+
+// 5. In reslist eintragen
+HookManager::get()-&gt;addFilter('game.reslist', function(array $r): array {
+    $r['build'][]    = 900;
+    $r['allow'][1][] = 900;
+    $r['prod'][]     = 900;
+    return $r;
+}, 10);
+
+// 6. Sprachname injizieren
+if (isset($GLOBALS['LNG']) &amp;&amp; $GLOBALS['LNG'] instanceof Language) {
+    $GLOBALS['LNG']-&gt;addData(['tech' =&gt; [900 =&gt; 'Mein Geb&auml;ude']]);
+}</pre>
+                </div>
+                <h4>Produktions-Hook: +5% Metall global</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>HookManager::get()-&gt;addFilter('game.production', function(array $temp, array $ctx): array {
+    if (isset($temp[901]['plus']) &amp;&amp; $temp[901]['plus'] &gt; 0) {
+        $temp[901]['plus'] *= 1.05; // +5% Metallproduktion
+    }
+    return $temp;
+}, 10);</pre>
+                </div>
+                <h4>Bauzeit-Hook: Geb&auml;ude 900 immer 10% schneller</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>HookManager::get()-&gt;addFilter('game.buildTime', function(int $time, array $ctx): int {
+    if ($ctx['element'] === 900) {
+        return (int) round($time * 0.9); // 10% schneller
+    }
+    return $time;
+}, 10);</pre>
+                </div>
+                <div class="pfaq-note">&#9888; Die <code>game.*</code>-Daten-Hooks (resourceMap, pricelist, etc.) feuern einmal pro Request im Arbeitsspeicher. Die Daten werden <strong>nicht</strong> in den Cache geschrieben &ndash; kein Cache-Flush n&ouml;tig.</div>
+                <div class="pfaq-danger">&#10060; Keine bestehenden Element-IDs (1&ndash;899) in den Hooks &uuml;berschreiben &ndash; das kann Core-Logik brechen. Immer neue IDs &ge; 900 verwenden.</div>
             </div>
         </details>
 

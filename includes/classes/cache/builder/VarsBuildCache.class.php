@@ -160,7 +160,7 @@ class VarsBuildCache implements BuildCache
 		{
 			$CombatCaps[$rapidRow['elementID']]['sd'][$rapidRow['rapidfireID']]	= $rapidRow['shoots'];
 		}
-		
+
 		return array(
 			'reslist'		=> $reslist,
 			'ProdGrid'		=> $ProdGrid,

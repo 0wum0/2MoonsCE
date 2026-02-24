@@ -215,6 +215,16 @@ class BuildFunctions
             $time = floor($time * 3600);
         }
 
+        $time = max($time, $config->min_build_time);
+
+        // Plugin System v1.1 – build time filter hook
+        $level = $forLevel ?? (isset($PLANET[$resource[$Element]]) ? (int)$PLANET[$resource[$Element]] : 0);
+        $time  = (int) HookManager::get()->applyFilters('game.buildTime', $time, [
+            'element' => $Element,
+            'level'   => $level,
+            'destroy' => $forDestroy,
+        ]);
+
         return max($time, $config->min_build_time);
     }
 

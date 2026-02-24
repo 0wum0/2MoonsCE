@@ -162,7 +162,25 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 	$THEME->setUserTheme($USER['dpath']);
 
 	PluginManager::get()->loadActivePlugins();
-	
+
+	// ── Plugin System v1.1 – Game Data Hooks ─────────────────────────────────
+	// Runs once per request, after plugins have registered their filters.
+	// Plugins can extend $pricelist/$reslist/$resource/$ProdGrid/$CombatCaps/
+	// $requeriments in memory without touching the DB or the cache.
+	// applyFilters() is a no-op (returns value unchanged) when no plugin
+	// registers a filter for a given hook, so there is no overhead by default.
+	if (MODE === 'INGAME' || MODE === 'ADMIN') {
+		$_ghook       = HookManager::get();
+		$resource     = $_ghook->applyFilters('game.resourceMap',  $resource);
+		$pricelist    = $_ghook->applyFilters('game.pricelist',    $pricelist);
+		$requeriments = $_ghook->applyFilters('game.requirements', $requeriments);
+		$ProdGrid     = $_ghook->applyFilters('game.prodGrid',     $ProdGrid);
+		$CombatCaps   = $_ghook->applyFilters('game.combatCaps',   $CombatCaps);
+		$reslist      = $_ghook->applyFilters('game.reslist',      $reslist);
+		unset($_ghook);
+	}
+	// ─────────────────────────────────────────────────────────────────────────
+
 	if($config->game_disable == 0 && $USER['authlevel'] == AUTH_USR) {
 		ShowErrorPage::printError($LNG['sys_closed_game'].'<br><br>'.$config->close_reason, false);
 	}

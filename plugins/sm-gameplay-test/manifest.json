@@ -1,0 +1,8 @@
+{
+    "id":          "sm-gameplay-test",
+    "name":        "SmartMoons Gameplay Test Plugin",
+    "version":     "1.1.0",
+    "type":        "game",
+    "description": "Testplugin für Plugin System v1.1. Fügt Gebäude ID 900 hinzu und erhöht Metallproduktion um 5%.",
+    "author":      "SmartMoons Dev"
+}

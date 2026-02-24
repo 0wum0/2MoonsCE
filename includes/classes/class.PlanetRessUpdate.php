@@ -288,6 +288,13 @@ class ResourceUpdate
 			}
 		}
 
+		// Plugin System v1.1 – production filter hook
+		// $temp holds the raw per-resource production totals before multipliers.
+		// Plugins receive and return the full $temp array.
+		$_prodCtx = ['planet' => $this->PLANET, 'user' => $this->USER];
+		$temp = HookManager::get()->applyFilters('game.production', $temp, $_prodCtx);
+		unset($_prodCtx);
+
 		$this->PLANET['metal_max']			= $temp[901]['max'] * $this->config->storage_multiplier * (1 + $this->USER['factor']['ResourceStorage']);
 		$this->PLANET['crystal_max']		= $temp[902]['max'] * $this->config->storage_multiplier * (1 + $this->USER['factor']['ResourceStorage']);
 		$this->PLANET['deuterium_max']		= $temp[903]['max'] * $this->config->storage_multiplier * (1 + $this->USER['factor']['ResourceStorage']);

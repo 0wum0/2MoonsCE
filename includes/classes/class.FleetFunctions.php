@@ -504,6 +504,15 @@ class FleetFunctions
 
 		$db->update($sql, $params);
 
+		// Plugin System v1.1 – fleet dispatch action hook
+		HookManager::get()->doAction('game.beforeFleetDispatch', [
+			'fleetArray'   => $fleetArray,
+			'fleetMission' => $fleetMission,
+			'ownerId'      => $fleetStartOwner,
+			'startPlanet'  => $fleetStartPlanetID,
+			'targetPlanet' => $fleetTargetPlanetID,
+		]);
+
 		$sql	= 'INSERT INTO %%FLEETS%% SET
 		fleet_owner					= :fleetStartOwner,
 		fleet_target_owner			= :fleetTargetOwner,
