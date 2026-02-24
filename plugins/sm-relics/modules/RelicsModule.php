@@ -64,14 +64,16 @@ class RelicsModule implements GameModuleInterface
         );
 
         // ── production.calculate filter ───────────────────────────────────────
+        // Note: game.production/production.calculate passes a numeric value per
+        // resource type; accept mixed to avoid fatal type errors.
         HookManager::get()->addFilter(
             'production.calculate',
-            function (float $production, array $prodCtx) use ($ctx): float {
-                if ($ctx->get('smr_doctrine') !== 'economy') {
+            function (mixed $production, mixed $prodCtx) use ($ctx): mixed {
+                if (!is_numeric($production) || $ctx->get('smr_doctrine') !== 'economy') {
                     return $production;
                 }
                 $bonus = $this->getSetting('doctrine_prod_bonus', 5);
-                return $production * (1.0 + $bonus / 100.0);
+                return (float)$production * (1.0 + $bonus / 100.0);
             },
             20
         );
@@ -79,12 +81,12 @@ class RelicsModule implements GameModuleInterface
         // Also bridge to game.production (legacy alias)
         HookManager::get()->addFilter(
             'game.production',
-            function (float $production, array $prodCtx) use ($ctx): float {
-                if ($ctx->get('smr_doctrine') !== 'economy') {
+            function (mixed $production, mixed $prodCtx) use ($ctx): mixed {
+                if (!is_numeric($production) || $ctx->get('smr_doctrine') !== 'economy') {
                     return $production;
                 }
                 $bonus = $this->getSetting('doctrine_prod_bonus', 5);
-                return $production * (1.0 + $bonus / 100.0);
+                return (float)$production * (1.0 + $bonus / 100.0);
             },
             20
         );

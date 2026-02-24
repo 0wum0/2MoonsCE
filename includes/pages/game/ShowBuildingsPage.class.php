@@ -123,7 +123,7 @@ class ShowBuildingsPage extends AbstractGamePage
 	private function AddBuildingToQueue($Element, $AddMode = true)
 	{
 		global $PLANET, $USER, $resource, $reslist, $pricelist;
-		
+
 		if(!in_array($Element, $reslist['allow'][$PLANET['planet_type']])
 			|| !BuildFunctions::isTechnologieAccessible($USER, $PLANET, $Element) 
 			|| ($Element == 31 && $USER["b_tech_planet"] != 0) 
@@ -161,7 +161,7 @@ class ShowBuildingsPage extends AbstractGamePage
 				return;
 
 			$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $Element, !$AddMode, $BuildLevel);
-			
+
 			if(!BuildFunctions::isElementBuyable($USER, $PLANET, $Element, $costResources))
 				return;
 			
@@ -284,7 +284,7 @@ class ShowBuildingsPage extends AbstractGamePage
         $BuildInfoList      = array();
 
 		$Elements			= $reslist['allow'][$PLANET['planet_type']];
-		
+
 		foreach($Elements as $Element)
 		{
 			if (!BuildFunctions::isTechnologieAccessible($USER, $PLANET, $Element))

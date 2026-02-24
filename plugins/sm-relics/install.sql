@@ -57,10 +57,10 @@ INSERT IGNORE INTO %%CRONJOBS%%
 VALUES
     ('relics_tick', 'RelicsTick', '*/10', '*', '*', '*', '*', 1, 0, NULL, NULL);
 
--- Add relic building columns to PLANETS table (safe: IF NOT EXISTS)
-ALTER TABLE %%PLANETS%%
-    ADD COLUMN IF NOT EXISTS `smr_relic_archive`    TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
-    ADD COLUMN IF NOT EXISTS `smr_quantum_reactor`  TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
-    ADD COLUMN IF NOT EXISTS `smr_spacetime_lab`    TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
-    ADD COLUMN IF NOT EXISTS `smr_military_academy` TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
-    ADD COLUMN IF NOT EXISTS `smr_economic_center`  TINYINT(3) UNSIGNED NOT NULL DEFAULT 0;
+-- Add relic building columns to PLANETS table (one per statement, idempotent)
+-- runSqlFile() is non-fatal per statement, so duplicate-column errors on re-install are harmless.
+ALTER TABLE %%PLANETS%% ADD COLUMN `smr_relic_archive`    TINYINT(3) UNSIGNED NOT NULL DEFAULT 0;
+ALTER TABLE %%PLANETS%% ADD COLUMN `smr_quantum_reactor`  TINYINT(3) UNSIGNED NOT NULL DEFAULT 0;
+ALTER TABLE %%PLANETS%% ADD COLUMN `smr_spacetime_lab`    TINYINT(3) UNSIGNED NOT NULL DEFAULT 0;
+ALTER TABLE %%PLANETS%% ADD COLUMN `smr_military_academy` TINYINT(3) UNSIGNED NOT NULL DEFAULT 0;
+ALTER TABLE %%PLANETS%% ADD COLUMN `smr_economic_center`  TINYINT(3) UNSIGNED NOT NULL DEFAULT 0;

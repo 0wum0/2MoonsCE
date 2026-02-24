@@ -488,7 +488,7 @@ class PluginManager
             try {
                 $callback($registry);
             } catch (Throwable $e) {
-                error_log('[PluginManager] registerElements error in plugin "' . $pluginId . '": ' . $e->getMessage());
+                error_log('[PluginManager] registerElements error in plugin "' . $pluginId . '": ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             }
         }
     }
@@ -995,8 +995,16 @@ class PluginManager
                 }, explode(';', $sql)),
                 static fn(string $s): bool => $s !== ''
             );
+            $lastError = null;
             foreach ($statements as $stmt) {
-                $db->query($stmt . ';');
+                try {
+                    $db->query($stmt . ';');
+                } catch (Throwable $e) {
+                    // Log but continue — allows idempotent re-installs where
+                    // columns/tables already exist (duplicate column errors etc.)
+                    error_log('[PluginManager] SQL warning in ' . $path . ': ' . $e->getMessage());
+                    $lastError = $e;
+                }
             }
         } catch (Throwable $e) {
             error_log('[PluginManager] SQL error in ' . $path . ': ' . $e->getMessage());

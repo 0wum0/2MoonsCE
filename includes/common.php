@@ -208,17 +208,13 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 		// (VarsBuildCache produces string keys via explode()).
 		$reslist = $_reg->exportLegacyReslist($reslist);
 
-		// Only export the remaining arrays when a plugin actually added elements.
-		// When no plugins are active the legacy arrays are already correct and
-		// must not be rebuilt from the registry's internal representation
-		// (Invariant A: zero-cost passthrough).
-		if ($_reg->hasNewElements()) {
-			$pricelist    = $_reg->exportLegacyPricelist($pricelist);
-			$resource     = $_reg->exportLegacyResourceMap($resource);
-			$requeriments = $_reg->exportLegacyRequirements($requeriments);
-			$CombatCaps   = $_reg->exportLegacyCombatCaps($CombatCaps);
-			$ProdGrid     = $_reg->exportLegacyProdGrid($ProdGrid);
-		}
+		// Always export all arrays – exportLegacyPricelist is merge-additive
+		// (skips _fromLegacy elements) so this is safe even with no active plugins.
+		$pricelist    = $_reg->exportLegacyPricelist($pricelist);
+		$resource     = $_reg->exportLegacyResourceMap($resource);
+		$requeriments = $_reg->exportLegacyRequirements($requeriments);
+		$CombatCaps   = $_reg->exportLegacyCombatCaps($CombatCaps);
+		$ProdGrid     = $_reg->exportLegacyProdGrid($ProdGrid);
 		unset($_reg);
 
 		// ── Plugin System v1.1 – Game Data Hooks (still active) ───────────────
