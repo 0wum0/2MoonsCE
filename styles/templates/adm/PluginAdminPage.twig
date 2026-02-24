@@ -1,5 +1,46 @@
 {% include 'overall_header.twig' %}
 
+<style>
+.pfaq-wrap{background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;}
+.pfaq-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;gap:12px;}
+.pfaq-header h2{color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0;}
+.pfaq-toggle-btn{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:6px;padding:4px 14px;font-size:0.8rem;cursor:pointer;white-space:nowrap;transition:background .2s;}
+.pfaq-toggle-btn:hover{background:rgba(56,189,248,0.2);}
+.pfaq-body{display:none;margin-top:20px;}
+.pfaq-body.open{display:block;}
+.pfaq-toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;padding:14px 16px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.15);border-radius:8px;}
+.pfaq-toc a{color:#7dd3fc;font-size:0.78rem;text-decoration:none;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:4px;padding:3px 9px;transition:background .15s;}
+.pfaq-toc a:hover{background:rgba(56,189,248,0.2);}
+.pfaq-section{border:1px solid #1e2d4a;border-radius:8px;margin-bottom:10px;overflow:hidden;}
+.pfaq-section summary{list-style:none;padding:13px 16px;cursor:pointer;background:rgba(255,255,255,0.02);color:#e2e8f0;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:10px;transition:background .15s;}
+.pfaq-section summary::-webkit-details-marker{display:none;}
+.pfaq-section summary:hover{background:rgba(56,189,248,0.06);}
+.pfaq-section[open] summary{color:#7dd3fc;border-bottom:1px solid #1e2d4a;}
+.pfaq-section summary .pfaq-arrow{margin-left:auto;font-size:0.7rem;color:#475569;transition:transform .2s;}
+.pfaq-section[open] summary .pfaq-arrow{transform:rotate(90deg);color:#7dd3fc;}
+.pfaq-content{padding:18px 20px;color:#94a3b8;font-size:0.875rem;line-height:1.7;}
+.pfaq-content h4{color:#cbd5e1;font-size:0.82rem;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.05em;}
+.pfaq-content h4:first-child{margin-top:0;}
+.pfaq-content p{margin:0 0 10px;}
+.pfaq-content ul{margin:0 0 10px;padding-left:20px;}
+.pfaq-content li{margin-bottom:4px;}
+.pfaq-content strong{color:#e2e8f0;}
+.pfaq-content a{color:#7dd3fc;}
+.pfaq-content code{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.82rem;color:#7dd3fc;}
+.pfaq-note{background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;color:#fcd34d;font-size:0.83rem;}
+.pfaq-tip{background:rgba(34,197,94,0.07);border-left:3px solid #22c55e;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;color:#86efac;font-size:0.83rem;}
+.pfaq-danger{background:rgba(239,68,68,0.08);border-left:3px solid #ef4444;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;color:#fca5a5;font-size:0.83rem;}
+.pfaq-code-wrap{position:relative;margin:10px 0;}
+.pfaq-code-wrap pre{background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;padding:14px 50px 14px 16px;overflow-x:auto;font-family:'Courier New',monospace;font-size:0.8rem;line-height:1.6;color:#cbd5e1;margin:0;white-space:pre;}
+.pfaq-copy-btn{position:absolute;top:7px;right:8px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:4px;padding:2px 10px;font-size:0.72rem;cursor:pointer;transition:background .2s;z-index:1;}
+.pfaq-copy-btn:hover{background:rgba(56,189,248,0.25);}
+.pfaq-copy-btn.copied{color:#86efac;border-color:#22c55e;background:rgba(34,197,94,0.12);}
+.pfaq-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+@media(max-width:700px){.pfaq-grid2{grid-template-columns:1fr;}}
+.pfaq-grid2>div{background:rgba(255,255,255,0.02);border:1px solid #1e2d4a;border-radius:6px;padding:12px 14px;}
+.pfaq-grid2>div>strong{display:block;color:#7dd3fc;margin-bottom:6px;font-size:0.82rem;}
+</style>
+
 <div class="content-header">
     <h1 class="content-title">&#128230; Plugin-Verwaltung</h1>
     <p class="content-subtitle">Plugins installieren, aktivieren, deaktivieren und deinstallieren.</p>
@@ -16,6 +57,566 @@
     &#10008; {{ error }}
 </div>
 {% endif %}
+
+<!-- FAQ / HOW-TO -->
+<div class="pfaq-wrap">
+    <div class="pfaq-header" onclick="pfaqToggle()">
+        <h2>&#128218; Plugin-Entwicklung &ndash; FAQ &amp; How-To</h2>
+        <button class="pfaq-toggle-btn" id="pfaqBtn" type="button">&#9660; Aufklappen</button>
+    </div>
+    <div class="pfaq-body" id="pfaqBody">
+
+        <div class="pfaq-toc">
+            <a href="#pfaq1">1. Grundidee</a>
+            <a href="#pfaq2">2. Verzeichnisstruktur</a>
+            <a href="#pfaq3">3. manifest.json</a>
+            <a href="#pfaq4">4. plugin.php</a>
+            <a href="#pfaq5">5. Hooks</a>
+            <a href="#pfaq6">6. Twig-Spots</a>
+            <a href="#pfaq7">7. Assets</a>
+            <a href="#pfaq8">8. Sprachdateien</a>
+            <a href="#pfaq9">9. Migrationen</a>
+            <a href="#pfaq10">10. Debugging</a>
+            <a href="#pfaq11">11. Best Practices</a>
+        </div>
+
+        <!-- 1. Grundidee -->
+        <details class="pfaq-section" id="pfaq1">
+            <summary>&#128161; 1. Plugin-Grundidee &ndash; Was kann Plugin System v1? <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Das Plugin-System v1 erlaubt es, 2MoonsCE <strong>ohne Core-Änderungen</strong> zu erweitern. Plugins werden als eigenständige Verzeichnisse unter <code>plugins/</code> abgelegt und über die Datenbank verwaltet.</p>
+                <h4>Was v1 kann</h4>
+                <ul>
+                    <li>Eigene <strong>PHP-Logik</strong> einschleusen (via <code>plugin.php</code> Bootstrap)</li>
+                    <li><strong>Action-Hooks</strong> registrieren &ndash; HTML in definierte Spots der Seite injizieren</li>
+                    <li><strong>Filter-Hooks</strong> registrieren &ndash; Werte transformieren bevor sie gerendert werden</li>
+                    <li>Eigene <strong>CSS- und JS-Assets</strong> global oder seitenspezifisch laden</li>
+                    <li>Eigene <strong>Twig-Templates</strong> registrieren und rendern</li>
+                    <li><strong>Sprachdateien</strong> (JSON) für mehrsprachige Texte nutzen</li>
+                    <li><strong>SQL-Migrationen</strong> beim Installieren/Deinstallieren ausführen</li>
+                    <li>Per <strong>ZIP-Upload</strong> oder direkt aus dem <code>plugins/</code>-Ordner installieren</li>
+                </ul>
+                <h4>Was v1 (noch) nicht kann</h4>
+                <ul>
+                    <li>Keine eigenen Admin-Seiten / Routen (kein eigenes <code>page=</code>-Routing)</li>
+                    <li>Keine Core-Template-Overrides (Twig-Dateien im Core können nicht ersetzt werden)</li>
+                    <li>Keine automatischen Updates / Dependency-Auflösung zwischen Plugins</li>
+                    <li>Keine Plugin-zu-Plugin-Kommunikation über offizielle API</li>
+                </ul>
+                <div class="pfaq-note">&#9888; Plugins laufen im selben PHP-Prozess wie der Core. Ein fataler Fehler im Plugin-Bootstrap kann die gesamte Seite lahmlegen. Immer <code>try/catch</code> verwenden!</div>
+            </div>
+        </details>
+
+        <!-- 2. Verzeichnisstruktur -->
+        <details class="pfaq-section" id="pfaq2">
+            <summary>&#128193; 2. Verzeichnisstruktur eines Plugins <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Jedes Plugin lebt in einem eigenen Unterordner unter <code>plugins/</code>. Der Ordnername <strong>muss</strong> der <code>id</code> aus der <code>manifest.json</code> entsprechen.</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>plugins/
+└── mein-plugin/            ← Ordnername = Plugin-ID (nur a-z, 0-9, - und _)
+    ├── manifest.json       ← Pflicht: Metadaten des Plugins
+    ├── plugin.php          ← Pflicht: Bootstrap (Hooks, Assets, Twig registrieren)
+    ├── assets/
+    │   ├── mein-plugin.css ← Eigene Styles
+    │   └── mein-plugin.js  ← Eigene Scripts
+    ├── lang/
+    │   ├── de.json         ← Deutsche Übersetzungen
+    │   └── en.json         ← Englische Übersetzungen (Fallback)
+    ├── templates/
+    │   └── widget.twig     ← Eigene Twig-Templates (optional)
+    ├── install.sql         ← SQL beim Installieren (optional)
+    └── uninstall.sql       ← SQL beim Deinstallieren (optional)</pre>
+                </div>
+                <h4>Regeln für die Plugin-ID</h4>
+                <ul>
+                    <li>Nur Kleinbuchstaben, Ziffern, Bindestriche (<code>-</code>) und Unterstriche (<code>_</code>)</li>
+                    <li>Regex: <code>/^[a-z0-9\-_]+$/</code></li>
+                    <li>Beispiele: <code>sm-test</code>, <code>my_plugin</code>, <code>shop2</code></li>
+                    <li><strong>Kein</strong> Leerzeichen, keine Großbuchstaben, keine Sonderzeichen</li>
+                </ul>
+                <div class="pfaq-tip">&#9989; Nutze einen eindeutigen Prefix für deine Plugin-IDs (z.B. <code>acme-</code>), um Konflikte mit anderen Plugins zu vermeiden.</div>
+            </div>
+        </details>
+
+        <!-- 3. manifest.json -->
+        <details class="pfaq-section" id="pfaq3">
+            <summary>&#128196; 3. manifest.json &ndash; Alle Felder erklärt <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Die <code>manifest.json</code> ist die Steuerzentrale des Plugins. Sie wird beim Installieren gelesen und validiert.</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>{
+    "id":          "mein-plugin",
+    "name":        "Mein Plugin",
+    "version":     "1.2.0",
+    "type":        "game",
+    "description": "Kurze Beschreibung was das Plugin macht.",
+    "author":      "Dein Name",
+    "min_core":    "1.0.0"
+}</pre>
+                </div>
+                <h4>Pflichtfelder</h4>
+                <ul>
+                    <li><code>"id"</code> &ndash; Eindeutige Plugin-ID. Muss <code>/^[a-z0-9\-_]+$/</code> matchen. <strong>Darf nach der Erstinstallation nicht geändert werden.</strong></li>
+                    <li><code>"name"</code> &ndash; Anzeigename im Admin-Panel (beliebiger String).</li>
+                    <li><code>"version"</code> &ndash; Format <code>MAJOR.MINOR[.PATCH]</code>, z.B. <code>"1.0.0"</code>. Muss mit <code>MAJOR.MINOR</code> beginnen.</li>
+                </ul>
+                <h4>Optionale Felder</h4>
+                <ul>
+                    <li><code>"type"</code> &ndash; Typ des Plugins (nur informativ). Standard: <code>"game"</code>. Mögliche Werte: <code>"game"</code>, <code>"admin"</code>, <code>"util"</code>.</li>
+                    <li><code>"description"</code> &ndash; Kurzbeschreibung des Plugins.</li>
+                    <li><code>"author"</code> &ndash; Name des Autors.</li>
+                    <li><code>"min_core"</code> &ndash; Minimale 2MoonsCE-Version (dokumentarisch, wird in v1 nicht automatisch geprüft).</li>
+                </ul>
+                <h4>Versionierung (Semantic Versioning)</h4>
+                <ul>
+                    <li><strong>MAJOR</strong> &ndash; Breaking changes (inkompatible Änderungen)</li>
+                    <li><strong>MINOR</strong> &ndash; Neue Features, abwärtskompatibel</li>
+                    <li><strong>PATCH</strong> &ndash; Bugfixes</li>
+                </ul>
+                <div class="pfaq-note">&#9888; Die <code>id</code> in der <code>manifest.json</code> muss exakt mit dem Ordnernamen unter <code>plugins/</code> übereinstimmen. Stimmt beides nicht überein, schlägt die Installation fehl.</div>
+            </div>
+        </details>
+
+        <!-- 4. plugin.php -->
+        <details class="pfaq-section" id="pfaq4">
+            <summary>&#9881; 4. plugin.php &ndash; Bootstrap, install, update, uninstall <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Die <code>plugin.php</code> ist der Einstiegspunkt jedes aktiven Plugins. Sie wird von <code>PluginManager::loadActivePlugins()</code> via <code>require_once</code> eingebunden &ndash; einmal pro Request, nachdem die Datenbank bereit ist.</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>&lt;?php
+declare(strict_types=1);
+
+// Assets registrieren (global für alle Seiten)
+AssetRegistry::get()-&gt;registerCss('mein-plugin', 'plugins/mein-plugin/assets/mein-plugin.css');
+AssetRegistry::get()-&gt;registerJs('mein-plugin',  'plugins/mein-plugin/assets/mein-plugin.js');
+
+// Action-Hook: HTML in content_top injizieren
+HookManager::get()-&gt;addAction('content_top', function(array $context): string {
+    return '&lt;div class="mp-banner"&gt;Hallo von mein-plugin!&lt;/div&gt;';
+}, 10);
+
+// Filter-Hook: Spielername transformieren
+HookManager::get()-&gt;addFilter('player_name', function(string $name, array $context): string {
+    return '[VIP] ' . $name;
+}, 20);</pre>
+                </div>
+                <h4>Wichtige Regeln für plugin.php</h4>
+                <ul>
+                    <li>Die Datei wird bei <strong>jedem Request</strong> ausgeführt, wenn das Plugin aktiv ist &ndash; kein Caching.</li>
+                    <li>Kein direktes Ausgeben von HTML (kein <code>echo</code> auf Top-Level) &ndash; nur Registrierungen.</li>
+                    <li>Schwere Operationen (DB-Queries, Datei-I/O) in Hooks kapseln, nicht direkt im Bootstrap.</li>
+                    <li>Immer <code>declare(strict_types=1);</code> verwenden.</li>
+                </ul>
+                <h4>install.sql / uninstall.sql (Lifecycle)</h4>
+                <p>Für Datenbankoperationen beim Installieren/Deinstallieren lege SQL-Dateien im Plugin-Root ab:</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>-- install.sql
+CREATE TABLE IF NOT EXISTS %%MP_DATA%% (
+    id        INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id   INT UNSIGNED NOT NULL,
+    value     VARCHAR(255) NOT NULL DEFAULT '',
+    created   INT UNSIGNED NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- uninstall.sql
+DROP TABLE IF EXISTS %%MP_DATA%%;</pre>
+                </div>
+                <div class="pfaq-note">&#9888; Tabellennamen mit <code>%%PLACEHOLDER%%</code>-Syntax angeben, damit der Datenbank-Prefix korrekt ersetzt wird.</div>
+            </div>
+        </details>
+
+        <!-- 5. Hooks -->
+        <details class="pfaq-section" id="pfaq5">
+            <summary>&#128279; 5. Hooks verwenden &ndash; Action vs. Filter + Priority <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Das Hook-System basiert auf zwei Typen: <strong>Actions</strong> (Ausgabe erzeugen) und <strong>Filter</strong> (Werte transformieren).</p>
+                <div class="pfaq-grid2">
+                    <div>
+                        <strong>addAction($hook, $callback, $priority)</strong>
+                        <ul>
+                            <li>Callback gibt einen <code>string</code> zurück (HTML)</li>
+                            <li>Alle Callbacks werden konkateniert und in den Spot eingefügt</li>
+                            <li>Rückgabe <code>''</code> wenn nichts ausgegeben werden soll</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>addFilter($hook, $callback, $priority)</strong>
+                        <ul>
+                            <li>Callback erhält den aktuellen Wert + Context und gibt den neuen Wert zurück</li>
+                            <li>Callbacks werden in Priority-Reihenfolge verkettet</li>
+                            <li>Immer den Wert zurückgeben (auch unverändert)</li>
+                        </ul>
+                    </div>
+                </div>
+                <h4>Priority</h4>
+                <p>Niedrigere Zahl = früher ausgeführt. Standard: <code>10</code>. Bereich: beliebige Integer.</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>// Action: Banner ganz oben (Priority 5 = vor anderen mit Priority 10)
+HookManager::get()-&gt;addAction('content_top', function(array $ctx): string {
+    return '&lt;div class="mp-top-banner"&gt;Wichtige Meldung&lt;/div&gt;';
+}, 5);
+
+// Action: Footer-Hinweis ganz am Ende (Priority 99)
+HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
+    return '&lt;!-- mein-plugin v1.0 geladen --&gt;';
+}, 99);
+
+// Filter: Spielername mit Rang-Prefix versehen
+HookManager::get()-&gt;addFilter('player_name', function(string $name, array $ctx): string {
+    $rank = $ctx['player_rank'] ?? '';
+    return $rank ? '[' . htmlspecialchars($rank) . '] ' . $name : $name;
+}, 10);
+
+// Filter: Ressourcen-Anzeige formatieren
+HookManager::get()-&gt;addFilter('resource_display', function(string $val, array $ctx): string {
+    return '&lt;span class="mp-resource"&gt;' . $val . '&lt;/span&gt;';
+}, 20);</pre>
+                </div>
+                <h4>Context-Array</h4>
+                <p>Jeder Hook-Callback erhält ein <code>$context</code>-Array mit Informationen über die aktuelle Seite/den aktuellen Zustand. Die verfügbaren Keys hängen vom jeweiligen Hook ab. Immer defensiv prüfen: <code>$ctx['key'] ?? 'default'</code>.</p>
+                <div class="pfaq-tip">&#9989; Nutze hohe Priority-Werte (z.B. 99) für Debug-Ausgaben, damit sie immer am Ende erscheinen und andere Plugins nicht stören.</div>
+            </div>
+        </details>
+
+        <!-- 6. Twig-Spots -->
+        <details class="pfaq-section" id="pfaq6">
+            <summary>&#127912; 6. Twig hook()-Spots nutzen <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>In den Core-Twig-Templates sind an strategischen Stellen <code>{{ '{{' }} hook('spot_name', context) {{ '}}' }}</code>-Aufrufe eingebaut. Jeder registrierte Action-Callback für diesen Spot wird aufgerufen und die Rückgaben werden konkateniert ausgegeben.</p>
+                <h4>Verfügbare Spots (v1)</h4>
+                <div class="pfaq-grid2">
+                    <div>
+                        <strong>head_end</strong>
+                        Direkt vor <code>&lt;/head&gt;</code>. Ideal für: eigene <code>&lt;style&gt;</code>-Blöcke, Meta-Tags, Preload-Links.
+                    </div>
+                    <div>
+                        <strong>content_top</strong>
+                        Ganz oben im Seiteninhalt, nach dem Header. Ideal für: Benachrichtigungsbanner, Ankündigungen, globale Hinweise.
+                    </div>
+                    <div>
+                        <strong>sidebar_end</strong>
+                        Am Ende der Sidebar (Navigation). Ideal für: zusätzliche Navigationslinks, Widgets, Zähler.
+                    </div>
+                    <div>
+                        <strong>footer_end</strong>
+                        Direkt vor <code>&lt;/body&gt;</code>. Ideal für: Analytics-Snippets, Debug-Kommentare, deferred JS-Init.
+                    </div>
+                </div>
+                <h4>Beispiel: Banner in content_top</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>HookManager::get()-&gt;addAction('content_top', function(array $ctx): string {
+    // Nur auf der Übersichtsseite anzeigen
+    if (($ctx['page'] ?? '') !== 'overview') {
+        return '';
+    }
+    return '&lt;div class="mp-event-banner"&gt;&#127881; Event aktiv bis Sonntag!&lt;/div&gt;';
+}, 10);</pre>
+                </div>
+                <h4>Beispiel: Eigenes CSS in head_end</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>HookManager::get()-&gt;addAction('head_end', function(array $ctx): string {
+    return '&lt;style&gt;.mp-event-banner{background:#1e3a5f;color:#7dd3fc;padding:10px 16px;border-radius:8px;margin:8px 0;}&lt;/style&gt;';
+}, 5);</pre>
+                </div>
+                <div class="pfaq-tip">&#9989; Für größere Stylesheets lieber <code>AssetRegistry</code> nutzen (siehe Abschnitt 7) statt alles in <code>head_end</code> zu schreiben.</div>
+                <div class="pfaq-note">&#9888; Die verfügbaren Context-Keys in <code>$ctx</code> hängen vom jeweiligen Template ab. Immer mit <code>?? ''</code> absichern.</div>
+            </div>
+        </details>
+
+        <!-- 7. Assets -->
+        <details class="pfaq-section" id="pfaq7">
+            <summary>&#127912; 7. Assets registrieren &ndash; CSS &amp; JS, page-scoped loading <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Assets werden über <code>AssetRegistry::get()</code> registriert. Sie werden automatisch in den <code>&lt;head&gt;</code> bzw. vor <code>&lt;/body&gt;</code> eingefügt.</p>
+                <h4>Globale Assets (alle Seiten)</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>// CSS global laden (wird in &lt;head&gt; eingefügt)
+AssetRegistry::get()-&gt;registerCss('mein-plugin', 'plugins/mein-plugin/assets/mein-plugin.css');
+
+// JS global laden (wird vor &lt;/body&gt; eingefügt)
+AssetRegistry::get()-&gt;registerJs('mein-plugin', 'plugins/mein-plugin/assets/mein-plugin.js');</pre>
+                </div>
+                <h4>Page-scoped Assets (nur auf bestimmten Seiten)</h4>
+                <p>Um Assets nur auf bestimmten Seiten zu laden, prüfe den aktuellen Page-Kontext im Bootstrap:</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>// Nur auf der Übersichtsseite laden
+$currentPage = $_GET['page'] ?? '';
+if ($currentPage === 'overview') {
+    AssetRegistry::get()-&gt;registerCss('mp-overview', 'plugins/mein-plugin/assets/overview.css');
+    AssetRegistry::get()-&gt;registerJs('mp-overview',  'plugins/mein-plugin/assets/overview.js');
+}
+
+// Nur im Admin-Bereich laden
+if (defined('ADMIN') &amp;&amp; ADMIN === true) {
+    AssetRegistry::get()-&gt;registerCss('mp-admin', 'plugins/mein-plugin/assets/admin.css');
+}</pre>
+                </div>
+                <h4>Asset-Pfade</h4>
+                <ul>
+                    <li>Pfade sind <strong>relativ zum Web-Root</strong> (nicht zum Dateisystem-Root)</li>
+                    <li>Korrekt: <code>'plugins/mein-plugin/assets/style.css'</code></li>
+                    <li>Falsch: <code>'/var/www/html/plugins/...'</code> oder <code>'./assets/style.css'</code></li>
+                </ul>
+                <h4>CSS Best Practices</h4>
+                <ul>
+                    <li>Alle eigenen CSS-Klassen mit Plugin-ID prefixen: <code>.mp-banner</code>, <code>.mp-widget</code></li>
+                    <li>CSS-Variablen des Core-Themes nutzen: <code>var(--adm-neon-blue)</code>, <code>var(--adm-card-bg)</code></li>
+                    <li>Keine <code>!important</code>-Overrides auf Core-Klassen</li>
+                </ul>
+                <div class="pfaq-note">&#9888; Asset-Keys (erster Parameter) müssen eindeutig sein. Doppelte Keys werden ignoriert. Nutze immer deine Plugin-ID als Prefix.</div>
+            </div>
+        </details>
+
+        <!-- 8. Sprachdateien -->
+        <details class="pfaq-section" id="pfaq8">
+            <summary>&#127760; 8. Sprachdateien &ndash; lang/de.json &amp; lang/en.json <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>Sprachdateien liegen unter <code>plugins/&lt;id&gt;/lang/</code> als JSON-Dateien. Der PluginManager lädt automatisch die Datei passend zur Nutzersprache &ndash; mit Fallback auf <code>en.json</code>.</p>
+                <h4>Dateiformat</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>// lang/de.json
+{
+    "banner_text":  "&#128230; Mein Plugin ist aktiv!",
+    "banner_close": "Schlie&szlig;en",
+    "welcome_msg":  "Willkommen, {name}!",
+    "error_generic": "Ein Fehler ist aufgetreten."
+}
+
+// lang/en.json
+{
+    "banner_text":  "&#128230; My Plugin is active!",
+    "banner_close": "Close",
+    "welcome_msg":  "Welcome, {name}!",
+    "error_generic": "An error occurred."
+}</pre>
+                </div>
+                <h4>Sprachstring abrufen</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>// In plugin.php oder Hook-Callbacks:
+$text  = PluginManager::lang('mein-plugin', 'banner_text');
+$close = PluginManager::lang('mein-plugin', 'banner_close');
+
+// Verwendung in HTML:
+return '&lt;div class="mp-banner"&gt;'
+    . htmlspecialchars($text)
+    . '&lt;button&gt;' . htmlspecialchars($close) . '&lt;/button&gt;'
+    . '&lt;/div&gt;';</pre>
+                </div>
+                <h4>Fallback-Logik</h4>
+                <ul>
+                    <li>PluginManager versucht zuerst <code>lang/{userLang}.json</code> zu laden</li>
+                    <li>Falls nicht vorhanden: Fallback auf <code>lang/en.json</code></li>
+                    <li>Falls Key nicht gefunden: Rückgabe des Keys selbst (kein leerer String)</li>
+                    <li>Unterstützte Sprachen: alle Ordner unter <code>language/</code> (z.B. <code>de</code>, <code>en</code>, <code>es</code>, <code>fr</code>)</li>
+                </ul>
+                <div class="pfaq-tip">&#9989; Immer mindestens <code>en.json</code> anlegen &ndash; das ist der universelle Fallback. <code>de.json</code> ist optional aber empfohlen.</div>
+                <div class="pfaq-note">&#9888; Sprachdateien werden beim Laden des Plugins einmalig gecacht. Änderungen an JSON-Dateien erfordern keinen Neustart, aber einen neuen Request.</div>
+            </div>
+        </details>
+
+        <!-- 9. Migrationen -->
+        <details class="pfaq-section" id="pfaq9">
+            <summary>&#128202; 9. Migrationen &ndash; install.sql, wann läuft es, wie versionieren <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <p>SQL-Migrationen werden automatisch beim Installieren (<code>install.sql</code>) bzw. Deinstallieren (<code>uninstall.sql</code>) ausgeführt. Die Dateien liegen direkt im Plugin-Root.</p>
+                <h4>Wann wird install.sql ausgeführt?</h4>
+                <ul>
+                    <li>Bei <strong>Erstinstallation</strong> via ZIP-Upload oder "Installieren"-Button</li>
+                    <li>Bei <strong>Reinstallation</strong> (Plugin bereits in DB vorhanden &ndash; Update-Pfad)</li>
+                    <li><strong>Nicht</strong> beim Aktivieren/Deaktivieren</li>
+                    <li><strong>Nicht</strong> beim normalen Seitenaufruf</li>
+                </ul>
+                <h4>Vollständiges Beispiel</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>-- install.sql
+-- Eigene Tabelle anlegen (IF NOT EXISTS = idempotent)
+CREATE TABLE IF NOT EXISTS %%MP_SCORES%% (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    score      BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+    INDEX idx_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Einstellungs-Eintrag anlegen (nur wenn noch nicht vorhanden)
+INSERT IGNORE INTO %%CONFIG%% (config_name, config_value)
+VALUES ('mp_scores_enabled', '1');</pre>
+                </div>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>-- uninstall.sql
+-- Tabelle entfernen
+DROP TABLE IF EXISTS %%MP_SCORES%%;
+
+-- Config-Eintrag entfernen
+DELETE FROM %%CONFIG%% WHERE config_name = 'mp_scores_enabled';</pre>
+                </div>
+                <h4>Versionierung von Migrationen</h4>
+                <p>Da <code>install.sql</code> auch bei Updates ausgeführt wird, müssen alle Statements <strong>idempotent</strong> sein:</p>
+                <ul>
+                    <li><code>CREATE TABLE IF NOT EXISTS</code> statt <code>CREATE TABLE</code></li>
+                    <li><code>INSERT IGNORE</code> oder <code>INSERT ... ON DUPLICATE KEY UPDATE</code></li>
+                    <li><code>ALTER TABLE ... ADD COLUMN IF NOT EXISTS</code> (MySQL 8.0+)</li>
+                    <li>Für komplexe Migrations-Logik: eigene Versions-Tabelle anlegen und manuell prüfen</li>
+                </ul>
+                <div class="pfaq-danger">&#10060; <strong>Niemals</strong> <code>DROP TABLE</code> in <code>install.sql</code> verwenden &ndash; das würde bei jedem Update alle Daten löschen!</div>
+                <div class="pfaq-note">&#9888; Tabellennamen immer mit <code>%%PLACEHOLDER%%</code> angeben. Der PluginManager ersetzt diese mit dem konfigurierten DB-Prefix.</div>
+            </div>
+        </details>
+
+        <!-- 10. Debugging -->
+        <details class="pfaq-section" id="pfaq10">
+            <summary>&#128027; 10. Debugging &ndash; Logs, typische Fehler, ZIP Slip <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <h4>Wo schaue ich nach Fehlern?</h4>
+                <ul>
+                    <li><strong>PHP Error Log</strong> &ndash; Alle <code>error_log()</code>-Ausgaben des PluginManagers landen hier. Pfad je nach Server-Konfiguration (<code>/var/log/apache2/error.log</code>, <code>php_errors.log</code> im Web-Root etc.)</li>
+                    <li><strong>Browser-Konsole</strong> &ndash; JS-Fehler aus Plugin-Assets erscheinen hier</li>
+                    <li><strong>Admin-Panel Fehlermeldungen</strong> &ndash; Exceptions beim Installieren/Aktivieren werden als rote Alert-Box angezeigt</li>
+                    <li><strong>Weiße Seite / 500-Fehler</strong> &ndash; Fatal Error im Plugin-Bootstrap. PHP-Error-Log prüfen.</li>
+                </ul>
+                <h4>Typische Probleme und Lösungen</h4>
+                <div class="pfaq-grid2">
+                    <div>
+                        <strong>&#10060; "manifest.json not found"</strong>
+                        Ordnername stimmt nicht mit <code>id</code> überein, oder ZIP-Struktur hat einen Extra-Ordner. ZIP-Inhalt prüfen: <code>manifest.json</code> muss auf Top-Level oder eine Ebene tief liegen.
+                    </div>
+                    <div>
+                        <strong>&#10060; "Plugin id must match [a-z0-9-_]"</strong>
+                        Die <code>id</code> in <code>manifest.json</code> enthält Großbuchstaben, Leerzeichen oder Sonderzeichen. Nur <code>a-z</code>, <code>0-9</code>, <code>-</code> und <code>_</code> erlaubt.
+                    </div>
+                    <div>
+                        <strong>&#10060; Plugin aktiv, aber nichts passiert</strong>
+                        <code>plugin.php</code> wird nicht gefunden oder wirft einen Fehler. PHP-Log prüfen. Dateiname muss exakt <code>plugin.php</code> sein (Kleinschreibung!).
+                    </div>
+                    <div>
+                        <strong>&#10060; CSS/JS wird nicht geladen</strong>
+                        Asset-Pfad ist falsch (relativ zum Web-Root, nicht zum Plugin-Ordner). Im Browser-Netzwerk-Tab prüfen ob 404.
+                    </div>
+                    <div>
+                        <strong>&#10060; SQL-Migration schlägt fehl</strong>
+                        Tabellen-Placeholder falsch geschrieben, oder SQL-Syntax-Fehler. PluginManager loggt den genauen Fehler ins PHP-Log.
+                    </div>
+                    <div>
+                        <strong>&#10060; Sprachstring zeigt den Key</strong>
+                        JSON-Datei nicht vorhanden, falscher Dateiname, oder Key existiert nicht. <code>PluginManager::lang()</code> gibt den Key zurück wenn nichts gefunden wird.
+                    </div>
+                </div>
+                <h4>ZIP Slip &ndash; Was ist das?</h4>
+                <p>ZIP Slip ist eine Sicherheitslücke bei der Pfade wie <code>../../config.php</code> in ZIP-Einträgen verwendet werden, um Dateien außerhalb des Zielordners zu schreiben. Der PluginManager schützt dagegen durch <code>realpath()</code>-Prüfung aller Zielpfade. Trotzdem: <strong>Nur ZIPs aus vertrauenswürdigen Quellen installieren!</strong></p>
+                <div class="pfaq-danger">&#10060; Installiere niemals Plugins aus unbekannten Quellen ohne den Code vorher zu prüfen. Ein Plugin hat vollen PHP-Zugriff auf den Server.</div>
+                <h4>Debug-Ausgabe im Plugin</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>// Debug-Info in footer_end ausgeben (nur wenn DEBUG-Konstante gesetzt)
+HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
+    if (!defined('DEBUG') || !DEBUG) {
+        return '';
+    }
+    return '&lt;!-- [mein-plugin] ctx=' . htmlspecialchars(json_encode($ctx)) . ' --&gt;';
+}, 999);</pre>
+                </div>
+            </div>
+        </details>
+
+        <!-- 11. Best Practices -->
+        <details class="pfaq-section" id="pfaq11">
+            <summary>&#11088; 11. Best Practices &ndash; Prefixing, Performance, Sicherheit <span class="pfaq-arrow">&#9658;</span></summary>
+            <div class="pfaq-content">
+                <h4>Namensgebung &amp; Prefixing</h4>
+                <ul>
+                    <li><strong>Plugin-ID</strong>: Immer mit eigenem Kürzel prefixen, z.B. <code>acme-shop</code>, <code>mymod-vip</code></li>
+                    <li><strong>CSS-Klassen</strong>: Alle eigenen Klassen mit Plugin-ID prefixen: <code>.acme-shop-cart</code>, <code>.acme-shop-btn</code></li>
+                    <li><strong>JS-Globals</strong>: Eigene Objekte in einem Namespace kapseln: <code>window.AcmeShop = { ... }</code></li>
+                    <li><strong>DB-Tabellen</strong>: Plugin-ID als Prefix: <code>%%ACME_SHOP_ORDERS%%</code></li>
+                    <li><strong>Config-Keys</strong>: Plugin-ID als Prefix: <code>acme_shop_tax_rate</code></li>
+                </ul>
+                <h4>Performance</h4>
+                <ul>
+                    <li>Keine DB-Queries direkt im Bootstrap (<code>plugin.php</code> Top-Level) &ndash; nur in Hook-Callbacks</li>
+                    <li>Hook-Callbacks so schlank wie möglich halten &ndash; sie laufen bei jedem Request</li>
+                    <li>Assets nur laden wenn sie gebraucht werden (page-scoped, siehe Abschnitt 7)</li>
+                    <li>Teure Berechnungen cachen (z.B. in statischen Variablen oder Session)</li>
+                    <li>Keine synchronen HTTP-Requests in Hooks</li>
+                </ul>
+                <h4>Sicherheit</h4>
+                <ul>
+                    <li>Alle Ausgaben mit <code>htmlspecialchars()</code> escapen</li>
+                    <li>SQL-Queries immer mit Prepared Statements / Parameter-Binding</li>
+                    <li>Nutzereingaben nie direkt in SQL, HTML oder JS einbauen</li>
+                    <li>Dateipfade immer mit <code>realpath()</code> validieren</li>
+                    <li>Keine <code>eval()</code>, <code>exec()</code>, <code>shell_exec()</code> ohne zwingenden Grund</li>
+                </ul>
+                <h4>Keine Core-Overrides in v1</h4>
+                <p>In Plugin System v1 können Core-Dateien (PHP, Twig, SQL) <strong>nicht überschrieben</strong> werden. Alle Erweiterungen müssen über das Hook-System erfolgen. Das ist gewollt &ndash; es verhindert Update-Konflikte und hält den Core sauber.</p>
+                <div class="pfaq-grid2">
+                    <div>
+                        <strong>&#10060; Nicht so (Core-Override)</strong>
+                        <ul>
+                            <li>Core-Twig-Datei direkt editieren</li>
+                            <li>Core-PHP-Klasse überschreiben</li>
+                            <li>Core-CSS direkt ändern</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong>&#9989; So (Plugin-Weg)</strong>
+                        <ul>
+                            <li>Hook in <code>content_top</code> / <code>head_end</code> registrieren</li>
+                            <li>Filter-Hook auf den entsprechenden Wert setzen</li>
+                            <li>Eigenes CSS via <code>AssetRegistry</code> laden</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pfaq-tip">&#9989; Halte dein Plugin so klein wie möglich. Ein Plugin das nur einen Hook registriert und eine CSS-Datei lädt ist besser als ein Monolith der alles macht.</div>
+            </div>
+        </details>
+
+    </div><!-- /pfaq-body -->
+</div><!-- /pfaq-wrap -->
+
+<script>
+function pfaqToggle() {
+    var body = document.getElementById('pfaqBody');
+    var btn  = document.getElementById('pfaqBtn');
+    if (!body || !btn) return;
+    var isOpen = body.classList.toggle('open');
+    btn.textContent = isOpen ? '\u25B2 Zuklappen' : '\u25BC Aufklappen';
+}
+function pfaqCopy(btn) {
+    var pre = btn.parentElement.querySelector('pre');
+    if (!pre) return;
+    var text = pre.textContent || pre.innerText;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = 'Kopiert!';
+            btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = 'Kopieren'; btn.classList.remove('copied'); }, 1800);
+        });
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); btn.textContent = 'Kopiert!'; btn.classList.add('copied'); setTimeout(function() { btn.textContent = 'Kopieren'; btn.classList.remove('copied'); }, 1800); } catch(e) {}
+        document.body.removeChild(ta);
+    }
+}
+</script>
 
 <!-- ZIP Upload -->
 <div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
