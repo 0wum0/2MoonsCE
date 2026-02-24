@@ -60,9 +60,12 @@ class ShowOfficierPage extends AbstractGamePage
 		
 		$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $Element);
 			
+		$maxLevel			= (int)($pricelist[$Element]['max'] ?? 0);
+		$currentLevel		= (int)($USER[$resource[$Element]] ?? 0);
+
 		if (!BuildFunctions::isTechnologieAccessible($USER, $PLANET, $Element) 
 			|| !BuildFunctions::isElementBuyable($USER, $PLANET, $Element, $costResources) 
-			|| $pricelist[$Element]['max'] <= $USER[$resource[$Element]]) {
+			|| ($maxLevel > 0 && $currentLevel >= $maxLevel)) {
 			return;
 		}
 		
@@ -117,6 +120,7 @@ class ShowOfficierPage extends AbstractGamePage
 
 				$darkmatterList[$Element]	= array(
 					'timeLeft'			=> max($USER[$resource[$Element]] - TIMESTAMP, 0),
+					'active'			=> ($USER[$resource[$Element]] > TIMESTAMP),
 					'costResources'		=> $costResources,
 					'buyable'			=> $buyable,
 					'time'				=> $pricelist[$Element]['time'],
@@ -138,9 +142,13 @@ class ShowOfficierPage extends AbstractGamePage
 				$costOverflow		= BuildFunctions::getRestPrice($USER, $PLANET, $Element, $costResources);
 				$elementBonus		= BuildFunctions::getAvalibleBonus($Element);
 				
+				$maxLevel				= (int)($pricelist[$Element]['max'] ?? 0);
+				$currentLevel			= (int)($USER[$resource[$Element]] ?? 0);
+
 				$officierList[$Element]	= array(
-					'level'				=> $USER[$resource[$Element]],
-					'maxLevel'			=> $pricelist[$Element]['max'],
+					'level'				=> $currentLevel,
+					'maxLevel'			=> $maxLevel,
+					'maxReached'		=> ($maxLevel > 0 && $currentLevel >= $maxLevel),
 					'costResources'		=> $costResources,
 					'buyable'			=> $buyable,
 					'costOverflow'		=> $costOverflow,

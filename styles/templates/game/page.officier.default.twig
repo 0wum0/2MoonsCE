@@ -27,6 +27,82 @@
                     <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="officer-portrait">
                     
                     <div class="rank-badge">
+                        <span class="rank-label">{{ LNG.of_active }}</span>
+                        <span class="rank-val" id="time_{{ ID }}">{% if Element.active %}{{ Element.timeLeft }}s{% else %}-{% endif %}</span>
+                    </div>
+
+                    <div class="info-trigger" onclick="return Dialog.info({{ ID }})">
+                        <i class="fas fa-info"></i>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h3 class="officer-name">{{ LNG.tech[ID] }}</h3>
+                    
+                    <div class="bonus-container">
+                        {% for BonusName, Bonus in Element.elementBonus %}
+                            <div class="bonus-tag {% if Bonus[0] < 0 %}negative{% else %}positive{% endif %}">
+                                <span class="bonus-icon">
+                                    {% if Bonus[0] < 0 %}<i class="fas fa-caret-down"></i>{% else %}<i class="fas fa-caret-up"></i>{% endif %}
+                                </span>
+                                <span class="bonus-text">
+                                    {{ LNG.bonus[BonusName] }} 
+                                    <strong>{% if Bonus[1] == 0 %}{{ (Bonus[0] * 100)|abs }}%{% else %}{{ Bonus[0] }}{% endif %}</strong>
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="spacer"></div>
+
+                    <div class="card-footer">
+                        
+                        <div class="cost-readout">
+                            {% for RessID, RessAmount in Element.costResources %}
+                                <div class="cost-item {% if Element.costOverflow[RessID] == 0 %}affordable{% else %}expensive{% endif %}">
+                                    <img src="{{ dpath }}images/{{ RessID }}.gif" alt="" title="{{ LNG.tech[RessID] }}">
+                                    <span>{{ RessAmount|number_format }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="action-area">
+                            {% if Element.buyable %}
+                                <form action="game.php?page=officier" method="post">
+                                    <input type="hidden" name="id" value="{{ ID }}">
+                                    <button type="submit" class="btn-officer recruit">
+                                        <i class="fas fa-user-plus"></i> {{ LNG.of_recruit }}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn-officer disabled">
+                                    <i class="fas fa-ban"></i> {{ LNG.bd_notres }}
+                                </button>
+                            {% endif %}
+                        </div>
+
+                        <div class="duration-display">
+                            <i class="fas fa-stopwatch"></i> {{ Element.time }}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if officierList %}
+        <div class="officer-grid">
+            {% for ID, Element in officierList %}
+            
+            <div class="officer-card">
+                
+                <div class="card-visual">
+                    <div class="visual-bg"></div>
+                    <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="officer-portrait">
+                    
+                    <div class="rank-badge">
                         <span class="rank-label">LVL</span>
                         <span class="rank-val">{{ Element.level }}/{{ Element.maxLevel }}</span>
                     </div>
@@ -67,7 +143,7 @@
                         </div>
 
                         <div class="action-area">
-                            {% if Element.maxLevel <= Element.level %}
+                            {% if Element.maxReached %}
                                 <button class="btn-officer maxed">
                                     <i class="fas fa-check-double"></i> {{ LNG.bd_maxlevel }}
                                 </button>
@@ -83,10 +159,6 @@
                                     <i class="fas fa-ban"></i> {{ LNG.bd_notres }}
                                 </button>
                             {% endif %}
-                        </div>
-
-                        <div class="duration-display">
-                            <i class="fas fa-stopwatch"></i> {{ Element.time }}
                         </div>
 
                     </div>
