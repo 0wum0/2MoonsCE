@@ -278,6 +278,39 @@ class PluginManager
 
     // ── Load active plugins ──────────────────────────────────────────────────
 
+    /** @var array<string, callable> plugin id → registerElements callback */
+    private array $elementCallbacks = [];
+
+    /**
+     * Called from a plugin's bootstrap (plugin.php) to register a
+     * registerElements() callback for Plugin System v1.2.
+     *
+     * Usage in plugin.php:
+     *   PluginManager::get()->registerElementsCallback('my-plugin', function(ElementRegistry $r): void {
+     *       $r->register([...]);
+     *   });
+     */
+    public function registerElementsCallback(string $pluginId, callable $callback): void
+    {
+        $this->elementCallbacks[$pluginId] = $callback;
+    }
+
+    /**
+     * Dispatch registerElements() to all active plugins that registered a callback.
+     * Called from common.php after bootFromLegacyArrays() has been called.
+     * Safe to call even when no plugin registered a callback (no-op).
+     */
+    public function dispatchRegisterElements(ElementRegistry $registry): void
+    {
+        foreach ($this->elementCallbacks as $pluginId => $callback) {
+            try {
+                $callback($registry);
+            } catch (Throwable $e) {
+                error_log('[PluginManager] registerElements error in plugin "' . $pluginId . '": ' . $e->getMessage());
+            }
+        }
+    }
+
     /**
      * Load all active plugins: include their bootstrap, register hooks/assets/lang.
      * Called once from common.php after DB is ready.

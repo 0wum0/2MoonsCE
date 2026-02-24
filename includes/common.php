@@ -17,6 +17,11 @@ declare(strict_types=1);
  * @link https://github.com/jkroepke/2Moons
  */
 
+if (defined('COMMON_PHP_LOADED')) {
+	return;
+}
+define('COMMON_PHP_LOADED', true);
+
 if (isset($_POST['GLOBALS']) || isset($_GET['GLOBALS'])) {
 	exit('You cannot set the GLOBALS-array from outside the script.');
 }
@@ -71,6 +76,7 @@ require_once 'includes/classes/class.template.php';
 require_once 'includes/classes/HookManager.class.php';
 require_once 'includes/classes/AssetRegistry.class.php';
 require_once 'includes/classes/PluginManager.class.php';
+require_once __DIR__ . '/classes/ElementRegistry.class.php';
 
 // Say Browsers to Allow ThirdParty Cookies (Thanks to morktadela)
 HTTP::sendHeader('P3P', 'CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
@@ -163,13 +169,38 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 
 	PluginManager::get()->loadActivePlugins();
 
-	// ── Plugin System v1.1 – Game Data Hooks ─────────────────────────────────
-	// Runs once per request, after plugins have registered their filters.
-	// Plugins can extend $pricelist/$reslist/$resource/$ProdGrid/$CombatCaps/
-	// $requeriments in memory without touching the DB or the cache.
-	// applyFilters() is a no-op (returns value unchanged) when no plugin
-	// registers a filter for a given hook, so there is no overhead by default.
+	// ── Plugin System v1.2 – Dynamic Element Registry Bridge ─────────────────
+	// Order:
+	//   1. loadActivePlugins() above has already included all plugin.php files,
+	//      so plugins may have called registerElementsCallback().
+	//   2. Boot the registry from the legacy cache arrays (once per request).
+	//   3. Dispatch registerElements() to all plugins that registered a callback.
+	//   4. Export updated arrays back into the legacy globals.
+	//   5. Run the existing v1.1 filter hooks on top (backwards-compatible).
 	if (MODE === 'INGAME' || MODE === 'ADMIN') {
+		$_reg = ElementRegistry::get();
+		$_reg->bootFromLegacyArrays(
+			$resource,
+			$pricelist,
+			$reslist,
+			$requeriments,
+			['CombatCaps' => $CombatCaps, 'ProdGrid' => $ProdGrid]
+		);
+
+		// Let plugins register new elements via the registry API
+		PluginManager::get()->dispatchRegisterElements($_reg);
+
+		// Export registry back to legacy globals so all existing code works
+		$pricelist    = $_reg->exportLegacyPricelist();
+		$reslist      = $_reg->exportLegacyReslist($reslist);
+		$resource     = $_reg->exportLegacyResourceMap($resource);
+		$requeriments = $_reg->exportLegacyRequirements($requeriments);
+		$CombatCaps   = $_reg->exportLegacyCombatCaps($CombatCaps);
+		$ProdGrid     = $_reg->exportLegacyProdGrid($ProdGrid);
+		unset($_reg);
+
+		// ── Plugin System v1.1 – Game Data Hooks (still active) ───────────────
+		// applyFilters() is a no-op when no filter is registered for a hook.
 		$_ghook       = HookManager::get();
 		$resource     = $_ghook->applyFilters('game.resourceMap',  $resource);
 		$pricelist    = $_ghook->applyFilters('game.pricelist',    $pricelist);
@@ -223,6 +254,11 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 		
 		$USER['factor']		= getFactors($USER);
 		$USER['PLANETS']	= getPlanets($USER);
+
+		// ── Plugin System v1.2 – Planet data defaults for registry-only elements
+		// Injects 0-defaults for any nameKey that is not a real DB column, so that
+		// $PLANET[$resource[$Element]] never triggers E_WARNING for missing keys.
+		$PLANET = HookManager::get()->applyFilters('game.planet', $PLANET);
 	}
 	elseif (MODE === 'ADMIN')
 	{
