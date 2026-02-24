@@ -5,5 +5,8 @@
 
 <script src="./scripts/base/jquery.js?v={{ REV|default('3100') }}"></script>
 <script src="./scripts/game/admin-dashboard.js?v={{ REV|default('3100') }}"></script>
+{% if pluginJs is defined %}{% for jsPath in pluginJs %}<script src="{{ jsPath }}"></script>
+{% endfor %}{% endif %}
+{{ hook('footer_end') }}
 </body>
 </html>

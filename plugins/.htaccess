@@ -1,0 +1,6 @@
+# Deny direct HTTP access to plugin PHP files for security.
+# Assets (CSS/JS/images) are served via their public paths registered by plugins.
+<FilesMatch "\.(php|php\d|phtml|phar)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

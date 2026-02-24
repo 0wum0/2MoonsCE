@@ -1397,6 +1397,19 @@ INSERT INTO `%PREFIX%vars_requriements` (`elementID`, `requireID`, `requireLevel
 (615, 614, 1),
 (615, 609, 1);
 
+-- Plugin System v1
+CREATE TABLE IF NOT EXISTS `%PREFIX%plugins` (
+  `id`           VARCHAR(100)  NOT NULL,
+  `name`         VARCHAR(255)  NOT NULL,
+  `version`      VARCHAR(20)   NOT NULL,
+  `type`         VARCHAR(20)   NOT NULL DEFAULT 'game',
+  `is_active`    TINYINT(1)    NOT NULL DEFAULT 0,
+  `installed_at` INT           NOT NULL DEFAULT 0,
+  `updated_at`   INT           NOT NULL DEFAULT 0,
+  `config_json`  LONGTEXT      NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

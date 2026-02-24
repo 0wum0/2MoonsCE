@@ -9,6 +9,7 @@
         {% include "main.navigation_header.twig" %}
 
         <div id="page-content" class="container-fluid">
+            {{ hook('content_top') }}
             {% block content %}{% endblock %}
         </div>
 

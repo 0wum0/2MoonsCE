@@ -70,6 +70,9 @@
 	});
 	</script>
 
+	{% if pluginCss is defined %}{% for cssPath in pluginCss %}<link rel="stylesheet" href="{{ cssPath }}">
+	{% endfor %}{% endif %}
+	{{ hook('head_end') }}
 </head>
 <body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }} aerospace-theme">
 	<div id="tooltip" class="tip"></div>

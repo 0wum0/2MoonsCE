@@ -1,0 +1,130 @@
+{% include 'overall_header.twig' %}
+
+<div class="content-header">
+    <h1 class="content-title">&#128230; Plugin-Verwaltung</h1>
+    <p class="content-subtitle">Plugins installieren, aktivieren, deaktivieren und deinstallieren.</p>
+</div>
+
+{% if message is defined and message %}
+<div class="alert alert-success" style="background:rgba(34,197,94,0.15);border:1px solid #22c55e;color:#86efac;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+    &#10004; {{ message }}
+</div>
+{% endif %}
+
+{% if error is defined and error %}
+<div class="alert alert-error" style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#fca5a5;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+    &#10008; {{ error }}
+</div>
+{% endif %}
+
+<!-- ZIP Upload -->
+<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
+    <h2 style="color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0 0 16px;">Plugin per ZIP installieren</h2>
+    <form method="post" action="admin.php?page=pluginAdmin&amp;action=upload" enctype="multipart/form-data">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <input type="file" name="plugin_zip" accept=".zip" required
+                   style="flex:1;min-width:200px;background:#0d1526;border:1px solid #1e2d4a;color:#e2e8f0;padding:8px 12px;border-radius:6px;">
+            <button type="submit"
+                    style="background:var(--adm-neon-blue,#38bdf8);color:#0a0e17;font-weight:600;padding:9px 20px;border:none;border-radius:6px;cursor:pointer;">
+                &#128229; Hochladen &amp; Installieren
+            </button>
+        </div>
+        <p style="color:#64748b;font-size:0.8rem;margin:8px 0 0;">
+            ZIP muss eine <code>manifest.json</code> mit den Feldern <code>id</code>, <code>name</code>, <code>version</code> enthalten.
+        </p>
+    </form>
+</div>
+
+<!-- Installed Plugins -->
+<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
+    <h2 style="color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0 0 16px;">Installierte Plugins</h2>
+
+    {% if installedPlugins is empty %}
+    <p style="color:#64748b;">Keine Plugins installiert.</p>
+    {% else %}
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="border-bottom:1px solid #1e2d4a;color:#94a3b8;font-size:0.8rem;text-transform:uppercase;">
+                <th style="padding:8px 12px;text-align:left;">ID</th>
+                <th style="padding:8px 12px;text-align:left;">Name</th>
+                <th style="padding:8px 12px;text-align:left;">Version</th>
+                <th style="padding:8px 12px;text-align:left;">Typ</th>
+                <th style="padding:8px 12px;text-align:left;">Status</th>
+                <th style="padding:8px 12px;text-align:left;">Aktionen</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for plugin in installedPlugins %}
+        <tr style="border-bottom:1px solid #0f1a2e;">
+            <td style="padding:10px 12px;font-family:monospace;color:#7dd3fc;">{{ plugin.id }}</td>
+            <td style="padding:10px 12px;color:#e2e8f0;">{{ plugin.name }}</td>
+            <td style="padding:10px 12px;color:#94a3b8;">{{ plugin.version }}</td>
+            <td style="padding:10px 12px;color:#94a3b8;">{{ plugin.type }}</td>
+            <td style="padding:10px 12px;">
+                {% if plugin.is_active %}
+                <span style="background:rgba(34,197,94,0.15);color:#86efac;padding:3px 10px;border-radius:20px;font-size:0.8rem;">Aktiv</span>
+                {% else %}
+                <span style="background:rgba(100,116,139,0.2);color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:0.8rem;">Inaktiv</span>
+                {% endif %}
+            </td>
+            <td style="padding:10px 12px;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                {% if plugin.is_active %}
+                <a href="admin.php?page=pluginAdmin&amp;action=deactivate&amp;pluginId={{ plugin.id }}"
+                   style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid #f59e0b;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
+                    Deaktivieren
+                </a>
+                {% else %}
+                <a href="admin.php?page=pluginAdmin&amp;action=activate&amp;pluginId={{ plugin.id }}"
+                   style="background:rgba(34,197,94,0.15);color:#86efac;border:1px solid #22c55e;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
+                    Aktivieren
+                </a>
+                {% endif %}
+                <a href="admin.php?page=pluginAdmin&amp;action=uninstall&amp;pluginId={{ plugin.id }}"
+                   onclick="return confirm('Plugin {{ plugin.name }} wirklich deinstallieren? Dieser Vorgang kann nicht rückgängig gemacht werden.');"
+                   style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid #ef4444;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
+                    Deinstallieren
+                </a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+<!-- Uninstalled (filesystem only) Plugins -->
+{% if uninstalledPlugins is not empty %}
+<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
+    <h2 style="color:#f59e0b;font-size:1rem;margin:0 0 16px;">&#128193; Gefundene Plugins (nicht installiert)</h2>
+    <p style="color:#64748b;font-size:0.85rem;margin:0 0 16px;">Diese Plugins liegen im <code>plugins/</code>-Verzeichnis, sind aber noch nicht in der Datenbank registriert.</p>
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="border-bottom:1px solid #1e2d4a;color:#94a3b8;font-size:0.8rem;text-transform:uppercase;">
+                <th style="padding:8px 12px;text-align:left;">ID</th>
+                <th style="padding:8px 12px;text-align:left;">Name</th>
+                <th style="padding:8px 12px;text-align:left;">Version</th>
+                <th style="padding:8px 12px;text-align:left;">Aktion</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for plugin in uninstalledPlugins %}
+        <tr style="border-bottom:1px solid #0f1a2e;">
+            <td style="padding:10px 12px;font-family:monospace;color:#7dd3fc;">{{ plugin.id }}</td>
+            <td style="padding:10px 12px;color:#e2e8f0;">{{ plugin.name }}</td>
+            <td style="padding:10px 12px;color:#94a3b8;">{{ plugin.version }}</td>
+            <td style="padding:10px 12px;">
+                <a href="admin.php?page=pluginAdmin&amp;action=installLocal&amp;pluginId={{ plugin.id }}"
+                   style="background:rgba(56,189,248,0.15);color:#7dd3fc;border:1px solid #38bdf8;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
+                    Installieren
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% include 'overall_footer.twig' %}

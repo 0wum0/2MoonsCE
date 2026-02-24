@@ -111,5 +111,8 @@ var LoginConfig = {
 </script>
 {% endif %}
 
+{% if pluginJs is defined %}{% for jsPath in pluginJs %}<script src="{{ jsPath }}"></script>
+{% endfor %}{% endif %}
+{{ hook('footer_end') }}
 </body>
 </html>

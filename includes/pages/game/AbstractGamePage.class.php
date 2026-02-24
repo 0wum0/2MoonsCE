@@ -468,6 +468,17 @@ abstract class AbstractGamePage
 			$this->getPageData();
 		}
 
+		HookManager::get()->doAction('beforeController', ['page' => HTTP::_GP('page', '')]);
+
+		$currentPage = HTTP::_GP('page', 'overview');
+
+		$pluginCss = [];
+		$pluginJs  = [];
+		if (class_exists('AssetRegistry')) {
+			$pluginCss = AssetRegistry::get()->getCssForPage($currentPage);
+			$pluginJs  = AssetRegistry::get()->getJsForPage($currentPage);
+		}
+
 		$this->assign(array(
 			'lang'    		=> $LNG->getLanguage(),
 			'dpath'			=> $THEME->getTheme(),
@@ -475,11 +486,15 @@ abstract class AbstractGamePage
 			'execscript'	=> implode("\n", $this->tplObj->script),
 			'basepath'		=> PROTOCOL.HTTP_HOST.HTTP_BASE,
 			'servertime'	=> _date("M D d H:i:s", TIMESTAMP, $USER['timezone']),
+			'pluginCss'		=> $pluginCss,
+			'pluginJs'		=> $pluginJs,
 		));
 
 		$this->assign(array(
 			'LNG'			=> $LNG,
 		), false);
+
+		HookManager::get()->doAction('afterController', ['page' => $currentPage]);
 
 		// Convert .tpl extension to .twig
 		$twigFile = str_replace('.tpl', '.twig', $file);

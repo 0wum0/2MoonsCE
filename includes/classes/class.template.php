@@ -103,6 +103,14 @@ class template
 			return shortly_number($number, $decimal);
 		}));
 		
+		// Register hook() function for plugin system
+		$this->twig->addFunction(new TwigFunction('hook', function(string $hookName, array $context = []): string {
+			if (class_exists('HookManager')) {
+				return HookManager::get()->renderHook($hookName, $context);
+			}
+			return '';
+		}, ['is_safe' => ['html']]));
+
 		// Register common PHP math functions for Twig templates
 		$this->twig->addFunction(new TwigFunction('min', function(...$values) {
 			return min(...$values);
@@ -320,9 +328,19 @@ class template
 			$this->twig->setLoader($loader);
 		}
 
+		$pluginCss = [];
+		$pluginJs  = [];
+		if (class_exists('AssetRegistry')) {
+			$currentPage = isset($_GET['page']) ? (string)$_GET['page'] : '';
+			$pluginCss = AssetRegistry::get()->getCssForPage($currentPage);
+			$pluginJs  = AssetRegistry::get()->getJsForPage($currentPage);
+		}
+
 		$this->assign_vars(array(
 			'scripts'		=> $this->jsscript,
 			'execscript'	=> implode("\n", $this->script),
+			'pluginCss'		=> $pluginCss,
+			'pluginJs'		=> $pluginJs,
 		));
 
 		$this->assign_vars(array(

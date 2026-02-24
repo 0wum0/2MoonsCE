@@ -68,6 +68,10 @@ require_once 'includes/classes/Universe.class.php';
 require_once 'includes/classes/class.theme.php';
 require_once 'includes/classes/class.template.php';
 
+require_once 'includes/classes/HookManager.class.php';
+require_once 'includes/classes/AssetRegistry.class.php';
+require_once 'includes/classes/PluginManager.class.php';
+
 // Say Browsers to Allow ThirdParty Cookies (Thanks to morktadela)
 HTTP::sendHeader('P3P', 'CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 define('AJAX_REQUEST', HTTP::_GP('ajax', 0));
@@ -156,6 +160,8 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 	$LNG	= new Language($USER['lang']);
 	$LNG->includeData(array('L18N', 'INGAME', 'TECH', 'CUSTOM'));
 	$THEME->setUserTheme($USER['dpath']);
+
+	PluginManager::get()->loadActivePlugins();
 	
 	if($config->game_disable == 0 && $USER['authlevel'] == AUTH_USR) {
 		ShowErrorPage::printError($LNG['sys_closed_game'].'<br><br>'.$config->close_reason, false);

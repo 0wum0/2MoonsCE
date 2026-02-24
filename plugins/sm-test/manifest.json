@@ -1,0 +1,8 @@
+{
+    "id": "sm-test",
+    "name": "SmartMoons Test Plugin",
+    "version": "1.0.0",
+    "type": "game",
+    "description": "Testplugin für das Plugin-System v1. Zeigt einen Banner über content_top an.",
+    "author": "SmartMoons Dev"
+}

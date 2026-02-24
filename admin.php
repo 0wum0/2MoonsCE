@@ -213,6 +213,10 @@ switch($page)
 		require_once('includes/pages/adm/ShowForumAdminPage.php');
 		ShowForumAdminPage();
 	break;
+	case 'pluginAdmin':
+		require_once('includes/pages/adm/ShowPluginAdminPage.php');
+		ShowPluginAdminPage();
+	break;
 	default:
 		require_once('includes/pages/adm/ShowIndexPage.php');
 		ShowIndexPage();

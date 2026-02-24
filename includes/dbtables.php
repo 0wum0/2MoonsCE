@@ -14,7 +14,7 @@ declare(strict_types=1);
  * @version 1.8.0
  * @link https://github.com/jkroepke/2Moons
  */
-define('DB_VERSION_REQUIRED', 7);
+define('DB_VERSION_REQUIRED', 9);
 define('DB_NAME'			, $databaseConfig['dbname']);
 define('DB_PREFIX'			, $databaseConfig['prefix']);
 
@@ -85,4 +85,5 @@ $dbTableNames	= array(
 	'VARS'	 			=> DB_PREFIX.'vars',
 	'VARS_RAPIDFIRE'	=> DB_PREFIX.'vars_rapidfire',
 	'VARS_REQUIRE'	 	=> DB_PREFIX.'vars_requriements',
+	'PLUGINS'			=> DB_PREFIX.'plugins',
 );
