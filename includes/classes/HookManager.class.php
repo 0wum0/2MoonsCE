@@ -82,6 +82,10 @@ class HookManager
             }
         }
 
+        if ($hook === 'game.buildTime') {
+            $value = max(1, (int) round((float) $value));
+        }
+
         return $value;
     }
 

@@ -55,8 +55,8 @@ class QueueModule implements GameModuleInterface
         // Bridge: forward 'game.buildTime' to the new 'queue.buildTime' hook.
         // Priority 5 so it runs before user-registered 'game.buildTime' handlers,
         // giving 'queue.buildTime' handlers first pick.
-        HookManager::get()->addFilter('game.buildTime', function (int $time, array $buildCtx): int {
-            return (int) HookManager::get()->applyFilters('queue.buildTime', $time, $buildCtx);
+        HookManager::get()->addFilter('game.buildTime', function (int|float $time, array $buildCtx): int {
+            return max(1, (int) round((float) HookManager::get()->applyFilters('queue.buildTime', $time, $buildCtx)));
         }, 5);
 
         // Wire queue.beforeProcess and queue.afterProcess into the existing
