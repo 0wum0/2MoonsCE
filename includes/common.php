@@ -175,7 +175,8 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 	//      so plugins may have called registerElementsCallback().
 	//   2. Boot the registry from the legacy cache arrays (once per request).
 	//   3. Dispatch registerElements() to all plugins that registered a callback.
-	//   4. Export updated arrays back into the legacy globals.
+	//   4. Export updated arrays back into the legacy globals (only if plugins
+	//      actually registered new elements – Invariant A).
 	//   5. Run the existing v1.1 filter hooks on top (backwards-compatible).
 	if (MODE === 'INGAME' || MODE === 'ADMIN') {
 		$_reg = ElementRegistry::get();
@@ -190,13 +191,22 @@ if (MODE === 'INGAME' || MODE === 'ADMIN')
 		// Let plugins register new elements via the registry API
 		PluginManager::get()->dispatchRegisterElements($_reg);
 
-		// Export registry back to legacy globals so all existing code works
-		$pricelist    = $_reg->exportLegacyPricelist();
-		$reslist      = $_reg->exportLegacyReslist($reslist);
-		$resource     = $_reg->exportLegacyResourceMap($resource);
-		$requeriments = $_reg->exportLegacyRequirements($requeriments);
-		$CombatCaps   = $_reg->exportLegacyCombatCaps($CombatCaps);
-		$ProdGrid     = $_reg->exportLegacyProdGrid($ProdGrid);
+		// Always normalize reslist['allow'] keys to int so that
+		// $reslist['allow'][$PLANET['planet_type']] works correctly
+		// (VarsBuildCache produces string keys via explode()).
+		$reslist = $_reg->exportLegacyReslist($reslist);
+
+		// Only export the remaining arrays when a plugin actually added elements.
+		// When no plugins are active the legacy arrays are already correct and
+		// must not be rebuilt from the registry's internal representation
+		// (Invariant A: zero-cost passthrough).
+		if ($_reg->hasNewElements()) {
+			$pricelist    = $_reg->exportLegacyPricelist($pricelist);
+			$resource     = $_reg->exportLegacyResourceMap($resource);
+			$requeriments = $_reg->exportLegacyRequirements($requeriments);
+			$CombatCaps   = $_reg->exportLegacyCombatCaps($CombatCaps);
+			$ProdGrid     = $_reg->exportLegacyProdGrid($ProdGrid);
+		}
 		unset($_reg);
 
 		// ── Plugin System v1.1 – Game Data Hooks (still active) ───────────────

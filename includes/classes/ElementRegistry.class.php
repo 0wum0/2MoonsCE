@@ -55,6 +55,9 @@ class ElementRegistry
     /** @var bool Whether bootFromLegacyArrays() has been called */
     private bool $booted = false;
 
+    /** @var bool Whether any non-legacy element has been registered */
+    private bool $hasNew = false;
+
     private function __construct() {}
     private function __clone() {}
 
@@ -200,6 +203,10 @@ class ElementRegistry
             $def['id'] = $id;
             $this->elements[$id] = $def;
         }
+
+        if (empty($elementDef['_fromLegacy'])) {
+            $this->hasNew = true;
+        }
     }
 
     /**
@@ -212,6 +219,18 @@ class ElementRegistry
         foreach ($elements as $def) {
             $this->register($def);
         }
+    }
+
+    // ── Status ───────────────────────────────────────────────────────────────
+
+    /**
+     * Returns true if any non-legacy element has been registered by a plugin.
+     * Used by the bridge in common.php to skip export entirely when no plugins
+     * added elements (Invariant A: zero-cost passthrough).
+     */
+    public function hasNewElements(): bool
+    {
+        return $this->hasNew;
     }
 
     // ── Query ────────────────────────────────────────────────────────────────
@@ -251,14 +270,21 @@ class ElementRegistry
 
     /**
      * Rebuild $pricelist from the registry.
-     * Includes both legacy elements and newly registered plugin elements.
+     * MERGE-ADDITIVE: starts from $existingPricelist and only adds/overwrites
+     * entries for non-legacy (plugin-registered) elements.
+     * Legacy entries are returned untouched (Invariant B).
      *
+     * @param array<int, array<string, mixed>> $existingPricelist  The current $pricelist
      * @return array<int, array<string, mixed>>
      */
-    public function exportLegacyPricelist(): array
+    public function exportLegacyPricelist(array $existingPricelist = []): array
     {
-        $pricelist = [];
+        $pricelist = $existingPricelist;
         foreach ($this->elements as $id => $def) {
+            if (!empty($def['_fromLegacy'])) {
+                continue;
+            }
+
             $stats = $def['stats'] ?? [];
             $bonus = $stats['bonus'] ?? [];
 
@@ -275,7 +301,7 @@ class ElementRegistry
                 }
             }
 
-            $pricelist[$id] = [
+            $pricelist[(int)$id] = [
                 'cost'         => array_merge(
                     [901 => 0, 902 => 0, 903 => 0, 911 => 0, 921 => 0],
                     $def['cost'] ?? []
@@ -311,6 +337,18 @@ class ElementRegistry
             if (!isset($reslist[$k])) {
                 $reslist[$k] = [];
             }
+        }
+
+        // Normalize $reslist['allow'] keys to int.
+        // VarsBuildCache builds allow[] via explode() which produces string keys ("1","3").
+        // Game code reads $reslist['allow'][$PLANET['planet_type']] where planet_type is an int.
+        // PHP array lookup is strict on key type for int vs string, so we must normalize here.
+        if (!empty($reslist['allow']) && is_array($reslist['allow'])) {
+            $normalizedAllow = [];
+            foreach ($reslist['allow'] as $pt => $ids) {
+                $normalizedAllow[(int)$pt] = $ids;
+            }
+            $reslist['allow'] = $normalizedAllow;
         }
         if (!isset($reslist['allow'][1])) {
             $reslist['allow'][1] = [];
