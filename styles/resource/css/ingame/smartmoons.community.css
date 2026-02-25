@@ -1,0 +1,221 @@
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SMARTMOONS COMMUNITY v4.1 â€” Alliance, Statistics, Galaxy, Messages, Tickets, Settings
+   Part 4/5 of the SmartMoons CSS split.
+   Source: styles/theme/smartmoons.css lines 1000-1215
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ── Fleet Table ── */
+.fleet-table-main { }
+.fleet-row.returning td { opacity:0.75; }
+.fleet-cards-mobile { display:none; }
+.fleet-mobile-card { background:rgba(0,0,0,0.35); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+.fleet-mobile-card.returning { border-left:2px solid var(--dim); opacity:0.75; }
+.fleet-mobile-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.fleet-mobile-route { font-size:12px; color:var(--text); display:flex; flex-direction:column; gap:3px; margin-bottom:6px; }
+.fleet-mobile-times { display:flex; gap:12px; font-family:var(--font-mono); font-size:11px; color:var(--dim); }
+.small-status { font-size:10px; margin-top:2px; }
+.timer-cell { font-family:var(--font-mono); font-size:12px; color:var(--text); }
+.coord-link { font-family:var(--font-mono); font-size:11px; color:var(--cyan) !important; text-decoration:none !important; }
+.coord-link:hover { color:var(--cyan2) !important; }
+
+/* ── Mission Badges ── */
+.mission-badge {
+  display:inline-flex; align-items:center; padding:2px 8px; border-radius:8px;
+  font-family:var(--font-hud); font-size:9px; letter-spacing:1px; font-weight:700;
+  background:rgba(0,212,255,0.1); border:1px solid var(--border2); color:var(--cyan);
+}
+.mission-badge.m-1  { background:rgba(255,61,87,0.12);  border-color:rgba(255,61,87,0.3);  color:var(--red); }
+.mission-badge.m-2  { background:rgba(0,212,255,0.1);   border-color:var(--border2);         color:var(--cyan); }
+.mission-badge.m-3  { background:rgba(0,230,118,0.1);   border-color:rgba(0,230,118,0.3);   color:var(--green); }
+.mission-badge.m-4  { background:rgba(240,180,41,0.1);  border-color:rgba(240,180,41,0.3);  color:var(--gold); }
+.mission-badge.m-5  { background:rgba(180,124,255,0.1); border-color:rgba(180,124,255,0.3); color:var(--purple); }
+.mission-badge.m-6  { background:rgba(255,61,87,0.12);  border-color:rgba(255,61,87,0.3);   color:var(--red); }
+.mission-badge.m-7  { background:rgba(0,212,255,0.1);   border-color:var(--border2);         color:var(--cyan); }
+.mission-badge.m-8  { background:rgba(0,230,118,0.1);   border-color:rgba(0,230,118,0.3);   color:var(--green); }
+.mission-badge.m-9  { background:rgba(180,124,255,0.1); border-color:rgba(180,124,255,0.3); color:var(--purple); }
+.mission-badge.m-15 { background:rgba(240,180,41,0.1);  border-color:rgba(240,180,41,0.3);  color:var(--gold); }
+
+/* ── Bonus Grid (FleetTable) ── */
+.bonus-grid { display:flex; gap:12px; flex-wrap:wrap; padding:14px 18px !important; }
+.bonus-item { display:flex; align-items:center; gap:8px; }
+.bonus-label { font-size:12px; color:var(--dim); }
+.bonus-val { font-family:var(--font-mono); font-size:14px; font-weight:700; }
+
+/* ── Fleet Step Grid ── */
+.fleet-step-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.target-panel { overflow:hidden; }
+.coords-input-group { display:flex; gap:8px; padding:14px; flex-wrap:wrap; }
+.coord-field { display:flex; flex-direction:column; gap:4px; flex:1; min-width:70px; }
+.coord-field label { font-family:var(--font-hud); font-size:9px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; }
+.target-type-selector { padding:0 14px 14px; }
+.target-type-selector label { font-family:var(--font-hud); font-size:9px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; display:block; margin-bottom:6px; }
+.glass-select-wrapper { position:relative; }
+.fleet-status-info { padding:0 14px 14px; }
+.speed-slider-box { padding:0 14px 14px; }
+.speed-slider-box label { font-size:12px; color:var(--dim); display:block; margin-bottom:6px; }
+.glass-range { width:100%; accent-color:var(--cyan); cursor:pointer; }
+
+/* ── Shortcuts Panel ── */
+.shortcuts-panel { overflow:hidden; }
+.shortcut-group { padding:12px 14px; }
+.shortcut-group h4 { font-family:var(--font-hud); font-size:9px; letter-spacing:2px; color:var(--dim); text-transform:uppercase; margin-bottom:8px; }
+.shortcut-grid { display:flex; flex-direction:column; gap:4px; }
+.shortcut-chip {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:7px 10px; background:rgba(0,212,255,0.06); border:1px solid var(--border);
+  border-radius:7px; cursor:pointer; transition:var(--transition);
+}
+.shortcut-chip:hover { background:rgba(0,212,255,0.12); border-color:var(--border2); }
+.shortcut-chip.acs { border-left:2px solid var(--purple); }
+.chip-name { font-size:12px; color:var(--white); }
+.chip-coord { font-family:var(--font-mono); font-size:10px; color:var(--dim); }
+
+/* ── Action Bar Bottom ── */
+.action-bar-bottom {
+  display:flex; align-items:center; justify-content:flex-end; gap:10px;
+  padding:12px 0; flex-wrap:wrap;
+}
+
+/* ── Fleet Step 2: Ship Selection ── */
+.fleet-ship-row td { padding:8px 12px !important; }
+
+/* ── ACS Table ── */
+.acs-section { margin-bottom:12px; }
+.acs-header { font-family:var(--font-hud); font-size:10px; letter-spacing:2px; color:var(--purple); padding:8px 14px; background:rgba(180,124,255,0.06); border-bottom:1px solid var(--border); }
+.acs-body { padding:8px 0; }
+.acs-name-display { font-size:12px; color:var(--white); }
+.aerospace-acs-card { background:var(--panel) !important; border:1px solid var(--border) !important; border-radius:12px !important; margin-bottom:12px !important; overflow:hidden; }
+
+@media(max-width:768px) {
+  .fleet-step-grid { grid-template-columns:1fr; }
+  .glass-table { display:none; }
+  .fleet-cards-mobile { display:block; }
+  .slots-panel { flex-direction:column; gap:8px; }
+}
+
+/* ════════════════════════════════
+   ALLIANCE
+════════════════════════════════ */
+
+/* ── Alliance Layout ── */
+.ally-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+.ally-col-left, .ally-col-right { display:flex; flex-direction:column; gap:14px; }
+
+/* ── Alliance Banner Header ── */
+.ally-home-header { overflow:hidden; padding:0 !important; }
+.ally-banner { position:relative; min-height:120px; display:flex; align-items:flex-end; overflow:hidden; background:linear-gradient(180deg,rgba(0,30,80,0.5),rgba(0,0,0,0.8)); }
+.ally-img-banner { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.35; }
+.ally-placeholder-banner { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:48px; color:rgba(0,212,255,0.15); }
+.ally-title-overlay { position:relative; z-index:1; padding:16px 20px; width:100%; }
+.ally-name { font-family:var(--font-hud) !important; font-size:18px !important; font-weight:900 !important; color:var(--white) !important; margin:0 0 10px !important; letter-spacing:2px; }
+.ally-tag { color:var(--cyan); font-size:14px; font-weight:700; }
+.ally-meta-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:0; }
+
+/* ── Alliance Content ── */
+.ally-text-content { padding:16px 18px; font-size:13px; color:var(--text); line-height:1.7; }
+.diplo-content { padding:14px 18px; }
+.diplo-category { font-size:13px; color:var(--text); padding:5px 0; border-bottom:1px solid var(--border); }
+.diplo-category:last-child { border-bottom:none; }
+.diplo-category strong { color:var(--cyan); font-family:var(--font-hud); font-size:10px; letter-spacing:1px; }
+
+/* ── Stats Panel (Alliance home) ── */
+.stats-panel .panel-header { }
+.stats-list { padding:6px 0; }
+.stat-row { display:flex; align-items:center; justify-content:space-between; padding:8px 18px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:13px; }
+.stat-row:last-child { border-bottom:none; }
+.info-list { padding:6px 0; }
+
+/* ── Notify Panel ── */
+.notify-panel {
+  display:flex; align-items:center; gap:10px; padding:12px 16px !important;
+  background:rgba(0,230,118,0.06) !important; border:1px solid rgba(0,230,118,0.25) !important;
+  border-radius:10px !important; color:var(--green) !important; text-decoration:none !important;
+  font-size:13px; font-weight:500; transition:var(--transition);
+}
+.notify-panel:hover { background:rgba(0,230,118,0.1) !important; }
+
+/* ── Status Dot ── */
+.status-dot { display:inline-block; width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.status-dot.online  { background:var(--green); box-shadow:0 0 6px rgba(0,230,118,0.5); }
+.status-dot.away    { background:var(--gold);  box-shadow:0 0 6px rgba(240,180,41,0.5); }
+.status-dot.offline { background:var(--dim); }
+
+/* ── Icon Button ── */
+.icon-btn { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:rgba(0,212,255,0.07); border:1px solid var(--border); color:var(--dim) !important; transition:var(--transition); }
+.icon-btn:hover { background:rgba(0,212,255,0.14); border-color:var(--border2); color:var(--cyan) !important; }
+
+/* ── Alliance Admin ── */
+.admin-grid { display:grid; grid-template-columns:220px 1fr; gap:16px; align-items:start; }
+.admin-col-left, .admin-col-right { display:flex; flex-direction:column; gap:14px; }
+.admin-nav-buttons { display:flex; flex-direction:column; gap:4px; padding:8px; }
+.admin-link { display:flex; align-items:center; gap:8px; padding:8px 12px; color:var(--text) !important; font-size:13px; border-radius:7px; transition:var(--transition); text-decoration:none !important; }
+.admin-link:hover { background:rgba(0,212,255,0.07); color:var(--cyan) !important; }
+.admin-link.active { background:rgba(0,212,255,0.1); color:var(--cyan) !important; border-left:2px solid var(--cyan); }
+.ally-link { color:var(--cyan) !important; text-decoration:none !important; }
+.ally-link:hover { color:var(--cyan2) !important; }
+
+/* ── Apply / Request ── */
+.apply-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.apply-info { background:rgba(0,212,255,0.04); border:1px solid var(--border); border-radius:10px; padding:14px; }
+.apply-form { }
+.apply-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.apply-message-box { padding:12px 16px; }
+.request-panel { background:rgba(240,180,41,0.06); border:1px solid rgba(240,180,41,0.25); border-radius:10px; padding:14px; margin-bottom:12px; }
+
+@media(max-width:900px) { .ally-grid { grid-template-columns:1fr; } .admin-grid { grid-template-columns:1fr; } .apply-grid { grid-template-columns:1fr; } }
+
+/* ════════════════════════════════
+   STATISTICS
+════════════════════════════════ */
+
+/* ── Filter Panel ── */
+.filter-panel { padding:14px 18px !important; }
+.filter-group { display:inline-flex; align-items:center; gap:8px; margin-right:16px; margin-bottom:6px; }
+.filter-group label { font-family:var(--font-hud); font-size:9px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; white-space:nowrap; }
+.update-info { font-size:11px; color:var(--dim); font-family:var(--font-mono); margin-left:auto; }
+
+/* ── Stat Table (Desktop) ── */
+.stat-desktop-view { overflow:hidden; }
+.stat-mobile-view { display:none; }
+.stat-table { border-collapse:collapse; width:100%; }
+.stat-table th { font-family:var(--font-hud) !important; font-size:9px !important; letter-spacing:2px !important; color:var(--cyan) !important; padding:10px 12px !important; text-transform:uppercase !important; border-bottom:1px solid var(--border); white-space:nowrap; }
+.stat-table td { padding:9px 12px !important; border-bottom:1px solid rgba(255,255,255,0.04) !important; color:var(--text) !important; font-size:12px !important; }
+.stat-table tbody tr:hover td { background:rgba(0,212,255,0.04) !important; }
+.stat-table .col-rank { width:50px; }
+.stat-table .col-msg  { width:36px; }
+.stat-table .col-points, .stat-table .col-avg { text-align:right; white-space:nowrap; }
+.stat-table .text-primary { color:var(--cyan) !important; }
+.stat-highlight-row td { background:rgba(0,212,255,0.08) !important; }
+
+/* ── Rank Arrows ── */
+.rank-change { font-family:var(--font-hud); font-size:9px; margin-left:4px; }
+.rank-up { color:var(--green) !important; }
+.rank-down { color:var(--red) !important; }
+.rank-arrow-up { color:var(--green) !important; }
+.rank-arrow-down { color:var(--red) !important; }
+.rank-arrow-same { color:var(--dim) !important; }
+.rank-num { font-family:var(--font-mono); font-size:14px; color:var(--white); font-weight:700; }
+
+/* ── Stat Cards (Mobile) ── */
+.stat-card {
+  background:var(--panel); border:1px solid var(--border); border-radius:12px;
+  display:flex; align-items:center; gap:10px; padding:11px 14px; margin-bottom:8px;
+  transition:var(--transition);
+}
+.stat-card:hover { border-color:var(--border2); }
+.stat-card.stat-card-me { border-color:var(--cyan); background:rgba(0,212,255,0.05); }
+.stat-card-rank { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:44px; }
+.stat-card-body { flex:1; min-width:0; }
+.stat-card-name { font-size:13px; color:var(--white); font-weight:500; display:flex; align-items:center; gap:6px; }
+.stat-card-ally { font-size:11px; color:var(--dim); margin-top:2px; }
+.stat-card-meta { font-size:11px; color:var(--dim); display:flex; gap:10px; margin-top:2px; }
+.stat-card-pm { color:var(--dim) !important; font-size:12px; }
+.stat-card-pm:hover { color:var(--cyan) !important; }
+.stat-card-points { font-family:var(--font-mono); font-size:13px; color:var(--cyan); white-space:nowrap; margin-left:auto; }
+.no-ally { color:var(--dim); }
+.list-container { overflow:hidden; }
+
+@media(max-width:768px) {
+  .stat-desktop-view { display:none !important; }
+  .stat-mobile-view { display:block !important; }
+}
+

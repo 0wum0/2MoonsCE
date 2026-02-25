@@ -1,0 +1,233 @@
+/* ============================================================
+   Glass Modal System — SmartMoons / 2MoonsCE
+   Replaces Fancybox with a native, zero-dependency modal.
+   ============================================================ */
+
+/* ---------- Overlay / Backdrop ---------- */
+#mm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 8, 20, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s ease, visibility 0.28s ease;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+#mm-overlay.mm-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ---------- Modal Card ---------- */
+#mm-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 980px;
+    height: 80vh;
+    max-height: 90vh;
+    background: linear-gradient(145deg, rgba(10, 18, 40, 0.97) 0%, rgba(6, 12, 28, 0.99) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 14px;
+    box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.08),
+        0 8px 40px rgba(0, 0, 0, 0.7),
+        0 0 60px rgba(56, 189, 248, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transform: translateY(22px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.28s ease;
+    opacity: 0;
+    overflow: hidden;
+}
+
+#mm-overlay.mm-open #mm-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* ---------- Header ---------- */
+#mm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+    background: rgba(56, 189, 248, 0.04);
+    flex-shrink: 0;
+    min-height: 52px;
+    box-sizing: border-box;
+}
+
+#mm-title {
+    font-family: 'Exo 2', 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #38bdf8;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 48px);
+}
+
+/* ---------- Close Button ---------- */
+#mm-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.18s;
+    padding: 0;
+    outline: none;
+    font-family: inherit;
+}
+
+#mm-close:hover,
+#mm-close:focus-visible {
+    background: rgba(248, 56, 56, 0.18);
+    border-color: rgba(248, 100, 100, 0.5);
+    color: #f87171;
+    box-shadow: 0 0 10px rgba(248, 56, 56, 0.25);
+}
+
+/* ---------- Body / iframe ---------- */
+#mm-body {
+    position: relative;
+    flex: 1 1 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#mm-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    display: block;
+    flex: 1 1 auto;
+}
+
+/* ---------- Loader Spinner ---------- */
+#mm-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 12, 28, 0.6);
+    z-index: 2;
+    transition: opacity 0.2s ease;
+}
+
+#mm-loader.mm-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#mm-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(56, 189, 248, 0.15);
+    border-top-color: #38bdf8;
+    border-radius: 50%;
+    animation: mm-spin 0.75s linear infinite;
+}
+
+@keyframes mm-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- Body scroll lock ---------- */
+body.mm-locked {
+    overflow: hidden;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    #mm-overlay {
+        padding: 8px;
+        align-items: flex-end;
+    }
+
+    #mm-card {
+        max-width: 100%;
+        width: 100%;
+        height: 88vh;
+        max-height: 92vh;
+        border-radius: 14px 14px 8px 8px;
+        transform: translateY(40px) scale(1);
+    }
+
+    #mm-overlay.mm-open #mm-card {
+        transform: translateY(0) scale(1);
+    }
+
+    #mm-title {
+        font-size: 13px;
+    }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    #mm-overlay,
+    #mm-card {
+        transition: none;
+    }
+
+    #mm-spinner {
+        animation: none;
+        border-top-color: #38bdf8;
+    }
+}
+
+/* ---------- Popup-window body (inside iframe) ---------- */
+body.popup-window {
+    background: #0a0e1a !important;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+body.popup-window .aerospace-modal-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 0;
+}
+
+body.popup-window .modal-close-btn {
+    display: none !important;
+}
+
+body.popup-window .modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* BBCode Toolbar — shared by Forum and Alliance pages */
+.bb-toolbar { display: flex; gap: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; }
+.bb-btn { min-width: 32px; height: 32px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.07); border: 1px solid rgba(56,189,248,0.25); border-radius: 5px; color: #fff; cursor: pointer; font-size: 12px; font-weight: 700; transition: 0.15s; white-space: nowrap; }
+.bb-btn:hover { background: #38bdf8; color: #000; border-color: #38bdf8; }
+
