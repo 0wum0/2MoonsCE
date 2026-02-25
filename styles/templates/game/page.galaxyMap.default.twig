@@ -3,6 +3,7 @@
 {% block title %}Galaxy Map{% endblock %}
 
 {% block content %}
+{% autoescape false %}
 <script>
   window.SM = {
     userId:  {{ USER.id|default(0) }},
@@ -14,6 +15,7 @@
     apiBase: 'game.php?page=galaxyMap&mode='
   };
 </script>
+{% endautoescape %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
 
@@ -353,6 +355,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+{% autoescape false %}
 <script>
 /* ============================================================
    SmartMoons Galaxy Map v3
@@ -741,7 +744,7 @@ function loadDemo() {
   const cols=['#00d4ff','#a855f7','#ff6b35','#ffd700','#00ffcc','#ff3399'];
   const planets=[];
   for (let g=1;g<=4;g++) for (let s=1;s<=120;s++) {
-    if (Math.random()>.4) continue;
+    if (Math.random()>.55) continue; // keep more so array is never empty
     const n=Math.floor(Math.random()*4)+1;
     for (let k=0;k<n;k++) {
       const p=Math.floor(Math.random()*15)+1, ai=Math.floor(Math.random()*7);
@@ -771,7 +774,7 @@ function loadDemo() {
     demoFleets.push({
       id:i, mission:m, owner:sp.username, ally_tag:sp.ally_tag,
       is_own:sp.user_id===window.SM.userId, is_hostile:hostile,
-      is_ally:!hostile&&sp.user_id!==window.SM.userId&&sp.ally_id>0&&sp.ally_id===window.SM.allyId,
+      is_ally:!hostile && sp.user_id!==window.SM.userId && sp.ally_id>0 && sp.ally_id===window.SM.allyId,
       color:hostile?'#e8304a':m===6?'#ffee00':m===8?'#ff9900':'#00d4ff',
       start:{g:sp.galaxy,s:sp.system,p:sp.planet},
       end:{g:ep.galaxy,s:ep.system,p:ep.planet},
@@ -1199,4 +1202,5 @@ init();
 return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
 })();
 </script>
+{% endautoescape %}
 {% endblock %}
