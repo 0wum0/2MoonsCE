@@ -26,11 +26,6 @@
     z-index: 10001;
 }
 
-/* Hide sidebar-toggle as it's redundant */
-#sidebar-toggle {
-    display: none !important;
-}
-
 .burger-menu:hover,
 #burgerMenu:hover,
 #burger-toggle:hover {
@@ -147,8 +142,7 @@
     /* Hide burger menu on desktop */
     .burger-menu,
     #burgerMenu,
-    #burger-toggle,
-    #sidebar-toggle {
+    #burger-toggle {
         display: none !important;
     }
 }
@@ -236,7 +230,8 @@
     /* Show burger menu */
     .burger-menu,
     #burgerMenu,
-    #burger-toggle {
+    #burger-toggle,
+    #sidebar-toggle {
         display: flex !important;
     }
     

@@ -1,29 +1,53 @@
 {% include "overall_header.twig" %}
-<form action="" method="post">
-<table width="70%" cellpadding="2" cellspacing="2">
-<tr>
-	<th colspan="2">{{ se_server_parameters }}</th>
-	<th>(?)</th>
-</tr><tr>
-	<td>{{ se_disclaimerAddress }}</td>
-	<td><textarea name="disclaimerAddress" cols="80" rows="5">{{ disclaimerAddress }}</textarea></td>
-	<td> </td>
-</tr><tr>
-	<td>{{ se_disclaimerPhone }}</td>
-	<td><input name="disclaimerPhone" size="40" value="{{ disclaimerPhone }}" type="text"></td>
-	<td> </td>
-</tr><tr>
-	<td>{{ se_disclaimerMail }}</td>
-	<td><input name="disclaimerMail" size="40" value="{{ disclaimerMail }}" type="text"></td>
-	<td> </td>
-</tr><tr>
-	<td>{{ se_disclaimerNotice }}</td>
-	<td><textarea name="disclaimerNotice" cols="80" rows="5">{{ disclaimerNotice }}</textarea></td>
-	<td> </td>
-</tr>
-<tr>
-	<td colspan="3"><input value="{{ se_save_parameters }}" type="submit"></td>
-</tr>
-</table>
-</form>
+
+<style>
+.discl-card { background: var(--adm-card-bg, #131929); border: 1px solid var(--adm-border, #1e2d4a); border-radius: 10px; padding: 24px 28px; max-width: 760px; margin: 0 auto; }
+.discl-card h2 { margin: 0 0 20px 0; font-size: 1.1rem; color: var(--adm-neon-blue, #38bdf8); border-bottom: 1px solid var(--adm-border, #1e2d4a); padding-bottom: 10px; }
+.discl-row { display: flex; flex-direction: column; margin-bottom: 18px; gap: 6px; }
+.discl-row label { font-size: 0.87rem; color: #94a3b8; font-weight: 500; }
+.discl-row input[type="text"],
+.discl-row textarea {
+    background: #0d1117; border: 1px solid #30363d; color: #e2e8f0;
+    border-radius: 6px; padding: 8px 12px; font-size: 0.88rem;
+    font-family: inherit; width: 100%; box-sizing: border-box;
+    transition: border-color .2s;
+    resize: vertical;
+}
+.discl-row input[type="text"]:focus,
+.discl-row textarea:focus { outline: none; border-color: #38bdf8; }
+.discl-row textarea { min-height: 90px; }
+.discl-btn {
+    background: #1a7f37; color: #fff; border: none; border-radius: 6px;
+    padding: 9px 24px; font-size: 0.9rem; cursor: pointer; transition: background .2s;
+}
+.discl-btn:hover { background: #238636; }
+</style>
+
+<div style="padding: 10px 0;">
+<div class="discl-card">
+    <h2>&#128220; {{ se_server_parameters }}</h2>
+    <form action="" method="post">
+        <div class="discl-row">
+            <label>{{ se_disclaimerAddress }}</label>
+            <textarea name="disclaimerAddress">{{ disclaimerAddress }}</textarea>
+        </div>
+        <div class="discl-row">
+            <label>{{ se_disclaimerPhone }}</label>
+            <input type="text" name="disclaimerPhone" value="{{ disclaimerPhone }}">
+        </div>
+        <div class="discl-row">
+            <label>{{ se_disclaimerMail }}</label>
+            <input type="text" name="disclaimerMail" value="{{ disclaimerMail }}">
+        </div>
+        <div class="discl-row">
+            <label>{{ se_disclaimerNotice }}</label>
+            <textarea name="disclaimerNotice">{{ disclaimerNotice }}</textarea>
+        </div>
+        <div style="margin-top: 8px;">
+            <button type="submit" class="discl-btn">&#128190; {{ se_save_parameters }}</button>
+        </div>
+    </form>
+</div>
+</div>
+
 {% include "overall_footer.twig" %}
