@@ -1,0 +1,149 @@
+/* GalacticEvents – Ingame banner styles */
+
+.ge-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 8px 10px 4px 10px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #0d2a0d 0%, #112211 100%);
+    border: 1px solid #2a5a2a;
+    border-left: 3px solid #3fb950;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    animation: ge-slidein 0.4s ease-out;
+}
+
+@keyframes ge-slidein {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ge-banner__icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+.ge-banner__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ge-banner__title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #3fb950;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ge-banner__effect {
+    font-size: 0.78rem;
+    color: #a8d5a8;
+    margin-top: 2px;
+}
+
+.ge-banner__type {
+    color: #6e7681;
+    font-size: 0.74rem;
+    margin-left: 4px;
+}
+
+.ge-banner__timer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 0.76rem;
+    color: #6e7681;
+}
+
+.ge-banner__timer-label {
+    color: #6e7681;
+}
+
+.ge-countdown {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: #58a6ff;
+    letter-spacing: 0.05em;
+    font-size: 0.82rem;
+}
+
+/* Pulsing when under 5 minutes */
+.ge-countdown.ge-countdown--urgent {
+    color: #f85149;
+    animation: ge-pulse 1s ease-in-out infinite;
+}
+
+@keyframes ge-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}
+
+/* Negative effect styling */
+.ge-banner--malus {
+    background: linear-gradient(135deg, #2a0d0d 0%, #221111 100%);
+    border-color: #5a2a2a;
+    border-left-color: #f85149;
+}
+
+.ge-banner--malus .ge-banner__title {
+    color: #f85149;
+}
+
+.ge-banner--malus .ge-banner__effect {
+    color: #d5a8a8;
+}
+
+/* Toast notification for new events */
+.ge-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 280px;
+    max-width: 380px;
+    background: #161b22;
+    border: 1px solid #3fb950;
+    border-left: 4px solid #3fb950;
+    border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    animation: ge-toastin 0.35s ease-out;
+}
+
+.ge-toast--malus {
+    border-color: #f85149;
+    border-left-color: #f85149;
+}
+
+@keyframes ge-toastin {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes ge-toastout {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(40px); }
+}
+
+.ge-toast__title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #3fb950;
+    margin-bottom: 4px;
+}
+
+.ge-toast--malus .ge-toast__title {
+    color: #f85149;
+}
+
+.ge-toast__body {
+    font-size: 0.82rem;
+    color: #c9d1d9;
+}

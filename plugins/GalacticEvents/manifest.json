@@ -1,0 +1,9 @@
+{
+    "id":          "galactic_events",
+    "name":        "Galactic Events System",
+    "version":     "1.0.0",
+    "type":        "game",
+    "description": "Erzeugt zufällige globale Galaktische Events mit Produktions-, Bau- und Forschungsbonus/-malus.",
+    "author":      "SmartMoons Dev",
+    "modules":     ["module/GalacticEventsModule.php"]
+}

@@ -1,0 +1,19 @@
+<div class="ge-banner" id="ge-sidebar-banner" data-until="{{ active_until }}">
+    <div class="ge-banner__icon">&#x1F30C;</div>
+    <div class="ge-banner__body">
+        <div class="ge-banner__title">{{ name }}</div>
+        <div class="ge-banner__effect">
+            {{ effect_sign }}{{ effect_value }}%
+            <span class="ge-banner__type">{{ effect_type }}</span>
+        </div>
+        <div class="ge-banner__timer">
+            <span class="ge-banner__timer-label">Endet in:</span>
+            <span class="ge-countdown" id="ge-countdown" data-until="{{ active_until }}">
+                {%- set h = (seconds_left // 3600) -%}
+                {%- set m = ((seconds_left % 3600) // 60) -%}
+                {%- set s = (seconds_left % 60) -%}
+                {{ '%02d'|format(h) }}:{{ '%02d'|format(m) }}:{{ '%02d'|format(s) }}
+            </span>
+        </div>
+    </div>
+</div>

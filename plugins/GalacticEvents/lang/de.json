@@ -1,0 +1,11 @@
+{
+    "event_metal_production":     "Metall-Produktion",
+    "event_crystal_production":   "Kristall-Produktion",
+    "event_deuterium_production": "Deuterium-Produktion",
+    "event_energy_output":        "Energie-Ausgabe",
+    "event_build_time":           "Bauzeit",
+    "event_research_time":        "Forschungszeit",
+    "event_banner_ends_in":       "Endet in:",
+    "event_toast_title":          "Galaktisches Event!",
+    "event_name_prefix":          "Galaktisches Event:"
+}

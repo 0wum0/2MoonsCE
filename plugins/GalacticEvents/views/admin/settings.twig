@@ -1,0 +1,156 @@
+{% include 'overall_header.twig' %}
+
+<style>
+.ge-card { background: var(--adm-card-bg, #131929); border: 1px solid var(--adm-border, #1e2d4a); border-radius: 10px; padding: 22px 26px; margin-bottom: 22px; }
+.ge-card h2 { margin: 0 0 16px 0; font-size: 1.1rem; color: var(--adm-neon-blue, #38bdf8); border-bottom: 1px solid var(--adm-border, #1e2d4a); padding-bottom: 10px; }
+.ge-card h3 { margin: 14px 0 10px 0; font-size: 0.92rem; color: #8b949e; text-transform: uppercase; letter-spacing: .04em; }
+.ge-form-row { display: flex; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.ge-form-row label { min-width: 230px; color: #94a3b8; font-size: 0.88rem; padding-top: 6px; }
+.ge-form-row input[type="number"],
+.ge-form-row select { background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; padding: 6px 11px; font-size: 0.88rem; width: 170px; }
+.ge-form-row input:focus, .ge-form-row select:focus { outline: none; border-color: #38bdf8; }
+.ge-hint { font-size: 0.75rem; color: #475569; padding-top: 7px; }
+.ge-toggle { display: flex; align-items: center; gap: 9px; padding-top: 4px; }
+.ge-toggle input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: #38bdf8; }
+.ge-btn { background: #1a7f37; color: #fff; border: none; border-radius: 6px; padding: 9px 22px; font-size: 0.9rem; cursor: pointer; transition: background .2s; }
+.ge-btn:hover { background: #238636; }
+.ge-alert { padding: 10px 15px; border-radius: 6px; margin-bottom: 14px; font-size: 0.88rem; }
+.ge-alert--success { background: #0d2818; border: 1px solid #238636; color: #3fb950; }
+.ge-alert--error   { background: #2d1115; border: 1px solid #da3633; color: #f85149; }
+.ge-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.ge-badge--active  { background: #0d2818; color: #3fb950; }
+.ge-badge--expired { background: #1c1c1c; color: #6e7681; }
+.ge-active-event { background: #0d2818; border: 1px solid #238636; border-radius: 7px; padding: 13px 16px; margin-bottom: 14px; }
+.ge-active-event__title { font-size: 1rem; font-weight: 700; color: #3fb950; margin-bottom: 3px; }
+.ge-active-event__meta  { font-size: 0.82rem; color: #8b949e; }
+.ge-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-top: 8px; }
+.ge-table th { text-align: left; padding: 7px 11px; color: #64748b; border-bottom: 1px solid #1e2d4a; font-weight: 600; }
+.ge-table td { padding: 6px 11px; border-bottom: 1px solid #131929; }
+.ge-table tr:last-child td { border-bottom: none; }
+</style>
+
+<div style="max-width:860px; margin: 0 auto; padding: 10px 0;">
+
+    <div class="ge-card">
+        <h2>&#x1F30C; Galactic Events System — Einstellungen</h2>
+
+        {% if success %}
+        <div class="ge-alert ge-alert--success">&#x2714; Einstellungen wurden gespeichert.</div>
+        {% endif %}
+
+        {% if errors is defined and errors|length > 0 %}
+        <div class="ge-alert ge-alert--error">
+            {% for err in errors %}<div>&#x26A0; {{ err }}</div>{% endfor %}
+        </div>
+        {% endif %}
+
+        {% if activeEvent is not empty %}
+        <div class="ge-active-event">
+            <div class="ge-active-event__title">&#x26A1; Aktives Event: {{ activeEvent.name }}</div>
+            <div class="ge-active-event__meta">
+                Effekt: {{ activeEvent.effect_type }}
+                {{ activeEvent.effect_value > 0 ? '+' : '' }}{{ activeEvent.effect_value }}%
+                &nbsp;|&nbsp;
+                Endet: {{ activeEvent.active_until|date('d.m.Y H:i:s') }}
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" action="admin.php?page=plugin_galactic_events">
+            <h3>Allgemein</h3>
+            <div class="ge-form-row">
+                <label>Plugin aktiv</label>
+                <div class="ge-toggle">
+                    <input type="checkbox" name="enabled" id="ge_enabled"
+                        {% if settings.enabled %}checked{% endif %}>
+                    <label for="ge_enabled" style="min-width:auto; color:#c9d1d9; padding-top:0;">Events aktivieren</label>
+                </div>
+            </div>
+
+            <h3>Cron-Verhalten</h3>
+            <div class="ge-form-row">
+                <label for="ge_interval">Check-Intervall (Minuten)</label>
+                <input type="number" id="ge_interval" name="check_interval" min="1" max="10080"
+                    value="{{ settings.check_interval|default(30) }}">
+                <span class="ge-hint">Wie oft geprüft wird, ob ein Event starten soll.</span>
+            </div>
+            <div class="ge-form-row">
+                <label for="ge_chance">Wahrscheinlichkeit (%)</label>
+                <input type="number" id="ge_chance" name="trigger_chance_percent" min="1" max="100"
+                    value="{{ settings.trigger_chance_percent|default(20) }}">
+                <span class="ge-hint">Chance pro Check, dass ein neues Event ausgelöst wird.</span>
+            </div>
+            <div class="ge-form-row">
+                <label for="ge_duration">Event-Dauer (Minuten)</label>
+                <input type="number" id="ge_duration" name="event_duration" min="1" max="10080"
+                    value="{{ settings.event_duration|default(60) }}">
+            </div>
+
+            <h3>Effekt-Konfiguration</h3>
+            <div class="ge-form-row">
+                <label for="ge_effect_type">Effekt-Typ</label>
+                <select id="ge_effect_type" name="effect_type">
+                    {% for typeKey, typeLabel in effectLabels %}
+                    <option value="{{ typeKey }}"
+                        {% if settings.effect_type == typeKey %}selected{% endif %}>
+                        {{ typeLabel }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="ge-form-row">
+                <label for="ge_effect_value">Effekt-Wert (%)</label>
+                <input type="number" id="ge_effect_value" name="effect_value" step="0.01" min="-100" max="500"
+                    value="{{ settings.effect_value|default(10) }}">
+                <span class="ge-hint">Positiv = Bonus, Negativ = Malus. +20 = 20% mehr, -15 = 15% weniger.</span>
+            </div>
+
+            <div style="margin-top:18px;">
+                <button type="submit" class="ge-btn">&#x1F4BE; Einstellungen speichern</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="ge-card">
+        <h2>&#x1F4DC; Letzte Events</h2>
+        {% if recentEvents is defined and recentEvents|length > 0 %}
+        <table class="ge-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Effekt-Typ</th>
+                    <th>Wert</th>
+                    <th>Start</th>
+                    <th>Ende</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for ev in recentEvents %}
+            <tr>
+                <td>{{ ev.id }}</td>
+                <td>{{ ev.name }}</td>
+                <td>{{ ev.effect_type }}</td>
+                <td>{{ ev.effect_value > 0 ? '+' : '' }}{{ ev.effect_value }}%</td>
+                <td>{{ ev.active_from|date('d.m.Y H:i') }}</td>
+                <td>{{ ev.active_until|date('d.m.Y H:i') }}</td>
+                <td>
+                    {% if ev.active_until > now %}
+                        <span class="ge-badge ge-badge--active">Aktiv</span>
+                    {% else %}
+                        <span class="ge-badge ge-badge--expired">Abgelaufen</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:#475569; font-size:0.88rem;">Noch keine Events vorhanden.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% include 'overall_footer.twig' %}
