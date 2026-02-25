@@ -1,44 +1,43 @@
 <footer class="game-footer">
-    <div class="footer-glass-panel">
+    <div class="footer-content-box">
         <div class="footer-info">
             &copy; {{ "now"|date("Y") }} <span class="text-highlight">{{ gameName }}</span>
             <span class="separator">&bull;</span>
             Powered by <a href="https://github.com/jkroepke/2Moons" target="_blank" class="footer-link">SmartMoons v3.0</a>
         </div>
         <div class="footer-links">
-            <a href="game.php?page=disclamer" class="footer-link"><i class="fas fa-gavel"></i> {{ LNG.menu_disclamer }}</a>
+            <a href="game.php?page=disclamer" class="footer-link-v4"><i class="fas fa-gavel"></i> {{ LNG.menu_disclamer }}</a>
         </div>
     </div>
 </footer>
 
 </div> </div> <nav class="mobile-dock">
-    <a href="game.php?page=overview" class="dock-item {% if GET.page|default('overview') == 'overview' %}active{% endif %}">
-        <div class="icon-box"><i class="fas fa-home"></i></div>
-        <span class="label">{{ LNG.lm_overview }}</span>
-    </a>
-    
-    <a href="game.php?page=buildings" class="dock-item {% if GET.page == 'buildings' %}active{% endif %}">
-        <div class="icon-box"><i class="fas fa-city"></i></div>
-        <span class="label">{{ LNG.lm_buildings }}</span>
-    </a>
+    <div class="mobile-dock-inner">
+        <a href="game.php?page=overview" class="dock-btn {% if GET.page|default('overview') == 'overview' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>{{ LNG.lm_overview }}</span>
+        </a>
 
-    <div class="dock-fab-wrapper">
-        <a href="game.php?page=fleetTable" class="dock-fab{% if GET.page|default('') == 'fleetTable' %} dock-fab-active{% endif %}">
-            <div class="fab-inner">
-                <i class="fas fa-rocket"></i>
-            </div>
+        <a href="game.php?page=buildings" class="dock-btn {% if GET.page == 'buildings' %}active{% endif %}">
+            <i class="fas fa-city"></i>
+            <span>{{ LNG.lm_buildings }}</span>
+        </a>
+
+        <a href="game.php?page=fleetTable" class="dock-btn {% if GET.page|default('') == 'fleetTable' %}active{% endif %}">
+            <i class="fas fa-rocket"></i>
+            <span>{{ LNG.lm_fleet }}</span>
+        </a>
+
+        <a href="game.php?page=galaxy" class="dock-btn {% if GET.page == 'galaxy' %}active{% endif %}">
+            <i class="fas fa-globe"></i>
+            <span>{{ LNG.lm_galaxy }}</span>
+        </a>
+
+        <a href="#" onclick="SmartChat.toggle();return false;" class="dock-btn" id="dock-chat-btn">
+            <i class="fas fa-comments"></i>
+            <span>Chat</span>
         </a>
     </div>
-
-    <a href="game.php?page=galaxy" class="dock-item {% if GET.page == 'galaxy' %}active{% endif %}">
-        <div class="icon-box"><i class="fas fa-globe"></i></div>
-        <span class="label">{{ LNG.lm_galaxy }}</span>
-    </a>
-
-    <a href="#" onclick="SmartChat.toggle();return false;" class="dock-item" id="dock-chat-btn">
-        <div class="icon-box"><i class="fas fa-comments"></i></div>
-        <span class="label">Chat</span>
-    </a>
 </nav>
 
 <!-- chat-fab: NUR Desktop sichtbar (Mobile nutzt Dock-Chat-Button) -->

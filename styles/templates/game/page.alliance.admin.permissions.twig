@@ -4,12 +4,12 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-user-lock"></i> {{ LNG.al_configura_ranks }}</h2>
         <button id="create_new_alliance_rank" class="btn-action-glow small"><i class="fas fa-plus"></i> {{ LNG.al_create_new_rank }}</button>
     </div>
 
-    <div class="glass-panel table-panel">
+    <div class="content-box table-panel">
         <form action="game.php?page=alliance&amp;mode=admin&amp;action=permissionsSend" method="post">
         <input type="hidden" value="1" name="send">
         
@@ -58,7 +58,7 @@
         </form>
     </div>
 
-    <div class="glass-panel info-panel mt-3">
+    <div class="content-box content-box mt-3">
         <div class="panel-header small">{{ LNG.gl_legend }}</div>
         <div class="legend-grid">
             {% for rankName in availableRanks %}

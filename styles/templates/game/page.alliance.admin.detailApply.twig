@@ -4,12 +4,12 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-user-clock"></i> {{ LNG.al_request_from_user }}: {{ applyDetail.username }}</h2>
         <a href="game.php?page=alliance&amp;mode=admin&amp;action=mangeApply" class="btn-ghost small">{{ LNG.al_back }}</a>
     </div>
 
-    <div class="glass-panel">
+    <div class="content-box">
         <div class="apply-grid">
             <div class="apply-info">
                 <div class="info-row">
@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <div class="glass-panel">
+    <div class="content-box">
         <form action="game.php?page=alliance&amp;mode=admin&amp;action=sendAnswerToApply&amp;id={{ applyDetail.applyID }}" method="post" class="apply-form">
             <div class="form-group">
                 <label>{{ LNG.al_reply_to_request }}</label>

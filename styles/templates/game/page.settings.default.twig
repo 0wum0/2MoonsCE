@@ -8,14 +8,14 @@
 <div class="content_page">
     <div class="aerospace-wrapper">
         
-        <div class="glass-panel header-panel">
+        <div class="content-box header-panel">
             <h2 class="page-title"><i class="fas fa-cogs"></i> {{ LNG.lm_options }}</h2>
         </div>
 
         <div class="settings-grid">
             
             {% if userAuthlevel > 0 %}
-            <div class="settings-card glass-panel">
+            <div class="settings-card content-box">
                 <div class="card-title">{{ LNG.op_admin_title_options }}</div>
                 <div class="setting-row">
                     <label>{{ LNG.op_admin_planets_protection }}</label>
@@ -24,7 +24,7 @@
             </div>
             {% endif %}
 
-            <div class="settings-card glass-panel">
+            <div class="settings-card content-box">
                 <div class="card-title"><i class="fas fa-user"></i> {{ LNG.op_user_data }}</div>
                 
                 <div class="setting-row">
@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="settings-card glass-panel">
+            <div class="settings-card content-box">
                 <div class="card-title"><i class="fas fa-sliders-h"></i> {{ LNG.op_general_settings }}</div>
                 
                 <div class="setting-row">
@@ -137,7 +137,7 @@
                 </div>
             </div>
 
-            <div class="settings-card glass-panel">
+            <div class="settings-card content-box">
                 <div class="card-title"><i class="fas fa-globe"></i> {{ LNG.op_galaxy_settings }}</div>
                 
                 <div class="setting-row">
@@ -171,7 +171,7 @@
                 </div>
             </div>
 
-            <div class="settings-card glass-panel danger-zone">
+            <div class="settings-card content-box danger-zone">
                 <div class="card-title"><i class="fas fa-exclamation-triangle"></i> {{ LNG.op_vacation_delete_mode }}</div>
                 
                 <div class="setting-check">
@@ -187,7 +187,7 @@
         </div>
 
         {% if isModuleAvailable(constant('MODULE_BANNER')) %}
-        <div class="glass-panel banner-panel" style="margin-top: 20px; padding: 20px;">
+        <div class="content-box banner-panel" style="margin-top: 20px; padding: 20px;">
              <div class="card-title">{{ LNG.ov_userbanner }}</div>
              <div style="text-align: center; margin-bottom: 15px;">
                 <img src="userpic.php?id={{ userid }}" alt="" style="max-width: 100%; border-radius: 4px;">

@@ -4,12 +4,12 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-users"></i> {{ al_users_list }}</h2>
         <a href="game.php?page=alliance&amp;mode=admin" class="btn-ghost small"><i class="fas fa-arrow-left"></i> {{ LNG.al_back }}</a>
     </div>
 
-    <div class="glass-panel table-panel">
+    <div class="content-box table-panel">
         <form action="game.php?page=alliance&amp;mode=admin&amp;action=membersSave" method="post">
             <div class="table-responsive">
                 <table id="memberList" class="glass-table full-width tablesorter">

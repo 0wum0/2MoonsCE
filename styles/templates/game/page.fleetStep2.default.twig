@@ -4,7 +4,7 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-tasks"></i> {{ LNG.fl_mission }} & {{ LNG.fl_resources }}</h2>
         <div class="header-subtitle">{{ galaxy }}:{{ system }}:{{ planet }} - {{ LNG["type_mission_" ~ type] }}</div>
     </div>
@@ -16,7 +16,7 @@
             
             <div class="step2-main">
                 
-                <div class="glass-panel mission-panel">
+                <div class="content-box mission-panel">
                     <div class="panel-header"><i class="fas fa-crosshairs"></i> {{ LNG.fl_mission }}</div>
                     
                     <div class="mission-grid">
@@ -50,7 +50,7 @@
                     {% endif %}
                 </div>
 
-                <div class="glass-panel resource-panel">
+                <div class="content-box resource-panel">
                     <div class="panel-header">
                         <i class="fas fa-box-open"></i> {{ LNG.fl_resources }}
                         <span class="storage-info">{{ LNG.fl_resources_left }}: <span id="remainingresources" class="text-highlight">-</span></span>
@@ -98,7 +98,7 @@
                 </div>
 
                 {% if StaySelector %}
-                <div class="glass-panel hold-panel">
+                <div class="content-box hold-panel">
                     <div class="panel-header"><i class="fas fa-clock"></i> {{ LNG.fl_hold_time }}</div>
                     <div class="glass-select-wrapper">
                         {% if StaySelector %}
@@ -115,7 +115,7 @@
             </div>
 
             <div class="step2-sidebar">
-                <div class="glass-panel briefing-panel">
+                <div class="content-box briefing-panel">
                     <div class="panel-header"><i class="fas fa-info-circle"></i> {{ LNG.fl_briefing }}</div>
                     
                     <div class="briefing-list">

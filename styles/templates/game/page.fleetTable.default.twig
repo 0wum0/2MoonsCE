@@ -4,11 +4,11 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-space-shuttle"></i> {{ LNG.lm_fleet }}</h2>
     </div>
 
-    <div class="glass-panel slots-panel">
+    <div class="content-box slots-panel">
         <div class="slot-metric">
             <span class="label">{{ LNG.fl_fleets }}</span>
             <div class="progress-track">
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <div class="glass-panel table-panel">
+    <div class="content-box table-panel">
         <div class="table-responsive">
             <table class="glass-table full-width fleet-table-main">
                 <thead>
@@ -138,7 +138,7 @@
     </div>
     {% endif %}
 
-    <div class="glass-panel table-panel mt-3">
+    <div class="content-box table-panel mt-3">
         <div class="panel-header"><i class="fas fa-plus-circle"></i> {{ LNG.fl_new_mission_title }}</div>
 
         {% if maxFleetSlots == activeFleetSlots %}
@@ -198,7 +198,7 @@
         {% endif %}
     </div>
 
-    <div class="glass-panel info-panel mt-3">
+    <div class="content-box content-box mt-3">
         <div class="panel-header small"><i class="fas fa-chart-bar"></i> {{ LNG.fl_bonus }}</div>
         <div class="bonus-grid">
             <div class="bonus-item">

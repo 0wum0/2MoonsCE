@@ -6,7 +6,7 @@
 <div class="content_page">
     <div class="aerospace-wrapper">
         
-        <div class="glass-panel header-panel">
+        <div class="content-box header-panel">
             <h2 class="page-title">
                 {% if mode == "defense" %}
                     <i class="fas fa-shield-alt"></i> {{ LNG.lm_defenses }}
@@ -17,7 +17,7 @@
         </div>
 
         {% if BuildList %}
-        <div class="glass-panel queue-panel">
+        <div class="content-box queue-panel">
             <div class="queue-header">
                 <span><i class="fas fa-tasks"></i> {{ LNG.bd_production_queue }}</span>
                 <span id="timeleft"></span>

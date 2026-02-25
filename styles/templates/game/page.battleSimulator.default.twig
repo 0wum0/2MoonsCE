@@ -4,14 +4,14 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-calculator"></i> {{ LNG.lm_battlesim }}</h2>
     </div>
 
     <form id="form" name="battlesim">
     <input type="hidden" name="slots" id="slots" value="{{ Slots + 1 }}">
     
-    <div class="glass-panel resource-input-panel">
+    <div class="content-box resource-input-panel">
         <div class="res-input-group">
             <span class="label">{{ LNG.bs_steal }}</span>
             
@@ -47,7 +47,7 @@
         <div id="tabs-{{ slot }}" class="battle-tab-content">
             <div class="battle-grid">
                 
-                <div class="glass-panel battle-col attacker">
+                <div class="content-box battle-col attacker">
                     <div class="col-header text-success"><i class="fas fa-fighter-jet"></i> {{ LNG.bs_atter }}</div>
                     
                     <div class="tech-section">
@@ -69,7 +69,7 @@
                 </div>
 
                 {% if slot == 0 %}
-                <div class="glass-panel battle-col defender">
+                <div class="content-box battle-col defender">
                     <div class="col-header text-danger">
                         <i class="fas fa-shield-alt"></i> {{ LNG.bs_deffer }}
                     </div>
@@ -109,7 +109,7 @@
         {% endfor %}
     </div>
 
-    <div class="glass-panel action-panel">
+    <div class="content-box action-panel">
         <button type="button" onClick="return check();" class="btn-action-glow">{{ LNG.bs_send }}</button>
         <button type="reset" class="btn-ghost">{{ LNG.bs_cancel }}</button>
         <div id="wait" style="display:none; margin-top:10px;">

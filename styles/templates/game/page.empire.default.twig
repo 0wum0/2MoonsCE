@@ -5,11 +5,11 @@
 {% block content %}
 <div class="aerospace-container">
     
-    <div class="glass-panel title-panel">
+    <div class="content-box title-panel">
         <h2 class="page-title"><i class="fas fa-sitemap"></i> {{ LNG.lv_imperium_title }}</h2>
     </div>
 
-    <div class="glass-panel empire-panel">
+    <div class="content-box empire-panel">
         <div class="empire-scroll-wrapper">
             <table class="empire-table">
                 
@@ -67,7 +67,7 @@
 
                 <tbody>
                     <tr class="section-header">
-                        <td class="sticky-col section-title" colspan="2">{{ LNG.lv_resources }}</td>
+                        <td class="sticky-col sectiontitle" colspan="2">{{ LNG.lv_resources }}</td>
                         <td colspan="{{ planetList.image|length }}" class="section-spacer"></td>
                     </tr>
                     {% for elementID, resourceArray in planetList.resource %}
@@ -86,7 +86,7 @@
                     {% endfor %}
 
                     <tr class="section-header">
-                        <td class="sticky-col section-title" colspan="2">{{ LNG.lv_buildings }}</td>
+                        <td class="sticky-col sectiontitle" colspan="2">{{ LNG.lv_buildings }}</td>
                         <td colspan="{{ planetList.image|length }}" class="section-spacer"></td>
                     </tr>
                     {% for elementID, buildArray in planetList.build %}
@@ -107,7 +107,7 @@
                     {% endfor %}
 
                     <tr class="section-header">
-                        <td class="sticky-col section-title" colspan="2">{{ LNG.lv_technology }}</td>
+                        <td class="sticky-col sectiontitle" colspan="2">{{ LNG.lv_technology }}</td>
                         <td colspan="{{ planetList.image|length }}" class="section-spacer"></td>
                     </tr>
                     {% for elementID, tech in planetList.tech %}
@@ -126,7 +126,7 @@
                     {% endfor %}
 
                     <tr class="section-header">
-                        <td class="sticky-col section-title" colspan="2">{{ LNG.lv_ships }}</td>
+                        <td class="sticky-col sectiontitle" colspan="2">{{ LNG.lv_ships }}</td>
                         <td colspan="{{ planetList.image|length }}" class="section-spacer"></td>
                     </tr>
                     {% for elementID, fleetArray in planetList.fleet %}
@@ -149,7 +149,7 @@
                     {% endfor %}
 
                     <tr class="section-header">
-                        <td class="sticky-col section-title" colspan="2">{{ LNG.lv_defenses }}</td>
+                        <td class="sticky-col sectiontitle" colspan="2">{{ LNG.lv_defenses }}</td>
                         <td colspan="{{ planetList.image|length }}" class="section-spacer"></td>
                     </tr>
                     {% for elementID, defenseArray in planetList.defense %}

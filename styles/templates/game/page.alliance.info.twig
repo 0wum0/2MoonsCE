@@ -5,7 +5,7 @@
 
 <div class="aerospace-container">
     
-    <div class="glass-panel public-ally-header">
+    <div class="content-box public-ally-header">
         <div class="public-banner-content">
             {% if ally_image %}
                 <img src="{{ ally_image }}" class="public-ally-logo">
@@ -32,7 +32,7 @@
 
     <div class="ally-grid">
         
-        <div class="glass-panel">
+        <div class="content-box">
             <div class="panel-header"><i class="fas fa-quote-left"></i> {{ LNG.al_description }}</div>
             <div class="ally-text-content public-desc">
                 {{ ally_description|raw }}
@@ -41,7 +41,7 @@
 
         <div class="ally-col-right">
             
-            <div class="glass-panel">
+            <div class="content-box">
                 <div class="panel-header">{{ LNG.pl_fightstats }}</div>
                 <div class="stats-list">
                      <div class="stat-row">
@@ -63,7 +63,7 @@
                  </div>
             </div>
 
-            <div class="glass-panel">
+            <div class="content-box">
                 <div class="info-list">
                     {% if ally_web %}
                     <div class="info-row">

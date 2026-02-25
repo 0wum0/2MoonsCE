@@ -5,7 +5,7 @@
 
 <div class="aerospace-container">
     
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-users-cog"></i> {{ LNG.al_manage_alliance }}</h2>
         
         <div class="admin-nav-buttons">
@@ -31,7 +31,7 @@
         
         <div class="admin-col-left">
             
-            <div class="glass-panel setting-panel">
+            <div class="content-box setting-panel">
                 <div class="panel-header"><i class="fas fa-cogs"></i> {{ LNG.al_manage_options }}</div>
                 
                 <div class="form-group">
@@ -86,7 +86,7 @@
             </div>
 
             {% if AllianceOwner %}
-            <div class="glass-panel danger-panel">
+            <div class="content-box danger-panel">
                 <div class="panel-header text-danger"><i class="fas fa-exclamation-circle"></i> Danger Zone</div>
                 <div class="danger-actions">
                     <button type="submit" formaction="game.php?page=alliance&amp;mode=admin&amp;action=close" onclick="return confirm('{{ LNG.al_close_ally }}');" class="btn-icon-danger">
@@ -103,7 +103,7 @@
         </div>
 
         <div class="admin-col-right">
-            <div class="glass-panel text-panel">
+            <div class="content-box text-panel">
                 <div class="panel-header">
                     <i class="fas fa-pen-nib"></i> {{ LNG.al_texts }}
                     <div class="text-tabs">

@@ -4,7 +4,7 @@
 {% block content %}
 
 <div class="aerospace-container">
-    <div class="glass-panel header-panel">
+    <div class="content-box header-panel">
         <h2 class="page-title"><i class="fas fa-handshake"></i> {{ LNG.al_manage_diplo }}</h2>
         <a href="#" onclick="return Dialog.open('game.php?page=alliance&mode=admin&action=diplomacyCreate&ajax=1', 600, 400);" class="btn-action-glow small">
             <i class="fas fa-plus"></i> {{ LNG.al_circular_send_ciruclar }}
@@ -13,7 +13,7 @@
 
     <div class="diplomacy-grid">
         
-        <div class="glass-panel">
+        <div class="content-box">
             <div class="panel-header"><i class="fas fa-link"></i> {{ LNG.al_diplo_info }}</div>
             {% for diploMode, diploAlliances in diploList.0 %}
                 <div class="diplo-group">
@@ -34,7 +34,7 @@
             {% endfor %}
         </div>
 
-        <div class="glass-panel">
+        <div class="content-box">
             <div class="panel-header"><i class="fas fa-paper-plane"></i> {{ LNG.al_diplo_accept_send }}</div>
             {% if diploList.1|length > 0 %}
                 {% for diploMode, diploAlliances in diploList.1 %}
@@ -57,7 +57,7 @@
             {% endif %}
         </div>
 
-        <div class="glass-panel">
+        <div class="content-box">
             <div class="panel-header"><i class="fas fa-inbox"></i> {{ LNG.al_diplo_accept }}</div>
             {% if diploList.2|length > 0 %}
                 {% for diploMode, diploAlliances in diploList.2 %}

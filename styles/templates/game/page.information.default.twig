@@ -5,7 +5,7 @@
 
 <div class="aerospace-info">
 
-    <div class="info-header glass-panel">
+    <div class="info-header content-box">
         <div class="header-visual">
             <div class="glow-ring">
                 <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" alt="" class="tech-img">
@@ -23,7 +23,7 @@
 
         {% if Bonus %}
         <div class="info-card">
-            <div class="card-head"><i class="fas fa-star"></i> {{ LNG.in_bonus }}</div>
+            <div class="sectiontitle"><i class="fas fa-star"></i> {{ LNG.in_bonus }}</div>
             <div class="bonus-list">
                 {% for BonusName, elementBouns in Bonus %}
                 <div class="list-row">
@@ -40,7 +40,7 @@
         {% if FleetInfo %}
             {% if FleetInfo.rapidfire.to or FleetInfo.rapidfire.from %}
             <div class="info-card wide">
-                <div class="card-head"><i class="fas fa-crosshairs"></i> Kampfdaten</div>
+                <div class="sectiontitle"><i class="fas fa-crosshairs"></i> Kampfdaten</div>
                 <div class="rf-flex">
                     {% if FleetInfo.rapidfire.to %}
                     <div class="rf-box">

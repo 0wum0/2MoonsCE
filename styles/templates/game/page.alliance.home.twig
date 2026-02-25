@@ -5,7 +5,7 @@
 
 <div class="aerospace-container">
     
-    <div class="glass-panel ally-home-header">
+    <div class="content-box ally-home-header">
         <div class="ally-banner">
             {% if ally_image %}
                 <img src="{{ ally_image }}" alt="{{ ally_tag }}" class="ally-img-banner">
@@ -41,14 +41,14 @@
         
         <div class="ally-col-left">
             
-            <div class="glass-panel">
+            <div class="content-box">
                 <div class="panel-header"><i class="fas fa-bullhorn"></i> {{ LNG.al_inside_text }}</div>
                 <div class="ally-text-content">
                     {{ ally_description|raw }}
                 </div>
             </div>
 
-            <div class="glass-panel">
+            <div class="content-box">
                 <div class="panel-header"><i class="fas fa-handshake"></i> {{ LNG.al_diplo }}</div>
                 <div class="diplo-content">
                     {% if DiploInfo %}
@@ -67,7 +67,7 @@
 
         <div class="ally-col-right">
             
-            <div class="glass-panel stats-panel">
+            <div class="content-box stats-panel">
                  <div class="panel-header"><i class="fas fa-chart-pie"></i> {{ LNG.pl_fightstats }}</div>
                  <div class="stats-list">
                      <div class="stat-row">
@@ -89,7 +89,7 @@
                  </div>
             </div>
 
-            <div class="glass-panel">
+            <div class="content-box">
                 <div class="info-list">
                     <div class="info-row">
                         <span>{{ LNG.al_ally_info_members }}</span>
@@ -108,7 +108,7 @@
                 </div>
             </div>
              {% if requests > 0 %}
-             <a href="game.php?page=alliance&amp;mode=admin&amp;action=mangeApply" class="glass-panel notify-panel">
+             <a href="game.php?page=alliance&amp;mode=admin&amp;action=mangeApply" class="content-box notify-panel">
                  <i class="fas fa-user-plus"></i> {{ requests }} {{ LNG.al_new_requests }}
              </a>
              {% endif %}

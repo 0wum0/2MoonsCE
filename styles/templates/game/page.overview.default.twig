@@ -6,7 +6,7 @@
 <div class="aerospace-wrapper overview-page">
 
     {% if is_news %}
-    <div class="glass-panel news-ticker-wrap">
+    <div class="content-box news-ticker-wrap">
         <div class="news-label"><i class="fas fa-bullhorn"></i> {{ LNG.ov_news }}</div>
         <div class="news-marquee">
             <marquee behavior="scroll" direction="left" scrollamount="6" onmouseover="this.stop();" onmouseout="this.start();">
@@ -18,7 +18,7 @@
 
     <div class="overview-grid">
 
-        <div class="glass-panel planet-profile-card">
+        <div class="content-box planet-profile-card">
             
             <div class="planet-visual-box">
                 <img src="{{ dpath }}planeten/{{ planetimage }}.jpg" class="planet-img" alt="{{ planetname }}">
@@ -107,7 +107,7 @@
         <div class="overview-dashboard">
 
             {% if ref_active %}
-            <div class="glass-panel ref-box"> <div style="font-weight:bold; color:#f1c40f; margin-bottom:10px; text-transform: uppercase;">{{ LNG.ov_reflink }}</div>
+            <div class="content-box ref-box"> <div style="font-weight:bold; color:#f1c40f; margin-bottom:10px; text-transform: uppercase;">{{ LNG.ov_reflink }}</div>
                 
                 {% if isModuleAvailable(constant('MODULE_BANNER')) %}
                 <div class="banner-preview">
