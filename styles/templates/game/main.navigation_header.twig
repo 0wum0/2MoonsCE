@@ -509,7 +509,7 @@ if(typeof resourceTicker==='function'){
 <!-- Fleet data as safe JSON (no JS string escaping issues) -->
 <script type="application/json" id="fleet-json-data">{{ globalFleetJSON|default("[]")|raw }}</script>
 <script>
-window.globalFleetMovementsFallback = {{ globalFleetMovementsList|default([])|json_encode|raw }};
+(function(){var el=document.getElementById('fleet-json-data');try{window.globalFleetMovementsFallback=el?JSON.parse(el.textContent||'[]'):[];}catch(e){window.globalFleetMovementsFallback=[];}})();
 </script>
 
 <script>
@@ -823,13 +823,13 @@ var SmartNotif=(function(){
     /* ===== TOAST bei Page Load ===== */
     function initToasts(){
         {% if new_message is defined and new_message > 0 %}
-        toast('{{ new_message }} neue Nachricht(en)', 'envelope', '#00f3ff');
+        toast({{ (new_message ~ ' neue Nachricht(en)')|json_encode }}, 'envelope', '#00f3ff');
         {% endif %}
         {% if buildQueue.building is defined and buildQueue.building %}
-        toast('Bau: {{ buildQueue.building.items[0].name|default("?")|e("js") }} Lv.{{ buildQueue.building.items[0].level|default("?") }}', 'building', '#3b82f6');
+        toast({{ ('Bau: ' ~ buildQueue.building.items[0].name|default('?') ~ ' Lv.' ~ buildQueue.building.items[0].level|default('?'))|json_encode }}, 'building', '#3b82f6');
         {% endif %}
         {% if buildQueue.research is defined and buildQueue.research %}
-        toast('Forschung: {{ buildQueue.research.items[0].name|default("?")|e("js") }} Lv.{{ buildQueue.research.items[0].level|default("?") }}', 'flask', '#a855f7');
+        toast({{ ('Forschung: ' ~ buildQueue.research.items[0].name|default('?') ~ ' Lv.' ~ buildQueue.research.items[0].level|default('?'))|json_encode }}, 'flask', '#a855f7');
         {% endif %}
     }
 
