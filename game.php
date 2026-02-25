@@ -21,6 +21,8 @@ define('MODE', 'INGAME');
 define('ROOT_PATH', str_replace('\\', '/',dirname(__FILE__)).'/');
 set_include_path(ROOT_PATH);
 
+ob_start();
+
 require_once 'includes/pages/game/AbstractGamePage.class.php';
 require_once 'includes/pages/game/ShowErrorPage.class.php';
 require_once 'includes/common.php';

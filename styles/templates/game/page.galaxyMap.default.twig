@@ -465,12 +465,21 @@ function init() {
   // Single rAF loop – start before fetch so canvas is live immediately
   animate();
 
-  Promise.all([fetchGalaxy(), fetchFleets()])
-    .then(() => hideLoader())
-    .catch(() => { ldTxt.textContent = 'DEMO MODE'; loadDemo(); hideLoader(800); });
+  // Failsafe: always hide loader after 8 s regardless of fetch outcome
+  const loaderTimeout = setTimeout(() => {
+    if (loadEl.style.display !== 'none') {
+      ldTxt.textContent = 'TIMEOUT – DEMO MODE';
+      loadDemo();
+      hideLoader(400);
+    }
+  }, 8000);
 
-  // Fleet polling every 5 s for live movement
-  setInterval(fetchFleets, 5000);
+  Promise.all([fetchGalaxy(), fetchFleets()])
+    .then(() => { clearTimeout(loaderTimeout); hideLoader(); })
+    .catch(() => { clearTimeout(loaderTimeout); ldTxt.textContent = 'DEMO MODE'; loadDemo(); hideLoader(800); });
+
+  // Fleet polling every 5 s – silent wrapper so poll errors don’t throw
+  setInterval(() => fetchFleets().catch(e => console.warn('Fleet poll:', e)), 5000);
 }
 
 function hideLoader(delay=0) {
@@ -696,7 +705,13 @@ function rebuildFleetMeshes() {
 async function fetchGalaxy() {
   const r = await fetch(window.SM.apiBase + 'galaxy');
   if (!r.ok) throw new Error('galaxy API ' + r.status);
-  galaxyData = await r.json();
+  const text = await r.text();
+  try {
+    galaxyData = JSON.parse(text);
+  } catch(e) {
+    console.error('Galaxy JSON parse error:', text.slice(0, 200));
+    throw new Error('Galaxy JSON invalid');
+  }
   if (galaxyData.server_time) {
     serverTimeOffset = galaxyData.server_time - (Date.now() / 1000);
   }
@@ -704,16 +719,21 @@ async function fetchGalaxy() {
 }
 
 async function fetchFleets() {
+  // NOTE: must NOT swallow error on initial call so Promise.all can reject
+  const r = await fetch(window.SM.apiBase + 'fleets');
+  if (!r.ok) throw new Error('fleets API ' + r.status);
+  const text = await r.text();
   try {
-    const r = await fetch(window.SM.apiBase + 'fleets');
-    if (!r.ok) return;
-    fleetData = await r.json();
-    if (fleetData.server_time) {
-      serverTimeOffset = fleetData.server_time - (Date.now() / 1000);
-    }
-    if (fleetData.fleets) { buildFleets(fleetData.fleets); updateStats(); }
-    set('upd-time', 'Updated ' + new Date().toLocaleTimeString());
-  } catch(e) { console.warn('Fleet fetch:', e); }
+    fleetData = JSON.parse(text);
+  } catch(e) {
+    console.warn('Fleet JSON parse error:', text.slice(0, 200));
+    return; // non-fatal on poll failures
+  }
+  if (fleetData.server_time) {
+    serverTimeOffset = fleetData.server_time - (Date.now() / 1000);
+  }
+  if (fleetData.fleets) { buildFleets(fleetData.fleets); updateStats(); }
+  set('upd-time', 'Updated ' + new Date().toLocaleTimeString());
 }
 
 // ── Demo fallback ──────────────────────────────────────────

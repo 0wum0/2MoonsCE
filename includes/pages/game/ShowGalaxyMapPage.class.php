@@ -64,7 +64,13 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
+        ob_end_clean();
         header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['error' => 'not authenticated', 'fleets' => [], 'server_time' => time(), 'count' => 0]);
+            exit;
+        }
 
         $db  = Database::get();
         $now = TIMESTAMP;
@@ -172,7 +178,13 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
+        ob_end_clean();
         header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['error' => 'not authenticated', 'planets' => [], 'server_time' => time(), 'count' => 0]);
+            exit;
+        }
 
         $db = Database::get();
 
@@ -264,7 +276,13 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
+        ob_end_clean();
         header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['error' => 'not authenticated']);
+            exit;
+        }
 
         $targetId = max(1, (int) HTTP::_GP('player_id', 0));
         if ($targetId === 0) {

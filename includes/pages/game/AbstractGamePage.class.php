@@ -496,6 +496,10 @@ abstract class AbstractGamePage
 
 		HookManager::get()->doAction('afterController', ['page' => $currentPage]);
 
+		// Flush any output buffer opened by the front controller (e.g. game.php ob_start())
+		// so the text/html Content-Type header is actually sent before Twig outputs.
+		while (ob_get_level() > 0) { ob_end_flush(); }
+
 		// Convert .tpl extension to .twig
 		$twigFile = str_replace('.tpl', '.twig', $file);
 		
