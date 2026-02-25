@@ -5,12 +5,15 @@
     {% include "main.navigation.twig" %}
 
     <div class="content-wrapper">
-        
+
         {% include "main.navigation_header.twig" %}
 
-        <div id="page-content" class="container-fluid">
+        <div id="page-content">
             {{ hook('content_top') }}
             {% block content %}{% endblock %}
         </div>
+
+    </div>
+</div>
 
 {% include "main.footer.twig" %}

@@ -3,9 +3,9 @@
     <td>
         {{ RangeInfo.rank }}
         {% if RangeInfo.ranking < 0 %}
-            <span style="color:#e74c3c; font-size:0.8em">▼{{ RangeInfo.ranking|abs }}</span>
+            <span class="rank-arrow-down">▼{{ RangeInfo.ranking|abs }}</span>
         {% elseif RangeInfo.ranking > 0 %}
-            <span style="color:#2ecc71; font-size:0.8em">▲{{ RangeInfo.ranking }}</span>
+            <span class="rank-arrow-up">▲{{ RangeInfo.ranking }}</span>
         {% endif %}
     </td>
     <td>
@@ -24,13 +24,13 @@
         {% if RangeInfo.allyid != 0 %}
             <a href="game.php?page=alliance&amp;mode=info&amp;id={{ RangeInfo.allyid }}">
                 {% if RangeInfo.allyid == CUser_ally %}
-                    <span style="color:#33CCFF">{{ RangeInfo.allyname }}</span>
+                    <span class="text-cyan">{{ RangeInfo.allyname }}</span>
                 {% else %}
                     {{ RangeInfo.allyname }}
                 {% endif %}
             </a>
         {% else %}
-            <span style="color:#555">-</span>
+            <span class="text-dim">-</span>
         {% endif %}
     </td>
     <td>{{ RangeInfo.points }}</td>
