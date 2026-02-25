@@ -1,0 +1,9 @@
+{
+    "id":          "galaxy_marker_api",
+    "name":        "GalaxyMarkerAPI",
+    "version":     "1.0.0",
+    "type":        "game",
+    "description": "Zentrale API um Marker auf der Galaxy Map zu registrieren. Andere Plugins können Marker via Hook einschleusen.",
+    "author":      "SmartMoons Dev",
+    "modules":     ["module/GalaxyMarkerModule.php"]
+}

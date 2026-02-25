@@ -1,0 +1,9 @@
+{
+    "galaxy_marker_api.title":        "Galaxy Markers",
+    "galaxy_marker_api.type_info":    "Information",
+    "galaxy_marker_api.type_danger":  "Danger",
+    "galaxy_marker_api.type_warning": "Warning",
+    "galaxy_marker_api.type_success": "Success",
+    "galaxy_marker_api.type_event":   "Event",
+    "galaxy_marker_api.no_markers":   "No markers found."
+}

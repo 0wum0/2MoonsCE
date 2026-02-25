@@ -1,0 +1,9 @@
+{
+    "id":          "core_qol_pack",
+    "name":        "CoreQoLPack",
+    "version":     "1.0.0",
+    "type":        "game",
+    "description": "Basis AJAX Form Intercept, Forum Autosave, Live Resource Sync und Toast Notifications.",
+    "author":      "SmartMoons Dev",
+    "modules":     ["module/CoreQoLModule.php"]
+}

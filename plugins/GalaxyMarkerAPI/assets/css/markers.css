@@ -1,0 +1,65 @@
+/* GalaxyMarkerAPI – Overlay marker styles */
+
+.gm-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.gm-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.gm-marker__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    background: rgba(0, 0, 0, 0.65);
+    font-size: 12px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gm-marker:hover .gm-marker__icon {
+    transform: scale(1.25);
+    box-shadow: 0 0 10px currentColor;
+}
+
+.gm-marker__tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(4, 8, 22, 0.95);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 6px;
+    padding: 5px 10px;
+    white-space: nowrap;
+    font-size: 11px;
+    color: #e2e8f0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+}
+
+.gm-marker:hover .gm-marker__tooltip {
+    opacity: 1;
+}
+
+/* Marker type colour variants */
+.gm-marker--info    { color: #38bdf8; }
+.gm-marker--danger  { color: #ef4444; }
+.gm-marker--warning { color: #f97316; }
+.gm-marker--success { color: #22c55e; }
+.gm-marker--event   { color: #a855f7; }

@@ -1,0 +1,9 @@
+{
+    "id":          "reward_pool_engine",
+    "name":        "RewardPoolEngine",
+    "version":     "1.0.0",
+    "type":        "game",
+    "description": "Zentrale Loot-/Reward-Engine für Anomalien, Relikte, Events, Quests, Fraktionen und Expeditionen.",
+    "author":      "SmartMoons Dev",
+    "modules":     ["module/RewardPoolModule.php"]
+}

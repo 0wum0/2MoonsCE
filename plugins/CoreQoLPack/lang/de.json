@@ -1,0 +1,9 @@
+{
+    "core_qol_pack.ajax_success":      "Erfolgreich gespeichert.",
+    "core_qol_pack.ajax_error":        "Fehler beim Senden.",
+    "core_qol_pack.ajax_fallback":     "Fehler beim Senden. Normaler Submit wird ausgeführt.",
+    "core_qol_pack.autosave_saved":    "Autosave",
+    "core_qol_pack.autosave_restored": "Wiederhergestellt",
+    "core_qol_pack.autosave_unsaved":  "Ungespeichert",
+    "core_qol_pack.res_sync_error":    "Ressourcen-Sync fehlgeschlagen."
+}

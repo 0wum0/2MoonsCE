@@ -1,0 +1,13 @@
+{
+    "reward_pool_engine.reward_metal":   "Metall",
+    "reward_pool_engine.reward_crystal": "Kristall",
+    "reward_pool_engine.reward_deut":    "Deuterium",
+    "reward_pool_engine.reward_dm":      "Dunkle Materie",
+    "reward_pool_engine.reward_item":    "Item",
+    "reward_pool_engine.reward_relic":   "Relik",
+    "reward_pool_engine.reward_tech":    "Technologie",
+    "reward_pool_engine.reward_ship":    "Schiff",
+    "reward_pool_engine.reward_defense": "Verteidigung",
+    "reward_pool_engine.no_reward":      "Kein Reward gefunden.",
+    "reward_pool_engine.pool_inactive":  "Reward-Pool inaktiv."
+}

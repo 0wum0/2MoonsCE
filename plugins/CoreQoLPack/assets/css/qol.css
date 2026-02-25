@@ -1,0 +1,128 @@
+/* CoreQoLPack – qol.css */
+
+/* ── Toast Notifications ────────────────────────────────────────────────── */
+
+.qol-toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    pointer-events: none;
+    max-width: 320px;
+}
+
+.qol-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(4, 8, 22, 0.95);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-left: 3px solid #38bdf8;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 13px;
+    line-height: 1.4;
+    pointer-events: all;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: qolToastIn 0.25s ease forwards;
+    will-change: transform, opacity;
+}
+
+.qol-toast--success { border-left-color: #22c55e; }
+.qol-toast--error   { border-left-color: #ef4444; }
+.qol-toast--warning { border-left-color: #f97316; }
+.qol-toast--info    { border-left-color: #38bdf8; }
+
+.qol-toast__icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    margin-top: 1px;
+}
+
+.qol-toast--success .qol-toast__icon { color: #22c55e; }
+.qol-toast--error   .qol-toast__icon { color: #ef4444; }
+.qol-toast--warning .qol-toast__icon { color: #f97316; }
+.qol-toast--info    .qol-toast__icon { color: #38bdf8; }
+
+.qol-toast__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.qol-toast__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: rgba(226, 232, 240, 0.5);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.qol-toast__close:hover {
+    color: #e2e8f0;
+}
+
+.qol-toast--out {
+    animation: qolToastOut 0.2s ease forwards;
+}
+
+@keyframes qolToastIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes qolToastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(30px); }
+}
+
+/* ── AJAX Form loading state ────────────────────────────────────────────── */
+
+.ajax-form--loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.ajax-form--loading button[type="submit"],
+.ajax-form--loading input[type="submit"] {
+    cursor: wait;
+}
+
+/* ── Autosave indicator ─────────────────────────────────────────────────── */
+
+.qol-autosave-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: rgba(226, 232, 240, 0.5);
+    margin-top: 4px;
+    transition: color 0.3s;
+}
+
+.qol-autosave-indicator--saved {
+    color: #22c55e;
+}
+
+.qol-autosave-indicator--unsaved {
+    color: #f97316;
+}
+
+/* ── Resource sync pulse ────────────────────────────────────────────────── */
+
+.qol-res-pulse {
+    animation: qolResPulse 0.4s ease;
+}
+
+@keyframes qolResPulse {
+    0%   { filter: brightness(1); }
+    50%  { filter: brightness(1.4); }
+    100% { filter: brightness(1); }
+}

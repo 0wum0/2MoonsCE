@@ -1,0 +1,9 @@
+{
+    "core_qol_pack.ajax_success":      "Saved successfully.",
+    "core_qol_pack.ajax_error":        "Error while submitting.",
+    "core_qol_pack.ajax_fallback":     "Error while submitting. Falling back to normal submit.",
+    "core_qol_pack.autosave_saved":    "Autosaved",
+    "core_qol_pack.autosave_restored": "Restored",
+    "core_qol_pack.autosave_unsaved":  "Unsaved",
+    "core_qol_pack.res_sync_error":    "Resource sync failed."
+}

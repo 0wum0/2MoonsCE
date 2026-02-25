@@ -1,0 +1,3 @@
+-- RewardPoolEngine Plugin – install.sql
+-- Tables are created via PHP in plugin.php using DB_PREFIX (ensureTables()).
+-- No cronjob required for this plugin.
