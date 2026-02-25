@@ -2,7 +2,7 @@
 
 {% block title %}Galaxy Map{% endblock %}
 
-{% block script %}
+{% block content %}
 <script>
   window.SM = {
     userId:  {{ USER.id|default(0) }},
@@ -13,9 +13,6 @@
     apiBase: 'game.php?page=galaxyMap&mode='
   };
 </script>
-{% endblock %}
-
-{% block content %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
 
