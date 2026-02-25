@@ -10,6 +10,7 @@
     galaxy:  {{ PLANET.galaxy|default(1) }},
     system:  {{ PLANET.system|default(1) }},
     planet:  {{ PLANET.planet|default(1) }},
+    planetName: {{ USER.current_planet|default('Home Planet')|json_encode }},
     apiBase: 'game.php?page=galaxyMap&mode='
   };
 </script>
@@ -42,8 +43,8 @@
 #gm-root {
   --cyan:   #00d4ff;
   --gold:   #ffd700;
-  --red:    #ff3060;
-  --green:  #00ff88;
+  --red:    #e8304a;
+  --green:  #00e87a;
   --purple: #a855f7;
   --dim:    #4a6a8a;
   --text:   #c8e6ff;
@@ -95,7 +96,8 @@
   padding: 13px 14px; z-index: 100;
   box-shadow: 0 8px 30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.04);
 }
-.sp-h { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2.5px; color:var(--cyan); margin-bottom:7px; }
+.sp-h { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:2px; color:var(--dim); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+.sp-h i { color:var(--cyan); opacity:.7; }
 .sp-row { display:flex; gap:7px; margin-bottom:7px; }
 .sp-col { flex:1; }
 .sp-lbl { font-size:10px; color:var(--dim); font-family:'Orbitron',monospace; letter-spacing:1px; margin-bottom:3px; }
@@ -112,13 +114,16 @@
   cursor:pointer; font-family:'Orbitron',monospace; font-size:9px;
   letter-spacing:1.5px; transition:all .2s; margin-top:4px;
 }
-.sp-btn.c { background:rgba(0,212,255,.1);  border:1px solid rgba(0,212,255,.3);  color:var(--cyan); }
-.sp-btn.g { background:rgba(0,255,136,.08); border:1px solid rgba(0,255,136,.28); color:var(--green); }
-.sp-btn.c:hover { background:rgba(0,212,255,.22); }
-.sp-btn.g:hover { background:rgba(0,255,136,.18); }
+.sp-btn.c { background:rgba(0,212,255,.09);  border:1px solid rgba(0,212,255,.28);  color:var(--cyan); }
+.sp-btn.g { background:rgba(0,232,122,.07);  border:1px solid rgba(0,232,122,.26);  color:var(--green); }
+.sp-btn:disabled { opacity:.35; cursor:not-allowed; }
+.sp-btn.c:not(:disabled):hover { background:rgba(0,212,255,.2); }
+.sp-btn.g:not(:disabled):hover { background:rgba(0,232,122,.16); }
 .sp-sep { border:none; border-top:1px solid rgba(0,212,255,.09); margin:9px 0; }
-.leg { display:flex; align-items:center; gap:6px; margin-bottom:3px; font-size:11px; color:var(--dim); }
-.leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.leg { display:flex; align-items:center; gap:7px; margin-bottom:4px; font-size:11px; color:#8aaccc; }
+.leg-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.leg-line { width:18px; height:2px; flex-shrink:0; }
+.leg-dash { width:18px; height:0; flex-shrink:0; border-top:2px dashed currentColor; opacity:.7; }
 .vw-row { display:flex; gap:6px; }
 .vw-btn {
   flex:1; padding:6px; text-align:center; border-radius:7px;
@@ -127,9 +132,13 @@
   transition:all .2s;
 }
 .vw-btn.on { background:rgba(0,212,255,.14); border-color:var(--cyan); color:var(--cyan); }
-.st-row { display:flex; justify-content:space-between; margin-bottom:3px; font-size:11px; }
+.st-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px; }
 .sk { color:var(--dim); }
 .sv { font-family:'Orbitron',monospace; font-size:10px; }
+.sv.c { color:var(--cyan); }
+.sv.g { color:var(--green); }
+.sv.r { color:var(--red); }
+#jump-hint { font-size:9px; color:var(--green); font-family:'Orbitron',monospace; letter-spacing:1px; margin-top:4px; min-height:13px; text-align:center; transition:opacity .3s; }
 
 /* ── Action panel ────────────────────────────────────────────────── */
 #gm-action {
@@ -239,8 +248,11 @@
 
 #gm-hint {
   position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
-  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;
-  color:rgba(74,106,138,.55);pointer-events:none;white-space:nowrap;
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1.5px;
+  color:rgba(255,255,255,.22);pointer-events:none;white-space:nowrap;
+  background:rgba(2,5,16,.55);backdrop-filter:blur(6px);
+  padding:4px 14px;border-radius:20px;
+  border:1px solid rgba(0,212,255,.07);
 }
 </style>
 
@@ -287,19 +299,23 @@
           <input type="number" id="nav-s" class="sp-inp" value="{{ PLANET.system|default(1) }}" min="1" max="499">
         </div>
       </div>
-      <button class="sp-btn c" onclick="GM.navJump()"><i class="fas fa-arrow-right" style="margin-right:5px"></i>JUMP TO SYSTEM</button>
-      <button class="sp-btn g" onclick="GM.navHome()" style="margin-top:5px"><i class="fas fa-home" style="margin-right:5px"></i>MY HOME PLANET</button>
+      <button class="sp-btn c" id="btn-jump" onclick="GM.navJump()"><i class="fas fa-arrow-right"></i>JUMP TO SYSTEM</button>
+      <button class="sp-btn g" id="btn-home" onclick="GM.navHome()"><i class="fas fa-home"></i>MY HOME PLANET</button>
+      <div id="jump-hint"></div>
     </div>
     <hr class="sp-sep">
     <div style="margin-bottom:11px">
       <div class="sp-h"><i class="fas fa-circle-info" style="margin-right:5px"></i>LEGEND</div>
-      <div class="leg"><div class="leg-dot" style="background:#00ff88"></div>Your Planets</div>
+      <div class="leg"><div class="leg-dot" style="background:#00e87a"></div>Your Planets</div>
       <div class="leg"><div class="leg-dot" style="background:#a855f7"></div>Alliance Members</div>
       <div class="leg"><div class="leg-dot" style="background:#00d4ff"></div>Other Players</div>
-      <div class="leg"><div class="leg-dot" style="background:#ff3060"></div>Hostile Fleet</div>
-      <div class="leg"><div class="leg-dot" style="background:rgba(0,212,255,.5)"></div>Your Fleet</div>
-      <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>Debris Field</div>
       <div class="leg"><div class="leg-dot" style="background:#aaa"></div>Moon</div>
+      <div class="leg"><div class="leg-dot" style="background:#ff9900;border-radius:0"></div>Debris Field</div>
+      <hr class="sp-sep" style="margin:5px 0">
+      <div class="leg"><div class="leg-line" style="background:#00d4ff;opacity:.8"></div>Your Fleet</div>
+      <div class="leg"><div class="leg-line" style="background:#a855f7;opacity:.55"></div>Alliance Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#6688aa"></div>Foreign Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#e8304a"></div>Hostile Fleet</div>
     </div>
     <hr class="sp-sep">
     <div style="margin-bottom:10px">
@@ -309,9 +325,10 @@
       <div class="st-row"><span class="sk">Hostile</span><span class="sv r" id="st-h">–</span></div>
       <div class="st-row"><span class="sk">Alliances</span><span class="sv c" id="st-a">–</span></div>
       <div class="st-row"><span class="sk">Debris Fields</span><span class="sv" id="st-d" style="color:#ff9900">–</span></div>
+      <div class="st-row"><span class="sk">Selected</span><span class="sv" id="st-sel" style="color:var(--dim)">–</span></div>
     </div>
     <button class="sp-btn c" onclick="GM.reloadFleets()" style="font-size:9px"><i class="fas fa-sync-alt" style="margin-right:5px"></i>REFRESH FLEETS</button>
-    <div style="text-align:center;font-size:9px;color:var(--dim);margin-top:5px;font-family:'Orbitron',monospace" id="upd-time">Auto-refresh: 30s</div>
+    <div style="text-align:center;font-size:9px;color:var(--dim);margin-top:5px;font-family:'Orbitron',monospace" id="upd-time">Auto-refresh: 5s</div>
   </div>
 
   <!-- Action panel -->
@@ -349,8 +366,10 @@ let scene, camera, renderer;
 let is3D  = true;
 let frame = 0;
 
-let orb = { theta: 0.4, phi: 1.05, r: 750 };
+let orb = { theta: 0.4, phi: 1.05, r: 750, tx: 0, ty: 0, tz: 0 };
 let pan = { x: 0, z: 0 };
+let selectedPlanet = null;
+let selRing = null; // THREE.Mesh highlight ring
 let drag = { down:false, startX:0, startY:0, moved:0,
              snapTheta:0, snapPhi:0, snapPanX:0, snapPanZ:0 };
 
@@ -515,6 +534,8 @@ function toWorld(g, s, p) {
 
 // ── Planeten als Sprites ───────────────────────────────────
 function buildPlanets(planets) {
+  // Remove selRing before disposeGroup to avoid double-dispose
+  if (selRing) { planetGroup.remove(selRing); }
   disposeGroup(planetGroup);
   planetMeshes = [];
   posMap = {};
@@ -597,21 +618,76 @@ function buildFleets(fleets) {
 function rebuildFleetMeshes() {
   disposeGroup(fleetGroup);
   for (const id in fleetAnimState) {
-    const st = fleetAnimState[id];
-    const f  = st.data;
+    const st  = fleetAnimState[id];
+    const f   = st.data;
     const prg = st.displayPrg;
     const cur = st.sPos.clone().lerp(st.ePos, prg);
-    const col = st.col;
 
-    const lg = new THREE.BufferGeometry().setFromPoints([st.sPos, cur]);
-    const ln = new THREE.Line(lg, new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.7,depthWrite:false}));
-    ln.userData = {fleet:f}; fleetGroup.add(ln);
+    // Determine line style by fleet ownership
+    // own = solid cyan; ally = solid purple dim; hostile = dashed red; foreign = dashed gray
+    const isOwn     = !!f.is_own;
+    const isHostile = !!f.is_hostile;
+    const isAlly    = !isOwn && !isHostile && !!f.is_ally;
 
-    const dg = new THREE.BufferGeometry().setFromPoints([cur, st.ePos]);
-    fleetGroup.add(new THREE.Line(dg, new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.14,depthWrite:false})));
+    let trailCol, trailOpacity, remainOpacity, dotCol, useDash;
+    if (isOwn) {
+      trailCol = 0x00d4ff; trailOpacity = 0.75; remainOpacity = 0.12;
+      dotCol = '#00d4ff'; useDash = false;
+    } else if (isAlly) {
+      trailCol = 0xa855f7; trailOpacity = 0.45; remainOpacity = 0.08;
+      dotCol = '#a855f7'; useDash = false;
+    } else if (isHostile) {
+      trailCol = 0xe8304a; trailOpacity = 0.75; remainOpacity = 0.15;
+      dotCol = '#e8304a'; useDash = true;
+    } else { // foreign
+      trailCol = 0x6688aa; trailOpacity = 0.35; remainOpacity = 0.06;
+      dotCol = '#6688aa'; useDash = true;
+    }
 
-    const ds = new THREE.Sprite(new THREE.SpriteMaterial({map:circleTex(f.color||'#00d4ff'),transparent:true,depthWrite:false,sizeAttenuation:true}));
-    ds.position.copy(cur); ds.scale.setScalar(5); ds.userData={fleet:f,isFleetDot:true};
+    // Trail line (start → current position)
+    if (useDash) {
+      const lg = new THREE.BufferGeometry().setFromPoints([st.sPos, cur]);
+      const lm = new THREE.LineDashedMaterial({
+        color: trailCol, transparent: true, opacity: trailOpacity,
+        dashSize: 4, gapSize: 3, depthWrite: false
+      });
+      const ln = new THREE.Line(lg, lm);
+      ln.computeLineDistances();
+      ln.userData = {fleet: f};
+      fleetGroup.add(ln);
+    } else {
+      const lg = new THREE.BufferGeometry().setFromPoints([st.sPos, cur]);
+      const ln = new THREE.Line(lg, new THREE.LineBasicMaterial({
+        color: trailCol, transparent: true, opacity: trailOpacity, depthWrite: false
+      }));
+      ln.userData = {fleet: f};
+      fleetGroup.add(ln);
+    }
+
+    // Remaining path line (current → end, always dimmer)
+    if (useDash) {
+      const dg = new THREE.BufferGeometry().setFromPoints([cur, st.ePos]);
+      const dm = new THREE.LineDashedMaterial({
+        color: trailCol, transparent: true, opacity: remainOpacity,
+        dashSize: 3, gapSize: 4, depthWrite: false
+      });
+      const dl = new THREE.Line(dg, dm);
+      dl.computeLineDistances();
+      fleetGroup.add(dl);
+    } else {
+      const dg = new THREE.BufferGeometry().setFromPoints([cur, st.ePos]);
+      fleetGroup.add(new THREE.Line(dg, new THREE.LineBasicMaterial({
+        color: trailCol, transparent: true, opacity: remainOpacity, depthWrite: false
+      })));
+    }
+
+    // Fleet dot at current position
+    const ds = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: circleTex(dotCol), transparent: true, depthWrite: false, sizeAttenuation: true
+    }));
+    ds.position.copy(cur);
+    ds.scale.setScalar(isOwn ? 6 : isHostile ? 5 : 4);
+    ds.userData = {fleet: f, isFleetDot: true};
     fleetGroup.add(ds);
   }
 }
@@ -675,7 +751,8 @@ function loadDemo() {
     demoFleets.push({
       id:i, mission:m, owner:sp.username, ally_tag:sp.ally_tag,
       is_own:sp.user_id===window.SM.userId, is_hostile:hostile,
-      color:hostile?'#ff3060':m===6?'#ffee00':m===8?'#ff9900':'#00d4ff',
+      is_ally:!hostile&&sp.user_id!==window.SM.userId&&sp.ally_id>0&&sp.ally_id===window.SM.allyId,
+      color:hostile?'#e8304a':m===6?'#ffee00':m===8?'#ff9900':'#00d4ff',
       start:{g:sp.galaxy,s:sp.system,p:sp.planet},
       end:{g:ep.galaxy,s:ep.system,p:ep.planet},
       progress:Math.random()
@@ -704,11 +781,11 @@ function syncCamera() {
   if (!camera) return;
   if (is3D) {
     camera.position.set(
-      orb.r*Math.sin(orb.phi)*Math.sin(orb.theta),
-      orb.r*Math.cos(orb.phi),
-      orb.r*Math.sin(orb.phi)*Math.cos(orb.theta)
+      orb.tx + orb.r*Math.sin(orb.phi)*Math.sin(orb.theta),
+      orb.ty + orb.r*Math.cos(orb.phi),
+      orb.tz + orb.r*Math.sin(orb.phi)*Math.cos(orb.theta)
     );
-    camera.lookAt(0,0,0);
+    camera.lookAt(orb.tx, orb.ty, orb.tz);
   } else {
     camera.position.set(pan.x, orb.r*.75, pan.z);
     camera.lookAt(pan.x, 0, pan.z);
@@ -841,41 +918,74 @@ function doHover(cx,cy){
   }
 }
 
-function doClick(cx,cy){
-  const pl=hitPlanet(cx,cy);
-  if(pl){showAction(pl);tipEl.style.display='none';}
-  else closeAction();
+function doClick(cx, cy) {
+  const pl = hitPlanet(cx, cy);
+  if (pl) {
+    selectPlanet(pl);
+    showAction(pl);
+    tipEl.style.display = 'none';
+  } else {
+    deselectPlanet();
+    closeAction();
+  }
+}
+
+// ── Planet selection + highlight ring ──────────────────────
+function selectPlanet(pl) {
+  selectedPlanet = pl;
+  // Remove old ring
+  if (selRing) { planetGroup.remove(selRing); selRing.geometry.dispose(); selRing.material.dispose(); selRing = null; }
+  const pos = posMap[`${pl.galaxy}:${pl.system}:${pl.planet}`];
+  if (!pos) return;
+  const sprite = planetMeshes.find(s => s.userData.key === `${pl.galaxy}:${pl.system}:${pl.planet}`);
+  const sz = sprite ? sprite.userData.baseScale * 0.62 : 9;
+  const rg = new THREE.RingGeometry(sz, sz + 1.4, 32);
+  const rm = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false });
+  selRing = new THREE.Mesh(rg, rm);
+  selRing.position.copy(pos);
+  selRing.rotation.x = -Math.PI / 2;
+  planetGroup.add(selRing);
+  set('st-sel', `${pl.galaxy}:${pl.system}:${pl.planet}`);
+}
+
+function deselectPlanet() {
+  selectedPlanet = null;
+  if (selRing) { planetGroup.remove(selRing); selRing.geometry.dispose(); selRing.material.dispose(); selRing = null; }
+  set('st-sel', '–');
 }
 
 // ── Action panel ───────────────────────────────────────────
-function showAction(pl){
+function showAction(pl) {
+  const nameCol = pl.is_own ? 'var(--green)' : pl.is_ally ? 'var(--purple)' : 'var(--cyan)';
   set('ap-name', (pl.name||'Unknown').toUpperCase());
-  set('ap-coord',`[${pl.galaxy}:${pl.system}:${pl.planet}]`);
-  document.getElementById('ap-meta').innerHTML=`
-    <div class="ap-box"><div class="ap-box-lbl">PLAYER</div><div class="ap-box-val" style="color:var(--cyan)">${pl.username}</div></div>
+  set('ap-coord', `[${pl.galaxy}:${pl.system}:${pl.planet}]`);
+  document.getElementById('ap-name').style.color = nameCol;
+  document.getElementById('ap-meta').innerHTML = `
+    <div class="ap-box"><div class="ap-box-lbl">PLAYER</div><div class="ap-box-val" style="color:${nameCol}">${pl.username||'?'}</div></div>
     <div class="ap-box"><div class="ap-box-lbl">RANK</div><div class="ap-box-val" style="color:var(--gold)">#${pl.total_rank||'?'}</div></div>
     <div class="ap-box"><div class="ap-box-lbl">ALLIANCE</div><div class="ap-box-val">${pl.ally_tag?'['+pl.ally_tag+']':'–'}</div></div>
   `;
-  const btn=document.getElementById('ap-btns');
-  if(pl.is_own){
-    btn.innerHTML=`<div class="ap-own"><i class="fas fa-check" style="margin-right:6px"></i>YOUR PLANET</div>`;
+  const btn = document.getElementById('ap-btns');
+  if (pl.is_own) {
+    btn.innerHTML = `<div class="ap-own"><i class="fas fa-check" style="margin-right:6px"></i>YOUR PLANET</div>`;
   } else {
-    const {galaxy:g,system:s,planet:p,user_id:uid} = pl;
-    const base=`game.php?page=fleetTable&galaxy=${g}&system=${s}&planet=${p}&planettype=1`;
-    btn.innerHTML=`
+    const {galaxy:g, system:s, planet:p, user_id:uid} = pl;
+    const base = `game.php?page=fleetTable&galaxy=${g}&system=${s}&planet=${p}&planettype=1`;
+    btn.innerHTML = `
       <a class="ap-btn ab-spy"  href="${base}&target_mission=6"><i class="fas fa-satellite"></i> SPY</a>
       <a class="ap-btn ab-atk"  href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ATTACK</a>
       <a class="ap-btn ab-flt"  href="${base}"><i class="fas fa-rocket"></i> FLEET</a>
       <a class="ap-btn ab-msg"  href="game.php?page=messages&mode=write&player_id=${uid}"><i class="fas fa-envelope"></i> MESSAGE</a>
       <a class="ap-btn ab-card" href="javascript:GM.showCard(${uid})"><i class="fas fa-id-card"></i> PLAYERCARD</a>
-      ${pl.has_debris?`<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>`:''}
+      ${pl.has_debris ? `<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>` : ''}
     `;
   }
-  actionEl.style.display='block';
-  const key=`${pl.galaxy}:${pl.system}:${pl.planet}`;
-  if(posMap[key]) flyTo(posMap[key],110);
+  actionEl.style.display = 'block';
+  // Fly to planet – do NOT call flyTo here since selectPlanet caller already triggers it
+  const key = `${pl.galaxy}:${pl.system}:${pl.planet}`;
+  if (posMap[key]) flyTo(posMap[key], 110);
 }
-function closeAction(){actionEl.style.display='none';}
+function closeAction() { actionEl.style.display = 'none'; }
 
 // ── Player card ────────────────────────────────────────────
 async function showCard(userId){
@@ -936,15 +1046,29 @@ function renderCard(d){
 function closeCard(){cardEl.style.display='none';}
 
 // ── Fly-to ─────────────────────────────────────────────────
-function flyTo(target,dist){
-  const sp=camera.position.clone();
-  const ep=new THREE.Vector3(target.x+dist*.35, dist*.5, target.z+dist);
-  let t=0;
-  const go=()=>{
-    t++; const a=Math.min(1,t/52), e=1-Math.pow(1-a,3);
-    camera.position.lerpVectors(sp,ep,e); camera.lookAt(target);
-    if(a<1) requestAnimationFrame(go);
-    else{orb.r=dist;syncCamera();}
+function flyTo(target, dist) {
+  const sp = camera.position.clone();
+  // Approach from slightly elevated angle behind target
+  const ep = new THREE.Vector3(target.x + dist * 0.35, dist * 0.55, target.z + dist);
+  let t = 0;
+  const go = () => {
+    t++;
+    const a = Math.min(1, t / 52);
+    const e = 1 - Math.pow(1 - a, 3); // ease-out cubic
+    camera.position.lerpVectors(sp, ep, e);
+    camera.lookAt(target.x, target.y, target.z);
+    if (a < 1) {
+      requestAnimationFrame(go);
+    } else {
+      // Update orb so subsequent drag/zoom stays orbiting target, not origin
+      orb.tx = target.x; orb.ty = target.y; orb.tz = target.z;
+      orb.r  = dist;
+      // Recalculate theta/phi from final camera position relative to target
+      const dx = ep.x - target.x, dy = ep.y - target.y, dz = ep.z - target.z;
+      orb.phi   = Math.acos(Math.max(-1, Math.min(1, dy / dist)));
+      orb.theta = Math.atan2(dx, dz);
+      syncCamera();
+    }
   };
   requestAnimationFrame(go);
 }
@@ -954,21 +1078,56 @@ function setView(mode){
   is3D = mode === '3d';
   document.getElementById('vb-3d').classList.toggle('on',  is3D);
   document.getElementById('vb-2d').classList.toggle('on', !is3D);
-  if (!is3D) { orb.r=650; orb.phi=0.02; pan.x=pan.z=0; }
-  else       { orb.r=750; orb.phi=1.05; }
+  if (!is3D) { orb.r=650; orb.phi=0.02; orb.tx=0; orb.ty=0; orb.tz=0; pan.x=pan.z=0; }
+  else       { orb.r=750; orb.phi=1.05; orb.tx=0; orb.ty=0; orb.tz=0; }
   syncCamera();
-  // Rebuild planets so debris rings etc. are correctly oriented
   if (galaxyData?.planets) {
     buildPlanets(galaxyData.planets);
     if (fleetData?.fleets) buildFleets(fleetData.fleets);
+    // Re-select previously selected planet to restore ring
+    if (selectedPlanet) selectPlanet(selectedPlanet);
   }
 }
-function navJump(){
-  const g=parseInt(document.getElementById('nav-g').value)||1;
-  const s=parseInt(document.getElementById('nav-s').value)||1;
-  flyTo(toWorld(g,s,8),180);
+function navJump() {
+  const gEl = document.getElementById('nav-g');
+  const sEl = document.getElementById('nav-s');
+  let g = parseInt(gEl.value) || 1;
+  let s = parseInt(sEl.value) || 1;
+  // Clamp to valid universe bounds
+  g = Math.max(1, Math.min(9, g));   gEl.value = g;
+  s = Math.max(1, Math.min(499, s)); sEl.value = s;
+
+  // Check if any planet exists in this system
+  const planets = galaxyData?.planets || [];
+  const inSys = planets.filter(p => p.galaxy === g && p.system === s);
+
+  const hint = document.getElementById('jump-hint');
+  if (inSys.length === 0 && planets.length > 0) {
+    hint.textContent = 'No planets in this system';
+    hint.style.color = 'var(--dim)';
+    setTimeout(() => { hint.textContent = ''; }, 2500);
+  } else {
+    hint.textContent = 'JUMPING…';
+    hint.style.color = 'var(--cyan)';
+    setTimeout(() => { hint.textContent = ''; }, 1800);
+  }
+  flyTo(toWorld(g, s, 8), 180);
 }
-function navHome(){ flyTo(toWorld(window.SM.galaxy,window.SM.system,window.SM.planet),110); }
+
+function navHome() {
+  const g = window.SM.galaxy, s = window.SM.system, p = window.SM.planet;
+  const hint = document.getElementById('jump-hint');
+  hint.textContent = 'HOME';
+  hint.style.color = 'var(--green)';
+  setTimeout(() => { hint.textContent = ''; }, 1800);
+  flyTo(toWorld(g, s, p), 110);
+  // Highlight home planet if loaded
+  if (galaxyData?.planets) {
+    const hp = galaxyData.planets.find(pl => pl.is_own &&
+      pl.galaxy === g && pl.system === s && pl.planet === p);
+    if (hp) selectPlanet(hp);
+  }
+}
 function reloadFleets(){ fetchFleets(); }
 
 // ── Render loop ────────────────────────────────────────────
@@ -1000,19 +1159,24 @@ function animate(){
   }
   if (needFleetRebuild) rebuildFleetMeshes();
 
-  // Hostile blink
+  // Hostile blink on dashed lines only (LineDashedMaterial type check)
   fleetGroup.children.forEach(obj => {
-    if (obj.isLine && obj.userData?.fleet?.is_hostile && obj.material) {
-      obj.material.opacity = 0.28 + Math.abs(Math.sin(frame * 0.07)) * 0.52;
+    if (obj.isLine && obj.userData?.fleet?.is_hostile && obj.material?.isLineDashedMaterial) {
+      obj.material.opacity = 0.3 + Math.abs(Math.sin(frame * 0.06)) * 0.45;
     }
   });
+
+  // Selection ring pulse
+  if (selRing) {
+    selRing.material.opacity = 0.35 + Math.abs(Math.sin(frame * 0.04)) * 0.35;
+  }
 
   renderer.render(scene, camera);
 }
 
 // Boot
 init();
-return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard};
+return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
 })();
 </script>
 {% endblock %}

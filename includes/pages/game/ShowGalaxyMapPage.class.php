@@ -108,11 +108,16 @@ class ShowGalaxyMapPage extends AbstractGamePage
             $isHostile = (!$isOwn
                 && (int) $r['fleet_target_owner'] === (int) $USER['id']
                 && in_array((int) $r['fleet_mission'], [1, 2, 6, 9, 10], true));
+            $isAlly    = (!$isOwn && !$isHostile
+                && (int) ($r['owner_ally_id'] ?? 0) > 0
+                && (int) ($r['owner_ally_id'] ?? 0) === (int) ($USER['ally_id'] ?? 0));
 
             if ($isOwn) {
                 $color = '#00d4ff';
             } elseif ($isHostile) {
-                $color = '#ff3060';
+                $color = '#e8304a';
+            } elseif ($isAlly) {
+                $color = '#a855f7';
             } elseif ((int) $r['fleet_mission'] === 6) {
                 $color = '#ffee00';
             } elseif ((int) $r['fleet_mission'] === 8) {
@@ -122,11 +127,15 @@ class ShowGalaxyMapPage extends AbstractGamePage
             }
 
             $missionName = self::MISSION_NAMES[(int) $r['fleet_mission']] ?? 'UNKNOWN';
+            // Show owner name for own/hostile/ally fleets; hide for foreign
+            $ownerDisplay = ($isOwn || $isHostile || $isAlly)
+                ? ($r['owner_name'] ?? '?')
+                : '???';
 
             $fleets[] = [
                 'id'           => (int) $r['fleet_id'],
                 'owner_id'     => (int) $r['fleet_owner'],
-                'owner_name'   => $isOwn ? ($r['owner_name'] ?? '') : ($isHostile ? ($r['owner_name'] ?? '') : '???'),
+                'owner_name'   => $ownerDisplay,
                 'mission'      => (int) $r['fleet_mission'],
                 'mission_name' => $missionName,
                 'start'        => [
@@ -145,6 +154,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
                 'remaining'    => max(0, $endTime - $now),
                 'is_own'       => $isOwn,
                 'is_hostile'   => $isHostile,
+                'is_ally'      => $isAlly,
                 'color'        => $color,
             ];
         }
