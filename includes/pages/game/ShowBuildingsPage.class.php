@@ -263,7 +263,10 @@ class ShowBuildingsPage extends AbstractGamePage
 					$this->AddBuildingToQueue($Element, false);
 				break;
 			}
-			
+
+			if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+				$this->sendJSON(['ok' => true]);
+			}
 			$this->redirectTo('game.php?page=buildings');
 		}
 

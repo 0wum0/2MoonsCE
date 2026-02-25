@@ -68,7 +68,7 @@
 
                         <div class="action-area">
                             {% if Element.buyable %}
-                                <form action="game.php?page=officier" method="post">
+                                <form action="game.php?page=officier" method="post" data-ajax="1">
                                     <input type="hidden" name="id" value="{{ ID }}">
                                     <button type="submit" class="btn-officer recruit">
                                         <i class="fas fa-user-plus"></i> {{ LNG.of_recruit }}
@@ -148,7 +148,7 @@
                                     <i class="fas fa-check-double"></i> {{ LNG.bd_maxlevel }}
                                 </button>
                             {% elseif Element.buyable %}
-                                <form action="game.php?page=officier" method="post">
+                                <form action="game.php?page=officier" method="post" data-ajax="1">
                                     <input type="hidden" name="id" value="{{ ID }}">
                                     <button type="submit" class="btn-officer recruit">
                                         <i class="fas fa-user-plus"></i> {{ LNG.of_recruit }}

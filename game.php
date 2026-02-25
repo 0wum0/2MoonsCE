@@ -60,6 +60,14 @@ if(isset($pageProps['requireModule']) && $pageProps['requireModule'] !== 0 && !i
 	ShowErrorPage::printError($LNG['sys_module_inactive']);
 }
 
+// AJAX resource bar refresh — returns JSON resource state after eco update
+if (HTTP::_GP('ajax', '') === 'resources' && AJAX_REQUEST) {
+	if (method_exists($pageObj, 'sendResourceJSON')) {
+		$pageObj->sendResourceJSON();
+	}
+	exit;
+}
+
 if(!is_callable(array($pageObj, $mode))) {	
 	if(!isset($pageProps['defaultController']) || !is_callable(array($pageObj, $pageProps['defaultController']))) {
 		ShowErrorPage::printError($LNG['page_doesnt_exist']);

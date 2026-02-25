@@ -244,7 +244,8 @@ class PlayerUtil
 		// Load planet data
 		if (!isset($GLOBALS['planetData']) || empty($GLOBALS['planetData'])) {
 			$planetData = array();
-			require 'includes/PlanetData.php';
+			$planetDataFile = defined('ROOT_PATH') ? ROOT_PATH . 'includes/PlanetData.php' : 'includes/PlanetData.php';
+			require $planetDataFile;
 			$GLOBALS['planetData'] = $planetData;
 		} else {
 			$planetData = $GLOBALS['planetData'];
@@ -252,16 +253,16 @@ class PlayerUtil
 
 		$config		= Config::get($universe);
 
-		// PROTECTION: Prevent division by zero
-		$maxPlanets = max(1, (int)$config->max_planets); // Default 15 if 0
-		if ($maxPlanets == 0) $maxPlanets = 15;
+		$maxPlanets = max(1, (int)$config->max_planets);
 		
 		$planetDataCount = count($planetData);
 		if ($planetDataCount == 0) {
 			throw new Exception("PlanetData is empty! Cannot create planet.");
 		}
 
-		$dataIndex		= (int) ceil($position / ($maxPlanets / $planetDataCount));
+		// Clamp $dataIndex to valid array keys [1..$planetDataCount]
+		$rawIndex		= (int) ceil($position / ($maxPlanets / $planetDataCount));
+		$dataIndex		= max(1, min($rawIndex, $planetDataCount));
 		$maxTemperature	= $planetData[$dataIndex]['temp'];
 		$minTemperature	= $maxTemperature - 40;
 

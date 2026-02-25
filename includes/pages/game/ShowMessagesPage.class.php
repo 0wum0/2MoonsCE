@@ -168,6 +168,79 @@ class ShowMessagesPage extends AbstractGamePage
         $this->display('page.messages.write.twig');
     }
 
+    /**
+     * AJAX: delete one or more messages.
+     * POST params: messageID[] array (or single messageID int)
+     * Returns JSON {ok: true, deleted: N}
+     */
+    function delete()
+    {
+        global $USER;
+        $db = Database::get();
+
+        $ids = HTTP::_GP('messageID', array());
+        if (!is_array($ids)) {
+            $ids = array($ids);
+        }
+        $ids = array_map('intval', $ids);
+        $ids = array_filter($ids);
+
+        $deleted = 0;
+        if (!empty($ids)) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $params = array_values($ids);
+            $params[] = $USER['id'];
+            $db->update(
+                "UPDATE %%MESSAGES%% SET message_deleted = 1 WHERE message_id IN ($placeholders) AND message_owner = ?;",
+                $params
+            );
+            $deleted = count($ids);
+        }
+
+        $this->sendJSON(['ok' => true, 'deleted' => $deleted]);
+    }
+
+    /**
+     * Legacy bulk action handler (deletemarked, markread).
+     * Redirects back to show() after processing.
+     */
+    function action()
+    {
+        global $USER;
+        $db = Database::get();
+
+        $actionTop = HTTP::_GP('actionTop', '');
+        $ids = HTTP::_GP('messageID', array());
+        if (!is_array($ids)) {
+            $ids = array($ids);
+        }
+        $ids = array_map('intval', $ids);
+        $ids = array_filter($ids);
+
+        if (!empty($ids)) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $params = array_values($ids);
+            $params[] = $USER['id'];
+
+            if ($actionTop === 'deletemarked') {
+                $db->update(
+                    "UPDATE %%MESSAGES%% SET message_deleted = 1 WHERE message_id IN ($placeholders) AND message_owner = ?;",
+                    $params
+                );
+            } elseif ($actionTop === 'markread') {
+                $db->update(
+                    "UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_id IN ($placeholders) AND message_owner = ?;",
+                    $params
+                );
+            }
+        }
+
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            $this->sendJSON(['ok' => true]);
+        }
+        $this->redirectTo('game.php?page=messages');
+    }
+
     function show()
     {
         global $USER;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * SmartMoons Bots Cronjob
  * PHP 8.3/8.4 Ready

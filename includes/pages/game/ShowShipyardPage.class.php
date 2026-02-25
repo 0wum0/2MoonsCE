@@ -172,15 +172,26 @@ class ShowShipyardPage extends AbstractGamePage
 				$maxBuildQueue	= Config::get()->max_elements_ships;
 				if ($maxBuildQueue != 0 && $Count >= $maxBuildQueue)
 				{
+					if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+						$this->sendJSON(['ok' => false, 'error' => sprintf($LNG['bd_max_builds'], $maxBuildQueue)]);
+					}
 					$this->printMessage(sprintf($LNG['bd_max_builds'], $maxBuildQueue));
 				}
 
 				$this->BuildAuftr($buildTodo);
+
+				if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+					$this->sendJSON(['ok' => true]);
+				}
 			}
 					
 			if ($action == "delete")
 			{
 				$this->CancelAuftr();
+
+				if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+					$this->sendJSON(['ok' => true]);
+				}
 			}
 		}
 		

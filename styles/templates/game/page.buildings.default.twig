@@ -150,24 +150,23 @@
 <script>
 function confirmDemolish(id, name, time) {
     if(confirm("{{ LNG.bd_dismantle }} " + name + "?\n{{ LNG.bd_duration }}: " + time)) {
-        var form = document.createElement('form');
-        form.method = 'post';
-        form.action = 'game.php?page=buildings';
-        
-        var inputCmd = document.createElement('input');
-        inputCmd.type = 'hidden';
-        inputCmd.name = 'cmd';
-        inputCmd.value = 'destroy';
-        
-        var inputId = document.createElement('input');
-        inputId.type = 'hidden';
-        inputId.name = 'building';
-        inputId.value = id;
-
-        form.appendChild(inputCmd);
-        form.appendChild(inputId);
-        document.body.appendChild(form);
-        form.submit();
+        if(typeof SmAjax !== 'undefined') {
+            SmAjax.post('game.php?page=buildings', {cmd: 'destroy', building: id})
+                .done(function(){ window.location.reload(); })
+                .fail(function(err){ SmAjax.toastError(err || 'Aktion fehlgeschlagen.'); });
+        } else {
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = 'game.php?page=buildings';
+            var inputCmd = document.createElement('input');
+            inputCmd.type = 'hidden'; inputCmd.name = 'cmd'; inputCmd.value = 'destroy';
+            var inputId = document.createElement('input');
+            inputId.type = 'hidden'; inputId.name = 'building'; inputId.value = id;
+            form.appendChild(inputCmd);
+            form.appendChild(inputId);
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
 }
 </script>

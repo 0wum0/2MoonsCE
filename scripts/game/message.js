@@ -39,20 +39,27 @@ Message = {
 			return false;
 		}
 
-		var $form = $('<form>', {
-			method: 'post',
-			action: 'game.php?page=messages'
-		});
+		var payload = { 'messageID[]': String(messageId) };
 
-		$form.append($('<input>', { type: 'hidden', name: 'mode', value: 'action' }));
-		$form.append($('<input>', { type: 'hidden', name: 'messcat', value: currentCategory }));
-		$form.append($('<input>', { type: 'hidden', name: 'page', value: currentPage }));
-		$form.append($('<input>', { type: 'hidden', name: 'actionTop', value: 'deletemarked' }));
-		$form.append($('<input>', { type: 'hidden', name: 'submitTop', value: '1' }));
-		$form.append($('<input>', { type: 'hidden', name: 'messageID[' + messageId + ']', value: String(messageId) }));
-
-		$('body').append($form);
-		$form.trigger('submit');
+		if (typeof SmAjax !== 'undefined') {
+			SmAjax.post('game.php?page=messages&mode=delete', payload, { noRefresh: true })
+				.done(function() {
+					Message.getMessages(currentCategory, currentPage);
+				})
+				.fail(function(err) {
+					SmAjax.toastError(err || 'Nachricht konnte nicht gelöscht werden.');
+				});
+		} else {
+			var $form = $('<form>', { method: 'post', action: 'game.php?page=messages' });
+			$form.append($('<input>', { type: 'hidden', name: 'mode', value: 'action' }));
+			$form.append($('<input>', { type: 'hidden', name: 'messcat', value: currentCategory }));
+			$form.append($('<input>', { type: 'hidden', name: 'page', value: currentPage }));
+			$form.append($('<input>', { type: 'hidden', name: 'actionTop', value: 'deletemarked' }));
+			$form.append($('<input>', { type: 'hidden', name: 'submitTop', value: '1' }));
+			$form.append($('<input>', { type: 'hidden', name: 'messageID[' + messageId + ']', value: String(messageId) }));
+			$('body').append($form);
+			$form.trigger('submit');
+		}
 		return false;
 	},
 

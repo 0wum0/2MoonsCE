@@ -514,6 +514,44 @@ abstract class AbstractGamePage
 		exit;
 	}
 
+	/**
+	 * Send current planet resource state as JSON for AJAX resource bar refresh.
+	 * Called when ajax=resources is present in the request (detected by game.php).
+	 * Returns a map of resource name → {current, max, production}.
+	 */
+	public function sendResourceJSON(): void
+	{
+		global $PLANET, $USER, $resource, $reslist;
+
+		$this->save();
+
+		$config = Config::get();
+		$resourceSpeed = $config->resource_multiplier;
+		$out = [];
+
+		foreach ($reslist['resstype'][1] as $resourceID) {
+			$name = $resource[$resourceID];
+			$current    = (float) ($PLANET[$name] ?? 0);
+			$max        = (float) ($PLANET[$name . '_max'] ?? 0);
+			if ($USER['urlaubs_modus'] == 1 || $PLANET['planet_type'] != 1) {
+				$production = (float) ($PLANET[$name . '_perhour'] ?? 0);
+			} else {
+				$production = (float) ($PLANET[$name . '_perhour'] ?? 0)
+				            + (float) ($config->{$name . '_basic_income'} ?? 0) * $resourceSpeed;
+			}
+			$out[$name] = [
+				'current'    => $current,
+				'max'        => $max,
+				'production' => $production,
+			];
+		}
+
+		while (ob_get_level() > 0) { ob_end_clean(); }
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode($out, JSON_UNESCAPED_UNICODE);
+		exit;
+	}
+
 	protected function redirectTo($url) {
 		$this->save();
 		HTTP::redirectTo($url);
