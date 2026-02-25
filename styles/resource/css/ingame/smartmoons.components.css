@@ -1233,7 +1233,7 @@
 .text-warning        { color:var(--gold) !important; }
 .italic              { font-style:italic !important; }
 .font-weight-bold    { font-weight:700 !important; }
-.no-js               { display:none; }
+.no-js .js-only      { display:none; }
 .table519            { border-collapse:collapse; width:100%; }
 .fleets              { }
 .user-menu-info      { display:flex; flex-direction:column; gap:2px; padding:8px 14px; border-bottom:1px solid var(--border); }

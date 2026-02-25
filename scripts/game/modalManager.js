@@ -18,7 +18,7 @@
         link.id   = 'mm-css';
         link.rel  = 'stylesheet';
         link.type = 'text/css';
-        link.href = 'styles/resource/css/game/modal.css';
+        link.href = 'styles/resource/css/ingame/modal.css';
         global.document.getElementsByTagName('head')[0].appendChild(link);
     }());
 

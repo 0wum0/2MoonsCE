@@ -118,6 +118,17 @@ var LoginConfig = {
 {{ hook('footer_end') }}
 {% endautoescape %}
 
+<!-- FAIL-SAFE: ensure body is always visible even if loader JS fails -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.style.opacity = '1';
+    document.body.style.visibility = 'visible';
+    document.body.style.display = 'block';
+    var loader = document.getElementById('sm-loader');
+    if (loader) { loader.style.display = 'none'; }
+});
+</script>
+
 <!-- SMARTMOONS BACKGROUND STARFIELD (Three.js) -->
 <script>
 (function(){
