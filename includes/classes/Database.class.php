@@ -183,7 +183,12 @@ class Database
         }
         $this->rowCount = $stmt->rowCount();
 
-        return ($type === "select") ? $stmt : true;
+        if ($type !== 'select') {
+            $stmt->closeCursor();
+            $stmt = null;
+        }
+
+        return ($type === 'select') ? $stmt : true;
     }
 
     protected function getQueryType(string $qry): string
@@ -224,6 +229,7 @@ class Database
     {
         $stmt = $this->_query($qry, $params, "select");
         $res  = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
         return ($field === false || is_null($res)) ? $res : $res[$field];
     }
 
@@ -244,6 +250,7 @@ class Database
                 $results[$row[$key]] = $row[$column];
             }
         }
+        $stmt->closeCursor();
         return $results;
     }
 
