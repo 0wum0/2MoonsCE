@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 class ShowForumPage extends AbstractGamePage
 {
-    public static $requireModule = 0;
+    public static $requireModule = MODULE_FORUM;
     private Forum $forum;
 
     function __construct() {

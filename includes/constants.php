@@ -159,8 +159,8 @@ define('AUTH_MOD'					, 1);
 define('AUTH_USR'					, 0);
 
 // Modules
-// UPDATE: Amount erhöht auf 44 wegen BOTS
-define('MODULE_AMOUNT'				, 44);
+// UPDATE: Amount erhöht auf 45 wegen FORUM
+define('MODULE_AMOUNT'				, 45);
 
 define('MODULE_ALLIANCE'			, 0);
 define('MODULE_BANLIST'				, 21);
@@ -207,8 +207,9 @@ define('MODULE_SUPPORT'				, 27);
 define('MODULE_TECHTREE'			, 28);
 define('MODULE_TRADER'				, 13);
 
-// NEW MODULE
+// NEW MODULES
 define('MODULE_BOTS'				, 43);
+define('MODULE_FORUM'				, 44);
 
 // FLEET STATE
 define('FLEET_OUTWARD'				, 0);
