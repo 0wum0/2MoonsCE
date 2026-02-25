@@ -48,7 +48,7 @@
             '  <div id="mm-body">',
             '    <div id="mm-loader"><div id="mm-spinner"></div></div>',
             '    <iframe id="mm-iframe" src="about:blank" frameborder="0"',
-            '      allowfullscreen sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation">',
+            '      allowfullscreen sandbox="allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation">',
             '    </iframe>',
             '  </div>',
             '</div>'
