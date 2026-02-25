@@ -7,7 +7,7 @@
     </button>
 
     <div class="sidebar-nav">
-
+{{ hook('ingame.sidebar.top') }}
         <!-- ── ÜBERSICHT ── -->
         <div class="nav-section">
             <div class="nav-section-label">{{ LNG.lm_overview }}</div>
@@ -152,6 +152,7 @@
 
     </div>
 
+{{ hook('ingame.sidebar.bottom') }}
     <!-- ── SIDEBAR FOOTER ── -->
     <div class="sidebar-footer">
         <a href="game.php?page=settings" class="nav-link" title="{{ LNG.lm_settings|default('Einstellungen') }}">

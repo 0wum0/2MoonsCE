@@ -1,4 +1,5 @@
 {% autoescape false %}
+{{ hook('ingame.navHeader.before') }}
 <!-- SMARTMOONS HEADER v8 -->
 <header class="game-header" id="game-header">
     <div class="header-row-main">
@@ -301,6 +302,7 @@
         </div>
     </div>
 </header>
+{{ hook('ingame.navHeader.after') }}
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>

@@ -105,6 +105,23 @@ function ShowPluginAdminPage(): void
         }
     }
 
+    // ── Hook debug summary ────────────────────────────────────────────────────
+
+    $hookDebug = ['actions' => [], 'filters' => []];
+    if (class_exists('HookManager')) {
+        $hm = HookManager::get();
+        foreach ($hm->getRegisteredActions() as $hookName => $priorities) {
+            $count = 0;
+            foreach ($priorities as $cbs) { $count += count($cbs); }
+            $hookDebug['actions'][] = ['name' => $hookName, 'count' => $count];
+        }
+        foreach ($hm->getRegisteredFilters() as $hookName => $priorities) {
+            $count = 0;
+            foreach ($priorities as $cbs) { $count += count($cbs); }
+            $hookDebug['filters'][] = ['name' => $hookName, 'count' => $count];
+        }
+    }
+
     // ── Render ────────────────────────────────────────────────────────────────
 
     $template = new template();
@@ -113,6 +130,7 @@ function ShowPluginAdminPage(): void
         'error'              => $error,
         'installedPlugins'   => $installedPlugins,
         'uninstalledPlugins' => $uninstalledPlugins,
+        'hookDebug'          => $hookDebug,
     ]);
     $template->show('PluginAdminPage.twig');
 }

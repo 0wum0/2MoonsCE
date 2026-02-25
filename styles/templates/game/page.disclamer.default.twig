@@ -1,0 +1,56 @@
+<div class="content_page" id="page-content">
+<div class="discl-game-wrap" style="max-width:760px;margin:0 auto;padding:16px;">
+
+    <h1 style="font-size:1.3rem;color:var(--sm-blue,#38bdf8);margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+        <i class="fas fa-gavel"></i> {{ pageTitle|default('Impressum') }}
+    </h1>
+
+    {% if disclaimerAddress or disclaimerPhone or disclaimerMail or disclaimerNotice %}
+    <div class="discl-game-card" style="background:var(--sm-card-bg,#0d1524);border:1px solid var(--sm-border,#1e2d4a);border-radius:10px;padding:24px 28px;">
+
+        {% if disclaimerAddress %}
+        <div style="margin-bottom:18px;">
+            <div style="font-size:0.8rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">
+                <i class="fas fa-map-marker-alt"></i> Adresse
+            </div>
+            <div style="color:#e2e8f0;white-space:pre-wrap;">{{ disclaimerAddress }}</div>
+        </div>
+        {% endif %}
+
+        {% if disclaimerPhone %}
+        <div style="margin-bottom:18px;">
+            <div style="font-size:0.8rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">
+                <i class="fas fa-phone"></i> Telefon
+            </div>
+            <div style="color:#e2e8f0;">{{ disclaimerPhone }}</div>
+        </div>
+        {% endif %}
+
+        {% if disclaimerMail %}
+        <div style="margin-bottom:18px;">
+            <div style="font-size:0.8rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">
+                <i class="fas fa-envelope"></i> E-Mail
+            </div>
+            <div style="color:#e2e8f0;">{{ disclaimerMail }}</div>
+        </div>
+        {% endif %}
+
+        {% if disclaimerNotice %}
+        <div>
+            <div style="font-size:0.8rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">
+                <i class="fas fa-info-circle"></i> Hinweise
+            </div>
+            <div style="color:#e2e8f0;white-space:pre-wrap;">{{ disclaimerNotice }}</div>
+        </div>
+        {% endif %}
+
+    </div>
+    {% else %}
+    <div style="color:#64748b;padding:32px;text-align:center;border:1px dashed #1e2d4a;border-radius:10px;">
+        <i class="fas fa-info-circle" style="font-size:2rem;margin-bottom:12px;display:block;color:#1e2d4a;"></i>
+        Noch keine Impressum-Daten hinterlegt.
+    </div>
+    {% endif %}
+
+</div>
+</div>

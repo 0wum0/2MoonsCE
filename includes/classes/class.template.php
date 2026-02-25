@@ -469,7 +469,7 @@ class template
 		}
 
 		// Must be exactly inside CACHE_PATH and end with /twig
-		$normalizedDir = str_replace('\\', '/', $realCacheDirer);
+		$normalizedDir = str_replace('\\', '/', $realCacheDir);
 		$normalizedRoot = str_replace('\\', '/', $realCacheRoot);
 
 		if (strpos($normalizedDir, $normalizedRoot) !== 0 || substr($normalizedDir, -5) !== '/twig') {

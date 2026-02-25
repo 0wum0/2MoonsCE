@@ -114,9 +114,11 @@ var LoginConfig = {
 </script>
 {% endif %}
 
+{{ hook('ingame.footer.beforeScripts') }}
 {% if pluginJs is defined %}{% for jsPath in pluginJs %}<script src="{{ jsPath }}"></script>
 {% endfor %}{% endif %}
 {{ hook('footer_end') }}
+{{ hook('ingame.footer.afterScripts') }}
 {% endautoescape %}
 
 <!-- FAIL-SAFE: ensure body is always visible even if loader JS fails -->

@@ -834,4 +834,62 @@ function pfaqCopy(btn) {
 </div>
 {% endif %}
 
+<!-- Hook Debug Box -->
+{% if hookDebug is defined %}
+<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';">
+        <h2 style="color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0;display:flex;align-items:center;gap:10px;">
+            &#128279; Registrierte Hooks
+            <span style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:20px;padding:1px 10px;font-size:0.75rem;font-weight:400;">
+                {{ hookDebug.actions|length }} Actions &bull; {{ hookDebug.filters|length }} Filters
+            </span>
+        </h2>
+        <span style="color:#475569;font-size:0.75rem;">&#9660; Aufklappen</span>
+    </div>
+    <div style="display:none;margin-top:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+                <div style="font-size:0.75rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
+                    Actions ({{ hookDebug.actions|length }})
+                </div>
+                {% if hookDebug.actions is empty %}
+                <div style="color:#475569;font-size:0.85rem;">Keine Actions registriert.</div>
+                {% else %}
+                <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                    {% for hook in hookDebug.actions %}
+                    <tr style="border-bottom:1px solid #0f1a2e;">
+                        <td style="padding:5px 8px;font-family:monospace;color:#7dd3fc;">{{ hook.name }}</td>
+                        <td style="padding:5px 8px;color:#94a3b8;text-align:right;white-space:nowrap;">
+                            <span style="background:rgba(56,189,248,0.1);border-radius:4px;padding:1px 8px;">{{ hook.count }} Listener</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
+            </div>
+            <div>
+                <div style="font-size:0.75rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
+                    Filters ({{ hookDebug.filters|length }})
+                </div>
+                {% if hookDebug.filters is empty %}
+                <div style="color:#475569;font-size:0.85rem;">Keine Filter registriert.</div>
+                {% else %}
+                <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                    {% for hook in hookDebug.filters %}
+                    <tr style="border-bottom:1px solid #0f1a2e;">
+                        <td style="padding:5px 8px;font-family:monospace;color:#a78bfa;">{{ hook.name }}</td>
+                        <td style="padding:5px 8px;color:#94a3b8;text-align:right;white-space:nowrap;">
+                            <span style="background:rgba(167,139,250,0.1);border-radius:4px;padding:1px 8px;">{{ hook.count }} Listener</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
+            </div>
+        </div>
+        <p style="color:#475569;font-size:0.75rem;margin:12px 0 0;">&#8505; Nur Hooks die zum Zeitpunkt des Seitenaufrufs registriert sind (aktive Plugins). Reine Anzeige, kein Eingriff.</p>
+    </div>
+</div>
+{% endif %}
+
 {% include 'overall_footer.twig' %}

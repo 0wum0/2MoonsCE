@@ -265,17 +265,29 @@ $(function() {
 
 // Enhanced Mobile Navigation System
 function initMobileNavigation() {
+	// If the new sidebar system is active (sidebar-toggle + leftmenu present),
+	// the inline script in main.navigation_header.twig handles everything.
+	// Do NOT bind base.js mobile nav on top of it.
+	var realToggle = document.getElementById('sidebar-toggle');
+	var realSidebar = document.getElementById('leftmenu');
+	if (realToggle && realSidebar) {
+		return;
+	}
+
 	// Get elements - support multiple IDs for compatibility
-	var burgerMenu = document.getElementById('burgerMenu') || document.querySelector('.burger-menu');
-	var mobileNav = document.getElementById('mobileNav') || document.querySelector('.mobile-nav');
-	var navOverlay = document.getElementById('navOverlay') || document.querySelector('.nav-overlay');
+	var burgerMenu = document.getElementById('burgerMenu') || document.querySelector('.burger-menu[aria-hidden!="true"]');
+	var mobileNav = document.getElementById('mobileNav') || document.querySelector('.mobile-nav[aria-hidden!="true"]');
+	var navOverlay = document.getElementById('navOverlay') || document.querySelector('.nav-overlay[aria-hidden!="true"]');
 	var closeNav = document.getElementById('closeNav') || document.querySelector('.close-nav');
 	var userButton = document.querySelector('.user-button');
 	var dropdownContent = document.querySelector('.dropdown-content');
-	
-	// Check if elements exist
+
+	// Check if elements exist and are not hidden stubs
 	if (!burgerMenu || !mobileNav || !navOverlay) {
-		console.warn('Mobile navigation elements not found');
+		return;
+	}
+	if (burgerMenu.getAttribute('aria-hidden') === 'true' ||
+		mobileNav.getAttribute('aria-hidden') === 'true') {
 		return;
 	}
 	

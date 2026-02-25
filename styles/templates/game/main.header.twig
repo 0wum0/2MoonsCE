@@ -85,9 +85,11 @@
 
 	{% if pluginCss is defined %}{% for cssPath in pluginCss %}<link rel="stylesheet" href="{{ cssPath }}">
 	{% endfor %}{% endif %}
+	{{ hook('ingame.header.before') }}
 	{{ hook('head_end') }}
 </head>
 <body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }} aerospace-theme">
+{{ hook('ingame.header.after') }}
 <!-- SMARTMOONS LOADING SCREEN -->
 <div id="sm-loader" style="position:fixed;inset:0;z-index:99999;background:#030610;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
   <canvas id="sm-loader-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>

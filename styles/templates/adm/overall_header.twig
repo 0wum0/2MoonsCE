@@ -28,9 +28,11 @@
     {% endif %}
     {% if pluginCss is defined %}{% for cssPath in pluginCss %}<link rel="stylesheet" href="{{ cssPath }}">
     {% endfor %}{% endif %}
+    {{ hook('admin.header.before') }}
     {{ hook('head_end') }}
 </head>
 <body class="admin-dashboard" id="{{ GET.page|default('overview')|e }}">
+{{ hook('admin.header.after') }}
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -74,6 +76,7 @@
             <div class="sidebar-brand-text"><span>Smart</span>Moons</div>
         </div>
         <nav class="sidebar-nav">
+            {{ hook('admin.sidebar.top') }}
             <div class="sidebar-section-label">Dashboard</div>
             <a href="admin.php?page=overview" class="sidebar-link{% if GET.page is not defined or GET.page == 'overview' or GET.page == '' %} active{% endif %}">
                 <span class="sidebar-link-icon">&#9632;</span> Dashboard
