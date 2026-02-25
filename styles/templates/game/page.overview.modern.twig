@@ -244,6 +244,7 @@
 	</div>
 	{% endif %}
 </div>
+{% autoescape false %}
 <script>
 // Update build/research progress bars
 document.addEventListener('DOMContentLoaded', function() {
@@ -276,5 +277,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 });
 </script>
+{% endautoescape %}
 
 {% endblock %}

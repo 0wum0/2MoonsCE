@@ -69,6 +69,7 @@
     </form>
 </div>
 
+{% autoescape false %}
 <script type="text/javascript">
 function msgBB(tag) {
     const area = document.getElementById('text');
@@ -145,4 +146,5 @@ document.addEventListener('DOMContentLoaded', function() {
     if (t) document.getElementById('cntChars').textContent = t.value.length;
 });
 </script>
+{% endautoescape %}
 {% endblock %}

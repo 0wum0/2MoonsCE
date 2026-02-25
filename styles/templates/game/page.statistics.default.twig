@@ -131,6 +131,7 @@
     </div>
 </div>
 
+{% autoescape false %}
 <script type="text/javascript">
 $(document).ready(function() {
     $('.stat-table a').each(function() {
@@ -143,4 +144,5 @@ $(document).ready(function() {
     });
 });
 </script>
+{% endautoescape %}
 {% endblock %}

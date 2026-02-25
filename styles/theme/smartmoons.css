@@ -3757,7 +3757,7 @@ select.form-control {
 /* Styles from page.messages.write.twig */
 /* POPUP STYLES */
 .aerospace-theme {
-    background: #0d1117 url('{{ dpath }}img/bkd_page.jpg') fixed no-repeat center center;
+    background: #0d1117;
     background-size: cover;
     color: #ccc; font-family: sans-serif; padding: 20px;
 }
@@ -4028,7 +4028,7 @@ input[id="p0"]:checked + .prio-btn.success {
 
 .visual-bg {
     position: absolute; width: 100%; height: 100%;
-    background: url('{{ dpath }}img/headers/officer_bg.jpg') center/cover;
+    background: url('./styles/theme/gow/img/headers/officer_bg.jpg') center/cover;
     opacity: 0.2;
     transition: 0.5s;
 }
@@ -4507,7 +4507,7 @@ input[id="p0"]:checked + .prio-btn.success {
 /* Styles from page.playerCard.default.twig */
 /* POPUP SPECIFIC STYLES */
 body {
-    background: #0d1117 url('{{ dpath }}img/bkd_page.jpg') fixed no-repeat center center;
+    background: #0d1117;
     background-size: cover;
     color: #c9d1d9;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

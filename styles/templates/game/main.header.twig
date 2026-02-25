@@ -20,6 +20,7 @@
 	
 	<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
 
+	{% autoescape false %}
 	<script type="text/javascript">
 	var ServerTimezoneOffset = {{ Offset }};
 	var serverTime 	= new Date({{ date.0 }}, {{ date.1 - 1 }}, {{ date.2 }}, {{ date.3 }}, {{ date.4 }}, {{ date.5 }});
@@ -27,14 +28,14 @@
 	var localTime 	= serverTime;
 	var localTS 	= startTime;
 	var Gamename	= document.title;
-	var Ready		= "{{ LNG.ready }}";
-	var Skin		= "{{ dpath }}";
-	var Lang		= "{{ lang }}";
-	var head_info	= "{{ LNG.fcm_info }}";
+	var Ready		= {{ LNG.ready|json_encode }};
+	var Skin		= {{ dpath|json_encode }};
+	var Lang		= {{ lang|json_encode }};
+	var head_info	= {{ LNG.fcm_info|json_encode }};
 	var auth		= {{ authlevel|default("0") }};
 	var days 		= {{ LNG.week_day|json_encode|raw|default("[]") }};
 	var months 		= {{ LNG.months|json_encode|raw|default("[]") }};
-	var tdformat	= "{{ LNG.js_tdformat }}";
+	var tdformat	= {{ LNG.js_tdformat|json_encode }};
 	var queryString	= {{ queryString|json_encode|raw }};
 	var isPlayerCardActive	= {{ isPlayerCardActive|json_encode|raw }};
 
@@ -42,6 +43,7 @@
 		serverTime.setSeconds(serverTime.getSeconds()+1);
 	}, 1000);
 	</script>
+	{% endautoescape %}
 	
 	<script src="scripts/base/jquery.js?v={{ REV }}"></script>
 	<script src="scripts/base/jquery.ui.js?v={{ REV }}"></script>

@@ -150,6 +150,7 @@
 {% endblock %}
 
 {% block script %}
+{% autoescape false %}
 <style>
 .pc-btn {
     display: inline-flex; align-items: center; gap: 7px;
@@ -244,4 +245,5 @@ function pcSendBuddy(playerId, btn) {
     });
 }
 </script>
+{% endautoescape %}
 {% endblock %}

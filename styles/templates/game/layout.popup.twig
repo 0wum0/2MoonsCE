@@ -1,5 +1,6 @@
 {% include "main.header.twig" with {'bodyclass': 'popup-window'} %}
 
+{% autoescape false %}
 <script type="text/javascript">
 (function() {
     /* ------------------------------------------------------------------
@@ -46,6 +47,7 @@
     window._closeParentModal = closeParentModal;
 })();
 </script>
+{% endautoescape %}
 
 <div class="aerospace-modal-wrapper">
 

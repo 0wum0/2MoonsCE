@@ -61,6 +61,7 @@
     </div>
 </div>
 
+{% autoescape false %}
 <script>
 var SmartChat=(function(){
     var isOpen=false;
@@ -85,9 +86,11 @@ var SmartChat=(function(){
     return{toggle:toggle,switchTab:switchTab};
 })();
 </script>
+{% endautoescape %}
 
 <div id="dialog" style="display:none;"></div>
 
+{% autoescape false %}
 <script type="text/javascript">
 var LoginConfig = {
     'isMultiUniverse': {{ isMultiUniverse|json_encode|raw }},
@@ -114,5 +117,6 @@ var LoginConfig = {
 {% if pluginJs is defined %}{% for jsPath in pluginJs %}<script src="{{ jsPath }}"></script>
 {% endfor %}{% endif %}
 {{ hook('footer_end') }}
+{% endautoescape %}
 </body>
 </html>
