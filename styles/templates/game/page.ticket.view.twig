@@ -2,34 +2,13 @@
 
 {% block title %}{{ LNG.ti_read }}{% endblock %}
 {% block content %}
-<style>
-    .support-full { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
-    .ticket-msg { background: rgba(20,25,35,0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-    .msg-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 15px; font-size: 12px; color: #8b949e; display: flex; justify-content: space-between; }
-    .msg-body { color: #d1d5db; line-height: 1.7; font-size: 15px; }
-    .msg-body ul.bb-list, .msg-body ol.bb-list { margin: 8px 0 8px 24px; padding: 0; }
-    .msg-body ul.bb-list li, .msg-body ol.bb-list li { margin-bottom: 4px; }
-    .msg-body table.bb-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .msg-body table.bb-table th.bb-th, .msg-body table.bb-table td.bb-td { border: 1px solid rgba(56,189,248,0.25); padding: 8px 12px; text-align: left; }
-    .msg-body table.bb-table th.bb-th { background: rgba(56,189,248,0.1); color: #38bdf8; font-weight: 700; }
-    .msg-body hr.bb-hr { border: none; border-top: 1px solid rgba(56,189,248,0.25); margin: 14px 0; }
-    .msg-body .forum-quote { background: rgba(255,255,255,0.04); border-left: 3px solid #38bdf8; padding: 10px 14px; margin: 8px 0; border-radius: 4px; }
-    .msg-body .forum-quote-author { font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 5px; }
-    .msg-body .forum-code { background: rgba(0,0,0,0.5); border: 1px solid rgba(56,189,248,0.2); border-radius: 6px; margin: 8px 0; overflow: auto; }
-    .msg-body .forum-code pre { margin: 0; padding: 12px; font-size: 13px; }
-    .glass-textarea { width: 100% !important; min-height: 150px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; resize: vertical; font-family: inherit; }
-    .bb-toolbar { display: flex; gap: 5px; margin-bottom: 8px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; flex-wrap: wrap; }
-    .bb-btn { min-width: 30px; height: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; transition: 0.15s; white-space: nowrap; }
-    .bb-btn:hover { background: #38bdf8; color: #000; border-color: #38bdf8; }
-</style>
-
 <div class="content_page support-full">
-    <h1 style="color: #fff;">📡 {{ answerList[0].subject }}</h1>
+    <h1 class="page-title"><i class="fas fa-headset"></i> {{ answerList[0].subject }}</h1>
 
     {% for answerRow in answerList %}
     <div class="ticket-msg">
         <div class="msg-header">
-            <span style="color: #38bdf8; font-weight: bold;">👤 {{ answerRow.ownerName }}</span>
+            <span class="ticket-author">👤 {{ answerRow.ownerName }}</span>
             <span>📅 {{ answerRow.time }}</span>
         </div>
         <div class="msg-body">
@@ -39,8 +18,8 @@
     {% endfor %}
 
     {% if status < 2 %}
-    <div class="content-box" style="margin-top: 25px;">
-        <h3 style="color: #38bdf8;">💬 {{ LNG.ti_answer }}</h3>
+    <div class="content-box mt-3">
+        <h3 class="g-label-cyan" style="margin:0 0 10px;">💬 {{ LNG.ti_answer }}</h3>
         <div class="bb-toolbar">
             <button type="button" class="bb-btn" onclick="tkBB('b')"><b>B</b></button>
             <button type="button" class="bb-btn" onclick="tkBB('i')"><i>I</i></button>
@@ -60,7 +39,7 @@
         <form action="game.php?page=ticket&mode=send" method="post">
             <input type="hidden" name="id" value="{{ ticketID }}">
             <textarea class="glass-textarea" id="message" name="message" required></textarea>
-            <button type="submit" style="margin-top: 10px; padding: 10px 25px; background: #38bdf8; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">{{ LNG.ti_submit }}</button>
+            <button type="submit" class="btn-galactic-send mt-2">{{ LNG.ti_submit }}</button>
         </form>
     </div>
     {% endif %}

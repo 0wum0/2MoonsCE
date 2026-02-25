@@ -2,47 +2,14 @@
 
 {% block title %}{{ LNG.lm_messages }}{% endblock %}
 {% block content %}
-<style>
-    :root {
-        --galactic-cyan: #38bdf8;
-        --galactic-bg: rgba(10, 15, 25, 0.98);
-        --galactic-border: rgba(56, 189, 248, 0.25);
-        --galactic-glow: rgba(56, 189, 248, 0.4);
-    }
-
-    .msg-shell-container { width: 100% !important; max-width: 100% !important; padding: 5px; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    
-    .galactic-header-card {
-        background: var(--galactic-bg);
-        border: 2px solid var(--galactic-border);
-        border-radius: 15px;
-        padding: 20px 25px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
-
-    .galactic-title { font-size: 22px; font-weight: 900; color: var(--galactic-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; text-shadow: 0 0 10px var(--galactic-glow); }
-    
-    .msg-filter-card { background: rgba(13, 17, 23, 0.95); border: 1px solid var(--galactic-border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-    
-    .galactic-select { width: 100%; background: #000; color: #fff; border: 1px solid var(--galactic-border); padding: 12px; border-radius: 8px; font-size: 15px; outline: none; transition: 0.3s; }
-    .galactic-select:focus { border-color: var(--galactic-cyan); box-shadow: 0 0 10px var(--galactic-glow); }
-    
-    .btn-galactic-main { background: var(--galactic-cyan); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; border: none; cursor: pointer; }
-    .btn-galactic-main:hover { background: #fff; box-shadow: 0 0 15px var(--galactic-glow); transform: translateY(-2px); }
-
-    .msg-list-area { width: 100%; min-height: 250px; }
-    #loading { color: var(--galactic-cyan); margin-right: 15px; font-weight: bold; }
-</style>
-
 <div class="msg-shell-container">
     <div class="galactic-header-card">
-        <h2 class="galactic-title"><i class="fas fa-envelope-open-text"></i> {{ LNG.lm_messages }}</h2>
-        <div style="display: flex; align-items: center;">
-            <span id="loading" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+        <div>
+            <h2 class="galactic-title"><i class="fas fa-envelope-open-text"></i> {{ LNG.lm_messages }}</h2>
+            <div class="galactic-subtitle">{{ LNG.mg_inbox|default('Inbox') }}</div>
+        </div>
+        <div class="msg-actions">
+            <span id="loading" style="display:none;" class="msg-time"><i class="fas fa-spinner fa-spin"></i></span>
             <a href="#" class="btn-galactic-main" onclick="return Message.openCompose();">
                 <i class="fas fa-pen"></i> {{ LNG.mg_send_new }}
             </a>
@@ -50,18 +17,16 @@
     </div>
 
     <div class="msg-filter-card">
-        <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
-            <select id="message-category-select" class="galactic-select" onchange="Message.getMessages(this.value, 1);">
-                {% for CategoryID, CategoryRow in CategoryList %}
-                <option value="{{ CategoryID }}"{% if category == CategoryID %} selected{% endif %}>
-                    {{ LNG.mg_type[CategoryID] }} ({{ CategoryRow.total }}){% if CategoryRow.unread > 0 %} - [{{ CategoryRow.unread }} NEU]{% endif %}
-                </option>
-                {% endfor %}
-            </select>
-            <button onclick="Message.getMessages($('#message-category-select').val(), 1);" class="btn-galactic-main" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #444;">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-        </div>
+        <select id="message-category-select" class="galactic-select" onchange="Message.getMessages(this.value, 1);">
+            {% for CategoryID, CategoryRow in CategoryList %}
+            <option value="{{ CategoryID }}"{% if category == CategoryID %} selected{% endif %}>
+                {{ LNG.mg_type[CategoryID] }} ({{ CategoryRow.total }}){% if CategoryRow.unread > 0 %} - [{{ CategoryRow.unread }} NEU]{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+        <button onclick="Message.getMessages($('#message-category-select').val(), 1);" class="btn-ghost">
+            <i class="fas fa-sync-alt"></i>
+        </button>
     </div>
 
     <div id="messages-view" class="msg-list-area">

@@ -180,25 +180,25 @@
                 </div>
                 <div class="setting-check">
                     <input name="delete" type="checkbox" value="1" {% if delete > 0 %}checked="checked"{% endif %}>
-                    <span style="color: #e74c3c;" title="{{ LNG.op_dlte_account_descrip }}">{{ LNG.op_dlte_account }}</span>
+                    <span class="text-danger" title="{{ LNG.op_dlte_account_descrip }}">{{ LNG.op_dlte_account }}</span>
                 </div>
             </div>
 
         </div>
 
         {% if isModuleAvailable(constant('MODULE_BANNER')) %}
-        <div class="content-box banner-panel" style="margin-top: 20px; padding: 20px;">
+        <div class="content-box banner-panel">
              <div class="card-title">{{ LNG.ov_userbanner }}</div>
-             <div style="text-align: center; margin-bottom: 15px;">
-                <img src="userpic.php?id={{ userid }}" alt="" style="max-width: 100%; border-radius: 4px;">
+             <div class="banner-preview">
+                <img src="userpic.php?id={{ userid }}" alt="" class="banner-img">
              </div>
              <div class="setting-row">
                 <label>HTML:</label>
-                <input type="text" value='<a href="{{ SELF_URL }}{% if ref_active %}index.php?ref={{ userid }}{% endif %}"><img src="{{ SELF_URL }}userpic.php?id={{ userid }}"></a>' readonly class="glass-input" style="width: 100%;">
+                <input type="text" value='<a href="{{ SELF_URL }}{% if ref_active %}index.php?ref={{ userid }}{% endif %}"><img src="{{ SELF_URL }}userpic.php?id={{ userid }}"></a>' readonly class="glass-input g-input-readonly">
              </div>
-             <div class="setting-row" style="margin-top: 10px;">
+             <div class="setting-row">
                 <label>BBCode:</label>
-                <input type="text" value="[url={{ SELF_URL }}{% if ref_active %}index.php?ref={{ userid }}{% endif %}][img]{{ SELF_URL }}userpic.php?id={{ userid }}[/img][/url]" readonly class="glass-input" style="width: 100%;">
+                <input type="text" value="[url={{ SELF_URL }}{% if ref_active %}index.php?ref={{ userid }}{% endif %}][img]{{ SELF_URL }}userpic.php?id={{ userid }}[/img][/url]" readonly class="glass-input g-input-readonly">
              </div>
         </div>
         {% endif %}

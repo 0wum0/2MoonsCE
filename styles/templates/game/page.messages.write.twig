@@ -2,21 +2,6 @@
 
 {% block title %}{{ LNG.write_message }}{% endblock %}
 {% block content %}
-<style>
-    .galactic-write-wrap { padding: 25px; font-family: 'Inter', sans-serif; background: #0d1117; color: #fff; min-height: 100vh; }
-    .popup-galactic-head { font-size: 22px; font-weight: 900; color: #38bdf8; text-transform: uppercase; margin-bottom: 25px; border-bottom: 2px solid rgba(56, 189, 248, 0.3); padding-bottom: 12px; display: flex; align-items: center; gap: 12px; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
-    .g-form-group { margin-bottom: 20px; }
-    .g-label-cyan { display: block; color: #38bdf8; font-weight: 800; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
-    .g-input-field { width: 100% !important; background: rgba(0,0,0,0.5); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; color: #fff; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box; transition: 0.3s; }
-    .g-input-field:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-    .g-textarea-field { width: 100% !important; min-height: 220px; resize: vertical; font-family: inherit; }
-    .bb-toolbar-galactic { display: flex; gap: 5px; margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.05); }
-    .bb-btn-galactic { min-width: 30px; height: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); border-radius: 5px; color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; transition: 0.15s; white-space: nowrap; }
-    .bb-btn-galactic:hover { background: #38bdf8; color: #000; border-color: #38bdf8; }
-    .btn-galactic-send { width: 100%; padding: 18px; background: #38bdf8; color: #000; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 15px; font-size: 16px; letter-spacing: 1px; }
-    .btn-galactic-send:hover { background: #fff; box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); transform: translateY(-3px); }
-</style>
-
 <div class="galactic-write-wrap">
     <div class="popup-galactic-head">
         <i class="far fa-edit"></i> {{ LNG.mg_send_new }}
@@ -30,7 +15,7 @@
             {% if allowFreeRecipient %}
             <input type="text" name="to" id="to" class="g-input-field" value="{{ OwnerRecord.username|default('') }}" placeholder="Empfänger eingeben...">
             {% else %}
-            <input type="text" name="to" id="to" class="g-input-field" style="background: rgba(255,255,255,0.04); opacity: 0.8;" value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]" readonly>
+            <input type="text" name="to" id="to" class="g-input-field g-input-readonly" value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]" readonly>
             {% endif %}
         </div>
 
@@ -42,7 +27,7 @@
         <div class="g-form-group">
             <label class="g-label-cyan">
                 {{ LNG.mg_message }}
-                <span style="float:right; opacity: 0.4;">(<span id="cntChars">0</span> / 5.000)</span>
+                <span class="char-counter">(<span id="cntChars">0</span> / 5.000)</span>
             </label>
 
             <div class="bb-toolbar-galactic">

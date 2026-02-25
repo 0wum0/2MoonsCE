@@ -1,15 +1,5 @@
 {% extends "layout.ajax.twig" %}
 {% block content %}
-<style>
-    .galactic-msg-card { background: rgba(22, 27, 34, 0.8); border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; }
-    .galactic-msg-card.is-unread { border-left: 4px solid #38bdf8; background: rgba(56, 189, 248, 0.04); }
-    .msg-head { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-    .msg-meta-wrap { flex-grow: 1; min-width: 0; }
-    .msg-info-top { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px; color: #8b949e; }
-    .msg-subject-line { font-weight: 700; color: #fff; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .msg-content-panel { padding: 20px; background: rgba(0,0,0,0.35); border-top: 1px solid rgba(255,255,255,0.05); color: #d1d5db; line-height: 1.7; font-size: 14px; }
-</style>
-
 <form action="game.php?page=messages" method="post" id="msg-form">
     <input type="hidden" name="mode" value="action">
     <input type="hidden" name="messcat" value="{{ MessID }}">
@@ -36,7 +26,7 @@
                     {{ Message.text|raw }}
                 </div>
                 
-                <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 10px 20px; background: rgba(0,0,0,0.2);">
+                <div class="msg-card-footer">
                     {% if MessID != 999 and Message.sender != -1 %}
                     <button type="button" class="btn-msg-reply" onclick="Dialog.PM({{ Message.sender }}, 'RE: {{ Message.subject|striptags|e('js') }}');"><i class="fas fa-reply"></i> Antworten</button>
                     {% endif %}
@@ -45,12 +35,12 @@
             </details>
         </div>
         {% else %}
-        <div style="padding: 60px; text-align: center; color: #8b949e;">Keine Nachrichten vorhanden.</div>
+        <div class="msg-empty">Keine Nachrichten vorhanden.</div>
         {% endfor %}
     </div>
 
     {% if maxPage > 1 %}
-    <div style="display: flex; justify-content: center; gap: 6px; margin-top: 25px;">
+    <div class="msg-pagination">
         {% for site in range(1, maxPage) %}
         <a href="#" onclick="Message.getMessages({{ MessID }}, {{ site }}); return false;" class="g-page-link {% if site == page %}active{% endif %}">
             {{ site }}

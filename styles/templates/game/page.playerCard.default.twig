@@ -32,7 +32,7 @@
             </div>
 
             {% if not is_self %}
-            <div class="pc-actions" style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+            <div class="pc-actions">
                 <button type="button" class="pc-btn pc-btn-msg" onclick="pcOpenMessage({{ id }})">
                     <i class="fas fa-envelope"></i> Nachricht senden
                 </button>
@@ -46,7 +46,7 @@
                 </span>
                 {% endif %}
             </div>
-            <div id="pc-toast" style="display:none;margin-top:10px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;"></div>
+            <div id="pc-toast" class="pc-toast" style="display:none;"></div>
             {% endif %}
         </div>
     </div>
@@ -151,20 +151,6 @@
 
 {% block script %}
 {% autoescape false %}
-<style>
-.pc-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
-    border: none; cursor: pointer; transition: opacity .15s, transform .1s;
-    text-decoration: none;
-}
-.pc-btn:active { transform: scale(.97); }
-.pc-btn-msg   { background: #38bdf8; color: #000; }
-.pc-btn-msg:hover { opacity: .85; }
-.pc-btn-buddy { background: rgba(56,189,248,.15); color: #38bdf8; border: 1px solid rgba(56,189,248,.4); }
-.pc-btn-buddy:hover { background: rgba(56,189,248,.25); }
-.pc-btn-buddy-done { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:700; background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.3); }
-</style>
 <script>
 /* Navigate the parent game window and close the modal */
 function pcNavParent(url) {
