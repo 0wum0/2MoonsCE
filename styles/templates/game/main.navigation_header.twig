@@ -390,7 +390,7 @@ if(typeof resourceTicker==='function') resourceTicker({available:{{ resourceData
     function markActiveSections() {
         var sections = document.querySelectorAll('#leftmenu .nav-section');
         sections.forEach(function(sec) {
-            var hasActive = sec.querySelector('.sidebar-link.active');
+            var hasActive = sec.querySelector('.nav-link.active');
             sec.classList.toggle('section-has-active', !!hasActive);
         });
     }
