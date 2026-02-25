@@ -27,16 +27,14 @@ class RewardPoolModule implements GameModuleInterface
     {
         try {
             $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';
-            $result = Database::get()->query(
+            $cnt = Database::get()->selectSingle(
                 "SELECT COUNT(*) AS cnt FROM information_schema.TABLES
                  WHERE TABLE_SCHEMA = DATABASE()
-                   AND TABLE_NAME = '{$prefix}reward_pools'"
+                   AND TABLE_NAME = :tname",
+                [':tname' => $prefix . 'reward_pools'],
+                'cnt'
             );
-            if (!$result) {
-                return false;
-            }
-            $row = Database::get()->fetch_array($result);
-            return ((int)($row['cnt'] ?? 0)) > 0;
+            return ((int)($cnt ?? 0)) > 0;
         } catch (Throwable $e) {
             error_log('[RewardPoolModule] isEnabled() error: ' . $e->getMessage());
             return false;
