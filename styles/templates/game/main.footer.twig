@@ -117,5 +117,77 @@ var LoginConfig = {
 {% endfor %}{% endif %}
 {{ hook('footer_end') }}
 {% endautoescape %}
+
+<!-- SMARTMOONS BACKGROUND STARFIELD (Three.js) -->
+<script>
+(function(){
+  if(typeof THREE === 'undefined') return;
+  var canvas = document.createElement('canvas');
+  canvas.id = 'bg-canvas';
+  document.body.insertBefore(canvas, document.body.firstChild);
+  var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:false, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setClearColor(0x000000, 0);
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
+  camera.position.z = 500;
+  var starCount = 1800;
+  var positions = new Float32Array(starCount * 3);
+  var sizes = new Float32Array(starCount);
+  for(var i=0;i<starCount;i++){
+    positions[i*3]   = (Math.random()-0.5)*2000;
+    positions[i*3+1] = (Math.random()-0.5)*2000;
+    positions[i*3+2] = (Math.random()-0.5)*2000;
+    sizes[i] = Math.random()*2.5 + 0.3;
+  }
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  geo.setAttribute('size', new THREE.BufferAttribute(sizes,1));
+  var mat = new THREE.PointsMaterial({color:0xa8c8e8, size:1.2, transparent:true, opacity:0.6, sizeAttenuation:true});
+  scene.add(new THREE.Points(geo, mat));
+  var nebCount = 80;
+  var nebPos = new Float32Array(nebCount*3);
+  for(var i=0;i<nebCount;i++){
+    nebPos[i*3]   = (Math.random()-0.5)*1200;
+    nebPos[i*3+1] = (Math.random()-0.5)*600;
+    nebPos[i*3+2] = (Math.random()-0.5)*400 - 200;
+  }
+  var nebGeo = new THREE.BufferGeometry();
+  nebGeo.setAttribute('position', new THREE.BufferAttribute(nebPos,3));
+  var nebMat = new THREE.PointsMaterial({color:0x0044aa, size:6, transparent:true, opacity:0.06, sizeAttenuation:true});
+  scene.add(new THREE.Points(nebGeo, nebMat));
+  function resize(){
+    var W=window.innerWidth, H=window.innerHeight;
+    renderer.setSize(W, H);
+    camera.aspect = W/H; camera.updateProjectionMatrix();
+    canvas.style.width  = W+'px';
+    canvas.style.height = H+'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  var frame = 0;
+  (function animate(){
+    requestAnimationFrame(animate);
+    frame++;
+    scene.rotation.y += 0.00006;
+    scene.rotation.x += 0.000025;
+    mat.opacity = 0.5 + Math.sin(frame*0.005)*0.08;
+    renderer.render(scene, camera);
+  })();
+  if(typeof gsap !== 'undefined'){
+    document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"])').forEach(function(link){
+      link.addEventListener('click', function(e){
+        var href = this.href;
+        if(!href || href===window.location.href) return;
+        e.preventDefault();
+        gsap.to('#page-content', {opacity:0, y:8, duration:0.18, ease:'power2.in', onComplete:function(){
+          window.location.href = href;
+        }});
+      });
+    });
+    gsap.from('#page-content', {opacity:0, y:10, duration:0.28, ease:'power2.out', delay:0.05});
+  }
+})();
+</script>
 </body>
 </html>

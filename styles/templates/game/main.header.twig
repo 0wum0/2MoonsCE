@@ -16,6 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	
@@ -78,4 +80,68 @@
 	{{ hook('head_end') }}
 </head>
 <body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }} aerospace-theme">
+<!-- SMARTMOONS LOADING SCREEN -->
+<div id="sm-loader" style="position:fixed;inset:0;z-index:99999;background:#030610;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+  <canvas id="sm-loader-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  <div style="position:relative;z-index:1;text-align:center;">
+    <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,28px);font-weight:900;color:#e8f4ff;letter-spacing:6px;margin-bottom:6px;">SMART<span style="color:#00d4ff;">MOONS</span></div>
+    <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:4px;color:rgba(0,212,255,0.5);margin-bottom:32px;">UNIVERSE v3.1</div>
+    <div style="position:relative;width:200px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin:0 auto 12px;">
+      <div id="sm-loader-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#00d4ff,#b47cff);border-radius:2px;transition:width 0.4s ease;box-shadow:0 0 12px rgba(0,212,255,0.5);"></div>
+    </div>
+    <div id="sm-loader-text" style="font-family:'Orbitron',monospace;font-size:9px;color:rgba(58,90,122,0.8);letter-spacing:2px;">INITIALIZING</div>
+  </div>
+</div>
+<script>
+(function(){
+  var c = document.getElementById('sm-loader-canvas');
+  var ctx = c.getContext('2d');
+  var stars = [];
+  function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  for(var i=0;i<180;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.5+0.3,a:Math.random(),s:Math.random()*0.3+0.1});
+  var raf;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(function(s){
+      s.a += s.s * 0.02;
+      var alpha = (Math.sin(s.a)+1)/2;
+      ctx.beginPath();
+      ctx.arc(s.x*c.width, s.y*c.height, s.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(168,200,232,'+(alpha*0.7)+')';
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(draw);
+  }
+  draw();
+  var steps = ['INITIALIZING','LOADING ASSETS','CONNECTING','READY'];
+  var prog = 0;
+  var bar = document.getElementById('sm-loader-bar');
+  var txt = document.getElementById('sm-loader-text');
+  var interval = setInterval(function(){
+    prog += Math.random()*25 + 15;
+    if(prog > 95) prog = 95;
+    if(bar) bar.style.width = prog + '%';
+    var idx = Math.min(3, Math.floor(prog/25));
+    if(txt) txt.textContent = steps[idx] + '...';
+  }, 200);
+  function hideLoader(){
+    clearInterval(interval);
+    cancelAnimationFrame(raf);
+    var loader = document.getElementById('sm-loader');
+    if(!loader) return;
+    if(bar) bar.style.width = '100%';
+    if(txt) txt.textContent = 'READY';
+    setTimeout(function(){
+      loader.style.transition = 'opacity 0.5s ease';
+      loader.style.opacity = '0';
+      setTimeout(function(){ loader.style.display='none'; }, 520);
+    }, 300);
+  }
+  if(document.readyState === 'complete'){ hideLoader(); }
+  else { window.addEventListener('load', hideLoader); }
+  setTimeout(hideLoader, 4000);
+})();
+</script>
 	<div id="tooltip" class="tip"></div>

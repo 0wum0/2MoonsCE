@@ -377,7 +377,9 @@
 var viewShortlyNumber={{ shortlyNumber|json_encode }};var vacation={{ vmode }};
 $(function(){
 {% for resourceID, resourceData in resourceTable %}{% if resourceData.production is defined %}
-if(typeof resourceTicker==='function') resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ resourceData.max|json_encode }}],production:{{ resourceData.production|json_encode }},valueElem:"current_{{ resourceData.name }}"},true);
+if(typeof resourceTicker==='function'){
+  resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ resourceData.max|json_encode }}],production:{{ resourceData.production|json_encode }},valueElem:"current_{{ resourceData.name }}"},true);
+}
 {% endif %}{% endfor %}
 });
 </script>
@@ -853,28 +855,17 @@ var SmartNotif=(function(){
 </script>
 
 <!-- FORUM NOTIFICATIONS CSS -->
-<style>
-.notif-dropdown-forum { min-width: 340px; }
-.notif-dropdown-tabs { display:flex; border-bottom:1px solid rgba(56,189,248,0.15); }
-.forum-notif-tab { flex:1; background:none; border:none; color:#94a3b8; font-size:12px; font-weight:700; padding:8px 4px; cursor:pointer; border-bottom:2px solid transparent; transition:color .15s,border-color .15s; }
-.forum-notif-tab.active { color:#38bdf8; border-bottom-color:#38bdf8; }
-.forum-notif-item { display:block; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.05); text-decoration:none; color:inherit; cursor:pointer; transition:background .12s; }
-.forum-notif-item:hover { background:rgba(56,189,248,0.07); }
-.forum-notif-icon { font-size:13px; margin-right:6px; }
-.forum-notif-icon.fn-mention { color:#a78bfa; }
-.forum-notif-icon.fn-newpost { color:#34d399; }
-.forum-notif-title { font-size:12px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px; display:inline-block; vertical-align:middle; }
-.forum-notif-by { font-size:10px; color:#94a3b8; margin-top:2px; }
-.forum-notif-snippet { font-size:11px; color:#94a3b8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px; }
-.forum-notif-time { font-size:10px; color:rgba(148,163,184,0.6); margin-top:2px; }
-.forum-notif-read-btn { background:none; border:none; color:#38bdf8; font-size:10px; cursor:pointer; padding:0; opacity:0.7; }
-.forum-notif-read-btn:hover { opacity:1; }
-</style>
+<!-- Forum notification styles moved to smartmoons.css -->
 
 <!-- FORUM NOTIFICATIONS JS -->
 <script>
 (function(){
     var _items = [];
+    {% if forum_notif_count is defined and forum_notif_count > 0 %}
+    var count = {{ forum_notif_count }};
+    {% else %}
+    var count = 0;
+    {% endif %}
     var _activeTab = 'mention';
     var _loaded = false;
 
