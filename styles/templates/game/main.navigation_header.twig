@@ -377,7 +377,7 @@
 var viewShortlyNumber={{ shortlyNumber|json_encode }};var vacation={{ vmode }};
 $(function(){
 {% for resourceID, resourceData in resourceTable %}{% if resourceData.production is defined %}
-resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ resourceData.max|json_encode }}],production:{{ resourceData.production|json_encode }},valueElem:"current_{{ resourceData.name }}"},true);
+if(typeof resourceTicker==='function') resourceTicker({available:{{ resourceData.current|json_encode }},limit:[0,{{ resourceData.max|json_encode }}],production:{{ resourceData.production|json_encode }},valueElem:"current_{{ resourceData.name }}"},true);
 {% endif %}{% endfor %}
 });
 </script>

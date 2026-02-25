@@ -369,7 +369,7 @@ let scene, camera, renderer;
 let is3D  = true;
 let frame = 0;
 
-let orb = { theta: 0.4, phi: 1.05, r: 750, tx: 0, ty: 0, tz: 0 };
+let orb = { theta: 0.4, phi: 1.05, r: 3000, tx: 0, ty: 0, tz: 0 };
 let pan = { x: 0, z: 0 };
 let selectedPlanet = null;
 let selRing = null; // THREE.Mesh highlight ring
@@ -528,20 +528,32 @@ function buildNebula() {
 
 // ── Koordinaten → 3D-Position (DETERMINISTIC – no Math.random) ──
 function toWorld(g, s, p) {
-  const gAngle = ((g - 1) / 9)   * Math.PI * 2;
-  const gR = 480;
-  const gx = Math.cos(gAngle) * gR, gz = Math.sin(gAngle) * gR;
+  /* Galaxien auf großem Ring — deutlich mehr Abstand */
+  const gAngle = ((g - 1) / 9) * Math.PI * 2;
+  const gR = 2000;
+  const gx = Math.cos(gAngle) * gR;
+  const gz = Math.sin(gAngle) * gR;
 
-  const sAngle = gAngle + ((s - 1) / 499) * Math.PI * 5.2;
-  const sR = ((s - 1) / 499) * 390;
+  /* Systeme als enge Spirale — Systeme liegen nah zusammen */
+  const sNorm  = (s - 1) / 498;
+  const sAngle = gAngle + sNorm * Math.PI * 6.0;
+  const sR     = 80 + sNorm * 1200;
   const sx = gx + Math.cos(sAngle) * sR;
   const sz = gz + Math.sin(sAngle) * sR;
 
+  /* Planeten auf kleiner Umlaufbahn um das System */
   const pAngle = ((p - 1) / 15) * Math.PI * 2;
-  const pR = 3 + p * 2.5;
-  // Deterministic Y offset – no random, based on coords only
-  const py = Math.sin((g * 37 + s * 13 + p * 7) * 0.1) * 3;
-  return new THREE.Vector3(sx + Math.cos(pAngle) * pR, py, sz + Math.sin(pAngle) * pR);
+  const pR     = 10 + p * 5;
+
+  /* Y-Achse: echter 3D-Spread ±150 */
+  const h  = Math.sin(g * 127.1 + s * 311.7 + p * 74.3);
+  const py = h * 150;
+
+  return new THREE.Vector3(
+    sx + Math.cos(pAngle) * pR,
+    py,
+    sz + Math.sin(pAngle) * pR
+  );
 }
 
 // ── Planeten als Sprites ───────────────────────────────────
@@ -552,6 +564,7 @@ function buildPlanets(planets) {
   planetMeshes = [];
   posMap = {};
 
+  /* ── Belegte Planeten rendern ─────────────────────────────── */
   planets.forEach(pl => {
     const key = `${pl.galaxy}:${pl.system}:${pl.planet}`;
     const pos = toWorld(pl.galaxy, pl.system, pl.planet);
@@ -562,9 +575,9 @@ function buildPlanets(planets) {
     else if (pl.is_ally) hex = '#a855f7';
     else if (pl.ally_color && pl.ally_color !== 'null') hex = pl.ally_color;
 
-    const rankScale = pl.total_rank > 0
-      ? Math.max(0.55, Math.min(2.2, 350/Math.max(pl.total_rank,1))) : 1.0;
-    const sz = 11 * rankScale;
+    /* Kleinere Planeten — wirken realistischer */
+    const rankScale = pl.total_rank > 0 ? Math.max(0.5, Math.min(1.8, 300 / Math.max(pl.total_rank, 1))) : 0.8;
+    const sz = 4 * rankScale;
 
     // Sprite → immer zur Kamera gewandt → immer perfekt rund
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -594,6 +607,47 @@ function buildPlanets(planets) {
       }));
       mesh.position.copy(pos); mesh.rotation.x = Math.PI/2;
       planetGroup.add(mesh);
+    }
+  });
+
+  /* ── Freie Planeten-Slots generieren ────────────────────────── */
+  /* Alle Systeme die in den Daten vorkommen */
+  const occupied = new Set(planets.map(pl=>`${pl.galaxy}:${pl.system}:${pl.planet}`));
+  const systems  = new Set(planets.map(pl=>`${pl.galaxy}:${pl.system}`));
+
+  systems.forEach(gs => {
+    const [g,ss] = gs.split(':').map(Number);
+    for (let p=1; p<=15; p++) {
+      const key=`${g}:${ss}:${p}`;
+      if (occupied.has(key)) continue; /* belegt → überspringen */
+
+      const pos=toWorld(g,ss,p);
+      posMap[key]=pos.clone(); /* wichtig: auch leere in posMap */
+
+      /* Kleiner, gedimmter, grau-blauer Ring-Sprite */
+      const emptySprite=new THREE.Sprite(new THREE.SpriteMaterial({
+        map: circleTex('#1a3a5c'),
+        transparent:true, opacity:0.35,
+        depthWrite:false, sizeAttenuation:true
+      }));
+      emptySprite.position.copy(pos);
+      emptySprite.scale.setScalar(1.8);
+      emptySprite.userData = {
+        planet: {
+          galaxy:g, system:ss, planet:p,
+          name:`Freier Slot`,
+          username:null, user_id:null,
+          ally_id:0, ally_tag:'',
+          total_rank:0, total_points:0,
+          is_own:false, is_ally:false,
+          has_moon:false, has_debris:false,
+          is_empty:true
+        },
+        baseScale:1.8,
+        key
+      };
+      planetGroup.add(emptySprite);
+      planetMeshes.push(emptySprite); /* Raycasting funktioniert */
     }
   });
 }
@@ -844,7 +898,7 @@ function bindEvents() {
 
   canvas.addEventListener('wheel', e=>{
     e.preventDefault();
-    orb.r=Math.max(50,Math.min(3000,orb.r+e.deltaY*.55));
+    orb.r=Math.max(100,Math.min(9000,orb.r+e.deltaY*1.2));
     syncCamera();
   },{passive:false});
 
@@ -869,7 +923,7 @@ function bindEvents() {
     } else if(e.touches.length===2){
       const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,
                          e.touches[0].clientY-e.touches[1].clientY);
-      orb.r=Math.max(50,Math.min(3000,orb.r*(tDist/d)));
+      orb.r=Math.max(100,Math.min(9000,orb.r*(tDist/d)));
       tDist=d; syncCamera();
     }
   },{passive:false});
@@ -924,17 +978,22 @@ function doHover(cx,cy){
     canvas.style.cursor='pointer';
     tipEl.style.display='block';
     tipEl.style.left=(cx+16)+'px'; tipEl.style.top=(cy+10)+'px';
-    const c=pl.is_own?'var(--green)':pl.is_ally?'var(--purple)':'var(--cyan)';
-    const name=(pl.name||'Unknown Planet').toUpperCase();
-    tipEl.innerHTML=`
-      <div class="tt-h" style="color:${c}">${name}</div>
-      <div class="tt-l">[${pl.galaxy}:${pl.system}:${pl.planet}]</div>
-      <div class="tt-l">Player: <span>${pl.username||'?'}</span></div>
-      ${pl.ally_tag?`<div class="tt-l">Alliance: <span>[${pl.ally_tag}]</span></div>`:''}
-      <div class="tt-l">Rank: <span>#${pl.total_rank||'?'}</span></div>
-      ${pl.has_moon?'<div class="tt-l" style="color:#aaa"><i class="fas fa-moon fa-xs"></i> Moon</div>':''}
-      ${pl.has_debris?'<div class="tt-l" style="color:#ff9900"><i class="fas fa-ring fa-xs"></i> Debris</div>':''}
-    `;
+    if(pl.is_empty){
+      /* Freier Slot */
+      tipEl.innerHTML=`<div class="tt-h" style="color:#4a6a8a">FREIER SLOT</div><div class="tt-l">[${pl.galaxy}:${pl.system}:${pl.planet}]</div><div class="tt-l" style="color:var(--cyan)">Klicken zum Kolonisieren</div>`;
+    } else {
+      const c=pl.is_own?'var(--green)':pl.is_ally?'var(--purple)':'var(--cyan)';
+      const name=(pl.name||'Unknown Planet').toUpperCase();
+      tipEl.innerHTML=`
+        <div class="tt-h" style="color:${c}">${name}</div>
+        <div class="tt-l">[${pl.galaxy}:${pl.system}:${pl.planet}]</div>
+        <div class="tt-l">Player: <span>${pl.username||'?'}</span></div>
+        ${pl.ally_tag?`<div class="tt-l">Alliance: <span>[${pl.ally_tag}]</span></div>`:''}
+        <div class="tt-l">Rank: <span>#${pl.total_rank||'?'}</span></div>
+        ${pl.has_moon?'<div class="tt-l" style="color:#aaa"><i class="fas fa-moon fa-xs"></i> Moon</div>':''}
+        ${pl.has_debris?'<div class="tt-l" style="color:#ff9900"><i class="fas fa-ring fa-xs"></i> Debris</div>':''}
+      `;
+    }
   } else {
     canvas.style.cursor='grab';
     tipEl.style.display='none';
@@ -977,23 +1036,46 @@ function deselectPlanet() {
   set('st-sel', '–');
 }
 
-// ── Action panel ───────────────────────────────────────────
+// ── Action panel ────────────────────────────────────────────
 function showAction(pl) {
+  const {galaxy:g, system:ss, planet:p} = pl;
+  const base = `game.php?page=fleetTable&galaxy=${g}&system=${ss}&planet=${p}&planettype=1`;
+  set('ap-coord', `[${g}:${ss}:${p}]`);
+  const btn = document.getElementById('ap-btns');
+
+  /* ── FREIER SLOT ── */
+  if (pl.is_empty) {
+    set('ap-name', 'FREIER SLOT');
+    document.getElementById('ap-name').style.color = '#4a6a8a';
+    document.getElementById('ap-meta').innerHTML = `
+      <div class="ap-box"><div class="ap-box-lbl">STATUS</div><div class="ap-box-val" style="color:#4a6a8a">UNBEWOHNT</div></div>
+      <div class="ap-box"><div class="ap-box-lbl">GALAXY</div><div class="ap-box-val" style="color:var(--cyan)">${g}</div></div>
+      <div class="ap-box"><div class="ap-box-lbl">SYSTEM</div><div class="ap-box-val" style="color:var(--cyan)">${ss}</div></div>
+    `;
+    btn.innerHTML = `
+      <a class="ap-btn ab-flt" href="${base}&target_mission=7"><i class="fas fa-flag"></i> KOLONISIEREN</a>
+      <a class="ap-btn ab-flt" href="${base}"><i class="fas fa-rocket"></i> FLEET SENDEN</a>
+      <a class="ap-btn ab-spy" href="${base}&target_mission=6"><i class="fas fa-satellite"></i> PHALANX SPY</a>
+    `;
+    actionEl.style.display = 'block';
+    const key = `${g}:${ss}:${p}`;
+    if (posMap[key]) flyTo(posMap[key], 220);
+    return;
+  }
+
+  /* ── BELEGTER PLANET ── */
   const nameCol = pl.is_own ? 'var(--green)' : pl.is_ally ? 'var(--purple)' : 'var(--cyan)';
   set('ap-name', (pl.name||'Unknown').toUpperCase());
-  set('ap-coord', `[${pl.galaxy}:${pl.system}:${pl.planet}]`);
   document.getElementById('ap-name').style.color = nameCol;
   document.getElementById('ap-meta').innerHTML = `
     <div class="ap-box"><div class="ap-box-lbl">PLAYER</div><div class="ap-box-val" style="color:${nameCol}">${pl.username||'?'}</div></div>
     <div class="ap-box"><div class="ap-box-lbl">RANK</div><div class="ap-box-val" style="color:var(--gold)">#${pl.total_rank||'?'}</div></div>
     <div class="ap-box"><div class="ap-box-lbl">ALLIANCE</div><div class="ap-box-val">${pl.ally_tag?'['+pl.ally_tag+']':'–'}</div></div>
   `;
-  const btn = document.getElementById('ap-btns');
   if (pl.is_own) {
     btn.innerHTML = `<div class="ap-own"><i class="fas fa-check" style="margin-right:6px"></i>YOUR PLANET</div>`;
   } else {
-    const {galaxy:g, system:s, planet:p, user_id:uid} = pl;
-    const base = `game.php?page=fleetTable&galaxy=${g}&system=${s}&planet=${p}&planettype=1`;
+    const uid = pl.user_id;
     btn.innerHTML = `
       <a class="ap-btn ab-spy"  href="${base}&target_mission=6"><i class="fas fa-satellite"></i> SPY</a>
       <a class="ap-btn ab-atk"  href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ATTACK</a>
@@ -1004,9 +1086,8 @@ function showAction(pl) {
     `;
   }
   actionEl.style.display = 'block';
-  // Fly to planet – do NOT call flyTo here since selectPlanet caller already triggers it
-  const key = `${pl.galaxy}:${pl.system}:${pl.planet}`;
-  if (posMap[key]) flyTo(posMap[key], 110);
+  const key = `${g}:${ss}:${p}`;
+  if (posMap[key]) flyTo(posMap[key], 220);
 }
 function closeAction() { actionEl.style.display = 'none'; }
 
@@ -1101,8 +1182,8 @@ function setView(mode){
   is3D = mode === '3d';
   document.getElementById('vb-3d').classList.toggle('on',  is3D);
   document.getElementById('vb-2d').classList.toggle('on', !is3D);
-  if (!is3D) { orb.r=650; orb.phi=0.02; orb.tx=0; orb.ty=0; orb.tz=0; pan.x=pan.z=0; }
-  else       { orb.r=750; orb.phi=1.05; orb.tx=0; orb.ty=0; orb.tz=0; }
+  if (!is3D) { orb.r=2500; orb.phi=0.02; orb.tx=0; orb.ty=0; orb.tz=0; pan.x=pan.z=0; }
+  else       { orb.r=3000; orb.phi=1.05; orb.tx=0; orb.ty=0; orb.tz=0; }
   syncCamera();
   if (galaxyData?.planets) {
     buildPlanets(galaxyData.planets);
@@ -1134,7 +1215,7 @@ function navJump() {
     hint.style.color = 'var(--cyan)';
     setTimeout(() => { hint.textContent = ''; }, 1800);
   }
-  flyTo(toWorld(g, s, 8), 180);
+  flyTo(toWorld(g, s, 8), 350);
 }
 
 function navHome() {
@@ -1143,7 +1224,7 @@ function navHome() {
   hint.textContent = 'HOME';
   hint.style.color = 'var(--green)';
   setTimeout(() => { hint.textContent = ''; }, 1800);
-  flyTo(toWorld(g, s, p), 110);
+  flyTo(toWorld(g, s, p), 220);
   // Highlight home planet if loaded
   if (galaxyData?.planets) {
     const hp = galaxyData.planets.find(pl => pl.is_own &&
