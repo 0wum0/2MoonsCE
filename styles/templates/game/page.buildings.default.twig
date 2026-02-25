@@ -152,7 +152,7 @@ function confirmDemolish(id, name, time) {
     if(confirm("{{ LNG.bd_dismantle }} " + name + "?\n{{ LNG.bd_duration }}: " + time)) {
         if(typeof SmAjax !== 'undefined') {
             SmAjax.post('game.php?page=buildings', {cmd: 'destroy', building: id})
-                .done(function(){ window.location.reload(); })
+                .done(function(){ SmAjax.refreshPageContent('game.php?page=buildings'); })
                 .fail(function(err){ SmAjax.toastError(err || 'Aktion fehlgeschlagen.'); });
         } else {
             var form = document.createElement('form');

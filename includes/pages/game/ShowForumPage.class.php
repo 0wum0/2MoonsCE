@@ -141,7 +141,7 @@ class ShowForumPage extends AbstractGamePage
                 if ($topic && empty($topic['is_locked'])) {
                     $this->forum->createPost($id, (int)$USER['id'], $content);
                     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-                        $this->sendJSON(['ok' => true]);
+                        $this->sendJSON(['ok' => true, 'resources' => []]);
                     }
                     $this->redirectTo('game.php?page=forum&mode=topic&id=' . $id);
                     return;
@@ -250,7 +250,7 @@ class ShowForumPage extends AbstractGamePage
 
         $this->forum->updatePost($postId, (int)$USER['id'], $content);
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            $this->sendJSON(['ok' => true]);
+            $this->sendAjaxSuccess();
         }
         $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId . '#post-' . $postId);
     }
@@ -277,7 +277,7 @@ class ShowForumPage extends AbstractGamePage
 
         $this->forum->softDeletePost($postId);
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            $this->sendJSON(['ok' => true]);
+            $this->sendAjaxSuccess();
         }
         $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId);
     }
@@ -305,7 +305,7 @@ class ShowForumPage extends AbstractGamePage
 
         $this->forum->reportPost($postId, (int)$USER['id'], $reason);
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            $this->sendJSON(['ok' => true]);
+            $this->sendAjaxSuccess();
         }
         $this->redirectTo('game.php?page=forum&mode=topic&id=' . $topicId . '#post-' . $postId);
     }

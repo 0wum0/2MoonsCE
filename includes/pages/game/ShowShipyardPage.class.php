@@ -173,7 +173,7 @@ class ShowShipyardPage extends AbstractGamePage
 				if ($maxBuildQueue != 0 && $Count >= $maxBuildQueue)
 				{
 					if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-						$this->sendJSON(['ok' => false, 'error' => sprintf($LNG['bd_max_builds'], $maxBuildQueue)]);
+						$this->sendJSON(['ok' => false, 'error' => sprintf($LNG['bd_max_builds'], $maxBuildQueue), 'resources' => []]);
 					}
 					$this->printMessage(sprintf($LNG['bd_max_builds'], $maxBuildQueue));
 				}
@@ -181,7 +181,7 @@ class ShowShipyardPage extends AbstractGamePage
 				$this->BuildAuftr($buildTodo);
 
 				if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-					$this->sendJSON(['ok' => true]);
+					$this->sendAjaxSuccess();
 				}
 			}
 					
@@ -190,7 +190,7 @@ class ShowShipyardPage extends AbstractGamePage
 				$this->CancelAuftr();
 
 				if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-					$this->sendJSON(['ok' => true]);
+					$this->sendAjaxSuccess();
 				}
 			}
 		}

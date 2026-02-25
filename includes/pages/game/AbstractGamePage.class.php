@@ -515,6 +515,45 @@ abstract class AbstractGamePage
 	}
 
 	/**
+	 * Send a successful AJAX response including current resource values.
+	 * Replaces bare sendJSON(['ok'=>true]) for queue/action pages so the
+	 * JS resource bar can update without a separate poll request.
+	 *
+	 * @param array $extra  Additional keys merged into the response.
+	 */
+	protected function sendAjaxSuccess(array $extra = []): void
+	{
+		global $PLANET, $USER, $resource, $reslist;
+
+		$this->save();
+
+		$config = Config::get();
+		$resourceSpeed = $config->resource_multiplier;
+		$resources = [];
+
+		foreach ($reslist['resstype'][1] as $resourceID) {
+			$name = $resource[$resourceID];
+			$current    = (float) ($PLANET[$name] ?? 0);
+			$max        = (float) ($PLANET[$name . '_max'] ?? 0);
+			if ($USER['urlaubs_modus'] == 1 || $PLANET['planet_type'] != 1) {
+				$production = (float) ($PLANET[$name . '_perhour'] ?? 0);
+			} else {
+				$production = (float) ($PLANET[$name . '_perhour'] ?? 0)
+				            + (float) ($config->{$name . '_basic_income'} ?? 0) * $resourceSpeed;
+			}
+			$resources[$name] = [
+				'current'    => $current,
+				'max'        => $max,
+				'production' => $production,
+			];
+		}
+
+		$response = array_merge(['ok' => true, 'resources' => $resources], $extra);
+		echo json_encode($response);
+		exit;
+	}
+
+	/**
 	 * Send current planet resource state as JSON for AJAX resource bar refresh.
 	 * Called when ajax=resources is present in the request (detected by game.php).
 	 * Returns a map of resource name → {current, max, production}.

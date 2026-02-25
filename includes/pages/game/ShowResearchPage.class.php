@@ -354,7 +354,7 @@ class ShowResearchPage extends AbstractGamePage
 			}
 
 			if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-				$this->sendJSON(['ok' => true]);
+				$this->sendAjaxSuccess();
 			}
 			$this->redirectTo('game.php?page=research');
 		}
