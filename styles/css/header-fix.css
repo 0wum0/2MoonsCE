@@ -193,8 +193,7 @@ body::before {
 }
 
 @media (min-width: 993px) {
-  /* Verstecke Burger-Menü auf Desktop */
-  .burger-menu,
+  /* Verstecke nur Legacy-Burger auf Desktop (nicht .burger-menu / sidebar-toggle) */
   #burgerMenu {
     display: none !important;
   }

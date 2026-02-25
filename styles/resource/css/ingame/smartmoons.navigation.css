@@ -200,8 +200,8 @@ body.loading #game-header::after { width:100%; }
 }
 
 /* ── SIDEBAR ── */
-.sidebar-nav, #leftmenu {
-  position:fixed; top:var(--header-h); left:0; bottom:0; width:var(--sidebar-w);
+#leftmenu {
+  position:fixed; top:var(--sm-header-total, var(--header-h)); left:0; bottom:0; width:var(--sidebar-w);
   background:rgba(4,8,22,0.97) !important; border-right:1px solid var(--border) !important;
   backdrop-filter:blur(22px); z-index:100;
   overflow-y:auto; overflow-x:hidden;
@@ -209,16 +209,23 @@ body.loading #game-header::after { width:100%; }
   scrollbar-width:thin; scrollbar-color:var(--border) transparent;
   display:flex; flex-direction:column;
 }
-.sidebar-nav.sidebar-icon-only, #leftmenu.sidebar-icon-only { width:var(--sidebar-icon-w); }
-.sidebar-nav.sidebar-icon-only .nav-section-title,
-.sidebar-nav.sidebar-icon-only .sidebar-link span,
-.sidebar-nav.sidebar-icon-only .sidebar-link .nav-badge,
-.sidebar-nav.sidebar-icon-only .sidebar-footer .version-info,
-.sidebar-nav.sidebar-icon-only .sidebar-footer .copyright { display:none; }
-.sidebar-nav.sidebar-icon-only .sidebar-link { justify-content:center; padding:12px 0; }
-.sidebar-nav.sidebar-icon-only .sidebar-link i { margin:0; }
-.sidebar-nav.sidebar-icon-only .sidebar-footer { padding:8px 0; align-items:center; }
-.sidebar-nav.sidebar-icon-only .sidebar-footer-links { justify-content:center; flex-direction:column; gap:4px; }
+.sidebar-nav {
+  flex:1; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden;
+}
+#leftmenu.sidebar-icon-only { width:var(--sidebar-icon-w); }
+#leftmenu.sidebar-icon-only .nav-section-title,
+#leftmenu.sidebar-icon-only .nav-section-label,
+#leftmenu.sidebar-icon-only .sidebar-link span,
+#leftmenu.sidebar-icon-only .nav-link .nav-link-text,
+#leftmenu.sidebar-icon-only .sidebar-link .nav-badge,
+#leftmenu.sidebar-icon-only .sidebar-footer .version-info,
+#leftmenu.sidebar-icon-only .sidebar-footer .copyright { display:none; }
+#leftmenu.sidebar-icon-only .sidebar-link,
+#leftmenu.sidebar-icon-only .nav-link { justify-content:center; padding:12px 0; }
+#leftmenu.sidebar-icon-only .sidebar-link i,
+#leftmenu.sidebar-icon-only .nav-link i { margin:0; }
+#leftmenu.sidebar-icon-only .sidebar-footer { padding:8px 0; align-items:center; }
+#leftmenu.sidebar-icon-only .sidebar-footer-links { justify-content:center; flex-direction:column; gap:4px; }
 .sidebar-collapse-btn {
   display:flex; align-items:center; justify-content:center; gap:8px;
   width:100%; padding:9px 16px;
@@ -413,6 +420,23 @@ body.loading #game-header::after { width:100%; }
 .news-label { font-family:var(--font-hud); font-size:9px; letter-spacing:2px; color:var(--cyan); white-space:nowrap; display:flex; align-items:center; gap:6px; }
 .news-marquee { flex:1; overflow:hidden; font-size:13px; color:var(--text); }
 
+/* ── NAV-LINK ALIASES (main.navigation.twig uses nav-link / nav-section-label / nav-link-text) ── */
+.nav-link { display:flex; align-items:center; gap:10px; padding:9px 14px 9px 16px;
+  color:#7a9ab8 !important; font-size:13px; font-weight:500;
+  font-family:var(--font-body); text-decoration:none !important;
+  transition:var(--transition); border-left:2px solid transparent; position:relative; }
+.nav-link i { width:17px; text-align:center; font-size:13px; color:var(--dim); transition:var(--transition); flex-shrink:0; }
+.nav-link:hover { color:var(--white) !important; background:rgba(0,212,255,0.06); }
+.nav-link:hover i { color:var(--cyan); text-shadow:0 0 6px var(--cyan); }
+.nav-link.active { color:var(--cyan) !important; background:rgba(0,212,255,0.1); border-left-color:var(--cyan); }
+.nav-link.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:var(--cyan); box-shadow:0 0 10px var(--cyan); }
+.nav-link.active i { color:var(--cyan); text-shadow:0 0 8px var(--cyan); }
+.nav-link.danger:hover { color:var(--red) !important; background:rgba(255,61,87,0.08); border-left-color:var(--red); }
+.nav-link-text { transition:var(--transition); }
+.nav-section-label { font-family:var(--font-hud) !important; font-size:8px !important;
+  letter-spacing:3px !important; color:var(--dim) !important;
+  padding:10px 16px 4px !important; text-transform:uppercase; }
+
 /* ── LEGACY TOPNAV HIDE ── */
 #header { display:none !important; }
 
@@ -428,8 +452,8 @@ body.loading #game-header::after { width:100%; }
 
 /* ── RESPONSIVE ── */
 @media(max-width:992px) {
-  .sidebar-nav, #leftmenu { transform:translateX(-100%); width:260px; }
-  .sidebar-nav.active { transform:translateX(0); box-shadow:4px 0 40px rgba(0,0,0,0.6); }
+  #leftmenu { transform:translateX(-100%); width:260px; }
+  #leftmenu.active { transform:translateX(0); box-shadow:4px 0 40px rgba(0,0,0,0.6); }
   .content-wrapper { margin-left:0 !important; }
   .chat-fab-desktop-only { display:none !important; }
 }

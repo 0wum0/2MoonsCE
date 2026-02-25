@@ -25,10 +25,6 @@
 .main-header::after,
 #header::before,
 #header::after,
-header::before,
-header::after,
-body::before,
-body::after,
 .main-content::before,
 .main-content::after,
 .resource-bar::before,
@@ -64,13 +60,11 @@ div:empty:not([class*="icon"]):not([class*="badge"]):not([id]) {
 /* Body und HTML ohne margins/paddings */
 html, body {
   margin: 0 !important;
-  padding: 0 !important;
 }
 
 /* Body darf keinen top-offset haben */
 body {
   margin-top: 0 !important;
-  padding-top: 0 !important;
   position: relative !important;
 }
 
@@ -322,9 +316,8 @@ body > div[style*="position: absolute"] {
   }
 }
 
-/* Desktop: Burger versteckt */
+/* Desktop: Legacy-Burger #burgerMenu versteckt (nicht .burger-menu / sidebar-toggle) */
 @media (min-width: 993px) {
-  .burger-menu,
   #burgerMenu {
     display: none !important;
   }
