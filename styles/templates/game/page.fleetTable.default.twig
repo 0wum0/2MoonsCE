@@ -188,7 +188,7 @@
                 </table>
             </div>
 
-            <!-- Mobile: cards with touch-friendly inputs -->
+            <!-- Mobile: cards with touch-friendly inputs (name= set here, desktop inputs disabled via JS) -->
             <div class="ship-select-mobile">
                 {% for FleetRow in FleetsOnPlanet %}
                 {% if FleetRow.speed != 0 %}
@@ -199,7 +199,7 @@
                     </div>
                     <div class="ship-card-input-row">
                         <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.max(0,(parseInt(el.value)||0)-1);el.value=v;">−</button>
-                        <input type="number" id="ship{{ FleetRow.id }}_minput" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
+                        <input type="number" name="ship{{ FleetRow.id }}" id="ship{{ FleetRow.id }}_minput" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
                         <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.min({{ FleetRow.count }},(parseInt(el.value)||0)+1);el.value=v;">+</button>
                         <button type="button" class="ship-stepper-max" onclick="document.getElementById('ship{{ FleetRow.id }}_minput').value={{ FleetRow.count }};">Max</button>
                     </div>
@@ -245,18 +245,22 @@
 <script src="scripts/game/fleetTable.js?v=3.1.0"></script>
 <script>
 (function() {
-    var form = document.querySelector('form[action*="fleetStep1"]');
-    if (!form) return;
-    form.addEventListener('submit', function() {
-        var mobileCards = form.querySelectorAll('.ship-select-mobile .ship-select-card');
-        mobileCards.forEach(function(card) {
-            var mInput = card.querySelector('.ship-card-num-input');
-            if (!mInput) return;
-            var id = mInput.id.replace('_minput', '_input');
-            var destInput = document.getElementById(id);
-            if (destInput) destInput.value = mInput.value || 0;
-        });
-    });
+    function isMobileView() { return window.innerWidth <= 768; }
+
+    function syncInputStates() {
+        var desktopInputs = document.querySelectorAll('.ship-select-desktop input.glass-input');
+        var mobileInputs  = document.querySelectorAll('.ship-select-mobile input.ship-card-num-input');
+        if (isMobileView()) {
+            desktopInputs.forEach(function(el) { el.disabled = true; });
+            mobileInputs.forEach(function(el)  { el.disabled = false; });
+        } else {
+            desktopInputs.forEach(function(el) { el.disabled = false; });
+            mobileInputs.forEach(function(el)  { el.disabled = true; });
+        }
+    }
+
+    syncInputStates();
+    window.addEventListener('resize', syncInputStates);
 })();
 </script>
 {% endblock %}
