@@ -19,8 +19,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
 
-/* ── Escape the game layout container ─────────────────────────────── */
-/* The map needs to cover the full viewport over the game UI */
+/* ── Root: covers full viewport over game UI ──────────────────────── */
 #gm-root {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -29,29 +28,32 @@
   font-family: 'Rajdhani', sans-serif;
   color: #c8e6ff;
   overflow: hidden;
+  /* Footer height injected by JS as --ingameFooterH */
+  --ingameFooterH: 0px;
 }
 
-/* Galaxy canvas wrapper – sits BELOW navigation panels */
+/* Canvas wrapper: pointer-events:none so panel edges don't block canvas pan */
 .galaxy-wrapper {
-  position: relative;
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  inset: 0;
   pointer-events: none;
 }
 
 #gm-canvas {
   position: absolute;
   inset: 0;
+  /* 100dvh respects mobile browser chrome (address bar) */
   width: 100% !important;
   height: 100% !important;
   display: block;
   cursor: grab;
   pointer-events: all;
   z-index: 1;
+  touch-action: none;
 }
 #gm-canvas:active { cursor: grabbing; }
 
-/* HUD and panels must sit above canvas */
+/* HUD and panels sit above canvas */
 #gm-hud, #gm-side, #gm-action, #gm-card, #gm-tip, #gm-load, #gm-hint {
   z-index: 100;
   pointer-events: all;
@@ -113,6 +115,78 @@
   border: 1px solid var(--border); border-radius: 12px;
   padding: 13px 14px; z-index: 100;
   box-shadow: 0 8px 30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.04);
+  /* panel wrapper is pointer-events:none at wrapper level;
+     the panel itself always clickable */
+  pointer-events: all;
+}
+
+/* ── Mobile: FAB + collapsible side panel ────────────────────────── */
+#gm-panel-toggle {
+  display: none; /* hidden on desktop */
+}
+
+@media (max-width: 768px) {
+  /* Canvas fills the full 100dvh (mobile browser bars excluded) */
+  .galaxy-wrapper, #gm-canvas {
+    height: 100dvh !important;
+  }
+
+  /* Side panel: fixed bottom-right FAB on mobile */
+  #gm-side {
+    position: fixed;
+    top: auto;
+    bottom: calc(var(--ingameFooterH) + 58px);
+    left: auto;
+    right: 12px;
+    width: calc(100vw - 24px);
+    max-width: 340px;
+    max-height: 55dvh;
+    overflow-y: auto;
+    transform: translateY(110%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    border-radius: 14px 14px 6px 6px;
+    z-index: 500;
+  }
+  #gm-side.panel-open {
+    transform: translateY(0);
+  }
+
+  /* FAB toggle button */
+  #gm-panel-toggle {
+    display: flex;
+    align-items: center; justify-content: center;
+    position: fixed;
+    bottom: calc(var(--ingameFooterH) + 10px);
+    right: 12px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: rgba(0,212,255,.15);
+    border: 1px solid rgba(0,212,255,.4);
+    color: var(--cyan);
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 501;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.6);
+    transition: background .2s;
+    pointer-events: all;
+  }
+  #gm-panel-toggle:hover, #gm-panel-toggle.active {
+    background: rgba(0,212,255,.30);
+  }
+
+  /* Action panel: full width on mobile */
+  #gm-action {
+    min-width: unset;
+    width: calc(100vw - 20px);
+    bottom: calc(var(--ingameFooterH) + 60px);
+    left: 10px;
+    transform: none;
+  }
+  @keyframes slideUp {
+    from{opacity:0;transform:translateY(14px)}
+    to  {opacity:1;transform:translateY(0)}
+  }
 }
 .sp-h { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:2px; color:var(--dim); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
 .sp-h i { color:var(--cyan); opacity:.7; }
@@ -297,8 +371,11 @@
     <button id="gm-close" onclick="window.history.back()"><i class="fas fa-times" style="margin-right:5px"></i>CLOSE MAP</button>
   </div>
 
+  <!-- Mobile FAB to open/close side panel -->
+  <button id="gm-panel-toggle" title="Map Controls"><i class="fas fa-sliders-h"></i></button>
+
   <!-- Side panel -->
-  <div id="gm-side">
+  <div id="gm-side" class="galaxy-viewPanel">
     <div style="margin-bottom:11px">
       <div class="sp-h"><i class="fas fa-sliders-h" style="margin-right:5px"></i>VIEW MODE</div>
       <div class="vw-row">
@@ -495,6 +572,8 @@ function init() {
   buildStars();
   buildNebula();
   bindEvents();
+  initMobilePanel();
+  measureFooterHeight();
 
   // Single rAF loop – start before fetch so canvas is live immediately
   animate();
@@ -557,56 +636,80 @@ function buildNebula() {
   })));
 }
 
-// ── Koordinaten → 3D-Position (LINEAR GRID per spec) ──────
-// x = galaxy * GALAXY_SPACING
-// z = system * SYSTEM_SPACING
-// y = planet * PLANET_SPACING
-// Planets in the same system are spread on a small orbit ring
-const GALAXY_SPACING = 2000;
-const SYSTEM_SPACING = 200;
-const PLANET_SPACING = 40;
+// ── Spiral-Galaxy coordinate system ───────────────────────
+// [1:1] = centre (0,0).  Each (galaxy, system) pair maps to
+// a unique position on a Fermat (golden-angle) spiral so that
+// systems never pile up, are evenly spaced, and [1:1] is at
+// the origin.  Positions are FULLY DETERMINISTIC.
+//
+// galaxyIndex = g-1  (0-based)
+// systemIndex  = s-1  (0-based within galaxy)
+// globalIndex  = galaxyIndex * SYSTEMS_PER_GALAXY + systemIndex
+//   → index 0 ([1:1]) maps to r=0  (the very centre)
+//
+// Fermat spiral:  r = RADIAL_STEP * sqrt(n),  θ = n * GOLDEN_ANGLE
+// RADIAL_STEP chosen so adjacent rings have ~320 units of space.
+const SYSTEMS_PER_GALAXY = 499;
+const RADIAL_STEP        = 320;   // units between spiral rings
+const GOLDEN_ANGLE       = Math.PI * (3 - Math.sqrt(5)); // ≈ 137.5°
 
-function toWorld(g, s, p, planetIndex, totalInSystem) {
-  const baseX = g * GALAXY_SPACING;
-  const baseZ = s * SYSTEM_SPACING;
-  const baseY = p * PLANET_SPACING;
-
-  let ox = 0, oz = 0;
-  if (totalInSystem > 1 && planetIndex !== undefined) {
-    const angle = (planetIndex / totalInSystem) * Math.PI * 2;
-    ox = Math.cos(angle) * 20;
-    oz = Math.sin(angle) * 20;
-  }
-
-  return new THREE.Vector3(baseX + ox, baseY, baseZ + oz);
+function systemCenter(g, s) {
+  const n = (g - 1) * SYSTEMS_PER_GALAXY + (s - 1); // 0-based
+  if (n === 0) return { x: 0, z: 0 };               // [1:1] = centre
+  const r     = RADIAL_STEP * Math.sqrt(n);
+  const theta = n * GOLDEN_ANGLE;
+  return { x: Math.cos(theta) * r, z: Math.sin(theta) * r };
 }
 
-// ── Sun texture (emissive glow) ────────────────────────────
+// Fallback helper (used by fleet position lookup when posMap misses)
+function toWorld(g, s, p, _pi, _tot) {
+  const c = systemCenter(g, s);
+  const slot  = Math.max(1, p || 1);
+  const r     = 40 + slot * 18;
+  const angle = (slot / 10) * Math.PI * 2;
+  return new THREE.Vector3(c.x + Math.cos(angle) * r, 0, c.z + Math.sin(angle) * r);
+}
+
+// ── Sun glow texture (large soft halo + bright core) ──────
 const sunTexCache = {};
 function sunTex(hex) {
   if (sunTexCache[hex]) return sunTexCache[hex];
-  const S = 128, c = document.createElement('canvas');
+  const S = 256, c = document.createElement('canvas');
   c.width = c.height = S;
-  const ctx = c.getContext('2d'), cx = S/2, r = S/2 - 2;
+  const ctx = c.getContext('2d'), cx = S / 2, r = S / 2 - 1;
+  // outer glow
   const g1 = ctx.createRadialGradient(cx, cx, 0, cx, cx, r);
-  g1.addColorStop(0,   '#ffffff');
-  g1.addColorStop(0.15, hex);
-  g1.addColorStop(0.55, hex + '88');
-  g1.addColorStop(1,   hex + '00');
-  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI*2);
+  g1.addColorStop(0,    '#ffffff');
+  g1.addColorStop(0.08, hex);
+  g1.addColorStop(0.30, hex + 'cc');
+  g1.addColorStop(0.60, hex + '44');
+  g1.addColorStop(1,    hex + '00');
+  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI * 2);
   ctx.fillStyle = g1; ctx.fill();
+  // bright inner disc
+  const g2 = ctx.createRadialGradient(cx - r * .1, cx - r * .1, 0, cx, cx, r * .18);
+  g2.addColorStop(0, '#ffffff');
+  g2.addColorStop(1, hex + '00');
+  ctx.beginPath(); ctx.arc(cx, cx, r * .22, 0, Math.PI * 2);
+  ctx.fillStyle = g2; ctx.fill();
   sunTexCache[hex] = new THREE.CanvasTexture(c);
   return sunTexCache[hex];
 }
 
-// ── Solar system model ─────────────────────────────────────
-// Coordinate system:
-//   System center: x = galaxy * GALAXY_SPACING, z = system * SYSTEM_SPACING, y = 0
-//   Planets orbit their system center on the XZ plane with a small Y height offset
-//   orbitRadius: 40 + planetSlot * 18  (slot 1..10 → 58..220)
-//   orbitSpeed: 0.0004 + (1 / (slot+1)) * 0.0006  (inner planets faster)
+// Pick a sun colour deterministically from galaxy+system index
+const SUN_COLORS = ['#ffdd88','#ffaa44','#ff8866','#aaddff','#ffffff','#ffcc22','#ff6644'];
+function sunColor(g, s) {
+  const n = (g - 1) * SYSTEMS_PER_GALAXY + (s - 1);
+  return SUN_COLORS[n % SUN_COLORS.length];
+}
+
+// ── Solar system builder ───────────────────────────────────
+// Each system: spiral-positioned sun + 10 orbital slots (real or empty).
+// Only the nearest MAX_LIGHTS systems get a PointLight (performance).
+const MAX_LIGHTS = 12;      // max active PointLights in scene
+const MAX_PICK_DISTANCE = 4000; // raycaster distance gate
+
 function buildPlanets(planets) {
-  // Remove selRing before disposeGroup to avoid double-dispose
   if (selRing) { planetGroup.remove(selRing); }
   disposeGroup(planetGroup);
   disposeGroup(sunGroup);
@@ -614,187 +717,168 @@ function buildPlanets(planets) {
   posMap = {};
   orbitData = [];
 
-  // ── Group planets by system (max 10 per system) ──────────
-  const sysMap = {}; // "g:s" → {sunX, sunZ, planets:[]}
+  // ── 1. Group real planets by system (max 10) ─────────────
+  const sysMap = {};
   planets.forEach(pl => {
     const sk = `${pl.galaxy}:${pl.system}`;
     if (!sysMap[sk]) {
-      sysMap[sk] = {
-        g: pl.galaxy,
-        s: pl.system,
-        sunX: pl.galaxy * GALAXY_SPACING,
-        sunZ: pl.system * SYSTEM_SPACING,
-        planets: []
-      };
+      const c = systemCenter(pl.galaxy, pl.system);
+      sysMap[sk] = { g: pl.galaxy, s: pl.system, sunX: c.x, sunZ: c.z, planets: [] };
     }
-    if (sysMap[sk].planets.length < 10) {
-      sysMap[sk].planets.push(pl);
-    }
+    if (sysMap[sk].planets.length < 10) sysMap[sk].planets.push(pl);
   });
 
-  // ── Build each system ────────────────────────────────────
-  Object.values(sysMap).forEach(sys => {
+  // ── 2. Sort systems by distance to camera for light budget ─
+  const camPos = camera ? camera.position : new THREE.Vector3(0, 2000, 3000);
+  const sysList = Object.values(sysMap);
+  sysList.sort((a, b) => {
+    const da = Math.hypot(a.sunX - camPos.x, a.sunZ - camPos.z);
+    const db = Math.hypot(b.sunX - camPos.x, b.sunZ - camPos.z);
+    return da - db;
+  });
+
+  // ── 3. Build each system ─────────────────────────────────
+  sysList.forEach((sys, sysIdx) => {
     const { sunX, sunZ, g, s } = sys;
     const sunPos = new THREE.Vector3(sunX, 0, sunZ);
+    const col = sunColor(g, s);
+    const colNum = parseInt(col.replace('#',''), 16);
 
-    // Sun – glowing sprite
-    const sunSz = 12;
+    // Sun sprite (large glow)
     const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: sunTex('#ffdd88'), transparent: true, depthWrite: false, sizeAttenuation: true
+      map: sunTex(col), transparent: true, depthWrite: false,
+      sizeAttenuation: true, blending: THREE.AdditiveBlending
     }));
     sunSprite.position.copy(sunPos);
-    sunSprite.scale.setScalar(sunSz);
+    sunSprite.scale.setScalar(28);
     sunSprite.userData = { isSun: true, galaxy: g, system: s };
     sunGroup.add(sunSprite);
 
-    // Point light at sun – gives planets warm glow
-    const ptLight = new THREE.PointLight(0xffcc44, 0.6, 300);
-    ptLight.position.copy(sunPos);
-    sunGroup.add(ptLight);
+    // Sun core sphere (always visible, emissive)
+    const coreMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(5, 10, 10),
+      new THREE.MeshStandardMaterial({
+        color: colNum, emissive: colNum, emissiveIntensity: 2.2,
+        transparent: true, opacity: 0.95
+      })
+    );
+    coreMesh.position.copy(sunPos);
+    coreMesh.userData = { isSunCore: true };
+    sunGroup.add(coreMesh);
 
-    // Store sun center in posMap under "g:s:0" for flyTo reference
+    // PointLight only for nearest MAX_LIGHTS systems (perf)
+    if (sysIdx < MAX_LIGHTS) {
+      const ptLight = new THREE.PointLight(colNum, 1.2, 260);
+      ptLight.position.copy(sunPos);
+      sunGroup.add(ptLight);
+    }
+
     posMap[`${g}:${s}:0`] = sunPos.clone();
 
-    // ── Planets orbiting the sun ─────────────────────────
-    sys.planets.forEach((pl, idx) => {
-      // Slot = 1-based planet number (sorted by pl.planet, then by index as fallback)
-      const slot = Math.max(1, Math.min(10, pl.planet || (idx + 1)));
-      const orbitRadius = 40 + slot * 18;          // 58..220
-      const orbitSpeed  = 0.0004 + (1/(slot+1)) * 0.0006; // inner faster
-      const initAngle   = ((idx / Math.max(1, sys.planets.length)) * Math.PI * 2)
-                        + (g * 1.3 + s * 0.7);    // deterministic spread
-      const heightOff   = (slot % 2 === 0 ? 1 : -1) * (slot * 0.8); // slight 3D stagger
+    // ── Per-slot: orbit ring + planet (real or empty) ──────
+    // Build a lookup from slot → real planet data
+    const slotToPlanet = {};
+    sys.planets.forEach(pl => {
+      const slot = Math.max(1, Math.min(10, pl.planet || 1));
+      slotToPlanet[slot] = pl;
+    });
 
-      // Orbit ring (LineLoop) – static, built once
+    for (let slot = 1; slot <= 10; slot++) {
+      const orbitRadius = 40 + slot * 22;  // 62..260 – slightly more spread
+      const orbitSpeed  = 0.00025 + (1 / (slot + 1)) * 0.00045;
+      // Deterministic initial angle: differs per system so planets aren't lined up
+      const initAngle   = (slot / 10) * Math.PI * 2 + (g * 1.7 + s * 0.91);
+      const heightOff   = (slot % 2 === 0 ? 1 : -1) * (slot * 0.6);
+
+      // Orbit ring (static line, no picking)
       const ringPts = [];
-      const ringSegs = 64;
-      for (let i = 0; i <= ringSegs; i++) {
-        const a = (i / ringSegs) * Math.PI * 2;
+      for (let i = 0; i <= 64; i++) {
+        const a = (i / 64) * Math.PI * 2;
         ringPts.push(new THREE.Vector3(
-          sunX + Math.cos(a) * orbitRadius,
-          heightOff,
+          sunX + Math.cos(a) * orbitRadius, heightOff,
           sunZ + Math.sin(a) * orbitRadius
         ));
       }
-      const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
-      const ringMat = new THREE.LineBasicMaterial({
-        color: 0x224466, transparent: true, opacity: 0.28, depthWrite: false
-      });
-      sunGroup.add(new THREE.Line(ringGeo, ringMat));
+      const ringLine = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(ringPts),
+        new THREE.LineBasicMaterial({ color: 0x1a3a55, transparent: true, opacity: 0.22, depthWrite: false })
+      );
+      ringLine.userData = { isOrbitRing: true }; // excluded from raycaster
+      sunGroup.add(ringLine);
 
-      // Planet sprite
-      let hex = '#00d4ff';
-      if (pl.is_own)       hex = '#00ff88';
-      else if (pl.is_ally) hex = '#a855f7';
-      else if (pl.ally_color && pl.ally_color !== 'null') hex = pl.ally_color;
-
-      const rankScale = pl.total_rank > 0 ? Math.max(0.5, Math.min(1.8, 300 / Math.max(pl.total_rank, 1))) : 0.8;
-      const sz = 4 * rankScale;
-
-      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: circleTex(hex), transparent: true, depthWrite: false, sizeAttenuation: true
-      }));
-      // Initial position on orbit
       const initX = sunX + Math.cos(initAngle) * orbitRadius;
       const initZ = sunZ + Math.sin(initAngle) * orbitRadius;
-      sprite.position.set(initX, heightOff, initZ);
-      sprite.scale.setScalar(sz);
+      const key   = `${g}:${s}:${slot}`;
 
-      const key = `${pl.galaxy}:${pl.system}:${pl.planet}`;
-      sprite.userData = { planet: pl, baseScale: sz, key, sunPos, orbitRadius, heightOff };
-      planetGroup.add(sprite);
-      planetMeshes.push(sprite);
+      const pl = slotToPlanet[slot]; // real planet or undefined
 
-      // posMap holds initial position – updated each frame by orbit
-      posMap[key] = sprite.position.clone();
+      if (pl) {
+        // ── Real planet ──
+        let hex = '#00d4ff';
+        if (pl.is_own)  hex = '#00ff88';
+        else if (pl.is_ally) hex = '#a855f7';
+        else if (pl.ally_color && pl.ally_color !== 'null') hex = pl.ally_color;
 
-      // Register orbit animation entry
-      orbitData.push({
-        mesh:       sprite,
-        sunX,
-        sunZ,
-        radius:     orbitRadius,
-        speed:      orbitSpeed,
-        angle:      initAngle,
-        heightOff,
-        key
-      });
+        const rankScale = pl.total_rank > 0
+          ? Math.max(0.6, Math.min(2.0, 300 / Math.max(pl.total_rank, 1))) : 0.9;
+        const sz = 4.5 * rankScale;
 
-      // Moon
-      if (pl.has_moon) {
-        const ms = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: circleTex('#aaaaaa'), transparent: true, depthWrite: false, sizeAttenuation: true
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: circleTex(hex), transparent: true, depthWrite: false, sizeAttenuation: true
         }));
-        ms.position.set(initX + sz * 0.72, heightOff + sz * 0.45, initZ);
-        ms.scale.setScalar(sz * 0.34);
-        ms.userData = { isMoon: true, parentKey: key };
-        planetGroup.add(ms);
-        // Track moon alongside its planet in orbitData
-        orbitData.push({
-          mesh: ms, sunX, sunZ,
-          radius: orbitRadius + sz * 0.72,
-          speed: orbitSpeed * 0.85,
-          angle: initAngle + 0.5,
-          heightOff: heightOff + sz * 0.45,
-          key: null, isMoon: true, moonOffX: sz * 0.72, moonOffY: sz * 0.45
-        });
-      }
+        sprite.position.set(initX, heightOff, initZ);
+        sprite.scale.setScalar(sz);
+        sprite.userData = { type: 'planet', planet: pl, baseScale: sz, key };
+        planetGroup.add(sprite);
+        planetMeshes.push(sprite);
+        posMap[key] = sprite.position.clone();
+        orbitData.push({ mesh: sprite, sunX, sunZ, radius: orbitRadius, speed: orbitSpeed, angle: initAngle, heightOff, key });
 
-      // Debris ring
-      if (pl.has_debris) {
-        const tg = new THREE.TorusGeometry(sz * 0.7, 0.26, 6, 28);
-        const debrisMesh = new THREE.Mesh(tg, new THREE.MeshBasicMaterial({
-          color: 0xff9900, transparent: true, opacity: 0.5
-        }));
-        debrisMesh.position.set(initX, heightOff, initZ);
-        debrisMesh.rotation.x = Math.PI / 2;
-        debrisMesh.userData = { isDebris: true, parentKey: key };
-        planetGroup.add(debrisMesh);
-        orbitData.push({
-          mesh: debrisMesh, sunX, sunZ,
-          radius: orbitRadius,
-          speed: orbitSpeed,
-          angle: initAngle,
-          heightOff,
-          key: null, isDebris: true
-        });
-      }
-    });
+        // Moon (decorative, not pickable)
+        if (pl.has_moon) {
+          const ms = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: circleTex('#aaaaaa'), transparent: true, depthWrite: false, sizeAttenuation: true
+          }));
+          ms.position.set(initX + sz * 0.72, heightOff + sz * 0.45, initZ);
+          ms.scale.setScalar(sz * 0.34);
+          ms.userData = { isMoon: true, parentKey: key };
+          planetGroup.add(ms);
+          orbitData.push({ mesh: ms, sunX, sunZ, radius: orbitRadius + sz * 0.72, speed: orbitSpeed * 0.85, angle: initAngle + 0.5, heightOff: heightOff + sz * 0.45, key: null });
+        }
 
-    // ── Empty slots for all 10 positions not occupied ────
-    const occupiedSlots = new Set(sys.planets.map(pl => Math.max(1, Math.min(10, pl.planet || 1))));
-    for (let slot = 1; slot <= 10; slot++) {
-      if (occupiedSlots.has(slot)) continue;
-      const orbitRadius = 40 + slot * 18;
-      const initAngle = (slot / 10) * Math.PI * 2 + (g * 1.3 + s * 0.7);
-      const heightOff = (slot % 2 === 0 ? 1 : -1) * (slot * 0.8);
-      const initX = sunX + Math.cos(initAngle) * orbitRadius;
-      const initZ = sunZ + Math.sin(initAngle) * orbitRadius;
+        // Debris ring (decorative, not pickable)
+        if (pl.has_debris) {
+          const db = new THREE.Mesh(
+            new THREE.TorusGeometry(sz * 0.7, 0.24, 6, 28),
+            new THREE.MeshBasicMaterial({ color: 0xff9900, transparent: true, opacity: 0.48 })
+          );
+          db.position.set(initX, heightOff, initZ);
+          db.rotation.x = Math.PI / 2;
+          db.userData = { isDebris: true };
+          planetGroup.add(db);
+          orbitData.push({ mesh: db, sunX, sunZ, radius: orbitRadius, speed: orbitSpeed, angle: initAngle, heightOff, key: null });
+        }
 
-      const key = `${g}:${s}:${slot}`;
-      posMap[key] = new THREE.Vector3(initX, heightOff, initZ);
-
-      const emptySprite = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: circleTex('#1a3a5c'), transparent: true, opacity: 0.30,
-        depthWrite: false, sizeAttenuation: true
-      }));
-      emptySprite.position.set(initX, heightOff, initZ);
-      emptySprite.scale.setScalar(1.8);
-      emptySprite.userData = {
-        planet: {
+      } else {
+        // ── Empty slot (colonisable) ──
+        const emptyPl = {
           galaxy: g, system: s, planet: slot,
           name: 'Freier Slot', username: null, user_id: null,
           ally_id: 0, ally_tag: '', total_rank: 0, total_points: 0,
           is_own: false, is_ally: false, has_moon: false, has_debris: false, is_empty: true
-        },
-        baseScale: 1.8, key, sunPos,
-        orbitRadius, heightOff
-      };
-      planetGroup.add(emptySprite);
-      planetMeshes.push(emptySprite);
-
-      const orbitSpeed = 0.0004 + (1/(slot+1)) * 0.0006;
-      orbitData.push({ mesh: emptySprite, sunX, sunZ, radius: orbitRadius, speed: orbitSpeed, angle: initAngle, heightOff, key });
+        };
+        const emptySprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: circleTex('#1a3a5c'), transparent: true, opacity: 0.28,
+          depthWrite: false, sizeAttenuation: true
+        }));
+        emptySprite.position.set(initX, heightOff, initZ);
+        emptySprite.scale.setScalar(2.2);
+        emptySprite.userData = { type: 'planet', planet: emptyPl, baseScale: 2.2, key };
+        planetGroup.add(emptySprite);
+        planetMeshes.push(emptySprite);
+        posMap[key] = emptySprite.position.clone();
+        orbitData.push({ mesh: emptySprite, sunX, sunZ, radius: orbitRadius, speed: orbitSpeed * 0.6, angle: initAngle, heightOff, key });
+      }
     }
   });
 }
@@ -1036,6 +1120,57 @@ function syncCamera() {
   }
 }
 
+// ── Footer height measurement (fixes overlap) ───────────────
+function measureFooterHeight() {
+  const measure = () => {
+    // Try game footer selectors in order of specificity
+    const footer = document.querySelector('.footer, footer, #footer, .game-footer, .ingame-footer')
+      || document.querySelector('[class*="footer"]:not(#gm-root *)');
+    if (footer) {
+      const style = window.getComputedStyle(footer);
+      const isFixed = style.position === 'fixed' || style.position === 'sticky';
+      if (isFixed) {
+        const h = footer.getBoundingClientRect().height;
+        document.getElementById('gm-root').style.setProperty('--ingameFooterH', h + 'px');
+      }
+    }
+  };
+  measure();
+  // Re-measure on resize (mobile orientation change etc.)
+  window.addEventListener('resize', measure, { passive: true });
+}
+
+// ── Mobile panel toggle (FAB) ───────────────────────────────
+function initMobilePanel() {
+  const fab   = document.getElementById('gm-panel-toggle');
+  const panel = document.getElementById('gm-side');
+  if (!fab || !panel) return;
+
+  // Restore saved state
+  try {
+    if (localStorage.getItem('galaxyPanel') === 'open') {
+      panel.classList.add('panel-open');
+      fab.classList.add('active');
+    }
+  } catch(e) {}
+
+  fab.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = panel.classList.toggle('panel-open');
+    fab.classList.toggle('active', open);
+    try { localStorage.setItem('galaxyPanel', open ? 'open' : 'collapsed'); } catch(e2) {}
+  });
+
+  // Tap on canvas closes panel (mobile UX)
+  canvas.addEventListener('touchstart', () => {
+    if (window.innerWidth <= 768 && panel.classList.contains('panel-open')) {
+      panel.classList.remove('panel-open');
+      fab.classList.remove('active');
+      try { localStorage.setItem('galaxyPanel', 'collapsed'); } catch(e) {}
+    }
+  }, { passive: true });
+}
+
 // ── Input events ───────────────────────────────────────────
 function bindEvents() {
   canvas.addEventListener('mousedown', e=>{
@@ -1103,20 +1238,38 @@ function bindEvents() {
 }
 
 // ── Raycasting ─────────────────────────────────────────────
-function setMV(cx,cy){MV.x=(cx/innerWidth)*2-1;MV.y=-(cy/innerHeight)*2+1;}
+// Always use canvas-relative coords (NOT window) so NDC is correct
+// regardless of where the canvas sits in the page layout.
+const DEBUG_PICK = (new URLSearchParams(location.search)).get('debugPick') === '1';
 
-function hitPlanet(cx,cy){
-  if (!planetMeshes.length) return null;
-  setMV(cx,cy); RC.setFromCamera(MV,camera);
-  const hits=RC.intersectObjects(planetMeshes);
-  return hits.length?hits[0].object.userData.planet:null;
+function setMV(cx, cy) {
+  const r = canvas.getBoundingClientRect();
+  MV.x =  ((cx - r.left) / r.width)  * 2 - 1;
+  MV.y = -((cy - r.top)  / r.height) * 2 + 1;
 }
 
-function hitFleet(cx,cy){
-  const dots = fleetGroup.children.filter(c=>c.userData.isFleetDot);
+function hitPlanet(cx, cy) {
+  if (!planetMeshes.length) return null;
+  setMV(cx, cy);
+  RC.setFromCamera(MV, camera);
+  // Intersect ONLY the dedicated planetMeshes list
+  const hits = RC.intersectObjects(planetMeshes, false);
+  if (DEBUG_PICK) console.log('[pick] planet hits:', hits.length, hits.map(h => h.object.userData.key + ' d=' + h.distance.toFixed(0)));
+  // Require: userData.type === 'planet'  AND  within distance gate
+  for (const h of hits) {
+    if (h.object.userData.type !== 'planet') continue;
+    if (h.distance > MAX_PICK_DISTANCE) continue;
+    return h.object.userData.planet;
+  }
+  return null;
+}
+
+function hitFleet(cx, cy) {
+  const dots = fleetGroup.children.filter(c => c.userData.isFleetDot);
   if (!dots.length) return null;
-  setMV(cx,cy); RC.setFromCamera(MV,camera);
-  const hits = RC.intersectObjects(dots);
+  setMV(cx, cy);
+  RC.setFromCamera(MV, camera);
+  const hits = RC.intersectObjects(dots, false);
   return hits.length ? hits[0].object.userData.fleet : null;
 }
 
