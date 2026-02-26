@@ -473,9 +473,6 @@ body.loading #game-header::after { width:100%; }
   .chat-fab-desktop-only { display:none !important; }
   /* Overlay stays right of sidebar when open */
   body.sidebar-open .sidebar-overlay { left:var(--sidebar-w); }
-  /* Allow sidebar to paint outside overflow-x clip */
-  body.sidebar-open { overflow-x:visible !important; }
-  html { overflow-x:visible !important; }
 }
 @media(max-width:768px) {
   .mobile-dock { display:flex !important; }
@@ -488,20 +485,6 @@ body.loading #game-header::after { width:100%; }
   .overview-grid { grid-template-columns:1fr; }
 }
 
-/* ── MOBILE: sidebar open pushes footer + content ── */
-@media(max-width:992px) {
-  body.sidebar-open .content-wrapper,
-  body.sidebar-open .game-footer {
-    margin-left:var(--sidebar-w);
-    transition:margin-left 0.3s ease;
-  }
-  body:not(.sidebar-open) .content-wrapper,
-  body:not(.sidebar-open) .game-footer {
-    margin-left:0;
-    transition:margin-left 0.3s ease;
-  }
-}
-
 /* ── MOBILE: show all notification icons, allow wrapping ── */
 @media(max-width:768px) {
   .header-notifications {
@@ -512,4 +495,4 @@ body.loading #game-header::after { width:100%; }
   }
   .notif-btn { width:32px; height:32px; font-size:12px; }
   .user-avatar-btn { width:32px; height:32px; font-size:13px; }
-}
+}
