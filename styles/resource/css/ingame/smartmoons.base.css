@@ -107,8 +107,6 @@ body.sidebar-collapsed .content-wrapper { margin-left:var(--sidebar-icon-w); }
 .glass-panel,
 .content-box, .box, .overview-box, .info-panel,
 .overview-grid > div,
-.aerospace-wrapper > div,
-.aerospace-container > div,
 table.table625, table.table500, table.table700 {
   background:var(--panel) !important;
   border:1px solid var(--border) !important;
