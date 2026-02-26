@@ -587,9 +587,12 @@ function init() {
     }
   }, 8000);
 
-  Promise.all([fetchGalaxy(), fetchFleets()])
+  // Galaxy fetch is authoritative – failure → demo mode
+  // Fleet fetch is independent – failure just means no fleet lines shown
+  fetchGalaxy()
     .then(() => { clearTimeout(loaderTimeout); hideLoader(); })
     .catch(() => { clearTimeout(loaderTimeout); ldTxt.textContent = 'DEMO MODE'; loadDemo(); hideLoader(800); });
+  fetchFleets().catch(e => console.warn('Initial fleet fetch failed:', e));
 
   // Fleet polling every 5 s – silent wrapper so poll errors don't throw
   setInterval(() => fetchFleets().catch(e => console.warn('Fleet poll:', e)), 5000);
@@ -887,6 +890,19 @@ function buildPlanets(planets) {
 function buildFleets(fleets) {
   const nowSec = (Date.now() / 1000) + serverTimeOffset;
 
+  // Seed posMap sun entries for any system referenced by fleets but not yet rendered
+  fleets.forEach(f => {
+    const coords = [f.start, f.end];
+    coords.forEach(c => {
+      if (!c) return;
+      const sunKey = `${c.g}:${c.s}:0`;
+      if (!posMap[sunKey]) {
+        const sc = systemCenter(c.g, c.s);
+        posMap[sunKey] = new THREE.Vector3(sc.x, 0, sc.z);
+      }
+    });
+  });
+
   const activeIds = new Set();
   fleets.forEach(f => {
     const start = f.start_time || 0;
@@ -899,11 +915,13 @@ function buildFleets(fleets) {
     fleetAnimState[id].targetPrg = realPrg;
     fleetAnimState[id].data      = f;
 
-    // Resolve world positions – use posMap first, fall back to toWorld with no orbit offset
-    const sp = posMap[`${f.start.g}:${f.start.s}:${f.start.p}`];
-    const ep = posMap[`${f.end.g}:${f.end.s}:${f.end.p}`];
-    fleetAnimState[id].sPos = sp ? sp.clone() : toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
-    fleetAnimState[id].ePos = ep ? ep.clone() : toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
+    // Resolve world positions – posMap[g:s:p] → posMap[g:s:0] (sun) → toWorld() fallback
+    const spKey = `${f.start.g}:${f.start.s}:${f.start.p}`;
+    const epKey = `${f.end.g}:${f.end.s}:${f.end.p}`;
+    const spFallback = posMap[`${f.start.g}:${f.start.s}:0`] || toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
+    const epFallback = posMap[`${f.end.g}:${f.end.s}:0`]   || toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
+    fleetAnimState[id].sPos = (posMap[spKey] || spFallback).clone();
+    fleetAnimState[id].ePos = (posMap[epKey] || epFallback).clone();
 
     // Build CatmullRomCurve3 with a mid-point arc for visual interest
     const s3 = fleetAnimState[id].sPos;
@@ -1019,7 +1037,14 @@ async function fetchGalaxy() {
   if (galaxyData.server_time) {
     serverTimeOffset = galaxyData.server_time - (Date.now() / 1000);
   }
-  if (galaxyData.planets) { buildPlanets(galaxyData.planets); updateStats(); }
+  if (galaxyData.planets) {
+    buildPlanets(galaxyData.planets);
+    // Re-resolve fleet positions now that posMap is populated
+    if (fleetData && fleetData.fleets && fleetData.fleets.length > 0) {
+      buildFleets(fleetData.fleets);
+    }
+    updateStats();
+  }
 }
 
 async function fetchFleets() {
