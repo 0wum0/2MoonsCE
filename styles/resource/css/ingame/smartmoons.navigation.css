@@ -452,10 +452,30 @@ body.loading #game-header::after { width:100%; }
 
 /* ── RESPONSIVE ── */
 @media(max-width:992px) {
-  #leftmenu { transform:translateX(-100%); width:260px; }
-  #leftmenu.active { transform:translateX(0); box-shadow:4px 0 40px rgba(0,0,0,0.6); }
+  #leftmenu {
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    bottom:0 !important;
+    height:100vh !important;
+    width:var(--sidebar-w) !important;
+    transform:translateX(-110%) !important;
+    z-index:10000 !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    pointer-events:auto !important;
+  }
+  #leftmenu.active {
+    transform:translateX(0) !important;
+    box-shadow:4px 0 40px rgba(0,0,0,0.8) !important;
+  }
   .content-wrapper { margin-left:0 !important; }
   .chat-fab-desktop-only { display:none !important; }
+  /* Overlay stays right of sidebar when open */
+  body.sidebar-open .sidebar-overlay { left:var(--sidebar-w); }
+  /* Allow sidebar to paint outside overflow-x clip */
+  body.sidebar-open { overflow-x:visible !important; }
+  html { overflow-x:visible !important; }
 }
 @media(max-width:768px) {
   .mobile-dock { display:flex !important; }
@@ -472,7 +492,7 @@ body.loading #game-header::after { width:100%; }
 @media(max-width:992px) {
   body.sidebar-open .content-wrapper,
   body.sidebar-open .game-footer {
-    margin-left:260px;
+    margin-left:var(--sidebar-w);
     transition:margin-left 0.3s ease;
   }
   body:not(.sidebar-open) .content-wrapper,
@@ -492,4 +512,4 @@ body.loading #game-header::after { width:100%; }
   }
   .notif-btn { width:32px; height:32px; font-size:12px; }
   .user-avatar-btn { width:32px; height:32px; font-size:13px; }
-}
+}

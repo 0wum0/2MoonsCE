@@ -328,6 +328,10 @@
         t.dataset.sidebarBound = '1';
         window.__smSidebarInit = true;
 
+        // Teleport sidebar + overlay to <body> so no parent overflow/z-index can clip them
+        if (s.parentElement !== document.body) document.body.appendChild(s);
+        if (o && o.parentElement !== document.body) document.body.appendChild(o);
+
         function isMobile() { return window.innerWidth <= 992; }
 
         function setMobile(open) {
