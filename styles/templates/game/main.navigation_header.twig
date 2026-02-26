@@ -407,10 +407,35 @@
             document.documentElement.style.setProperty('--sm-header-total', Math.ceil(h) + 'px');
         }
     }
-    // Sofort + nach Fonts/Bildern geladen
     measureAndSetHeaderHeight();
     window.addEventListener('load', measureAndSetHeaderHeight);
     window.addEventListener('resize', measureAndSetHeaderHeight);
+})();
+</script>
+
+<!-- Planet select: compact text on mobile (name only, no coordinates) -->
+<script>
+(function() {
+    var sel = document.getElementById('planetSelector');
+    if (!sel) return;
+    var origTexts = [];
+    for (var i = 0; i < sel.options.length; i++) {
+        origTexts[i] = sel.options[i].text;
+    }
+    function applyPlanetLabels() {
+        var isMobile = window.innerWidth <= 576;
+        for (var i = 0; i < sel.options.length; i++) {
+            if (isMobile) {
+                var t = origTexts[i];
+                var bracketPos = t.indexOf('[');
+                sel.options[i].text = bracketPos > 0 ? t.substring(0, bracketPos).trim() : t;
+            } else {
+                sel.options[i].text = origTexts[i];
+            }
+        }
+    }
+    applyPlanetLabels();
+    window.addEventListener('resize', applyPlanetLabels);
 })();
 </script>
 
