@@ -325,6 +325,10 @@ var SmAjax = (function ($) {
                 /* Refresh header notification badges from the newly fetched HTML */
                 refreshNotifBadges($doc);
                 refreshResources();
+                /* Re-init header queue timers with fresh data */
+                if (typeof SmartNotif !== 'undefined' && typeof SmartNotif._reInitQueues === 'function') {
+                    SmartNotif._reInitQueues($doc);
+                }
             },
             error: function () { /* silent */ }
         });

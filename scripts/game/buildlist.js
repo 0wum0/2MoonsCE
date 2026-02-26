@@ -12,7 +12,11 @@ function Buildlist() {
 		$('#command').remove();
 		document.title	= Ready + ' - ' + Gamename;
 		window.setTimeout(function() {
-			window.location.href = 'game.php?page=buildings';
+			if (typeof SmAjax !== 'undefined') {
+				SmAjax.refreshPageContent('game.php?page=buildings');
+			} else {
+				window.location.href = 'game.php?page=buildings';
+			}
 		}, 1000);
 		return;
 	}
@@ -22,6 +26,9 @@ function Buildlist() {
 }
 
 $(document).ready(function() {
+	/* New template has no #progressbar — let its inline timer handle everything */
+	if (!$('#progressbar').length) return;
+
 	time		= $('#time').data('time');
 	resttime	= $('#progressbar').data('time');
 	endtime		= $('.timer:first').data('time');
@@ -36,7 +43,6 @@ $(document).ready(function() {
         });
         $('.ui-progressbar-value').addClass('ui-corner-right').animate({width: "100%"}, resttime * 1000, "linear");
     }, 5);
-
 
 	Buildlist();
 });

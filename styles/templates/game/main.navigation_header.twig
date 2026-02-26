@@ -860,23 +860,24 @@ var SmartNotif=(function(){
         });
 
         var refreshScheduled = false;
-        var firstTick = true;
         function tick(){
-            var shouldReload = false;
             for(var i=0; i<Q.length; i++){
                 var q = Q[i];
                 var pct = queueProgress(q);
                 updateQueueDom(q.id, q.left, pct);
-                
-                if(q.left <= 0) {
-                    shouldReload = true;
-                }
-            }
 
-            if(shouldReload) {
-                setTimeout(function() {
-                    window.location.reload();
-                }, 2000);
+                if(q.left <= 0 && !refreshScheduled) {
+                    refreshScheduled = true;
+                    clearInterval(queueTickHandle);
+                    queueTickHandle = null;
+                    setTimeout(function() {
+                        if(typeof SmAjax !== 'undefined') {
+                            SmAjax.refreshPageContent(window.location.href);
+                        } else {
+                            window.location.reload();
+                        }
+                    }, 1500);
+                }
             }
         }
         tick();
