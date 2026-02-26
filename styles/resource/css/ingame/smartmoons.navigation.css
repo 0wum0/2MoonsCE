@@ -508,17 +508,21 @@ body.loading #game-header::after { width:100%; }
   .overview-grid { grid-template-columns:1fr; }
 }
 
-/* ── MOBILE: compact header, no wrap, notifications stay in row ── */
+/* ── MOBILE: compact header, all 7 icons visible ── */
 @media(max-width:576px) {
-  .header-notifications { gap:2px; }
-  .notif-btn { width:30px; height:30px; font-size:11px; }
-  .user-avatar-btn { width:30px; height:30px; font-size:12px; }
-  .burger-menu, .sidebar-menu-toggle { width:30px; height:30px; }
-  /* Hide lower-priority notification icons to prevent overflow */
-  .notif-icon-wrap:nth-child(n+5):not(.notif-icon-wrap:last-child) { display:none !important; }
-  /* Planet select: compact, hide coordinates via JS class */
-  .sci-select { max-width:110px; font-size:11px !important; padding:5px 22px 5px 26px !important; }
+  .header-row-main { gap:4px; padding:0 6px; }
+  .header-notifications { gap:1px; }
+  .notif-btn { width:28px; height:28px; font-size:10px; border-radius:7px; }
+  .user-avatar-btn { width:28px; height:28px; font-size:11px; }
+  .burger-menu, .sidebar-menu-toggle { width:28px; height:28px; padding:5px; }
+  .burger-line { height:1.5px; }
+  /* Planet select: very compact, no coordinates (via JS) */
+  .sci-select { max-width:90px; font-size:10px !important; padding:4px 18px 4px 22px !important; }
+  .select-icon { font-size:10px; left:7px; }
+  .select-arrow { font-size:9px; right:6px; }
   /* Resource items: smaller on very small screens */
-  .res-item { width:72px; height:46px; }
-  .res-val { font-size:10px; }
+  .res-item { width:68px; height:44px; }
+  .res-val { font-size:9px; }
+  /* Logo hidden on very small screens to save space */
+  .header-logo { display:none !important; }
 }
