@@ -284,7 +284,7 @@ body.loading #game-header::after { width:100%; }
 .sm-toast i { font-size:14px; flex-shrink:0; }
 
 /* ── SIDEBAR OVERLAY ── */
-.sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:99; opacity:0; pointer-events:none; transition:opacity 0.25s ease; }
+.sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99; opacity:0; pointer-events:none; transition:opacity 0.25s ease; }
 .sidebar-overlay.active { opacity:1; pointer-events:auto; }
 
 /* ── MOBILE DOCK ── */
