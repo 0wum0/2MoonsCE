@@ -24,11 +24,19 @@
 #gm-root {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9000;
+  z-index: 8000;
   background: #020510;
   font-family: 'Rajdhani', sans-serif;
   color: #c8e6ff;
   overflow: hidden;
+}
+
+/* Galaxy canvas wrapper – sits BELOW navigation panels */
+.galaxy-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
 }
 
 #gm-canvas {
@@ -38,8 +46,16 @@
   height: 100% !important;
   display: block;
   cursor: grab;
+  pointer-events: all;
+  z-index: 1;
 }
 #gm-canvas:active { cursor: grabbing; }
+
+/* HUD and panels must sit above canvas */
+#gm-hud, #gm-side, #gm-action, #gm-card, #gm-tip, #gm-load, #gm-hint {
+  z-index: 100;
+  pointer-events: all;
+}
 
 /* ── CSS Variables ───────────────────────────────────────────────── */
 #gm-root {
@@ -266,8 +282,10 @@
     <div class="ld-txt" id="ld-txt">SCANNING UNIVERSE…</div>
   </div>
 
-  <!-- Canvas -->
-  <canvas id="gm-canvas"></canvas>
+  <!-- Canvas wrapper -->
+  <div class="galaxy-wrapper">
+    <canvas id="gm-canvas"></canvas>
+  </div>
 
   <!-- HUD -->
   <div id="gm-hud">
@@ -445,10 +463,12 @@ function darken(hex) {
 function init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x020510);
-  scene.fog = new THREE.FogExp2(0x020510, 0.00022);
+  scene.fog = new THREE.FogExp2(0x020510, 0.00010);
 
-  camera = new THREE.PerspectiveCamera(58, innerWidth/innerHeight, 0.5, 12000);
-  syncCamera();
+  camera = new THREE.PerspectiveCamera(58, innerWidth/innerHeight, 0.5, 60000);
+  // Initial camera position per spec
+  camera.position.set(0, 2000, 3000);
+  camera.lookAt(0, 0, 0);
 
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(innerWidth, innerHeight);
@@ -481,7 +501,7 @@ function init() {
     .then(() => { clearTimeout(loaderTimeout); hideLoader(); })
     .catch(() => { clearTimeout(loaderTimeout); ldTxt.textContent = 'DEMO MODE'; loadDemo(); hideLoader(800); });
 
-  // Fleet polling every 5 s – silent wrapper so poll errors don’t throw
+  // Fleet polling every 5 s – silent wrapper so poll errors don't throw
   setInterval(() => fetchFleets().catch(e => console.warn('Fleet poll:', e)), 5000);
 }
 
@@ -526,34 +546,28 @@ function buildNebula() {
   })));
 }
 
-// ── Koordinaten → 3D-Position (DETERMINISTIC – no Math.random) ──
-function toWorld(g, s, p) {
-  /* Galaxien auf großem Ring — deutlich mehr Abstand */
-  const gAngle = ((g - 1) / 9) * Math.PI * 2;
-  const gR = 2000;
-  const gx = Math.cos(gAngle) * gR;
-  const gz = Math.sin(gAngle) * gR;
+// ── Koordinaten → 3D-Position (LINEAR GRID per spec) ──────
+// x = galaxy * GALAXY_SPACING
+// z = system * SYSTEM_SPACING
+// y = planet * PLANET_SPACING
+// Planets in the same system are spread on a small orbit ring
+const GALAXY_SPACING = 2000;
+const SYSTEM_SPACING = 200;
+const PLANET_SPACING = 40;
 
-  /* Systeme als enge Spirale — Systeme liegen nah zusammen */
-  const sNorm  = (s - 1) / 498;
-  const sAngle = gAngle + sNorm * Math.PI * 6.0;
-  const sR     = 80 + sNorm * 1200;
-  const sx = gx + Math.cos(sAngle) * sR;
-  const sz = gz + Math.sin(sAngle) * sR;
+function toWorld(g, s, p, planetIndex, totalInSystem) {
+  const baseX = g * GALAXY_SPACING;
+  const baseZ = s * SYSTEM_SPACING;
+  const baseY = p * PLANET_SPACING;
 
-  /* Planeten auf kleiner Umlaufbahn um das System */
-  const pAngle = ((p - 1) / 15) * Math.PI * 2;
-  const pR     = 10 + p * 5;
+  let ox = 0, oz = 0;
+  if (totalInSystem > 1 && planetIndex !== undefined) {
+    const angle = (planetIndex / totalInSystem) * Math.PI * 2;
+    ox = Math.cos(angle) * 20;
+    oz = Math.sin(angle) * 20;
+  }
 
-  /* Y-Achse: echter 3D-Spread ±150 */
-  const h  = Math.sin(g * 127.1 + s * 311.7 + p * 74.3);
-  const py = h * 150;
-
-  return new THREE.Vector3(
-    sx + Math.cos(pAngle) * pR,
-    py,
-    sz + Math.sin(pAngle) * pR
-  );
+  return new THREE.Vector3(baseX + ox, baseY, baseZ + oz);
 }
 
 // ── Planeten als Sprites ───────────────────────────────────
@@ -564,11 +578,28 @@ function buildPlanets(planets) {
   planetMeshes = [];
   posMap = {};
 
+  // Pre-compute per-system planet count for orbit offset
+  const sysMap = {}; // "g:s" → [planet indices]
+  planets.forEach(pl => {
+    const sk = `${pl.galaxy}:${pl.system}`;
+    if (!sysMap[sk]) sysMap[sk] = [];
+    sysMap[sk].push(pl);
+  });
+
   /* ── Belegte Planeten rendern ─────────────────────────────── */
   planets.forEach(pl => {
+    const sk  = `${pl.galaxy}:${pl.system}`;
+    const siblings = sysMap[sk];
+    const idx  = siblings.indexOf(pl);
+    const total = siblings.length;
+
     const key = `${pl.galaxy}:${pl.system}:${pl.planet}`;
-    const pos = toWorld(pl.galaxy, pl.system, pl.planet);
+    // Each planet gets its own Vector3 – no shared references
+    const pos = toWorld(pl.galaxy, pl.system, pl.planet, idx, total);
     posMap[key] = pos.clone();
+
+    // DEBUG: log world position to verify no duplicates
+    console.log({ galaxy: pl.galaxy, system: pl.system, planet: pl.planet, worldPosition: pos.toArray() });
 
     let hex = '#00d4ff';
     if (pl.is_own)       hex = '#00ff88';
@@ -583,7 +614,8 @@ function buildPlanets(planets) {
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
       map: circleTex(hex), transparent:true, depthWrite:false, sizeAttenuation:true
     }));
-    sprite.position.copy(pos);
+    // Each sprite gets its own copy of the position vector
+    sprite.position.set(pos.x, pos.y, pos.z);
     sprite.scale.setScalar(sz);
     sprite.userData = { planet:pl, baseScale:sz, key };
     planetGroup.add(sprite);
@@ -594,7 +626,7 @@ function buildPlanets(planets) {
       const ms = new THREE.Sprite(new THREE.SpriteMaterial({
         map:circleTex('#aaaaaa'), transparent:true, depthWrite:false, sizeAttenuation:true
       }));
-      ms.position.copy(pos).add(new THREE.Vector3(sz*.72, sz*.45, 0));
+      ms.position.set(pos.x + sz*.72, pos.y + sz*.45, pos.z);
       ms.scale.setScalar(sz*.34);
       planetGroup.add(ms);
     }
@@ -605,7 +637,8 @@ function buildPlanets(planets) {
       const mesh = new THREE.Mesh(tg, new THREE.MeshBasicMaterial({
         color:0xff9900, transparent:true, opacity:.5
       }));
-      mesh.position.copy(pos); mesh.rotation.x = Math.PI/2;
+      mesh.position.set(pos.x, pos.y, pos.z);
+      mesh.rotation.x = Math.PI/2;
       planetGroup.add(mesh);
     }
   });
@@ -621,8 +654,9 @@ function buildPlanets(planets) {
       const key=`${g}:${ss}:${p}`;
       if (occupied.has(key)) continue; /* belegt → überspringen */
 
-      const pos=toWorld(g,ss,p);
-      posMap[key]=pos.clone(); /* wichtig: auch leere in posMap */
+      // Empty slots: no orbit offset (index/total not relevant)
+      const pos = toWorld(g, ss, p, 0, 1);
+      posMap[key] = pos.clone(); /* wichtig: auch leere in posMap */
 
       /* Kleiner, gedimmter, grau-blauer Ring-Sprite */
       const emptySprite=new THREE.Sprite(new THREE.SpriteMaterial({
@@ -630,7 +664,7 @@ function buildPlanets(planets) {
         transparent:true, opacity:0.35,
         depthWrite:false, sizeAttenuation:true
       }));
-      emptySprite.position.copy(pos);
+      emptySprite.position.set(pos.x, pos.y, pos.z);
       emptySprite.scale.setScalar(1.8);
       emptySprite.userData = {
         planet: {
@@ -652,11 +686,10 @@ function buildPlanets(planets) {
   });
 }
 
-// ── Flottenlinien (with smooth lerp between polls) ──────────────
+// ── Flottenlinien (CatmullRomCurve3, animated dot via rAF) ─────
 function buildFleets(fleets) {
   const nowSec = (Date.now() / 1000) + serverTimeOffset;
 
-  // Update animation state dict (keeps display progress for smooth lerp)
   const activeIds = new Set();
   fleets.forEach(f => {
     const start = f.start_time || 0;
@@ -668,12 +701,21 @@ function buildFleets(fleets) {
     if (!fleetAnimState[id]) fleetAnimState[id] = { displayPrg: realPrg };
     fleetAnimState[id].targetPrg = realPrg;
     fleetAnimState[id].data      = f;
-    fleetAnimState[id].sPos = posMap[`${f.start.g}:${f.start.s}:${f.start.p}`]
-                              || toWorld(f.start.g, f.start.s, f.start.p);
-    fleetAnimState[id].ePos = posMap[`${f.end.g}:${f.end.s}:${f.end.p}`]
-                              || toWorld(f.end.g, f.end.s, f.end.p);
-    fleetAnimState[id].col  = parseInt((f.color||'#00d4ff').replace('#',''), 16);
+
+    // Resolve world positions – use posMap first, fall back to toWorld with no orbit offset
+    const sp = posMap[`${f.start.g}:${f.start.s}:${f.start.p}`];
+    const ep = posMap[`${f.end.g}:${f.end.s}:${f.end.p}`];
+    fleetAnimState[id].sPos = sp ? sp.clone() : toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
+    fleetAnimState[id].ePos = ep ? ep.clone() : toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
+
+    // Build CatmullRomCurve3 with a mid-point arc for visual interest
+    const s3 = fleetAnimState[id].sPos;
+    const e3 = fleetAnimState[id].ePos;
+    const mid = s3.clone().lerp(e3, 0.5);
+    mid.y += s3.distanceTo(e3) * 0.12; // slight arc
+    fleetAnimState[id].curve = new THREE.CatmullRomCurve3([s3, mid, e3]);
   });
+
   // Remove gone fleets
   for (const id in fleetAnimState) {
     if (!activeIds.has(parseInt(id))) delete fleetAnimState[id];
@@ -686,74 +728,82 @@ function rebuildFleetMeshes() {
   for (const id in fleetAnimState) {
     const st  = fleetAnimState[id];
     const f   = st.data;
-    const prg = st.displayPrg;
-    const cur = st.sPos.clone().lerp(st.ePos, prg);
+    if (!st.curve) continue;
 
-    // Determine line style by fleet ownership
-    // own = solid cyan; ally = solid purple dim; hostile = dashed red; foreign = dashed gray
+    const prg = Math.min(1, Math.max(0, st.displayPrg));
+
+    // Ownership flags
     const isOwn     = !!f.is_own;
     const isHostile = !!f.is_hostile;
     const isAlly    = !isOwn && !isHostile && !!f.is_ally;
 
-    let trailCol, trailOpacity, remainOpacity, dotCol, useDash;
+    // Per-spec colors:
+    // own     = solid cyan (#00d4ff)
+    // ally    = solid purple dim
+    // hostile = dashed red, blinks
+    // foreign = dashed white, opacity 0.4
+    let lineCol, lineOpacity, useDash, dotCol, dotSize;
     if (isOwn) {
-      trailCol = 0x00d4ff; trailOpacity = 0.75; remainOpacity = 0.12;
-      dotCol = '#00d4ff'; useDash = false;
+      lineCol = 0x00d4ff; lineOpacity = 0.80; useDash = false;
+      dotCol = '#00d4ff'; dotSize = 7;
     } else if (isAlly) {
-      trailCol = 0xa855f7; trailOpacity = 0.45; remainOpacity = 0.08;
-      dotCol = '#a855f7'; useDash = false;
+      lineCol = 0xa855f7; lineOpacity = 0.45; useDash = false;
+      dotCol = '#a855f7'; dotSize = 5;
     } else if (isHostile) {
-      trailCol = 0xe8304a; trailOpacity = 0.75; remainOpacity = 0.15;
-      dotCol = '#e8304a'; useDash = true;
-    } else { // foreign
-      trailCol = 0x6688aa; trailOpacity = 0.35; remainOpacity = 0.06;
-      dotCol = '#6688aa'; useDash = true;
+      lineCol = 0xe8304a; lineOpacity = 0.70; useDash = true;
+      dotCol = '#e8304a'; dotSize = 5;
+    } else { // foreign – white, dashed, opacity 0.4
+      lineCol = 0xffffff; lineOpacity = 0.40; useDash = true;
+      dotCol = '#ffffff'; dotSize = 4;
     }
 
-    // Trail line (start → current position)
+    // Full path line (start → end) — built once, not per-frame
+    const pathPoints = st.curve.getPoints(48);
+    const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
+    let pathLine;
     if (useDash) {
-      const lg = new THREE.BufferGeometry().setFromPoints([st.sPos, cur]);
-      const lm = new THREE.LineDashedMaterial({
-        color: trailCol, transparent: true, opacity: trailOpacity,
-        dashSize: 4, gapSize: 3, depthWrite: false
+      const pm = new THREE.LineDashedMaterial({
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.35,
+        dashSize: 5, gapSize: 4, depthWrite: false
       });
-      const ln = new THREE.Line(lg, lm);
-      ln.computeLineDistances();
-      ln.userData = {fleet: f};
-      fleetGroup.add(ln);
+      pathLine = new THREE.Line(pathGeo, pm);
+      pathLine.computeLineDistances();
     } else {
-      const lg = new THREE.BufferGeometry().setFromPoints([st.sPos, cur]);
-      const ln = new THREE.Line(lg, new THREE.LineBasicMaterial({
-        color: trailCol, transparent: true, opacity: trailOpacity, depthWrite: false
+      pathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.25, depthWrite: false
       }));
-      ln.userData = {fleet: f};
-      fleetGroup.add(ln);
     }
+    pathLine.userData = { fleet: f };
+    fleetGroup.add(pathLine);
 
-    // Remaining path line (current → end, always dimmer)
+    // Trail line (start → current position along curve)
+    const trailCount = Math.max(2, Math.round(prg * 48));
+    const trailPoints = st.curve.getPoints(trailCount);
+    const trailGeo = new THREE.BufferGeometry().setFromPoints(trailPoints);
+    let trailLine;
     if (useDash) {
-      const dg = new THREE.BufferGeometry().setFromPoints([cur, st.ePos]);
-      const dm = new THREE.LineDashedMaterial({
-        color: trailCol, transparent: true, opacity: remainOpacity,
-        dashSize: 3, gapSize: 4, depthWrite: false
+      const tm = new THREE.LineDashedMaterial({
+        color: lineCol, transparent: true, opacity: lineOpacity,
+        dashSize: 5, gapSize: 4, depthWrite: false
       });
-      const dl = new THREE.Line(dg, dm);
-      dl.computeLineDistances();
-      fleetGroup.add(dl);
+      trailLine = new THREE.Line(trailGeo, tm);
+      trailLine.computeLineDistances();
     } else {
-      const dg = new THREE.BufferGeometry().setFromPoints([cur, st.ePos]);
-      fleetGroup.add(new THREE.Line(dg, new THREE.LineBasicMaterial({
-        color: trailCol, transparent: true, opacity: remainOpacity, depthWrite: false
-      })));
+      trailLine = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({
+        color: lineCol, transparent: true, opacity: lineOpacity, depthWrite: false
+      }));
     }
+    trailLine.userData = { fleet: f, isTrail: true };
+    fleetGroup.add(trailLine);
 
-    // Fleet dot at current position
+    // Fleet dot at current position along curve
+    const curPos = st.curve.getPoint(prg);
     const ds = new THREE.Sprite(new THREE.SpriteMaterial({
       map: circleTex(dotCol), transparent: true, depthWrite: false, sizeAttenuation: true
     }));
-    ds.position.copy(cur);
-    ds.scale.setScalar(isOwn ? 6 : isHostile ? 5 : 4);
-    ds.userData = {fleet: f, isFleetDot: true};
+    ds.position.set(curPos.x, curPos.y, curPos.z);
+    ds.scale.setScalar(dotSize);
+    ds.userData = { fleet: f, isFleetDot: true };
     fleetGroup.add(ds);
   }
 }
@@ -854,8 +904,12 @@ function updateStats() {
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
 
 // ── Camera sync ────────────────────────────────────────────
+// Zoom clamped to [100, 10000] per spec
+const MIN_DIST = 100;
+const MAX_DIST = 10000;
 function syncCamera() {
   if (!camera) return;
+  orb.r = Math.max(MIN_DIST, Math.min(MAX_DIST, orb.r));
   if (is3D) {
     camera.position.set(
       orb.tx + orb.r*Math.sin(orb.phi)*Math.sin(orb.theta),
@@ -898,7 +952,7 @@ function bindEvents() {
 
   canvas.addEventListener('wheel', e=>{
     e.preventDefault();
-    orb.r=Math.max(100,Math.min(9000,orb.r+e.deltaY*1.2));
+    orb.r = Math.max(MIN_DIST, Math.min(MAX_DIST, orb.r + e.deltaY * 1.2));
     syncCamera();
   },{passive:false});
 
@@ -923,7 +977,7 @@ function bindEvents() {
     } else if(e.touches.length===2){
       const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,
                          e.touches[0].clientY-e.touches[1].clientY);
-      orb.r=Math.max(100,Math.min(9000,orb.r*(tDist/d)));
+      orb.r = Math.max(MIN_DIST, Math.min(MAX_DIST, orb.r * (tDist / d)));
       tDist=d; syncCamera();
     }
   },{passive:false});
@@ -1215,7 +1269,7 @@ function navJump() {
     hint.style.color = 'var(--cyan)';
     setTimeout(() => { hint.textContent = ''; }, 1800);
   }
-  flyTo(toWorld(g, s, 8), 350);
+  flyTo(toWorld(g, s, 8, 0, 1), 350);
 }
 
 function navHome() {
@@ -1224,7 +1278,7 @@ function navHome() {
   hint.textContent = 'HOME';
   hint.style.color = 'var(--green)';
   setTimeout(() => { hint.textContent = ''; }, 1800);
-  flyTo(toWorld(g, s, p), 220);
+  flyTo(toWorld(g, s, p, 0, 1), 220);
   // Highlight home planet if loaded
   if (galaxyData?.planets) {
     const hp = galaxyData.planets.find(pl => pl.is_own &&
@@ -1235,38 +1289,46 @@ function navHome() {
 function reloadFleets(){ fetchFleets(); }
 
 // ── Render loop ────────────────────────────────────────────
+// Fleet meshes are rebuilt only when displayPrg changes meaningfully
+// (every ~4 frames at lerp 0.04). No new geometry is created per-frame.
 let needFleetRebuild = false;
+let fleetRebuildCooldown = 0;
 function animate(){
   requestAnimationFrame(animate); frame++;
   if(starField) starField.rotation.y += 0.000012;
 
-  // Planet pulse
+  // Planet pulse – scale only, no new meshes
   const pulse = Math.sin(frame * 0.022) * 0.05 + 1.0;
   planetMeshes.forEach(sp => {
     if (sp.userData.baseScale) sp.scale.setScalar(sp.userData.baseScale * pulse);
   });
 
-  // Smooth-lerp fleet positions between polls
+  // Smooth-lerp fleet progress between polls
   needFleetRebuild = false;
   const nowSec = (Date.now() / 1000) + serverTimeOffset;
   for (const id in fleetAnimState) {
     const st = fleetAnimState[id];
-    if (st.targetPrg === undefined) continue;
+    if (st.targetPrg === undefined || !st.curve) continue;
     const realPrg = Math.min(1, Math.max(0,
       (nowSec - (st.data.start_time||0)) / Math.max(1, (st.data.end_time||1) - (st.data.start_time||0))
     ));
     st.targetPrg = realPrg;
-    if (Math.abs(st.displayPrg - realPrg) > 0.0001) {
-      st.displayPrg += (realPrg - st.displayPrg) * 0.04; // smooth lerp
+    if (Math.abs(st.displayPrg - realPrg) > 0.0005) {
+      st.displayPrg += (realPrg - st.displayPrg) * 0.04;
       needFleetRebuild = true;
     }
   }
-  if (needFleetRebuild) rebuildFleetMeshes();
+  // Throttle fleet rebuilds to max once per 3 frames for performance
+  fleetRebuildCooldown--;
+  if (needFleetRebuild && fleetRebuildCooldown <= 0) {
+    rebuildFleetMeshes();
+    fleetRebuildCooldown = 3;
+  }
 
-  // Hostile blink on dashed lines only (LineDashedMaterial type check)
+  // Hostile blink – only mutates material opacity, no geometry changes
   fleetGroup.children.forEach(obj => {
     if (obj.isLine && obj.userData?.fleet?.is_hostile && obj.material?.isLineDashedMaterial) {
-      obj.material.opacity = 0.3 + Math.abs(Math.sin(frame * 0.06)) * 0.45;
+      obj.material.opacity = 0.30 + Math.abs(Math.sin(frame * 0.06)) * 0.40;
     }
   });
 
