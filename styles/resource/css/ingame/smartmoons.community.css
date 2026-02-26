@@ -4,7 +4,7 @@
    Source: styles/theme/smartmoons.css lines 1000-1215
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 /* ── Fleet Table ── */
-.fleet-table-main { }
+.fleet-table-main { width:100%; }
 .fleet-row.returning td { opacity:0.75; }
 .fleet-cards-mobile { display:none; }
 .fleet-mobile-card { background:rgba(0,0,0,0.35); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
@@ -78,6 +78,43 @@
 /* ── Fleet Step 2: Ship Selection ── */
 .fleet-ship-row td { padding:8px 12px !important; }
 
+/* Desktop/Mobile ship select toggle */
+.ship-select-desktop { display:block; }
+.ship-select-mobile  { display:none; }
+
+/* ── Ship Select Cards (mobile) ── */
+.ship-select-card {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; border-bottom:1px solid rgba(0,212,255,0.06);
+}
+.ship-select-card:last-child { border-bottom:none; }
+.ship-card-info { display:flex; flex-direction:column; gap:2px; min-width:0; flex:1; }
+.ship-card-name { font-size:13px; color:var(--white); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ship-card-avail { font-size:11px; color:var(--dim); }
+.ship-card-avail strong { color:var(--cyan); }
+.ship-card-input-row { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.ship-card-num-input {
+  width:60px; text-align:center; font-family:var(--font-mono); font-size:14px;
+  background:rgba(0,0,0,0.4) !important; border:1px solid var(--border2) !important;
+  border-radius:7px !important; color:var(--white) !important;
+  padding:6px 4px !important; appearance:textfield; -moz-appearance:textfield;
+}
+.ship-card-num-input::-webkit-outer-spin-button,
+.ship-card-num-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.ship-stepper-btn {
+  width:32px; height:32px; border-radius:7px; border:1px solid var(--border2);
+  background:rgba(0,212,255,0.08); color:var(--cyan); font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:var(--transition); flex-shrink:0; line-height:1;
+}
+.ship-stepper-btn:hover { background:rgba(0,212,255,0.2); border-color:var(--cyan); }
+.ship-stepper-max {
+  padding:0 8px; height:32px; border-radius:7px; border:1px solid var(--border);
+  background:rgba(255,255,255,0.05); color:var(--dim); font-size:10px;
+  font-family:var(--font-hud); letter-spacing:1px; cursor:pointer; transition:var(--transition);
+}
+.ship-stepper-max:hover { border-color:var(--border2); color:var(--white); background:rgba(255,255,255,0.1); }
+
 /* ── ACS Table ── */
 .acs-section { margin-bottom:12px; }
 .acs-header { font-family:var(--font-hud); font-size:10px; letter-spacing:2px; color:var(--purple); padding:8px 14px; background:rgba(180,124,255,0.06); border-bottom:1px solid var(--border); }
@@ -91,10 +128,9 @@
   .fleet-table-main { display:none; }
   .fleet-cards-mobile { display:block; }
   .slots-panel { flex-direction:column; gap:8px; }
-  /* Ship selection table: compact on mobile */
-  .ship-select-table td,
-  .ship-select-table th { padding:6px 8px !important; font-size:11px !important; }
-  .ship-select-table .glass-input { width:70px !important; font-size:11px !important; padding:4px 6px !important; }
+  /* Ship selection: switch to card layout */
+  .ship-select-desktop { display:none; }
+  .ship-select-mobile  { display:block; }
   /* Mission grid: 2 columns on mobile */
   .mission-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
   .mission-card { padding:8px; }
@@ -130,7 +166,7 @@
 .diplo-category strong { color:var(--cyan); font-family:var(--font-hud); font-size:10px; letter-spacing:1px; }
 
 /* ── Stats Panel (Alliance home) ── */
-.stats-panel .panel-header { }
+.stats-panel .panel-header { display:flex; }
 .stats-list { padding:6px 0; }
 .stat-row { display:flex; align-items:center; justify-content:space-between; padding:8px 18px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:13px; }
 .stat-row:last-child { border-bottom:none; }
@@ -168,7 +204,7 @@
 /* ── Apply / Request ── */
 .apply-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .apply-info { background:rgba(0,212,255,0.04); border:1px solid var(--border); border-radius:10px; padding:14px; }
-.apply-form { }
+.apply-form { display:flex; flex-direction:column; gap:10px; }
 .apply-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
 .apply-message-box { padding:12px 16px; }
 .request-panel { background:rgba(240,180,41,0.06); border:1px solid rgba(240,180,41,0.25); border-radius:10px; padding:14px; margin-bottom:12px; }

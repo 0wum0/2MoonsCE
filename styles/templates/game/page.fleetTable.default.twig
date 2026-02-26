@@ -155,7 +155,8 @@
                 {{ LNG.fl_destiny }}: [{{ targetGalaxy }}:{{ targetSystem }}:{{ targetPlanet }}] ({{ LNG["type_planet_" ~ targetType] }})
             </div>
 
-            <div class="table-responsive">
+            <!-- Desktop: table -->
+            <div class="table-responsive ship-select-desktop">
                 <table class="glass-table ship-select-table full-width">
                     <thead>
                         <tr>
@@ -185,6 +186,28 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile: cards with touch-friendly inputs -->
+            <div class="ship-select-mobile">
+                {% for FleetRow in FleetsOnPlanet %}
+                {% if FleetRow.speed != 0 %}
+                <div class="ship-select-card">
+                    <div class="ship-card-info">
+                        <span class="ship-card-name">{{ LNG.tech[FleetRow.id] }}</span>
+                        <span class="ship-card-avail">{{ LNG.fl_ship_available }}: <strong>{{ FleetRow.count }}</strong></span>
+                    </div>
+                    <div class="ship-card-input-row">
+                        <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.max(0,(parseInt(el.value)||0)-1);el.value=v;">−</button>
+                        <input type="number" id="ship{{ FleetRow.id }}_minput" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
+                        <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.min({{ FleetRow.count }},(parseInt(el.value)||0)+1);el.value=v;">+</button>
+                        <button type="button" class="ship-stepper-max" onclick="document.getElementById('ship{{ FleetRow.id }}_minput').value={{ FleetRow.count }};">Max</button>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center text-muted p-3">{{ LNG.fl_no_ships }}</div>
+                {% endfor %}
             </div>
 
             {% if FleetsOnPlanet|length > 0 %}
@@ -218,4 +241,22 @@
 
 </div>
 {% endblock %}
-{% block script %}<script src="scripts/game/fleetTable.js?v=3.1.0"></script>{% endblock %}
+{% block script %}
+<script src="scripts/game/fleetTable.js?v=3.1.0"></script>
+<script>
+(function() {
+    var form = document.querySelector('form[action*="fleetStep1"]');
+    if (!form) return;
+    form.addEventListener('submit', function() {
+        var mobileCards = form.querySelectorAll('.ship-select-mobile .ship-select-card');
+        mobileCards.forEach(function(card) {
+            var mInput = card.querySelector('.ship-card-num-input');
+            if (!mInput) return;
+            var id = mInput.id.replace('_minput', '_input');
+            var destInput = document.getElementById(id);
+            if (destInput) destInput.value = mInput.value || 0;
+        });
+    });
+})();
+</script>
+{% endblock %}
