@@ -90,7 +90,7 @@ body::after {
   z-index:0; pointer-events:none;
 }
 .game-wrapper, header, nav, main, section, footer,
-#page-content, .content-wrapper, #leftmenu { position:relative; z-index:1; }
+#page-content, .content-wrapper { position:relative; z-index:1; }
 
 /* ── LAYOUT ── */
 .game-wrapper { display:flex; min-height:100vh; padding-top:var(--sm-header-total, var(--header-h)); }
