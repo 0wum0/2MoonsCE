@@ -87,9 +87,21 @@
 
 @media(max-width:768px) {
   .fleet-step-grid { grid-template-columns:1fr; }
-  .glass-table { display:none; }
+  /* Only hide the flying-fleets overview table, not ship-selection tables */
+  .fleet-table-main { display:none; }
   .fleet-cards-mobile { display:block; }
   .slots-panel { flex-direction:column; gap:8px; }
+  /* Ship selection table: compact on mobile */
+  .ship-select-table td,
+  .ship-select-table th { padding:6px 8px !important; font-size:11px !important; }
+  .ship-select-table .glass-input { width:70px !important; font-size:11px !important; padding:4px 6px !important; }
+  /* Mission grid: 2 columns on mobile */
+  .mission-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .mission-card { padding:8px; }
+  .mission-icon { font-size:16px; }
+  .mission-name { font-size:10px; }
+  /* Step2 briefing sidebar stacks below on mobile */
+  .step2-sidebar .briefing-panel { position:static; }
 }
 
 /* ════════════════════════════════
