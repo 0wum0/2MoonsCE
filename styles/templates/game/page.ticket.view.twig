@@ -3,10 +3,13 @@
 {% block title %}{{ LNG.ti_read }}{% endblock %}
 {% block content %}
 <div class="content_page support-full">
-    <h1 class="page-title"><i class="fas fa-headset"></i> {{ answerList[0].subject }}</h1>
+    <div class="content-box header-panel" style="margin-bottom:14px;">
+        <h2 class="page-title" style="margin:0;"><i class="fas fa-headset"></i> {{ answerList[0].subject }}</h2>
+    </div>
 
+    <div class="content-box" style="margin-bottom:14px; padding:0; overflow:hidden;">
     {% for answerRow in answerList %}
-    <div class="ticket-msg">
+    <div class="ticket-msg {% if loop.first %}{% endif %}">
         <div class="msg-header">
             <span class="ticket-author">👤 {{ answerRow.ownerName }}</span>
             <span>📅 {{ answerRow.time }}</span>
@@ -16,6 +19,7 @@
         </div>
     </div>
     {% endfor %}
+    </div>
 
     {% if status < 2 %}
     <div class="content-box mt-3">
