@@ -290,6 +290,13 @@
 .queue-list { width:100%; background:rgba(0,0,0,0.5) !important; border:1px solid var(--border) !important; border-radius:7px !important; color:var(--text) !important; padding:6px !important; }
 .shipyard-active-timer { font-family:var(--font-mono); font-size:18px; color:var(--cyan); text-align:center; padding:10px; letter-spacing:3px; }
 .cancel-form { margin-top:8px; }
+.dock-footer {
+  display:flex; justify-content:center; padding:16px 14px;
+  border-top:1px solid var(--border);
+}
+.btn-build-final {
+  min-width:200px; justify-content:center;
+}
 
 /* ── Ship Grid ── */
 .ship-grid-container { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; padding:14px; }
