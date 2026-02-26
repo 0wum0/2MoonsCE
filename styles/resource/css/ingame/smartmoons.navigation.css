@@ -202,8 +202,8 @@ body.loading #game-header::after { width:100%; }
 /* ── SIDEBAR ── */
 #leftmenu {
   position:fixed; top:var(--sm-header-total, var(--header-h)); left:0; bottom:0; width:var(--sidebar-w);
-  background:rgba(4,8,22,0.97) !important; border-right:1px solid var(--border) !important;
-  backdrop-filter:blur(22px); z-index:100;
+  background:rgba(4,8,22,0.99) !important; border-right:1px solid var(--border) !important;
+  z-index:200;
   overflow-y:auto; overflow-x:hidden;
   transition:width 0.3s cubic-bezier(0.4,0,0.2,1),transform 0.3s ease;
   scrollbar-width:thin; scrollbar-color:var(--border) transparent;
@@ -467,6 +467,29 @@ body.loading #game-header::after { width:100%; }
   #toast-container { bottom:80px; right:12px; }
   .overview-grid { grid-template-columns:1fr; }
 }
-@media(max-width:480px) {
-  .header-notifications .notif-icon-wrap:not(.user-avatar-wrap):nth-child(n+5) { display:none; }
+
+/* ── MOBILE: sidebar open pushes footer + content ── */
+@media(max-width:992px) {
+  body.sidebar-open .content-wrapper,
+  body.sidebar-open .game-footer {
+    margin-left:260px;
+    transition:margin-left 0.3s ease;
+  }
+  body:not(.sidebar-open) .content-wrapper,
+  body:not(.sidebar-open) .game-footer {
+    margin-left:0;
+    transition:margin-left 0.3s ease;
+  }
+}
+
+/* ── MOBILE: show all notification icons, allow wrapping ── */
+@media(max-width:768px) {
+  .header-notifications {
+    flex-wrap:wrap;
+    gap:2px;
+    max-width:calc(100vw - 180px);
+    justify-content:flex-end;
+  }
+  .notif-btn { width:32px; height:32px; font-size:12px; }
+  .user-avatar-btn { width:32px; height:32px; font-size:13px; }
 }
