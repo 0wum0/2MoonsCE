@@ -525,4 +525,6 @@ body.loading #game-header::after { width:100%; }
   .res-val { font-size:9px; }
   /* Logo hidden on very small screens to save space */
   .header-logo { display:none !important; }
+  /* Notification dropdowns: anchor left, clamp to viewport width so they don't overflow off-screen */
+  .notif-dropdown { right:auto; left:0; width:min(300px, calc(100vw - 12px)); }
 }
