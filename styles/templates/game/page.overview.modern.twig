@@ -175,7 +175,7 @@
 				<div class="build-progress">
 					<div class="build-info">
 						<span>{{ LNG.ov_lvl }} {{ buildInfo.level }}</span>
-						<span id="buildtime" class="timer-badge" data-time="{{ buildInfo.endtime }}">
+						<span id="buildtime" class="timer-badge" data-time="{{ buildInfo.resttime }}">
 							{pretty_time({{ buildInfo.resttime }})}
 						</span>
 					</div>
@@ -205,7 +205,7 @@
 				<div class="research-progress">
 					<div class="research-info">
 						<span>{{ LNG.ov_lvl }} {{ researchInfo.level }}</span>
-						<span id="researchtime" class="timer-badge" data-time="{{ researchInfo.endtime }}">
+						<span id="researchtime" class="timer-badge" data-time="{{ researchInfo.resttime }}">
 							{pretty_time({{ researchInfo.resttime }})}
 						</span>
 					</div>

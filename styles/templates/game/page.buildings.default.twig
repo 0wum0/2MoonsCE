@@ -35,14 +35,14 @@
                     
                     {% if loop.first %}
                         <div class="active-timer-box">
-                            <span class="timer" data-time="{{ List.endtime }}">{{ List.display }}</span>
+                            <span class="timer" data-time="{{ List.resttime }}">{{ List.display }}</span>
                         </div>
                         <div class="queue-progress-track">
                              <div class="queue-progress-bar" style="width: 100%;"></div> 
                         </div>
                     {% else %}
                         <div class="waiting-timer">
-                            <i class="fas fa-clock"></i> <span class="timer" data-time="{{ List.endtime }}">{{ List.display }}</span>
+                            <i class="fas fa-clock"></i> <span class="timer" data-time="{{ List.resttime }}">{{ List.display }}</span>
                         </div>
                     {% endif %}
                 </div>
@@ -172,26 +172,42 @@ function confirmDemolish(id, name, time) {
 </script>
 <script>
 (function(){
+    var allTimers = document.querySelectorAll('.queue-item .timer[data-time]');
+    allTimers.forEach(function(timerEl) {
+        var secsLeft = parseInt(timerEl.getAttribute('data-time'), 10) || 0;
+        var startedAt = Date.now();
+        function tick() {
+            var elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            var left = Math.max(0, secsLeft - elapsed);
+            if (typeof GetRestTimeFormat === 'function') {
+                timerEl.textContent = GetRestTimeFormat(left);
+            }
+        }
+        tick();
+        var iv = window.setInterval(function() {
+            var elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            var left = Math.max(0, secsLeft - elapsed);
+            if (typeof GetRestTimeFormat === 'function') {
+                timerEl.textContent = GetRestTimeFormat(left);
+            }
+            if (left <= 0) clearInterval(iv);
+        }, 1000);
+    });
+
     var activeTimer = document.querySelector('.queue-item.active-build .timer[data-time]');
     var progressBar = document.querySelector('.queue-item.active-build .queue-progress-bar');
     if(!activeTimer || !progressBar) return;
 
-    var endTs = parseInt(activeTimer.getAttribute('data-time'), 10) || 0;
-    var initialLeft = Math.max(0, endTs - Math.floor(Date.now() / 1000));
-    if(initialLeft <= 0) {
-        progressBar.style.width = '100%';
-        return;
-    }
+    var initialLeft = parseInt(activeTimer.getAttribute('data-time'), 10) || 0;
+    if(initialLeft <= 0) { progressBar.style.width = '100%'; return; }
+    var startedAt2 = Date.now();
 
-    function tick(){
-        var left = Math.max(0, endTs - Math.floor(Date.now() / 1000));
-        activeTimer.textContent = GetRestTimeFormat(left);
+    window.setInterval(function(){
+        var elapsed = Math.floor((Date.now() - startedAt2) / 1000);
+        var left = Math.max(0, initialLeft - elapsed);
         var pct = Math.min(100, Math.max(0, ((initialLeft - left) / initialLeft) * 100));
         progressBar.style.width = pct.toFixed(1) + '%';
-    }
-
-    tick();
-    window.setInterval(tick, 1000);
+    }, 1000);
 })();
 </script>
 </div>
