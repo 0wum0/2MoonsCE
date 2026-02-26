@@ -24,7 +24,7 @@
   transition:width 0.3s ease; pointer-events:none;
 }
 body.loading #game-header::after { width:100%; }
-.header-row-main { display:flex; align-items:center; height:52px; padding:0 16px; gap:10px; flex-wrap:nowrap; overflow:hidden; }
+.header-row-main { display:flex; align-items:center; height:52px; padding:0 16px; gap:10px; flex-wrap:nowrap; overflow:visible; }
 .header-logo {
   display:flex; align-items:center; gap:9px;
   font-family:var(--font-hud) !important; font-size:15px !important;

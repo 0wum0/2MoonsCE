@@ -240,6 +240,54 @@ var SmAjax = (function ($) {
     }
 
     /* ------------------------------------------------------------------ */
+    /* Header notification badge refresh                                   */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Given a parsed HTML document ($doc jQuery wrapper), extract
+     * notification button states and update the live header badges in-place.
+     * Works for: building, research, hangar, fleets, messages, forum counts.
+     */
+    function refreshNotifBadges($doc) {
+        /* Each notif-icon-wrap in the fetched HTML maps 1:1 to the live header */
+        var $newWraps = $doc.find('.header-notifications .notif-icon-wrap');
+        var $liveWraps = $('.header-notifications .notif-icon-wrap');
+        if (!$newWraps.length || !$liveWraps.length) return;
+
+        $newWraps.each(function (i) {
+            var $newWrap  = $(this);
+            var $liveWrap = $liveWraps.eq(i);
+            if (!$liveWrap.length) return;
+
+            /* Update badge count */
+            var $newBadge  = $newWrap.find('.notif-badge').first();
+            var $liveBadge = $liveWrap.find('.notif-badge').first();
+
+            if ($newBadge.length) {
+                if ($liveBadge.length) {
+                    $liveBadge.text($newBadge.text()).show();
+                } else {
+                    $liveWrap.find('.notif-btn').first().append($newBadge.clone());
+                }
+            } else {
+                $liveBadge.hide();
+            }
+
+            /* Update active state on button */
+            var $newBtn  = $newWrap.find('.notif-btn').first();
+            var $liveBtn = $liveWrap.find('.notif-btn').first();
+            $liveBtn.toggleClass('notif-btn-active', $newBtn.hasClass('notif-btn-active'));
+
+            /* Update dropdown body content (queue items) */
+            var $newBody  = $newWrap.find('.notif-dropdown-body').first();
+            var $liveBody = $liveWrap.find('.notif-dropdown-body').first();
+            if ($newBody.length && $liveBody.length) {
+                $liveBody.html($newBody.html());
+            }
+        });
+    }
+
+    /* ------------------------------------------------------------------ */
     /* In-place page content refresh (replaces window.location.reload)    */
     /* ------------------------------------------------------------------ */
 
@@ -274,6 +322,8 @@ var SmAjax = (function ($) {
                         }
                     });
                 }
+                /* Refresh header notification badges from the newly fetched HTML */
+                refreshNotifBadges($doc);
                 refreshResources();
             },
             error: function () { /* silent */ }
@@ -639,6 +689,7 @@ var SmAjax = (function ($) {
         loadPartial:           loadPartial,
         refreshResources:      refreshResources,
         refreshPageContent:    refreshPageContent,
+        refreshNotifBadges:    refreshNotifBadges,
         applyResources:        applyResources,
         startResourcePolling:  startResourcePolling,
         toast:                 toast,
