@@ -1,4 +1,4 @@
-{% autoescape false %}
+﻿{% autoescape false %}
 {{ hook('ingame.navHeader.before') }}
 <!-- SMARTMOONS HEADER v8 -->
 <header class="game-header" id="game-header">
@@ -315,17 +315,80 @@
 <!-- SIDEBAR TOGGLE -->
 <script>
 (function(){
-    var t=document.getElementById('sidebar-toggle'),s=document.getElementById('leftmenu'),o=document.getElementById('sidebar-overlay');
-    if(!t||!s||t.dataset.sidebarBound==='1')return;
-    t.dataset.sidebarBound='1';
-    function isMobile(){return window.innerWidth<=992;}
-    function setMobile(open){s.classList.toggle('active',open);t.classList.toggle('active',open);t.setAttribute('aria-expanded',String(open));document.body.classList.toggle('sidebar-open',open);if(o)o.classList.toggle('active',open);}
-    function setDesktop(collapsed){var SK='sm_sidebar_collapsed';s.classList.toggle('sidebar-icon-only',collapsed);document.body.classList.toggle('sidebar-collapsed',collapsed);var ic=document.getElementById('sidebar-collapse-icon');if(ic)ic.className=collapsed?'fas fa-chevron-right':'fas fa-chevron-left';var cb=document.getElementById('sidebar-collapse-btn');if(cb)cb.setAttribute('aria-label',collapsed?'Sidebar ausklappen':'Sidebar einklappen');t.classList.toggle('active',!collapsed);try{localStorage.setItem(SK,collapsed?'1':'0');}catch(e){}}
-    t.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();if(isMobile()){setMobile(!s.classList.contains('active'));}else{setDesktop(!s.classList.contains('sidebar-icon-only'));}});
-    if(o)o.addEventListener('click',function(){setMobile(false);});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&isMobile())setMobile(false);});
-    window.addEventListener('resize',function(){if(!isMobile())setMobile(false);});
-    s.querySelectorAll('a.nav-link,a.sidebar-link').forEach(function(l){l.addEventListener('click',function(){if(isMobile())setMobile(false);});});
+    function initSidebarToggle() {
+        if (window.__smSidebarInit) return;
+        var t = document.getElementById('sidebar-toggle');
+        var s = document.getElementById('leftmenu');
+        var o = document.getElementById('sidebar-overlay');
+        if (!t || !s) {
+            console.warn('[SmartMoons] sidebar-toggle: missing elements', {toggle:!!t, sidebar:!!s});
+            return;
+        }
+        if (t.dataset.sidebarBound === '1') return;
+        t.dataset.sidebarBound = '1';
+        window.__smSidebarInit = true;
+
+        function isMobile() { return window.innerWidth <= 992; }
+
+        function setMobile(open) {
+            s.classList.toggle('active', open);
+            t.classList.toggle('active', open);
+            t.setAttribute('aria-expanded', String(open));
+            document.body.classList.toggle('sidebar-open', open);
+            if (o) o.classList.toggle('active', open);
+        }
+
+        function setDesktop(collapsed) {
+            var SK = 'sm_sidebar_collapsed';
+            s.classList.toggle('sidebar-icon-only', collapsed);
+            document.body.classList.toggle('sidebar-collapsed', collapsed);
+            var ic = document.getElementById('sidebar-collapse-icon');
+            if (ic) ic.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+            var cb = document.getElementById('sidebar-collapse-btn');
+            if (cb) cb.setAttribute('aria-label', collapsed ? 'Sidebar ausklappen' : 'Sidebar einklappen');
+            t.classList.toggle('active', !collapsed);
+            try { localStorage.setItem(SK, collapsed ? '1' : '0'); } catch(e) {}
+        }
+
+        t.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isMobile()) {
+                setMobile(!s.classList.contains('active'));
+            } else {
+                setDesktop(!s.classList.contains('sidebar-icon-only'));
+            }
+        });
+
+        if (o) o.addEventListener('click', function() { setMobile(false); });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isMobile()) setMobile(false);
+        });
+
+        window.addEventListener('resize', function() {
+            if (!isMobile()) setMobile(false);
+        });
+
+        s.querySelectorAll('a.nav-link, a.sidebar-link').forEach(function(l) {
+            l.addEventListener('click', function() { if (isMobile()) setMobile(false); });
+        });
+
+        // Restore desktop collapse state from localStorage
+        if (!isMobile()) {
+            try {
+                var saved = localStorage.getItem('sm_sidebar_collapsed');
+                if (saved === '1') setDesktop(true);
+            } catch(e) {}
+        }
+    }
+
+    // Defer until DOM is ready -- #leftmenu is rendered AFTER this script tag
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarToggle);
+    } else {
+        initSidebarToggle();
+    }
 })();
 </script>
 
@@ -344,48 +407,6 @@
     measureAndSetHeaderHeight();
     window.addEventListener('load', measureAndSetHeaderHeight);
     window.addEventListener('resize', measureAndSetHeaderHeight);
-})();
-</script>
-
-<!-- SIDEBAR DESKTOP COLLAPSE (Feature 2) -->
-<script>
-(function(){
-    var STORAGE_KEY = 'sm_sidebar_collapsed';
-    var sidebar = document.getElementById('leftmenu');
-    var btn     = document.getElementById('sidebar-collapse-btn');
-    var icon    = document.getElementById('sidebar-collapse-icon');
-    var body    = document.body;
-    if (!sidebar || !btn) return;
-
-    function setCollapsed(collapsed) {
-        sidebar.classList.toggle('sidebar-icon-only', collapsed);
-        body.classList.toggle('sidebar-collapsed', collapsed);
-        if (icon) {
-            icon.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
-        }
-        btn.setAttribute('aria-label', collapsed ? 'Sidebar ausklappen' : 'Sidebar einklappen');
-        try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e){}
-    }
-
-    btn.addEventListener('click', function() {
-        setCollapsed(!sidebar.classList.contains('sidebar-icon-only'));
-    });
-
-    // Zustand aus localStorage wiederherstellen (nur Desktop)
-    if (window.matchMedia('(min-width: 769px)').matches) {
-        try {
-            var saved = localStorage.getItem(STORAGE_KEY);
-            if (saved === '1') setCollapsed(true);
-        } catch(e) {}
-    }
-
-    // Bei Resize: auf Mobile niemals Icon-Only
-    window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768) {
-            sidebar.classList.remove('sidebar-icon-only');
-            body.classList.remove('sidebar-collapsed');
-        }
-    });
 })();
 </script>
 
