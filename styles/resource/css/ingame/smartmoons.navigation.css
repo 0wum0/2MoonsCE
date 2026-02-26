@@ -165,7 +165,6 @@ body.loading #game-header::after { width:100%; }
 /* ── RESOURCE BAR ── */
 .res-bar-row {
   background:rgba(3,6,15,0.92); border-top:1px solid var(--border); padding:0 16px;
-  padding-left:calc(var(--sidebar-w) + 16px);
 }
 .res-bar-container { overflow-x:auto; }
 .res-bar { display:flex; gap:6px; padding:6px 0; justify-content:center; flex-wrap:wrap; }
@@ -493,7 +492,7 @@ body.loading #game-header::after { width:100%; }
   }
   .content-wrapper { margin-left:0 !important; }
   .chat-fab-desktop-only { display:none !important; }
-  .res-bar-row { padding-left:16px !important; }
+  .res-bar-row { padding:0 16px !important; }
   /* Overlay stays right of sidebar when open */
   body.sidebar-open .sidebar-overlay { left:var(--sidebar-w); }
 }
