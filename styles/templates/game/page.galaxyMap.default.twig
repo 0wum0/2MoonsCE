@@ -409,10 +409,10 @@
       <div class="leg"><div class="leg-dot" style="background:#aaa"></div>Moon</div>
       <div class="leg"><div class="leg-dot" style="background:#ff9900;border-radius:0"></div>Debris Field</div>
       <hr class="sp-sep" style="margin:5px 0">
-      <div class="leg"><div class="leg-line" style="background:#00d4ff;opacity:.8"></div>Your Fleet</div>
-      <div class="leg"><div class="leg-line" style="background:#a855f7;opacity:.55"></div>Alliance Fleet</div>
-      <div class="leg"><div class="leg-dash" style="color:#6688aa"></div>Foreign Fleet</div>
-      <div class="leg"><div class="leg-dash" style="color:#e8304a"></div>Hostile Fleet</div>
+      <div class="leg"><div class="leg-line" style="background:#00e87a;opacity:.9"></div>Your Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#a855f7"></div>Alliance Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#aabbcc;opacity:.6"></div>Foreign Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#ffffff;opacity:.7"></div>Hostile Fleet</div>
     </div>
     <hr class="sp-sep">
     <div style="margin-bottom:10px">
@@ -935,23 +935,23 @@ function rebuildFleetMeshes() {
     const isAlly    = !isOwn && !isHostile && !!f.is_ally;
 
     // Per-spec colors:
-    // own     = solid cyan (#00d4ff)
-    // ally    = solid purple dim
-    // hostile = dashed red, blinks
-    // foreign = dashed white, opacity 0.4
+    // own     = solid green (#00e87a)
+    // ally    = dashed purple (#a855f7)
+    // hostile = dashed thin white, blinks
+    // foreign = dashed gray, very thin
     let lineCol, lineOpacity, useDash, dotCol, dotSize;
     if (isOwn) {
-      lineCol = 0x00d4ff; lineOpacity = 0.80; useDash = false;
-      dotCol = '#00d4ff'; dotSize = 7;
+      lineCol = 0x00e87a; lineOpacity = 0.85; useDash = false;
+      dotCol = '#00e87a'; dotSize = 7;
     } else if (isAlly) {
-      lineCol = 0xa855f7; lineOpacity = 0.45; useDash = false;
+      lineCol = 0xa855f7; lineOpacity = 0.55; useDash = true;
       dotCol = '#a855f7'; dotSize = 5;
     } else if (isHostile) {
-      lineCol = 0xe8304a; lineOpacity = 0.70; useDash = true;
-      dotCol = '#e8304a'; dotSize = 5;
-    } else { // foreign – white, dashed, opacity 0.4
-      lineCol = 0xffffff; lineOpacity = 0.40; useDash = true;
-      dotCol = '#ffffff'; dotSize = 4;
+      lineCol = 0xffffff; lineOpacity = 0.55; useDash = true;
+      dotCol = '#ff6688'; dotSize = 4;
+    } else { // foreign – gray, dashed, very dim
+      lineCol = 0x6688aa; lineOpacity = 0.30; useDash = true;
+      dotCol = '#6688aa'; dotSize = 3;
     }
 
     // Full path line (start → end) — built once, not per-frame
@@ -960,14 +960,14 @@ function rebuildFleetMeshes() {
     let pathLine;
     if (useDash) {
       const pm = new THREE.LineDashedMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity * 0.35,
-        dashSize: 5, gapSize: 4, depthWrite: false
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.30,
+        dashSize: 6, gapSize: 5, depthWrite: false
       });
       pathLine = new THREE.Line(pathGeo, pm);
       pathLine.computeLineDistances();
     } else {
       pathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity * 0.25, depthWrite: false
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.20, depthWrite: false
       }));
     }
     pathLine.userData = { fleet: f };
@@ -1124,15 +1124,20 @@ function syncCamera() {
 function measureFooterHeight() {
   const measure = () => {
     // Try game footer selectors in order of specificity
-    const footer = document.querySelector('.footer, footer, #footer, .game-footer, .ingame-footer')
-      || document.querySelector('[class*="footer"]:not(#gm-root *)');
+    const footer = document.querySelector('.mobile-dock, .footer, footer, #footer, .game-footer, .ingame-footer')
+      || document.querySelector('[class*="footer"]:not(#gm-root *)') || document.querySelector('[class*="dock"]:not(#gm-root *)');
     if (footer) {
       const style = window.getComputedStyle(footer);
       const isFixed = style.position === 'fixed' || style.position === 'sticky';
       if (isFixed) {
         const h = footer.getBoundingClientRect().height;
         document.getElementById('gm-root').style.setProperty('--ingameFooterH', h + 'px');
+        return;
       }
+    }
+    // Fallback: on mobile, assume 70px dock height so FAB/panel never hide behind it
+    if (window.innerWidth <= 768) {
+      document.getElementById('gm-root').style.setProperty('--ingameFooterH', '70px');
     }
   };
   measure();
@@ -1631,7 +1636,7 @@ function animate(now = 0){
   // Hostile blink – only mutates material opacity, no geometry changes
   fleetGroup.children.forEach(obj => {
     if (obj.isLine && obj.userData?.fleet?.is_hostile && obj.material?.isLineDashedMaterial) {
-      obj.material.opacity = 0.30 + Math.abs(Math.sin(frame * 0.06)) * 0.40;
+      obj.material.opacity = 0.18 + Math.abs(Math.sin(frame * 0.05)) * 0.42;
     }
   });
 
