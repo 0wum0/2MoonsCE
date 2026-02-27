@@ -106,11 +106,12 @@ class ShowRaportPage extends AbstractGamePage
 			':reportID'	=> $RID
 		));
 
-		$Info		= array($reportData["attacker"], $reportData["defender"]);
-		
-		if(!isset($reportData)) {
+		if (empty($reportData)) {
 			$this->printMessage($LNG['sys_raport_not_found']);
+			return;
 		}
+
+		$Info		= array($reportData["attacker"], $reportData["defender"]);
 		
 		$combatReport			= unserialize($reportData['raport']);
 		$combatReport['time']	= _date($LNG['php_tdformat'], $combatReport['time'], $USER['timezone']);

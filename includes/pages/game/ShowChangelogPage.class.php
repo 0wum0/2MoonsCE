@@ -30,10 +30,13 @@ class ShowChangelogPage extends AbstractGamePage
 	{
         include_once ROOT_PATH.'includes/libs/Parsedown/Parsedown.php';
 
+        $changelogFile = ROOT_PATH.'CHANGES.md';
+        $rawContent = file_exists($changelogFile) ? file_get_contents($changelogFile) : '';
+
         $parsedown = new Parsedown();
 
 		$this->assign(array(
-			'ChangelogList'	=> $parsedown->text(file_get_contents(ROOT_PATH.'CHANGES.md')),
+			'ChangelogList'	=> $parsedown->text($rawContent !== false ? $rawContent : ''),
 		));
 		
 		$this->display('page.changelog.default.tpl');

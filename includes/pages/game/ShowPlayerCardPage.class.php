@@ -54,6 +54,11 @@ class ShowPlayerCardPage extends AbstractGamePage
 			':playerID'	=> $PlayerID
 		));
 
+		if (empty($query)) {
+			$this->printMessage($LNG['sys_player_not_found'] ?? 'Player not found.');
+			return;
+		}
+
 		$totalfights = $query['wons'] + $query['loos'] + $query['draws'];
 		
 		if ($totalfights == 0) {

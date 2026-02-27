@@ -234,6 +234,12 @@ class Database
         return ($field === false || is_null($res)) ? $res : $res[$field];
     }
 
+    public function selectSingleSafe(string $qry, array $params = [], string|false $field = false): mixed
+    {
+        $result = $this->selectSingle($qry, $params, $field);
+        return ($result === false) ? null : $result;
+    }
+
     public function lists(string $table, string $column, ?string $key = null): array
     {
         $selects = implode(', ', is_null($key) ? [$column] : [$column, $key]);

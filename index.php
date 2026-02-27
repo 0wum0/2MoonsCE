@@ -40,6 +40,10 @@ if(!file_exists($path)) {
 // Added Autoload in feature Versions
 require_once($path);
 
+if (!class_exists($pageClass)) {
+	ShowErrorPage::printError($LNG['page_doesnt_exist']);
+}
+
 $pageObj	= new $pageClass;
 // PHP 5.2 FIX
 // can't use $pageObj::$requireModule

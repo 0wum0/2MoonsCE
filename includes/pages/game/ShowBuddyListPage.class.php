@@ -57,6 +57,11 @@ class ShowBuddyListPage extends AbstractGamePage
             ':friendID'  => $id
         ));
 
+		if (empty($userData)) {
+			$this->printMessage($LNG['sys_player_not_found'] ?? 'Player not found.');
+			return;
+		}
+
 		$this->assign(array(
 			'username'	=> $userData['username'],
 			'galaxy'	=> $userData['galaxy'],
