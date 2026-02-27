@@ -16,8 +16,8 @@
 	<tr style="height:23px;">
 		<td>{{ uniID }}</td>
 		<td>{{ uniRow.uni_name }}</td>
-		<td>{(uniRow.game_speed / 2500)|number_format(0, '.', ',')}</td>
-		<td>{(uniRow.fleet_speed / 2500)|number_format(0, '.', ',')}</td>
+		<td>{{ (uniRow.game_speed / 2500)|number_format(0, '.', ',') }}</td>
+		<td>{{ (uniRow.fleet_speed / 2500)|number_format(0, '.', ',') }}</td>
 		<td>{{ uniRow.resource_multiplier|number_format(0, '.', ',') }}</td>
 		<td>{{ uniRow.halt_speed|number_format(0, '.', ',') }}</td>
 		<td>{{ uniRow.energySpeed|number_format(0, '.', ',') }}</td>
