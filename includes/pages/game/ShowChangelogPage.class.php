@@ -30,7 +30,7 @@ class ShowChangelogPage extends AbstractGamePage
 	{
         include_once ROOT_PATH.'includes/libs/Parsedown/Parsedown.php';
 
-        $changelogFile = ROOT_PATH.'CHANGES.md';
+        $changelogFile = ROOT_PATH.'FORUM_CHANGELOG.md';
         $rawContent = file_exists($changelogFile) ? file_get_contents($changelogFile) : '';
 
         $parsedown = new Parsedown();
@@ -39,6 +39,6 @@ class ShowChangelogPage extends AbstractGamePage
 			'ChangelogList'	=> $parsedown->text($rawContent !== false ? $rawContent : ''),
 		));
 		
-		$this->display('page.changelog.default.tpl');
+		$this->display('page.changelog.default.twig');
 	}
 }

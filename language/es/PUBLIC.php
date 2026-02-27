@@ -38,6 +38,7 @@ $LNG['menu_rules']					= 'Reglas';
 $LNG['menu_banlist']				= 'Baneados';
 $LNG['menu_battlehall']				= 'Salón de la Fama';
 $LNG['menu_disclamer']				= 'Contactar';
+$LNG['menu_changelog']				= 'Changelog';
 $LNG['menu_register']				= 'Registrar';
 
 // Universe select

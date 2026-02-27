@@ -26,6 +26,7 @@ $LNG['menu_rules']					= 'Règles';
 $LNG['menu_banlist']				= 'Bannis';
 $LNG['menu_battlehall']				= 'Hall of Fame';
 $LNG['menu_disclamer']				= 'Contacter un administrateur';
+$LNG['menu_changelog']				= 'Changelog';
 $LNG['menu_register']				= 'S\'enregistrer';
 
 // Universe select
