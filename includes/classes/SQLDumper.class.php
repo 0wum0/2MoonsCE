@@ -37,7 +37,9 @@ class SQLDumper
 		
 	private function canNative($command)
 	{
-		return function_exists('shell_exec') && function_exists('escapeshellarg') && shell_exec("which " . $command) !== "";
+		// Disabled: native mysqldump fails on shared hosting (IPv6 localhost, env var restrictions, mariadb-dump deprecation).
+		// The PHP software dump is reliable across all environments.
+		return false;
 	}
 	
 	private function nativeDumpToFile($dbTables, $filePath)
