@@ -48,7 +48,7 @@ class SQLDumper
 		if (!file_exists($configPath)) {
 			throw new Exception("Database configuration file not found: $configPath. Cannot perform database dump.");
 		}
-		require_once $configPath;
+		require $configPath;
 
 
         $dbVersion	= Database::get()->selectSingle('SELECT @@version', array(), '@@version');
@@ -79,7 +79,7 @@ class SQLDumper
 		if (!file_exists($configPath)) {
 			throw new Exception("Database configuration file not found: $configPath. Cannot perform database dump.");
 		}
-		require_once $configPath;
+		require $configPath;
 
 		$integerTypes	= array('tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'decimal', 'float', 'double', 'real');
 		$gameVersion	= Config::get()->VERSION;
@@ -235,7 +235,7 @@ UNLOCK TABLES;
 			if (!file_exists($configPath)) {
 				throw new Exception("Database configuration file not found: $configPath. Cannot restore database.");
 			}
-			require_once $configPath;
+			require $configPath;
 
 			$sqlDump	= shell_exec("mysql --host='".escapeshellarg($databaseConfig['host'])."' --port=".((int) $databaseConfig['port'])." --user='".escapeshellarg($databaseConfig['user'])."' --password='".escapeshellarg($databaseConfig['password'])."' '".escapeshellarg($databaseConfig['dbname'])."' < ".escapeshellarg($filePath)." 2>&1 1> /dev/null");
 			if(strlen($sqlDump) !== 0) #mysql error

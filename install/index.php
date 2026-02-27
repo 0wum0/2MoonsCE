@@ -16,6 +16,10 @@ declare(strict_types=1);
  * @link https://github.com/jkroepke/2Moons
  */
 
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 define('MODE', 'INSTALL');
 define('ROOT_PATH', str_replace('\\', '/', dirname(dirname(__FILE__))) . '/');
 set_include_path(ROOT_PATH);
