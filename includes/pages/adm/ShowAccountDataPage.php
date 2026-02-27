@@ -46,7 +46,7 @@ function ShowAccountDataPage()
 			$SpecifyItemsU	= 
 			"u.id,u.username,u.email,u.email_2,u.authlevel,u.id_planet,u.galaxy,u.system,u.planet,u.user_lastip,u.ip_at_reg,u.darkmatter,u.register_time,u.onlinetime,u.urlaubs_modus,u.
 			 urlaubs_until,u.ally_id,a.ally_name,".$SpecifyItemsUQ."
-			 u.ally_register_time,u.ally_rank_id,u.bana,u.banaday";
+			 u.ally_register_time,u.ally_rank_id,u.bana,u.banaday,u.user_ua";
 			
 			$UserQuery 	= 	$GLOBALS['DATABASE']->getFirstRow("SELECT ".$SpecifyItemsU." FROM ".USERS." as u LEFT JOIN ".ALLIANCE." a ON a.id = u.ally_id WHERE u.`id` = '".$id_u."';");
 
@@ -63,7 +63,7 @@ function ShowAccountDataPage()
 			$g				= $UserQuery['galaxy'];
 			$s				= $UserQuery['system'];
 			$p				= $UserQuery['planet'];
-			$info			= $UserQuery['user_ua'];
+			$info			= $UserQuery['user_ua'] ?? '';
 			$alianza		= $UserQuery['ally_name'];
 			$nivel			= $LNG['rank_'.$UserQuery['authlevel']];
 			$vacas 			= $LNG['one_is_yes_'.$UserQuery['urlaubs_modus']];
