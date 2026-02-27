@@ -1,6 +1,7 @@
 {% include "overall_header.twig" %}
+<div class="legacy-content">
 {% for Mod in MVC %}
-<table width="60%">
+<table>
     <tr>
 		<th colspan="2">{{ Mod.title }}</th>
     </tr>
@@ -39,4 +40,5 @@
 </table>
 <br><br>
 {% endfor %}
+</div>
 {% include "overall_footer.twig" %}

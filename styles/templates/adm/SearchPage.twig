@@ -1,92 +1,92 @@
 {% include "overall_header.twig" %}
-<form action="" method="POST">
-<table width="90%">
-<tr>
-<td class="transparent left">
-<input type="checkbox" {{ minimize }} name="minimize"><input type="submit" value="{{ se_contrac }}" class="button">
-<img src="./styles/resource/images/admin/GO.png" onClick="javascript:$('#seeker').slideToggle();" style="cursor:pointer;padding-right:60px;" class="tooltip" data-tooltip-content="{{ ac_minimize_maximize }}">
-</td>
-</tr>
-</table>
+<div class="legacy-content">
+<form action="" method="GET">
+<div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <label style="display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" {{ minimize }} name="minimize"> {{ se_contrac }}
+    </label>
+    <input type="submit" value="{{ se_contrac }}" class="button">
+</div>
 <div id="seeker"{{ diisplaay }}>
-<table width="90%">
+<div class="table-responsive">
+<table>
 	<tr>
-		<th colspan="8">
-			{{ se_search_title }}
-		</td>
+		<th colspan="8">{{ se_search_title }}</th>
+	</tr>
+	<tr>
+		<td>{{ se_intro }}</td>
+		<td>{{ se_type_typee }}</td>
+		<td>{{ se_search_in }}</td>
+		<td>{{ se_filter_title }}</td>
+		<td>{{ se_limit }}</td>
+		<td>{{ se_asc_desc }}</td>
+		{% if OrderBYParse %}
+		<td>{{ se_search_order }}</td>
+		{% endif %}
+		<td></td>
 	</tr>
 	<tr>
 		<td>
-			{{ se_intro }}
+			<input type="text" name="key_user" value="{{ search }}">
 		</td>
 		<td>
-			{{ se_type_typee }}
+			<select name="search">
+				{% for key, value in Selector.list %}
+				<option value="{{ key }}"{% if key == SearchFile %} selected{% endif %}>{{ value }}</option>
+				{% endfor %}
+			</select>
 		</td>
 		<td>
-			{{ se_search_in }}
+			<select name="search_in">
+				{% for key, value in Selector.search %}
+				<option value="{{ key }}"{% if key == SearchFor %} selected{% endif %}>{{ value }}</option>
+				{% endfor %}
+			</select>
 		</td>
 		<td>
-			{{ se_filter_title }}
+			<select name="fuki">
+				{% for key, value in Selector.filter %}
+				<option value="{{ key }}"{% if key == SearchMethod %} selected{% endif %}>{{ value }}</option>
+				{% endfor %}
+			</select>
 		</td>
 		<td>
-			{{ se_limit }}
+			<select name="limit">
+				{% for key, value in Selector.limit %}
+				<option value="{{ key }}"{% if key == limit %} selected{% endif %}>{{ value }}</option>
+				{% endfor %}
+			</select>
 		</td>
 		<td>
-			{{ se_asc_desc }}
+			<select name="key_order">
+				{% for key, value in Selector.order %}
+				<option value="{{ key }}"{% if key == Order %} selected{% endif %}>{{ value }}</option>
+				{% endfor %}
+			</select>
 		</td>
 		{% if OrderBYParse %}
 		<td>
-			{{ se_search_order }}
+			<select name="key_acc">
+				{% for key, value in OrderBYParse %}
+				<option value="{{ key }}"{% if key == OrderBY %} selected{% endif %}>{{ value }}</option>
+				{% endfor %}
+			</select>
 		</td>
 		{% endif %}
-	<td>
-		
-	</td>
+		<td>
+			<input type="submit" value="{{ se_search }}">
+		</td>
 	</tr>
-<tr>
-	<td>
-		<input type="text" name="key_user" value="{{ search }}">
-	</td>
-	<td>
-		<!-- TODO: Complex html_options - needs manual review -->
-	</td>
-	<td>
-		<!-- TODO: Complex html_options - needs manual review -->
-	</td>
-	<td>
-		<!-- TODO: Complex html_options - needs manual review -->
-	</td>
-	<td>
-		<!-- TODO: Complex html_options - needs manual review -->
-	</td>
-	<td>
-		<!-- TODO: Complex html_options - needs manual review -->
-	</td>
-	{% if OrderBYParse %}
-	<td>
-		<!-- TODO: Complex html_options - needs manual review -->
-	</td>
+	{% if error is defined and error %}
+	<tr>
+		<td colspan="8"><span style="color:var(--red)">{{ error }}</span></td>
+	</tr>
 	{% endif %}
-	<td>
-		<input type="submit" value="{{ se_search }}">
-	</td>
-</tr>
-{% if error %}
-<tr>
-	<td colspan="8">
-		<span style="color:red">{{ error }}</span>
-	</td>
-</tr>
-{% endif %}
 </table>
 </div>
-<br>
-<table width="90%" border="0px">
+</div>
 {{ PAGES|raw }}
-</table>
 {{ LIST|raw }}
-<br>
-<table width="90%" border="0px">
 {{ PAGES|raw }}
-</table>
 </form>
+</div>

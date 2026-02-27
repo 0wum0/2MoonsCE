@@ -73,15 +73,15 @@
     </div>
     {% endif %}
 
-    <ul class="nav nav-pills" id="banTabs" role="tablist">
+    <ul class="nav nav-pills" id="banTabs">
         <li class="nav-item">
-            <button class="nav-link active" id="ban-tab" data-bs-toggle="tab" data-bs-target="#ban-panel" type="button">
-                <i class="fas fa-ban text-danger"></i> Spieler Sperren
+            <button class="nav-link active" id="ban-tab" onclick="switchBanTab('ban-panel',this)" type="button">
+                &#128683; Spieler Sperren
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" id="unban-tab" data-bs-toggle="tab" data-bs-target="#unban-panel" type="button">
-                <i class="fas fa-unlock text-success"></i> Entsperren
+            <button class="nav-link" id="unban-tab" onclick="switchBanTab('unban-panel',this)" type="button">
+                &#128275; Entsperren
             </button>
         </li>
     </ul>
@@ -140,4 +140,13 @@
     </div>
 </div>
 
+<script>
+function switchBanTab(targetId, btn) {
+    document.querySelectorAll('#banTabs .nav-link').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('show','active'); });
+    btn.classList.add('active');
+    var pane = document.getElementById(targetId);
+    if (pane) { pane.classList.add('show','active'); }
+}
+</script>
 {% include "overall_footer.twig" %}

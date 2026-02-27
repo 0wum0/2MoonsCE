@@ -1,7 +1,7 @@
-
-<form action="" method="post" name="users">
 {% include "overall_header.twig" %}
-<table width="55%">
+<div class="legacy-content">
+<form action="" method="post" name="users">
+<table>
 <tr>
 	<th colspan="7">{{ ad_authlevel_title }}</th>
 </tr><tr>
@@ -60,9 +60,17 @@
 	<td><input name="id_2" type="text" size="5"></td>
 </tr><tr>
 	<td>{{ ad_authlevel_auth }}</td>
-	<td><!-- TODO: Complex html_options - needs manual review --></td>
+	<td>
+		<select name="authlevel">
+		{% for key, value in Selector %}
+			<option value="{{ key }}">{{ value }}</option>
+		{% endfor %}
+		</select>
+	</td>
 </tr><tr>
 	<td colspan="3"><input type="submit" value="{{ button_submit }}"></td>
 </tr>
 </table>
+</form>
+</div>
 {% include "overall_footer.twig" %}

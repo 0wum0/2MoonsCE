@@ -1,12 +1,12 @@
 {% include "overall_header.twig" %}
 <style>
     /* Galactic Admin Style - Global Message */
-    :root {
-        --galactic-bg: #0d1117;
-        --galactic-border: rgba(56, 189, 248, 0.25);
-        --galactic-accent: #38bdf8;
-        --galactic-glow: rgba(56, 189, 248, 0.5);
-        --galactic-card: rgba(13, 17, 23, 0.95);
+    /* Uses global design tokens from admin/main.css */
+    .gm-page {
+        --galactic-border: rgba(0,212,255,0.25);
+        --galactic-accent: var(--cyan);
+        --galactic-glow: rgba(0,212,255,0.45);
+        --galactic-card: var(--panel);
     }
 
     .gm-admin-wrapper {
@@ -14,7 +14,7 @@
         max-width: 100% !important;
         padding: 15px;
         box-sizing: border-box;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-family: var(--font-body, 'Exo 2', sans-serif);
     }
 
     .galactic-header {

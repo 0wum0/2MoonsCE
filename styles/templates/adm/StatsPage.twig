@@ -1,6 +1,7 @@
 {% include "overall_header.twig" %}
+<div class="legacy-content">
 <form method="post" action="">
-	<table width="80%" border="0" cellpadding="1">
+	<table>
     <tr>
       <th colspan="2">{{ cs_title }}</th>
     </tr>
@@ -10,7 +11,13 @@
     </tr>
     <tr>
       <td>{{ cs_points_to_zero }}</td>
-      <td><!-- TODO: Complex html_options - needs manual review --></td>
+      <td>
+			<select name="stat">
+			{% for key, value in Selector %}
+				<option value="{{ key }}"{% if key == stat %} selected{% endif %}>{{ value }}</option>
+			{% endfor %}
+			</select>
+		</td>
     </tr>
     <tr>
       <td>{{ cs_access_lvl }}</td>
@@ -21,4 +28,5 @@
     </tr>
   </table>
 </form>
+</div>
 {% include "overall_footer.twig" %}

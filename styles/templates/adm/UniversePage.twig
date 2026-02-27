@@ -1,5 +1,7 @@
 {% include "overall_header.twig" %}
-<table width="760px">
+<div class="legacy-content">
+<div class="table-responsive">
+<table>
 	<tr>
 		<th>{{ LNG.uvs_id }}</th>
 		<th>{{ LNG.uvs_name }}</th>
@@ -28,4 +30,6 @@
 	{% endfor %}
 	<tr><td colspan="12"><a href="?page=universe&action=create&amp;sid={{ SID }}&amp;reload=t">{{ LNG.uvs_new }}</a></td></tr>
 </table>
+</div>
+</div>
 {% include "overall_footer.twig" %}

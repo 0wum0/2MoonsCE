@@ -1,5 +1,7 @@
 {% include "overall_header.twig" %}
-<table width="80%">
+<div class="legacy-content">
+<div class="table-responsive">
+<table>
 <tr>
 	<th>{{ LNG.cronjob_id }}</th>
 	<th>{{ LNG.cronjob_name }}</th>
@@ -36,5 +38,6 @@
 <td colspan="13"><a href="admin.php?page=cronjob&amp;action=detail">{{ LNG.cronjob_new }}</a></td>
 </tr>
 </table>
-</body>
+</div>
+</div>
 {% include "overall_footer.twig" %}

@@ -1,4 +1,5 @@
 {% include "overall_header.twig" %}
+<div class="legacy-content">
 {% if mode is defined %}
 <form method="POST" action="?page=news&amp;action=send&amp;mode={{ mode }}">
 {% if news_id is defined %}<input name="id" type="hidden" value="{{ news_id }}">{% endif %}
@@ -21,7 +22,7 @@
 {% endif %}
 <table width="450">
 <tr>
-	<th colspan="5">{{ nws_news }}</thd>
+	<th colspan="5">{{ nws_news }}</th>
 </tr>
 <tr>
 	<td>{{ nws_id }}</td>
@@ -41,4 +42,5 @@
 <tr><td colspan="5"><a href="?page=news&amp;action=create">{{ nws_create }}</a></td></tr>
 <tr><td colspan="5">{{ nws_total }}</td></tr>
 </table>
+</div>
 {% include "overall_footer.twig" %}

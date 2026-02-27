@@ -944,6 +944,97 @@ body.admin-dashboard .legacy-content .transparent { background:transparent; }
 body.admin-dashboard .legacy-content .left { text-align:left; }
 body.admin-dashboard .legacy-content form { width:100%; }
 body.admin-dashboard .legacy-content table table { width:auto; }
+
+/* Tables inside legacy-content */
+body.admin-dashboard .legacy-content table {
+  width:100%; border-collapse:collapse;
+  color:var(--white); font-size:13px;
+  margin-bottom:16px;
+}
+body.admin-dashboard .legacy-content table th {
+  background:rgba(0,212,255,0.08);
+  color:var(--cyan);
+  font-family:var(--font-hud);
+  font-size:11px; letter-spacing:1px; text-transform:uppercase;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+body.admin-dashboard .legacy-content table td {
+  padding:8px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  color:var(--white-dim);
+  vertical-align:middle;
+}
+body.admin-dashboard .legacy-content table tr:hover td {
+  background:rgba(0,212,255,0.03);
+}
+body.admin-dashboard .legacy-content table tr:last-child td {
+  border-bottom:none;
+}
+
+/* Forms inside legacy-content */
+body.admin-dashboard .legacy-content input[type="text"],
+body.admin-dashboard .legacy-content input[type="number"],
+body.admin-dashboard .legacy-content input[type="email"],
+body.admin-dashboard .legacy-content input[type="password"],
+body.admin-dashboard .legacy-content textarea,
+body.admin-dashboard .legacy-content select {
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--white);
+  padding:6px 10px;
+  font-size:13px;
+  font-family:var(--font-body);
+  transition:border-color .2s, background .2s;
+  max-width:100%;
+}
+body.admin-dashboard .legacy-content input[type="text"]:focus,
+body.admin-dashboard .legacy-content input[type="number"]:focus,
+body.admin-dashboard .legacy-content input[type="email"]:focus,
+body.admin-dashboard .legacy-content input[type="password"]:focus,
+body.admin-dashboard .legacy-content textarea:focus,
+body.admin-dashboard .legacy-content select:focus {
+  outline:none;
+  border-color:var(--cyan);
+  background:rgba(0,212,255,0.06);
+}
+body.admin-dashboard .legacy-content select option {
+  background:var(--panel); color:var(--white);
+}
+body.admin-dashboard .legacy-content textarea {
+  resize:vertical; min-height:80px;
+}
+body.admin-dashboard .legacy-content input[type="submit"],
+body.admin-dashboard .legacy-content input[type="reset"],
+body.admin-dashboard .legacy-content input[type="button"],
+body.admin-dashboard .legacy-content button[type="submit"] {
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  border:none; border-radius:6px;
+  color:#000; font-weight:700; font-size:12px;
+  font-family:var(--font-hud); letter-spacing:1px; text-transform:uppercase;
+  padding:8px 18px; cursor:pointer;
+  transition:opacity .2s, box-shadow .2s;
+}
+body.admin-dashboard .legacy-content input[type="submit"]:hover,
+body.admin-dashboard .legacy-content input[type="reset"]:hover,
+body.admin-dashboard .legacy-content input[type="button"]:hover,
+body.admin-dashboard .legacy-content button[type="submit"]:hover {
+  opacity:.85;
+  box-shadow:0 0 12px rgba(0,212,255,0.4);
+}
+body.admin-dashboard .legacy-content input[type="checkbox"],
+body.admin-dashboard .legacy-content input[type="radio"] {
+  accent-color:var(--cyan);
+  width:16px; height:16px; cursor:pointer;
+}
+
+/* Responsive table wrapper inside legacy-content */
+body.admin-dashboard .legacy-content .table-responsive {
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+
 body.admin-dashboard #menu { display:none; }
 body.admin-dashboard #content { width:100%; margin:0; padding:0; }
 

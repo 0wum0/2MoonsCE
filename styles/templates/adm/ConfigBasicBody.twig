@@ -1,5 +1,5 @@
 {% include "overall_header.twig" %}
-<center>
+<div class="legacy-content">
 <form action="" method="post">
 <input type="hidden" name="opt_save" value="1">
 <table width="70%" cellpadding="2" cellspacing="2">
@@ -16,7 +16,13 @@
 	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ LNG.se_ttf_file_info }}"></td>
 </tr><tr>
     <td>{{ LNG.se_timzone }}</td>
-	<td><!-- TODO: Complex html_options - needs manual review --></td>
+	<td>
+		<select name="timezone">
+		{% for key, value in Selector.timezone %}
+			<option value="{{ key }}"{% if key == timezone %} selected{% endif %}>{{ value }}</option>
+		{% endfor %}
+		</select>
+	</td>
 	<td> </td>
 </tr>
 <tr>
@@ -57,14 +63,20 @@
 	<td> </td>
 </tr><tr>
 	<th colspan="2">{{ LNG.se_smtp }}</th>
-	<th><center><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ LNG.se_smtp_info }}"></center></th>
+	<th><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ LNG.se_smtp_info }}"></th>
 </tr><tr>
 	<td>{{ LNG.se_mail_active }}</td>
 	<td><input name="mail_active"{% if mail_active %} checked="checked"{% endif %}  type="checkbox"></td>
 	<td> </td>
 </tr><tr>
 	<td>{{ LNG.se_mail_use }}</td>
-	<td><!-- TODO: Complex html_options - needs manual review --></td>
+	<td>
+		<select name="mail_use">
+		{% for key, value in Selector.mail %}
+			<option value="{{ key }}"{% if key == mail_use %} selected{% endif %}>{{ value }}</option>
+		{% endfor %}
+		</select>
+	</td>
 	<td> </td>
 </tr><tr>
 	<td>{{ LNG.se_smtp_sendmail }}</td>
@@ -80,7 +92,13 @@
 	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ LNG.se_smtp_host_info }}"></td>
 </tr><tr>
 	<td>{{ LNG.se_smtp_ssl }}</td>
-	<td><!-- TODO: Complex html_options - needs manual review --></td>
+	<td>
+		<select name="smtp_ssl">
+		{% for key, value in Selector.encry %}
+			<option value="{{ key }}"{% if key == smtp_ssl %} selected{% endif %}>{{ value }}</option>
+		{% endfor %}
+		</select>
+	</td>
 	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ LNG.se_smtp_ssl_info }}"></td>
 </tr><tr>
 	<td>{{ LNG.se_smtp_port }}</td>
@@ -98,7 +116,13 @@
 	<th colspan="2">{{ LNG.se_messages }}</th><th> </th>
 </tr><tr>
     <td>{{ LNG.se_message_delete_behavior }}</td>
-    <td><!-- TODO: Complex html_options - needs manual review --></td>
+    <td>
+		<select name="message_delete_behavior">
+		{% for key, value in Selector.message_delete_behavior %}
+			<option value="{{ key }}"{% if key == message_delete_behavior %} selected{% endif %}>{{ value }}</option>
+		{% endfor %}
+		</select>
+	</td>
 	<td> </td>
 </tr><tr>
     <td>{{ LNG.se_message_delete_days }}</td>
@@ -119,5 +143,5 @@
 </tr>
 </table>
 </form>
-</center>
+</div>
 {% include "overall_footer.twig" %}

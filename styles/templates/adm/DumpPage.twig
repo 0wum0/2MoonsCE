@@ -1,7 +1,8 @@
 {% include "overall_header.twig" %}
+<div class="legacy-content">
 <form action="admin.php?page=dump" method="post">
 <input type="hidden" name="action" value="dump">
-<table class="table569">
+<table>
 	<tr>
 		<th colspan="2">{{ LNG.du_header }}</th>
 	</tr>
@@ -9,7 +10,13 @@
 		<td>{{ LNG.du_choose_tables }}</td>
 		<td>
             <div><input type="checkbox" id="selectAll"><label for="selectAll">{{ LNG.du_select_all_tables }}</label></div>
-            <div><!-- TODO: Complex html_options - needs manual review --></div>
+            <div>
+                <select name="dbtables[]" id="dbtables" multiple size="15" style="min-width:300px;">
+                    {% for tableName in dumpData.sqlTables %}
+                    <option value="{{ tableName }}">{{ tableName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </td>
 	</tr>
 	<tr>
@@ -35,4 +42,5 @@ $(function() {
 	});
 });
 </script>
+</div>
 {% include "overall_footer.twig" %}
