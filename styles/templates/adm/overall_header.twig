@@ -33,6 +33,11 @@
     {% endfor %}{% endif %}
     {{ hook('admin.header.before') }}
     {{ hook('head_end') }}
+    <script>
+    function openEdit(id, type) {
+        window.open('admin.php?page=qeditor&edit=' + type + '&id=' + id, 'quickedit', 'width=500,height=600,scrollbars=yes,resizable=yes');
+    }
+    </script>
 </head>
 <body class="admin-dashboard" id="{{ GET.page|default('overview')|e }}">
 {{ hook('admin.header.after') }}
