@@ -110,7 +110,7 @@
 					<div class="lp-links">
 						<a href="index.php?page=register">{{ LNG.buttonRegister }}</a>
 					</div>
-					{% if loginInfo %}<span class="lp-desc">{{ loginInfo }}</span>{% endif %}
+					{% if loginInfo %}<span class="lp-desc">{{ loginInfo|raw }}</span>{% endif %}
 				</div>
 			</div>
 		</div>
