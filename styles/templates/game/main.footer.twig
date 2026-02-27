@@ -161,7 +161,8 @@ var SmartChat = (function(){
                     if(!initial) newMsgs.push(m);
                 });
                 if(!initial && newMsgs.length > 0 && !_open){
-                    newMsgs.forEach(function(m){ showToast(m); });
+                    var others = newMsgs.filter(function(m){ return m.user_id !== _myId; });
+                    if(others.length > 0) showToast(others[others.length - 1]);
                     updateBadge(true);
                 }
                 toggleInputUI(d.is_banned, _channel === 'alliance' && !_isAlliance);
@@ -347,6 +348,7 @@ var SmartChat = (function(){
     function showToast(m){
         var c = $id('scToastContainer');
         if(!c) return;
+        c.innerHTML = '';
         var t = document.createElement('div');
         t.className = 'sc-toast';
         var preview = m.message.replace(/\[.*?\]/g,'').substring(0,60);
