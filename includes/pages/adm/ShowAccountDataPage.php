@@ -70,7 +70,7 @@ function ShowAccountDataPage()
 			$suspen 		= $LNG['one_is_yes_'.$UserQuery['bana']];
 
 
-			$mo	= "<a title=\"".pretty_number($UserQuery['darkmatter'])."\">".shortly_number($UserQuery['darkmatter'])."</a>";
+			$mo	= "<a title=\"".pretty_number((float)$UserQuery['darkmatter'])."\">".shortly_number((float)$UserQuery['darkmatter'])."</a>";
 
 			foreach($reslist['officier'] as $ID)
 			{

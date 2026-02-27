@@ -348,8 +348,9 @@ function CheckNoobProtec(array $OwnerPlayer, array $TargetPlayer, array $Player)
 	);
 }
 
-function shortly_number(int|float $number, ?int $decial = null): string
+function shortly_number(int|float|string $number, ?int $decial = null): string
 {
+	$number = (float)$number;
 	$negate	= $number < 0 ? -1 : 1;
 	$number	= abs($number);
     $unit	= array("", "K", "M", "B", "T", "Q", "Q+", "S", "S+", "O", "N");
