@@ -124,7 +124,13 @@ function ShowConfigBasicPage()
 		$LOG->save();
 	}
 	
-	$TimeZones		= get_timezone_selector();
+	$TimeZonesGrouped = get_timezone_selector();
+	$TimeZones = array();
+	foreach ($TimeZonesGrouped as $continent => $zones) {
+		foreach ($zones as $tzId => $tzLabel) {
+			$TimeZones[$tzId] = $continent . ' - ' . $tzLabel;
+		}
+	}
 	
 	$template	= new template();
 	
