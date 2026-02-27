@@ -196,7 +196,7 @@ LOCK TABLES `{$dbTable}` WRITE;
 					}
 					else
 					{
-						$rowData[]	= $value === NULL ? 'NULL' : $db->quote($value);
+						$rowData[]	= $value === NULL ? 'NULL' : $db->quote((string)$value);
 					}
 				}
 				fwrite($fp, "(".implode(", ",$rowData).")");
