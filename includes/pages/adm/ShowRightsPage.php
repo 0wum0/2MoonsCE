@@ -46,7 +46,7 @@ function ShowRightsPage()
 				}
 				
 				$Rights	= $GLOBALS['DATABASE']->getFirstRow("SELECT rights FROM ".USERS." WHERE `id` = '".$id."';");
-				if(empty($Rights) || ($Rights['rights'] = unserialize($Rights['rights'])) === false) {
+				if(empty($Rights) || empty($Rights['rights']) || ($Rights['rights'] = unserialize($Rights['rights'])) === false) {
 					$Rights['rights']	= array();
 				}
 				
