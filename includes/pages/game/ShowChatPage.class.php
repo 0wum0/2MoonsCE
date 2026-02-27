@@ -106,7 +106,7 @@ class ShowChatPage extends AbstractGamePage
 		global $USER;
 		$db      = Database::get();
 		$channel = HTTP::_GP('channel', 'global') === 'alliance' ? 'alliance' : 'global';
-		$msg     = trim(HTTP::_GP('message', ''));
+		$msg     = trim(HTTP::_GP('message', '', true));
 		$alliId  = (int)($USER['ally_id'] ?? 0);
 		$userId  = (int)$USER['id'];
 
