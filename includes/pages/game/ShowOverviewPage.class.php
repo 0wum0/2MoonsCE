@@ -275,10 +275,23 @@ class ShowOverviewPage extends AbstractGamePage
 		));
 		$onlineUser = $db->rowCount();
 		
+		$newsItems = [];
+		$newsQuery = $db->select("SELECT title, text FROM %%NEWS%% ORDER BY id DESC;");
+		foreach ($newsQuery as $newsRow) {
+			$newsItems[] = array(
+				'title' => $newsRow['title'],
+				'text'  => makebr($newsRow['text']),
+			);
+		}
+		if (empty($newsItems) && !empty($config->OverviewNewsText)) {
+			$newsItems[] = array('title' => '', 'text' => makebr($config->OverviewNewsText));
+		}
+
 		$this->assign(array(
 			'rankInfo'					=> $rankInfo,
 			'is_news'					=> $config->OverviewNewsFrame,
 			'news'						=> makebr($config->OverviewNewsText),
+			'newsItems'					=> $newsItems,
 			'planetname'				=> $PLANET['name'],
 			'planetimage'				=> $PLANET['image'],
 			'galaxy'					=> $PLANET['galaxy'],

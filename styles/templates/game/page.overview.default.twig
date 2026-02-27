@@ -138,15 +138,58 @@ window.OVERVIEW_DATA = {
   <!-- RIGHT: NEWS + CONTENT -->
   <div class="ov-col-right">
 
-    {% if is_news %}
-    <div class="glass-panel ov-news-ticker">
+    {% if is_news and newsItems is defined and newsItems|length > 0 %}
+    <div class="glass-panel ov-news-ticker" id="ov-news-ticker-box">
       <div class="news-label"><i class="fas fa-bullhorn"></i> {{ LNG.ov_news }}</div>
-      <div class="news-marquee">
-        <marquee behavior="scroll" direction="left" scrollamount="6" onmouseover="this.stop();" onmouseout="this.start();">
-          {{ news|raw }}
-        </marquee>
+      <div class="news-ticker-wrap">
+        <div class="news-ticker-track" id="newsTickerTrack">
+          {% for item in newsItems %}
+          <div class="news-ticker-slide">
+            {% if item.title %}<span class="news-ticker-title">{{ item.title }}</span> — {% endif %}
+            <span class="news-ticker-text">{{ item.text|raw }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% if newsItems|length > 1 %}
+        <div class="news-ticker-nav">
+          <button class="news-nav-btn" id="newsPrev" title="Zurück">&#8592;</button>
+          <span class="news-ticker-counter"><span id="newsIdx">1</span> / {{ newsItems|length }}</span>
+          <button class="news-nav-btn" id="newsNext" title="Weiter">&#8594;</button>
+        </div>
+        {% endif %}
       </div>
     </div>
+    <script>
+    (function(){
+      var track = document.getElementById('newsTickerTrack');
+      if (!track) return;
+      var slides = track.querySelectorAll('.news-ticker-slide');
+      if (slides.length <= 1) return;
+      var idx = 0, timer, paused = false;
+      var counter = document.getElementById('newsIdx');
+      function show(n) {
+        slides[idx].classList.remove('active');
+        idx = (n + slides.length) % slides.length;
+        slides[idx].classList.add('active');
+        if (counter) counter.textContent = idx + 1;
+      }
+      slides[0].classList.add('active');
+      function next() { show(idx + 1); }
+      function prev() { show(idx - 1); }
+      function startTimer() { timer = setInterval(next, 6000); }
+      function stopTimer() { clearInterval(timer); }
+      startTimer();
+      var box = document.getElementById('ov-news-ticker-box');
+      if (box) {
+        box.addEventListener('mouseenter', function(){ paused=true; stopTimer(); });
+        box.addEventListener('mouseleave', function(){ paused=false; startTimer(); });
+      }
+      var btnNext = document.getElementById('newsNext');
+      var btnPrev = document.getElementById('newsPrev');
+      if (btnNext) btnNext.addEventListener('click', function(){ stopTimer(); next(); if(!paused) startTimer(); });
+      if (btnPrev) btnPrev.addEventListener('click', function(){ stopTimer(); prev(); if(!paused) startTimer(); });
+    })();
+    </script>
     {% endif %}
 
     <!-- Plugin Banners -->
@@ -218,9 +261,18 @@ window.OVERVIEW_DATA = {
 .ov-info-body { padding:0; }
 .ov-info-body .data-row { padding:8px 16px; }
 
-.ov-news-ticker { display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:12px !important; margin-bottom:12px; }
+.ov-news-ticker { display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:12px !important; margin-bottom:12px; flex-wrap:wrap; }
 .ov-news-ticker .news-label { font-family:var(--font-hud); font-size:9px; letter-spacing:2px; color:var(--cyan); white-space:nowrap; display:flex; align-items:center; gap:6px; flex-shrink:0; }
-.ov-news-ticker .news-marquee { flex:1; overflow:hidden; font-size:13px; color:var(--text); }
+.news-ticker-wrap { flex:1; min-width:0; display:flex; align-items:center; gap:10px; }
+.news-ticker-track { flex:1; min-width:0; position:relative; min-height:2.4em; }
+.news-ticker-slide { display:none; font-size:13px; color:var(--text); line-height:1.5; animation:tickerFadeIn 0.5s ease; }
+.news-ticker-slide.active { display:block; }
+@keyframes tickerFadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.news-ticker-title { color:var(--cyan); font-weight:700; }
+.news-ticker-nav { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.news-nav-btn { background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.25); color:var(--cyan); border-radius:5px; width:24px; height:24px; cursor:pointer; font-size:14px; line-height:1; transition:0.2s; padding:0; }
+.news-nav-btn:hover { background:rgba(0,212,255,0.2); }
+.news-ticker-counter { font-size:10px; color:var(--dim); font-family:var(--font-hud); white-space:nowrap; }
 
 .ov-referral-body { padding:16px; }
 .ov-banner-preview { margin-bottom:12px; }

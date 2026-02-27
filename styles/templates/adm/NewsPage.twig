@@ -1,23 +1,60 @@
 {% include "overall_header.twig" %}
+<style>
+.nws-editor-card { background:var(--panel); border:1px solid rgba(0,212,255,0.2); border-radius:12px; padding:24px; margin-bottom:20px; max-width:900px; }
+.nws-editor-card h2 { color:var(--cyan); font-size:16px; margin:0 0 18px 0; letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid rgba(0,212,255,0.15); padding-bottom:10px; }
+.nws-field { margin-bottom:14px; }
+.nws-field label { display:block; font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.nws-input { width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(0,212,255,0.2); border-radius:6px; color:#fff; padding:9px 12px; font-size:14px; box-sizing:border-box; outline:none; transition:0.2s; }
+.nws-input:focus { border-color:var(--cyan); box-shadow:0 0 10px rgba(0,212,255,0.2); }
+.nws-textarea { width:100%; min-height:180px; resize:vertical; font-family:inherit; background:rgba(0,0,0,0.4); border:1px solid rgba(0,212,255,0.2); border-radius:6px; color:#fff; padding:9px 12px; font-size:14px; box-sizing:border-box; outline:none; transition:0.2s; }
+.nws-textarea:focus { border-color:var(--cyan); box-shadow:0 0 10px rgba(0,212,255,0.2); }
+.bb-toolbar { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; padding:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; }
+.bb-btn { padding:4px 12px; background:rgba(0,212,255,0.07); border:1px solid rgba(0,212,255,0.22); border-radius:4px; color:#cde; cursor:pointer; font-size:12px; font-weight:700; transition:0.2s; }
+.bb-btn:hover { background:var(--cyan); color:#000; }
+.nws-submit { padding:10px 28px; background:var(--cyan); color:#000; border:none; border-radius:7px; font-weight:900; font-size:14px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; transition:0.2s; }
+.nws-submit:hover { background:#fff; }
+</style>
+<script>
+function nwsInsertBB(tag, id) {
+    var area = document.getElementById(id);
+    if (!area) return;
+    var s = area.selectionStart, e = area.selectionEnd;
+    var sel = area.value.substring(s, e);
+    var res = tag === 'url' ? '[url=https://]' + (sel||'Link') + '[/url]'
+            : tag === 'color' ? '[color=red]' + sel + '[/color]'
+            : '[' + tag + ']' + sel + '[/' + tag + ']';
+    area.value = area.value.substring(0, s) + res + area.value.substring(e);
+    area.focus();
+}
+</script>
 <div class="legacy-content">
 {% if mode is defined %}
-<form method="POST" action="?page=news&amp;action=send&amp;mode={{ mode }}">
-{% if news_id is defined %}<input name="id" type="hidden" value="{{ news_id }}">{% endif %}
-<table>
-<tr>
-	<th colspan="2">{{ nws_head }}</th>
-</tr>
-<tr>
-	<td width="25%">{{ nws_title }}</td><td><input type="text" name="title" value="{{ news_title }}"></td>
-</tr>
-<tr>
-	<td>{{ nws_content }}</td><td><textarea cols="70" rows="10" name="text">{{ news_text }}</textarea></td>
-</tr>
-<tr>
-	<td colspan="2"><input type="submit" name="Submit" value="{{ button_submit }}"></td>
-</tr>
-</table>
-</form>
+<div class="nws-editor-card">
+  <h2>{{ nws_head }}</h2>
+  <form method="POST" action="?page=news&amp;action=send&amp;mode={{ mode }}">
+  {% if news_id is defined %}<input name="id" type="hidden" value="{{ news_id }}">{% endif %}
+  <div class="nws-field">
+    <label>{{ nws_title }}</label>
+    <input type="text" name="title" class="nws-input" value="{{ news_title }}">
+  </div>
+  <div class="nws-field">
+    <label>{{ nws_content }}</label>
+    <div class="bb-toolbar">
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('b','nws-text')"><b>B</b></button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('i','nws-text')"><i>I</i></button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('u','nws-text')"><u>U</u></button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('s','nws-text')"><s>S</s></button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('url','nws-text')">URL</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('img','nws-text')">IMG</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('color','nws-text')">Farbe</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('size','nws-text')">Größe</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('quote','nws-text')">Zitat</button>
+    </div>
+    <textarea name="text" id="nws-text" class="nws-textarea">{{ news_text }}</textarea>
+  </div>
+  <button type="submit" name="Submit" class="nws-submit">{{ button_submit }}</button>
+  </form>
+</div>
 {% endif %}
 <table>
 <tr>
