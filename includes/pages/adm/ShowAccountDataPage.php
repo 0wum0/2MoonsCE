@@ -46,7 +46,7 @@ function ShowAccountDataPage()
 			$SpecifyItemsU	= 
 			"u.id,u.username,u.email,u.email_2,u.authlevel,u.id_planet,u.galaxy,u.system,u.planet,u.user_lastip,u.ip_at_reg,u.darkmatter,u.register_time,u.onlinetime,u.urlaubs_modus,u.
 			 urlaubs_until,u.ally_id,a.ally_name,".$SpecifyItemsUQ."
-			 u.ally_register_time,u.ally_rank_id,u.bana,u.banaday,u.user_ua";
+			 u.ally_register_time,u.ally_rank_id,u.bana,u.banaday";
 			
 			$UserQuery 	= 	$GLOBALS['DATABASE']->getFirstRow("SELECT ".$SpecifyItemsU." FROM ".USERS." as u LEFT JOIN ".ALLIANCE." a ON a.id = u.ally_id WHERE u.`id` = '".$id_u."';");
 
@@ -154,29 +154,30 @@ function ShowAccountDataPage()
 				$SpecifyItemsA	= 
 				"ally_owner,id,ally_tag,ally_name,ally_web,ally_description,ally_text,ally_request,ally_image,ally_members,ally_register_time";
 				
-				$AllianceQuery		= $GLOBALS['DATABASE']->getFirstRow("SELECT ".$SpecifyItemsA." FROM ".ALLIANCE." WHERE `ally_name` = '".$alianza."';");
-				
-				
-				$alianza				= $alianza;
+				$AllianceQuery		= $GLOBALS['DATABASE']->getFirstRow("SELECT ".$SpecifyItemsA." FROM ".ALLIANCE." WHERE `id` = '".$AliID."';");
+
+				if (!$AllianceQuery) {
+					$AllianceHave = "<span class=\"no_moon\"><img src=\"./styles/resource/images/admin/arrowright.png\" width=\"16\" height=\"10\"/> ".$LNG['ac_alliance']."&nbsp;".$LNG['ac_no_alliance']."</span>";
+				} else {
+
 				$id_ali					= " (".$LNG['ac_ali_idid']."&nbsp;".$AliID.")";	
 				$id_aliz				= $AllianceQuery['id'];
 				$tag					= $AllianceQuery['ally_tag'];
 				$ali_nom				= $AllianceQuery['ally_name'];
 				$ali_cant				= $AllianceQuery['ally_members'];
-				$ally_register_time		= _date($LNG['php_tdformat'], $AllianceQuery['ally_register_time'], $USER['timezone']);
+				$ally_register_time		= _date($LNG['php_tdformat'], $AllianceQuery['ally_register_time'] ?? 0, $USER['timezone']);
 				$ali_lider				= $AllianceQuery['ally_owner'];
 				$ali_web				= $AllianceQuery['ally_web'] != NULL ? "<a href=".$AllianceQuery['ally_web']." target=_blank>".$AllianceQuery['ally_web']."</a>" : $LNG['ac_no_web'];
-										
-					
-				if($AllianceQuery['ally_description'] != NULL)
-				{
-					$ali_ext2 = $bbcode->parse($AllianceQuery['ally_description']);
-					$ali_ext  = "<a href=\"#\" rel=\"toggle[externo]\">".$LNG['ac_view_text_ext']."</a>";
-				}
-				else
-				{
-					$ali_ext = $LNG['ac_no_text_ext'];
-				}
+
+					if($AllianceQuery['ally_description'] != NULL)
+					{
+						$ali_ext2 = $bbcode->parse($AllianceQuery['ally_description']);
+						$ali_ext  = "<a href=\"#\" rel=\"toggle[externo]\">"	.$LNG['ac_view_text_ext']."</a>";
+					}
+					else
+					{
+						$ali_ext = $LNG['ac_no_text_ext'];
+					}
 					
 					
 				if($AllianceQuery['ally_text'] != NULL)
@@ -236,7 +237,8 @@ function ShowAccountDataPage()
 				$ranking_fleet_ali		= pretty_number($StatQueryAlly['fleet_rank']);
 				
 				$total_points_ali		= pretty_number($StatQueryAlly['total_points']);
-			}		
+			}	
+			}
 			
 			foreach(array_merge($reslist['fleet'], $reslist['build'], $reslist['defense']) as $ID)
 			{
