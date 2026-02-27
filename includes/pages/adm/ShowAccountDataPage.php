@@ -240,6 +240,7 @@ function ShowAccountDataPage()
 			}	
 			}
 			
+			$SpecifyItemsPQ = '';
 			foreach(array_merge($reslist['fleet'], $reslist['build'], $reslist['defense']) as $ID)
 			{
 				$SpecifyItemsPQ	.= "`".$resource[$ID]."`,";
