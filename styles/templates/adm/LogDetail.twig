@@ -24,7 +24,7 @@
 	<th>{{ log_new }}</th>
 </tr>
 {% for LogInfo in LogArray %}
-{% if (LogInfo.old <> LogInfo.new %}
+{% if LogInfo.old != LogInfo.new %}
 <tr>
 	<td>{{ LogInfo.Element }}</td>
 	<td>{{ LogInfo.old }}</td>

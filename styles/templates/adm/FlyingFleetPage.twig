@@ -19,7 +19,7 @@
 {% for FleetRow in FleetList %}
 <tr>
 	<td>{{ FleetRow.fleetID }}</td>
-	<td><a href="#" data-tooltip-content="<table style='width:200px'>{% for resourceID, resourceCount in FleetRow.resource %}<tr><td style='width:50%'>{{ LNG.tech[resourceID] }}</td><td style='width:50%'>{{ resourceCount|number_format }}</td></tr>{% endfor %}</table>" class="tooltip">{{ LNG["type_mission_{{ FleetRow.missionID }}"] }}{% if FleetRow.acsID != 0 %}<br>{{ FleetRow.acsID }}<br>{{ FleetRow.acsName }}{% endif %} (R)</a></td>
+	<td><a href="#" data-tooltip-content="<table style='width:200px'>{% for resourceID, resourceCount in FleetRow.resource %}<tr><td style='width:50%'>{{ LNG.tech[resourceID] }}</td><td style='width:50%'>{{ resourceCount|number_format }}</td></tr>{% endfor %}</table>" class="tooltip">{{ attribute(LNG, 'type_mission_'~FleetRow.missionID) }}{% if FleetRow.acsID != 0 %}<br>{{ FleetRow.acsID }}<br>{{ FleetRow.acsName }}{% endif %} (R)</a></td>
 	<td>{{ FleetRow.starttime }}</td>
 	<td><a href="#" data-tooltip-content="<table style='width:200px'>{% for shipID, shipCount in FleetRow.ships %}<tr><td style='width:50%'>{{ LNG.tech[shipID] }}</td><td style='width:50%'>{{ shipCount|number_format }}</td></tr>{% endfor %}</table>" class="tooltip">{{ FleetRow.count|number_format }} (D)</a></td>
 	<td>{{ FleetRow.startUserName }} (ID: {{ FleetRow.startUserID }})</td>

@@ -20,7 +20,7 @@
 {% for CronjobInfo in CronjobArray %}
 <tr>
 	<td>{{ CronjobInfo.id }}</td>
-	<td>{{ LNG["cronName_{{ CronjobInfo.name }}"] }}</td>
+	<td>{{ attribute(LNG, 'cronName_'~CronjobInfo.name)|default(CronjobInfo.name) }}</td>
 	<td>{{ CronjobInfo.min }}</td>
 	<td>{{ CronjobInfo.hours }}</td>
 	<td>{{ CronjobInfo.dom }}</td>

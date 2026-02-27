@@ -18,7 +18,7 @@ function check(){
 <tr style="height:26px;"><td width="50%">{{ LNG.qe_id }}:</td><td width="50%">{{ id }}</td></tr>
 <tr><td width="50%">{{ LNG.qe_username }}:</td><td width="50%"><input name="name" type="text" size="15" value="{{ name }}" autocomplete="off"></td></tr>
 <tr style="height:26px;"><td width="50%">{{ LNG.qe_hpcoords }}:</td><td width="50%">{{ planetname }} [{{ galaxy }}:{{ system }}:{{ planet }}] ({{ LNG.qe_id }}: {{ planetid }})</td></tr>
-{% if authlevel == constant('AUTH_USER') %}
+{% if authlevl != constant('AUTH_USR') %}
 <tr style="height:26px;"><td width="50%">{{ LNG.qe_authattack }}:</td><td width="50%"><input type="checkbox" name="authattack"{% if authattack == 0 %} checked{% endif %}></td></tr>
 {% endif %}
 {% if ChangePW %}

@@ -1,12 +1,13 @@
 {% include "overall_header.twig" %}
 <div class="legacy-content">
-<form action="" method="post">
+<form action="?page=rights&amp;mode=rights&amp;sid={{ sid }}" method="post">
 <input name="action" type="hidden" value="send">
 <input name="id_1" type="hidden" value="{{ id }}">
 <table>
 <tr>
 	<th colspan="2">{{ ad_authlevel_title }}</th>
 </tr>
+<tr>
 	<td>
 		{{ User }}
 	</td>
@@ -20,7 +21,7 @@
 		{{ File }}
 	</td>
 	<td>
-		{{ yesorno.1 }} <input class="yes" name="rights[{{ File }}]" type="radio"{% if Rights.File == 1 %} checked="checked"{% endif %} value="1"> {{ yesorno.0 }} <input class="no" name="rights[{{ File }}]" type="radio"{% if Rights.File == 0 %} checked="checked"{% endif %} value="0">
+		{{ yesorno.1 }} <input class="yes" name="rights[{{ File }}]" type="radio"{% if attribute(Rights, File) == 1 %} checked="checked"{% endif %} value="1"> {{ yesorno.0 }} <input class="no" name="rights[{{ File }}]" type="radio"{% if attribute(Rights, File) is not defined or attribute(Rights, File) == 0 %} checked="checked"{% endif %} value="0">
 	</td>
 </tr>
 {% endfor %}

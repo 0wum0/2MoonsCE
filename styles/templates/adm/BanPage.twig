@@ -132,7 +132,8 @@
                 </select>
                 <script type="text/javascript">var UsersBan = new filterlist(document.getElementsByName('unban_name')[0]);</script>
 
-                <button type="submit" class="btn btn-outline-success w-100 p-2 fw-bold">FREIGEBEN</button>
+                <input type="hidden" name="do_unban" value="1">
+                <button type="submit" name="unban_name" value="" class="btn btn-outline-success w-100 p-2 fw-bold" onclick="this.value=document.getElementsByName('unban_name')[0].value">FREIGEBEN</button>
                 <div class="text-end text-muted small mt-1">Gesperrt: {{ bancount }}</div>
             </form>
         </div>
