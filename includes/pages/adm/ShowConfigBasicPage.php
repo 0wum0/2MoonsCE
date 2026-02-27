@@ -156,7 +156,7 @@ function ShowConfigBasicPage()
 		'message_delete_days'         	=> $config->message_delete_days,
 		'Selector'						=> array(
 		    'timezone' => $TimeZones,
-            'mail' => $LNG['se_mail_sel'],
+            'mail' => array(0 => $LNG['se_mail_sel_0'], 1 => $LNG['se_mail_sel_1'], 2 => $LNG['se_mail_sel_2']),
             'encry' => array('' => $LNG['se_smtp_ssl_1'], 'ssl' => $LNG['se_smtp_ssl_2'], 'tls' => $LNG['se_smtp_ssl_3']),
             'message_delete_behavior' => array(0 => $LNG['se_message_delete_behavior_0'], 1 => $LNG['se_message_delete_behavior_1']),
         ),
