@@ -55,18 +55,29 @@ window.OVERVIEW_DATA = {
 
   <div class="ov-main-grid">
 
-    <!-- ══════════ LEFT: Quick Actions ++ ══════════ -->
+    <!-- ══════════ LEFT: Colonies + Debris ══════════ -->
     <div class="ov-col-left">
 
-      <!-- QUICK ACTIONS -->
+      <!-- COLONIES -->
+      {% if AllPlanets is defined and AllPlanets|length > 0 %}
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-bolt"></i> {{ LNG.ov_server_info|default('Aktionen') }}</div>
-        <div class="ov-server-actions ov-server-actions-col">
-          <a href="game.php?page=ticket" class="ov-btn ov-btn-sm"><i class="fas fa-headset"></i> Support</a>
-          <a href="game.php?page=messages" class="ov-btn ov-btn-sm"><i class="fas fa-envelope"></i> {{ LNG.lm_messages }}</a>
-          <a href="game.php?page=statistics" class="ov-btn ov-btn-sm"><i class="fas fa-chart-bar"></i> {{ LNG.lm_statistics|default('Statistik') }}</a>
+        <div class="ov-card-header"><i class="fas fa-globe"></i> {{ LNG.ov_colonies|default('Kolonien') }} <span class="ov-badge">{{ AllPlanets|length }}</span></div>
+        <div class="ov-planet-list">
+          {% for p in AllPlanets %}
+          <a href="game.php?page=overview&cp={{ p.id }}" class="ov-planet-row">
+            <img src="styles/theme/gow/planeten/{{ p.image }}.jpg" onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'" class="ov-planet-thumb" alt="">
+            <div class="ov-planet-row-info">
+              <span class="ov-planet-row-name">{{ p.name }}</span>
+              <span class="ov-planet-row-build {% if p.build == LNG.ov_free %}ov-free{% else %}ov-building{% endif %}">
+                {% if p.build == LNG.ov_free %}<i class="fas fa-check-circle"></i>{% else %}<i class="fas fa-hammer"></i>{% endif %}
+                {{ p.build|raw }}
+              </span>
+            </div>
+          </a>
+          {% endfor %}
         </div>
       </div>
+      {% endif %}
 
       <!-- DEBRIS -->
       {% if GalaxyRows is defined and GalaxyRows and (GalaxyRows.debris.metal > 0 or GalaxyRows.debris.crystal > 0) %}
@@ -92,82 +103,83 @@ window.OVERVIEW_DATA = {
           <span>&ldquo;{{ planetname }}&rdquo;</span>
           <a href="#" onclick="return Dialog.PlanetAction();" class="ov-icon-btn" title="{{ LNG.ov_planetmenu }}"><i class="fas fa-ellipsis-v"></i></a>
         </div>
-        <a href="game.php?page=buildings" class="ov-planet-hero" id="ovPlanetHero" title="{{ LNG.ov_buildings|default('Gebäude') }}">
-          <div class="ov-planet-scene">
-            <canvas class="ov-stars-canvas" id="ovStarsCanvas"></canvas>
+        <div class="ov-planet-scene" id="ovPlanetScene">
+          <canvas class="ov-stars-canvas" id="ovStarsCanvas"></canvas>
 
-            <!-- LEFT: PLANET STATS OVERLAY -->
-            <div class="ov-scene-overlay ov-scene-left">
-              <div class="ov-scene-type-badge">{{ LNG["type_planet_" ~ planet_type] }}</div>
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.ov_diameter }}</span>
-                <span class="ov-scene-val">{{ planet_diameter }}</span>
-              </div>
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.ov_temperature }}</span>
-                <span class="ov-scene-val">{{ planet_temp_min }}° / {{ planet_temp_max }}°</span>
-              </div>
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.ov_fields }}</span>
-                <span class="ov-scene-val {% if planet_field_current >= planet_field_max %}ov-danger{% endif %}">{{ planet_field_current }}/{{ planet_field_max }}</span>
-                <div class="ov-scene-bar"><div class="ov-scene-fill" style="width:{{ planet_field_max > 0 ? ((planet_field_current / planet_field_max)*100)|round(1) : 0 }}%"></div></div>
-              </div>
-              {% if Moon is defined and Moon %}
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.fcm_moon }}</span>
-                <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-scene-val" style="color:var(--gold)" onclick="event.stopPropagation()">{{ Moon.name }}</a>
-              </div>
-              {% endif %}
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">Koordinaten</span>
-                <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" onclick="event.stopPropagation()" class="ov-scene-val" style="color:var(--cyan);font-size:11px;font-family:var(--font-mono)">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
-              </div>
+          <!-- LEFT: PLANET STATS OVERLAY -->
+          <div class="ov-scene-overlay ov-scene-left">
+            <div class="ov-scene-type-badge">{{ LNG["type_planet_" ~ planet_type] }}</div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.ov_diameter }}</span>
+              <span class="ov-scene-val">{{ planet_diameter }}</span>
             </div>
-
-            <!-- RIGHT: SERVER INFO OVERLAY -->
-            <div class="ov-scene-overlay ov-scene-right">
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.ov_online_user }}</span>
-                <span class="ov-scene-val" style="color:var(--green)">{{ onlineUser }}</span>
-              </div>
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">Chat</span>
-                <span class="ov-scene-val" style="color:{% if chatOnline is defined and chatOnline|length > 0 %}var(--green){% else %}var(--dim){% endif %}">
-                  {% if chatOnline is defined %}{{ chatOnline|length }}{% else %}0{% endif %}
-                </span>
-              </div>
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.ov_admins_online }}</span>
-                <span class="ov-scene-val">
-                  {% if AdminsOnline %}
-                    {% for ID, Name in AdminsOnline %}<a href="#" onclick="event.stopPropagation();return Dialog.PM({{ ID }});" style="color:var(--red)">{{ Name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
-                  {% else %}<span style="color:var(--dim)">–</span>{% endif %}
-                </span>
-              </div>
-              <div class="ov-scene-stat">
-                <span class="ov-scene-lbl">{{ LNG.ov_points }}</span>
-                <span class="ov-scene-val" style="font-size:10px;font-weight:400;color:var(--text)">{{ rankInfo|raw }}</span>
-              </div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.ov_temperature }}</span>
+              <span class="ov-scene-val">{{ planet_temp_min }}° / {{ planet_temp_max }}°</span>
             </div>
-
-            <div class="ov-planet-img-wrap" id="ovPlanetImgWrap">
-              <img src="styles/theme/gow/planeten/{{ planetimage }}.jpg"
-                   onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'"
-                   class="ov-planet-img" id="ovPlanetImg" alt="{{ planetname }}">
-              <div class="ov-planet-atmosphere" id="ovPlanetAtm"></div>
-              <div class="ov-planet-shimmer"></div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.ov_fields }}</span>
+              <span class="ov-scene-val {% if planet_field_current >= planet_field_max %}ov-danger{% endif %}">{{ planet_field_current }}/{{ planet_field_max }}</span>
+              <div class="ov-scene-bar"><div class="ov-scene-fill" style="width:{{ planet_field_max > 0 ? ((planet_field_current / planet_field_max)*100)|round(1) : 0 }}%"></div></div>
             </div>
-            <div class="ov-orbit-ring ov-orbit-1"></div>
-            <div class="ov-orbit-ring ov-orbit-2"></div>
             {% if Moon is defined and Moon %}
-            <div class="ov-moon-orbit-wrap" id="ovMoonOrbit"><div class="ov-moon-img"></div></div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.fcm_moon }}</span>
+              <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-scene-val" style="color:var(--gold)">{{ Moon.name }}</a>
+            </div>
             {% endif %}
-            <div class="ov-planet-cta">
-              <i class="fas fa-city"></i>
-              <span>{{ LNG.lm_buildings|default('Gebäude') }}</span>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">Koordinaten</span>
+              <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" class="ov-scene-val" style="color:var(--cyan);font-size:11px;font-family:var(--font-mono)">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
             </div>
           </div>
-        </a>
+
+          <!-- RIGHT: SERVER INFO OVERLAY -->
+          <div class="ov-scene-overlay ov-scene-right">
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.ov_online_user }}</span>
+              <span class="ov-scene-val" style="color:var(--green)">{{ onlineUser }}</span>
+            </div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">Chat</span>
+              <span class="ov-scene-val" style="color:{% if chatOnline is defined and chatOnline|length > 0 %}var(--green){% else %}var(--dim){% endif %}">
+                {% if chatOnline is defined %}{{ chatOnline|length }}{% else %}0{% endif %}
+              </span>
+            </div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.ov_admins_online }}</span>
+              <span class="ov-scene-val">
+                {% if AdminsOnline %}
+                  {% for ID, Name in AdminsOnline %}<a href="#" onclick="return Dialog.PM({{ ID }});" style="color:var(--red)">{{ Name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+                {% else %}<span style="color:var(--dim)">–</span>{% endif %}
+              </span>
+            </div>
+            <div class="ov-scene-stat">
+              <span class="ov-scene-lbl">{{ LNG.ov_points }}</span>
+              <span class="ov-scene-val" style="font-size:10px;font-weight:400;color:var(--text)">{{ rankInfo|raw }}</span>
+            </div>
+          </div>
+
+          <!-- PLANET IMAGE (clickable, hover glow) -->
+          <div class="ov-planet-img-wrap" id="ovPlanetImgWrap" onclick="window.location.href='game.php?page=buildings'" title="{{ LNG.ov_buildings|default('Gebäude') }}">
+            <img src="styles/theme/gow/planeten/{{ planetimage }}.jpg"
+                 onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'"
+                 class="ov-planet-img" id="ovPlanetImg" alt="{{ planetname }}">
+            <div class="ov-planet-atmosphere" id="ovPlanetAtm"></div>
+            <div class="ov-planet-shimmer"></div>
+          </div>
+          <div class="ov-orbit-ring ov-orbit-1"></div>
+          <div class="ov-orbit-ring ov-orbit-2"></div>
+          {% if Moon is defined and Moon %}
+          <div class="ov-moon-orbit-wrap" id="ovMoonOrbit"><div class="ov-moon-img"></div></div>
+          {% endif %}
+        </div>
+        <!-- ACTION BUTTONS INSIDE PLANET CARD -->
+        <div class="ov-planet-actions">
+          <a href="game.php?page=ticket" class="ov-btn ov-btn-sm"><i class="fas fa-headset"></i> Support</a>
+          <a href="game.php?page=messages" class="ov-btn ov-btn-sm"><i class="fas fa-envelope"></i> {{ LNG.lm_messages }}</a>
+          <a href="game.php?page=statistics" class="ov-btn ov-btn-sm"><i class="fas fa-chart-bar"></i> {{ LNG.lm_statistics|default('Statistik') }}</a>
+        </div>
       </div>
 
       <!-- BUILD QUEUE -->
@@ -252,27 +264,6 @@ window.OVERVIEW_DATA = {
       </div>
       {% endif %}
 
-      <!-- COLONIES -->
-      {% if AllPlanets is defined and AllPlanets|length > 0 %}
-      <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-globe"></i> {{ LNG.ov_colonies|default('Kolonien') }} <span class="ov-badge">{{ AllPlanets|length }}</span></div>
-        <div class="ov-planet-list">
-          {% for p in AllPlanets %}
-          <a href="game.php?page=overview&cp={{ p.id }}" class="ov-planet-row">
-            <img src="styles/theme/gow/planeten/{{ p.image }}.jpg" onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'" class="ov-planet-thumb" alt="">
-            <div class="ov-planet-row-info">
-              <span class="ov-planet-row-name">{{ p.name }}</span>
-              <span class="ov-planet-row-build {% if p.build == LNG.ov_free %}ov-free{% else %}ov-building{% endif %}">
-                {% if p.build == LNG.ov_free %}<i class="fas fa-check-circle"></i>{% else %}<i class="fas fa-hammer"></i>{% endif %}
-                {{ p.build|raw }}
-              </span>
-            </div>
-          </a>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
       <!-- TEAMSPEAK -->
       {% if teamspeakData is defined and teamspeakData and not teamspeakData.error %}
       <div class="ov-card">
@@ -323,7 +314,7 @@ window.OVERVIEW_DATA = {
 .ov-rank-val { font-size:11px; color:var(--text); font-weight:400; line-height:1.4; }
 /* ── PLANET SCENE OVERLAYS ── */
 .ov-scene-overlay { position:absolute; top:0; bottom:0; width:34%; display:flex; flex-direction:column; justify-content:center; gap:9px; padding:14px 13px; z-index:4; pointer-events:none; }
-.ov-scene-overlay a, .ov-scene-overlay span[onclick], .ov-scene-overlay a[onclick] { pointer-events:auto; }
+.ov-scene-overlay a { pointer-events:auto; }
 .ov-scene-left { left:0; background:linear-gradient(to right, rgba(2,4,8,0.88) 0%, rgba(2,4,8,0.55) 60%, transparent 100%); align-items:flex-start; }
 .ov-scene-right { right:0; background:linear-gradient(to left, rgba(2,4,8,0.88) 0%, rgba(2,4,8,0.55) 60%, transparent 100%); align-items:flex-end; text-align:right; }
 .ov-scene-stat { display:flex; flex-direction:column; gap:2px; }
@@ -335,9 +326,14 @@ window.OVERVIEW_DATA = {
 .ov-scene-type-badge { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.25); border-radius:20px; padding:3px 10px; font-family:var(--font-hud); font-size:8px; letter-spacing:1.5px; color:var(--cyan); text-transform:uppercase; white-space:nowrap; }
 .ov-scene-coord { margin-top:4px; }
 .ov-coord-badge { display:none; }
-/* actions column layout */
-.ov-server-actions-col { display:flex; flex-direction:column; gap:6px; padding:10px 12px; }
-.ov-server-actions-col .ov-btn { width:100%; justify-content:center; }
+/* planet clickable wrap */
+.ov-planet-img-wrap { cursor:pointer; }
+.ov-planet-img-wrap:hover .ov-planet-img { filter:saturate(1.3) contrast(1.1) brightness(1.1); }
+.ov-planet-img-wrap:hover { box-shadow:0 0 55px 16px rgba(30,100,255,0.55), 0 0 90px 30px rgba(0,80,200,0.25) !important; transform:translate(-50%,-50%) scale(1.07) !important; }
+.ov-planet-img-wrap:hover ~ .ov-orbit-ring { opacity:3; }
+/* action buttons below planet scene */
+.ov-planet-actions { display:flex; gap:8px; padding:10px 14px; border-top:1px solid var(--border); flex-wrap:wrap; }
+.ov-planet-actions .ov-btn { flex:1; justify-content:center; min-width:80px; }
 
 /* ── CARDS ── */
 .ov-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px; }
@@ -482,19 +478,19 @@ window.OVERVIEW_DATA = {
 
   /* ── PLANET PARALLAX ── */
   (function(){
-    var hero = document.getElementById('ovPlanetHero');
-    var wrap = document.getElementById('ovPlanetImgWrap');
-    var atm  = document.getElementById('ovPlanetAtm');
-    if (!hero || !wrap) return;
-    hero.addEventListener('mousemove', function(e){
-      var r = hero.getBoundingClientRect();
+    var scene = document.getElementById('ovPlanetScene');
+    var wrap  = document.getElementById('ovPlanetImgWrap');
+    var atm   = document.getElementById('ovPlanetAtm');
+    if (!scene || !wrap) return;
+    scene.addEventListener('mousemove', function(e){
+      var r = scene.getBoundingClientRect();
       var cx = r.left + r.width/2, cy = r.top + r.height/2;
       var dx = (e.clientX - cx) / (r.width/2);
       var dy = (e.clientY - cy) / (r.height/2);
-      wrap.style.transform = 'translate(calc(-50% + '+(dx*10)+'px), calc(-50% + '+(dy*8)+'px)) scale(1.06)';
+      wrap.style.transform = 'translate(calc(-50% + '+(dx*10)+'px), calc(-50% + '+(dy*8)+'px)) scale(1.07)';
       if (atm) atm.style.background = 'radial-gradient(ellipse at '+(50+dx*20)+'% '+(50+dy*20)+'%, rgba(120,180,255,0.28) 0%, transparent 60%)';
     });
-    hero.addEventListener('mouseleave', function(){
+    scene.addEventListener('mouseleave', function(){
       wrap.style.transform = 'translate(-50%,-50%) scale(1)';
       if (atm) atm.style.background = '';
     });
