@@ -16,7 +16,7 @@ declare(strict_types=1);
  * @link https://github.com/jkroepke/2Moons
  */
 
-if ($USER['id'] != ROOT_USER || $_GET['sid'] != session_id()) exit;
+if ($USER['id'] != ROOT_USER || ($_GET['sid'] ?? '') != session_id()) exit;
 
 function ShowResetPage()
 {
