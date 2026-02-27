@@ -252,7 +252,48 @@ function ShowAccountDataPage()
 			$SpecifyItemsP	= "planet_type,id,name,galaxy,system,planet,destruyed,diameter,field_current,field_max,temp_min,temp_max,metal,crystal,deuterium,energy,".$SpecifyItemsPQ."energy_used";
 				
 			$PlanetsQuery	= $GLOBALS['DATABASE']->query("SELECT ".$SpecifyItemsP." FROM ".PLANETS." WHERE `id_owner` = '".$id_u."';");
-			
+			$planets_moons	= '';
+			$resources		= '';
+			$MoonZ			= 0;
+			$destroyed		= '';
+			$build			= '';
+			$fleet			= '';
+			$defense		= '';
+			$DestruyeD		= 0;
+			$mas			= '';
+			$sus_time		= '';
+			$sus_longer		= '';
+			$sus_reason		= '';
+			$sus_author		= '';
+			$id_ali			= '';
+			$id_aliz		= '';
+			$tag			= '';
+			$ali_nom		= '';
+			$ali_ext		= '';
+			$ali_ext2		= '';
+			$ali_int		= '';
+			$ali_int2		= '';
+			$ali_sol		= '';
+			$ali_sol2		= '';
+			$ali_logo		= '';
+			$ali_logo2		= '';
+			$ali_web		= '';
+			$ali_cant		= '';
+			$ali_lider		= '';
+			$ally_register_time		= '';
+			$point_tecno_ali		= 0;
+			$count_tecno_ali		= 0;
+			$ranking_tecno_ali		= 0;
+			$point_def_ali			= 0;
+			$count_def_ali			= 0;
+			$ranking_def_ali		= 0;
+			$point_fleet_ali		= 0;
+			$count_fleet_ali		= 0;
+			$ranking_fleet_ali		= 0;
+			$point_builds_ali		= 0;
+			$count_builds_ali		= 0;
+			$ranking_builds_ali		= 0;
+			$total_points_ali		= 0;
 			while ($PlanetsWhile	= $GLOBALS['DATABASE']->fetch_array($PlanetsQuery))
 			{
 				if ($PlanetsWhile['planet_type'] == 3)
@@ -385,7 +426,7 @@ function ShowAccountDataPage()
 				'count_builds_ali'				=> $count_builds_ali,
 				'ranking_builds_ali'			=> $ranking_builds_ali,
 				'total_points_ali'				=> $total_points_ali,
-				'input_id'						=> $input_id,
+				'input_id'						=> $LNG['input_id'],
 				'id_aliz'						=> $id_aliz,
 				'tag'							=> $tag,
 				'ali_nom'						=> $ali_nom,
