@@ -65,52 +65,73 @@ window.OVERVIEW_DATA = {
           <span>{{ LNG["type_planet_" ~ planet_type] }} &ldquo;{{ planetname }}&rdquo;</span>
           <a href="#" onclick="return Dialog.PlanetAction();" class="ov-icon-btn" title="{{ LNG.ov_planetmenu }}"><i class="fas fa-ellipsis-v"></i></a>
         </div>
-        <div class="ov-planet-body">
-          <div class="ov-planet-visual">
-            <div class="ov-planet-3d-wrap">
-              <canvas id="ov-planet-canvas"></canvas>
-              <div class="ov-planet-glow-ring"></div>
-              {% if Moon is defined and Moon %}
-              <div class="ov-moon-orbit"><div class="ov-moon-dot"></div></div>
-              {% endif %}
+
+        <!-- CINEMATIC PLANET HERO -->
+        <a href="game.php?page=buildings" class="ov-planet-hero" id="ovPlanetHero" title="{{ LNG.ov_buildings|default('Gebäude') }}">
+          <div class="ov-planet-scene">
+            <!-- star field -->
+            <canvas class="ov-stars-canvas" id="ovStarsCanvas"></canvas>
+            <!-- planet image -->
+            <div class="ov-planet-img-wrap" id="ovPlanetImgWrap">
+              <img src="styles/theme/gow/planeten/{{ planetimage }}.jpg"
+                   onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'"
+                   class="ov-planet-img" id="ovPlanetImg" alt="{{ planetname }}">
+              <div class="ov-planet-atmosphere" id="ovPlanetAtm"></div>
+              <div class="ov-planet-shimmer"></div>
             </div>
-            <div class="ov-coord-badge">
-              <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
-            </div>
-          </div>
-          <div class="ov-planet-stats">
-            <div class="ov-stat-item">
-              <i class="fas fa-arrows-alt-h"></i>
-              <div class="ov-stat-body">
-                <span class="ov-stat-val">{{ planet_diameter }} {{ LNG.ov_distance_unit }}</span>
-                <span class="ov-stat-lbl">{{ LNG.ov_diameter }}</span>
-              </div>
-            </div>
-            <div class="ov-stat-item">
-              <i class="fas fa-thermometer-half"></i>
-              <div class="ov-stat-body">
-                <span class="ov-stat-val">{{ planet_temp_min }}° – {{ planet_temp_max }}°</span>
-                <span class="ov-stat-lbl">{{ LNG.ov_temperature }}</span>
-              </div>
-            </div>
-            <div class="ov-stat-item">
-              <i class="fas fa-th-large"></i>
-              <div class="ov-stat-body">
-                <span class="ov-stat-val {% if planet_field_current >= planet_field_max %}ov-danger{% endif %}">{{ planet_field_current }} / {{ planet_field_max }}</span>
-                <span class="ov-stat-lbl">{{ LNG.ov_fields }}</span>
-              </div>
-              <div class="ov-field-bar"><div class="ov-field-fill" style="width:{{ planet_field_max > 0 ? ((planet_field_current / planet_field_max) * 100)|round(1) : 0 }}%"></div></div>
-            </div>
+            <!-- orbit rings -->
+            <div class="ov-orbit-ring ov-orbit-1"></div>
+            <div class="ov-orbit-ring ov-orbit-2"></div>
             {% if Moon is defined and Moon %}
-            <div class="ov-stat-item">
-              <i class="fas fa-moon" style="color:var(--gold)"></i>
-              <div class="ov-stat-body">
-                <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-stat-val" style="color:var(--gold)">{{ Moon.name }}</a>
-                <span class="ov-stat-lbl">{{ LNG.fcm_moon }}</span>
-              </div>
+            <div class="ov-moon-orbit-wrap" id="ovMoonOrbit">
+              <div class="ov-moon-img"></div>
             </div>
             {% endif %}
+            <!-- hover overlay CTA -->
+            <div class="ov-planet-cta">
+              <i class="fas fa-city"></i>
+              <span>{{ LNG.lm_buildings|default('Gebäude') }}</span>
+            </div>
           </div>
+          <!-- coord pill -->
+          <div class="ov-coord-badge">
+            <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" onclick="event.stopPropagation()">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
+          </div>
+        </a>
+
+        <!-- STATS GRID -->
+        <div class="ov-planet-stats">
+          <div class="ov-stat-item">
+            <i class="fas fa-arrows-alt-h"></i>
+            <div class="ov-stat-body">
+              <span class="ov-stat-val">{{ planet_diameter }} {{ LNG.ov_distance_unit }}</span>
+              <span class="ov-stat-lbl">{{ LNG.ov_diameter }}</span>
+            </div>
+          </div>
+          <div class="ov-stat-item">
+            <i class="fas fa-thermometer-half"></i>
+            <div class="ov-stat-body">
+              <span class="ov-stat-val">{{ planet_temp_min }}° – {{ planet_temp_max }}°</span>
+              <span class="ov-stat-lbl">{{ LNG.ov_temperature }}</span>
+            </div>
+          </div>
+          <div class="ov-stat-item">
+            <i class="fas fa-th-large"></i>
+            <div class="ov-stat-body">
+              <span class="ov-stat-val {% if planet_field_current >= planet_field_max %}ov-danger{% endif %}">{{ planet_field_current }} / {{ planet_field_max }}</span>
+              <span class="ov-stat-lbl">{{ LNG.ov_fields }}</span>
+            </div>
+            <div class="ov-field-bar"><div class="ov-field-fill" style="width:{{ planet_field_max > 0 ? ((planet_field_current / planet_field_max) * 100)|round(1) : 0 }}%"></div></div>
+          </div>
+          {% if Moon is defined and Moon %}
+          <div class="ov-stat-item">
+            <i class="fas fa-moon" style="color:var(--gold)"></i>
+            <div class="ov-stat-body">
+              <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-stat-val" style="color:var(--gold)">{{ Moon.name }}</a>
+              <span class="ov-stat-lbl">{{ LNG.fcm_moon }}</span>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
 
@@ -329,19 +350,37 @@ window.OVERVIEW_DATA = {
 .ov-icon-btn:hover { color:var(--cyan); background:rgba(0,212,255,0.1); }
 .ov-badge { margin-left:auto; background:rgba(0,212,255,0.15); color:var(--cyan); border-radius:10px; padding:1px 8px; font-size:10px; }
 
-/* ── PLANET CARD ── */
-.ov-planet-body { display:flex; flex-direction:column; align-items:center; gap:14px; padding:18px 15px; }
-.ov-planet-visual { position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; }
-.ov-planet-3d-wrap { position:relative; width:180px; height:180px; }
-#ov-planet-canvas { width:180px !important; height:180px !important; border-radius:50%; display:block; }
-.ov-planet-glow-ring { position:absolute; inset:-6px; border-radius:50%; border:1px solid rgba(0,212,255,0.2); box-shadow:0 0 20px rgba(0,80,200,0.3),inset 0 0 20px rgba(0,80,200,0.1); animation:glowPulse 3s ease-in-out infinite; pointer-events:none; }
-@keyframes glowPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.03)} }
-.ov-moon-orbit { position:absolute; inset:-18px; border-radius:50%; border:1px dashed rgba(170,170,170,0.2); animation:moonOrbit 12s linear infinite; }
-.ov-moon-dot { position:absolute; top:-4px; left:calc(50% - 4px); width:7px; height:7px; border-radius:50%; background:radial-gradient(circle at 38% 35%,#ccc,#888); box-shadow:0 0 5px rgba(255,255,255,0.2); }
+/* ── PLANET HERO ── */
+.ov-planet-hero { display:block; text-decoration:none; cursor:pointer; position:relative; }
+.ov-planet-scene { position:relative; width:100%; height:240px; overflow:hidden; background:radial-gradient(ellipse at 50% 60%,#0a0f1e 0%,#020408 100%); }
+.ov-stars-canvas { position:absolute; inset:0; width:100%; height:100%; opacity:.9; pointer-events:none; }
+.ov-planet-img-wrap { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:190px; height:190px; border-radius:50%; transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; will-change:transform; }
+.ov-planet-img { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; filter:saturate(1.15) contrast(1.05); }
+.ov-planet-atmosphere { position:absolute; inset:-8px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse at 30% 30%, rgba(120,180,255,0.18) 0%, transparent 60%),
+             radial-gradient(ellipse at 70% 80%, rgba(0,80,200,0.22) 0%, transparent 55%);
+  box-shadow: 0 0 40px 12px rgba(30,80,200,0.35), inset 0 0 30px rgba(0,100,255,0.12);
+  animation:atmPulse 4s ease-in-out infinite; }
+@keyframes atmPulse { 0%,100%{opacity:.7} 50%{opacity:1} }
+.ov-planet-shimmer { position:absolute; inset:0; border-radius:50%; background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 50%,rgba(0,150,255,0.06) 100%); pointer-events:none; }
+.ov-orbit-ring { position:absolute; left:50%; top:50%; border-radius:50%; border:1px solid rgba(0,212,255,0.1); transform:translate(-50%,-50%) rotateX(72deg); pointer-events:none; transition:opacity .3s; }
+.ov-orbit-1 { width:230px; height:230px; animation:orbitSpin 20s linear infinite; }
+.ov-orbit-2 { width:280px; height:280px; animation:orbitSpin 35s linear infinite reverse; border-color:rgba(120,80,255,0.08); }
+@keyframes orbitSpin { to{transform:translate(-50%,-50%) rotateX(72deg) rotateZ(360deg)} }
+.ov-moon-orbit-wrap { position:absolute; left:50%; top:50%; width:220px; height:220px; margin-left:-110px; margin-top:-110px; border-radius:50%; animation:moonOrbit 14s linear infinite; pointer-events:none; }
+.ov-moon-img { position:absolute; top:-8px; left:50%; margin-left:-8px; width:16px; height:16px; border-radius:50%; background:radial-gradient(circle at 38% 35%,#d0d0d0,#707070); box-shadow:0 0 8px rgba(255,255,255,0.25); }
 @keyframes moonOrbit { to{transform:rotate(360deg)} }
-.ov-coord-badge { background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.2); border-radius:20px; padding:4px 12px; font-family:var(--font-mono); font-size:12px; color:var(--cyan); }
+.ov-planet-cta { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; opacity:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); transition:opacity .3s ease; border-radius:0; }
+.ov-planet-cta i { font-size:28px; color:var(--cyan); filter:drop-shadow(0 0 10px var(--cyan)); }
+.ov-planet-cta span { font-family:var(--font-hud); font-size:11px; letter-spacing:3px; color:#fff; text-transform:uppercase; }
+.ov-planet-hero:hover .ov-planet-cta { opacity:1; }
+.ov-planet-hero:hover .ov-planet-img-wrap { transform:translate(-50%,-50%) scale(1.06); box-shadow:0 0 60px 18px rgba(30,100,255,0.45); }
+.ov-planet-hero:hover .ov-orbit-ring { opacity:2.5; }
+.ov-coord-badge { display:block; text-align:center; background:rgba(0,212,255,0.08); border-top:1px solid rgba(0,212,255,0.15); padding:7px 12px; font-family:var(--font-mono); font-size:12px; color:var(--cyan); transition:.2s; }
 .ov-coord-badge a { color:var(--cyan); }
-.ov-planet-stats { width:100%; display:flex; flex-direction:column; gap:2px; }
+.ov-planet-hero:hover .ov-coord-badge { background:rgba(0,212,255,0.14); }
+/* STATS */
+.ov-planet-stats { padding:4px 14px 10px; display:flex; flex-direction:column; gap:0; }
 .ov-stat-item { display:grid; grid-template-columns:18px 1fr; gap:8px; align-items:start; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
 .ov-stat-item:last-child { border-bottom:none; }
 .ov-stat-item > i { color:var(--dim); font-size:12px; margin-top:3px; }
@@ -417,73 +456,50 @@ window.OVERVIEW_DATA = {
 (function(){
   var D = window.OVERVIEW_DATA || {};
 
-  /* ── THREE.JS 3D PLANET ── */
+  /* ── STAR FIELD ── */
   (function(){
-    var canvas = document.getElementById('ov-planet-canvas');
-    if(!canvas || typeof THREE === 'undefined') return;
-    var W=180, H=180;
-    var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
-    renderer.setSize(W,H); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45,1,0.1,100);
-    camera.position.z = 2.6;
-    var pType = parseInt(D.planet_type)||1;
-    var tMax  = parseFloat(D.temp_max)||40;
-    var COLOR_MAP = {
-      1:{top:'#4a7bcc',mid:'#2255aa',bot:'#0f2d6e'},
-      2:{top:'#8b6914',mid:'#5c3d08',bot:'#2a1a00'},
-      3:{top:'#88ffcc',mid:'#228855',bot:'#0a2a18'},
-      4:{top:'#eeffff',mid:'#aaccdd',bot:'#223344'},
-      5:{top:'#cc4400',mid:'#992200',bot:'#3a0a00'}
-    };
-    var cols = tMax>80?COLOR_MAP[5]:tMax>50?COLOR_MAP[2]:tMax<-20?COLOR_MAP[4]:(COLOR_MAP[pType]||COLOR_MAP[1]);
-    function makeTex(){
-      var tc=document.createElement('canvas'); tc.width=512; tc.height=256;
-      var x=tc.getContext('2d');
-      var g=x.createLinearGradient(0,0,0,256);
-      g.addColorStop(0,cols.top); g.addColorStop(0.5,cols.mid); g.addColorStop(1,cols.bot);
-      x.fillStyle=g; x.fillRect(0,0,512,256);
-      x.globalAlpha=0.18;
-      for(var i=0;i<28;i++){
-        x.fillStyle='rgba('+(Math.random()*80+100)+','+(Math.random()*80+100)+','+(Math.random()*80+160)+',0.4)';
-        x.beginPath();
-        x.ellipse(Math.random()*512,Math.random()*256,Math.random()*60+10,Math.random()*40+8,Math.random()*Math.PI,0,Math.PI*2);
-        x.fill();
-      }
-      return new THREE.CanvasTexture(tc);
+    var c = document.getElementById('ovStarsCanvas');
+    if (!c) return;
+    var ctx = c.getContext('2d');
+    var W = c.offsetWidth || 280, H = c.offsetHeight || 240;
+    c.width = W; c.height = H;
+    var stars = [];
+    for (var i = 0; i < 120; i++) {
+      stars.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.2+0.2, a: Math.random(), speed: Math.random()*0.003+0.001 });
     }
-    var geo=new THREE.SphereGeometry(1,48,48);
-    var mat=new THREE.MeshPhongMaterial({map:makeTex(),shininess:28,specular:new THREE.Color(0x224466)});
-    var planet=new THREE.Mesh(geo,mat); scene.add(planet);
-    var atmGeo=new THREE.SphereGeometry(1.045,32,32);
-    var atmMat=new THREE.MeshPhongMaterial({color:new THREE.Color(cols.top),transparent:true,opacity:0.13,side:THREE.FrontSide});
-    scene.add(new THREE.Mesh(atmGeo,atmMat));
-    var cldTc=document.createElement('canvas'); cldTc.width=512; cldTc.height=256;
-    var cctx=cldTc.getContext('2d');
-    for(var i=0;i<80;i++){
-      cctx.fillStyle='rgba(255,255,255,'+(Math.random()*0.3+0.08)+')';
-      cctx.beginPath();
-      cctx.ellipse(Math.random()*512,Math.random()*256,Math.random()*50+8,Math.random()*25+4,Math.random()*Math.PI,0,Math.PI*2);
-      cctx.fill();
+    function drawStars() {
+      ctx.clearRect(0,0,W,H);
+      stars.forEach(function(s){
+        s.a += s.speed;
+        var alpha = 0.4 + 0.5 * Math.abs(Math.sin(s.a));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+        ctx.fill();
+      });
+      requestAnimationFrame(drawStars);
     }
-    var cloudGeo=new THREE.SphereGeometry(1.02,32,32);
-    var cloudMat=new THREE.MeshPhongMaterial({map:new THREE.CanvasTexture(cldTc),transparent:true,opacity:0.28,depthWrite:false});
-    var clouds=new THREE.Mesh(cloudGeo,cloudMat); scene.add(clouds);
-    var sun=new THREE.DirectionalLight(0xffffff,1.1); sun.position.set(5,3,5); scene.add(sun);
-    scene.add(new THREE.AmbientLight(0x112244,0.6));
-    var moonMesh=null;
-    if(D.has_moon){
-      var mGeo=new THREE.SphereGeometry(0.18,16,16);
-      var mMat=new THREE.MeshPhongMaterial({color:0xaaaaaa,shininess:5});
-      moonMesh=new THREE.Mesh(mGeo,mMat); scene.add(moonMesh);
-    }
-    var t=0;
-    (function animate(){
-      requestAnimationFrame(animate);
-      t+=0.004; planet.rotation.y+=0.003; clouds.rotation.y+=0.004;
-      if(moonMesh){ moonMesh.position.set(Math.cos(t)*1.6,Math.sin(t)*0.3,Math.sin(t)*1.6); }
-      renderer.render(scene,camera);
-    })();
+    drawStars();
+  })();
+
+  /* ── PLANET PARALLAX ── */
+  (function(){
+    var hero = document.getElementById('ovPlanetHero');
+    var wrap = document.getElementById('ovPlanetImgWrap');
+    var atm  = document.getElementById('ovPlanetAtm');
+    if (!hero || !wrap) return;
+    hero.addEventListener('mousemove', function(e){
+      var r = hero.getBoundingClientRect();
+      var cx = r.left + r.width/2, cy = r.top + r.height/2;
+      var dx = (e.clientX - cx) / (r.width/2);
+      var dy = (e.clientY - cy) / (r.height/2);
+      wrap.style.transform = 'translate(calc(-50% + '+(dx*10)+'px), calc(-50% + '+(dy*8)+'px)) scale(1.06)';
+      if (atm) atm.style.background = 'radial-gradient(ellipse at '+(50+dx*20)+'% '+(50+dy*20)+'%, rgba(120,180,255,0.28) 0%, transparent 60%)';
+    });
+    hero.addEventListener('mouseleave', function(){
+      wrap.style.transform = 'translate(-50%,-50%) scale(1)';
+      if (atm) atm.style.background = '';
+    });
   })();
 
   /* ── NEWS TICKER ── */
