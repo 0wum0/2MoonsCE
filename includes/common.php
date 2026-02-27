@@ -69,6 +69,8 @@ require_once 'includes/classes/Language.class.php';
 require_once 'includes/classes/PlayerUtil.class.php';
 require_once 'includes/classes/Session.class.php';
 require_once 'includes/classes/Universe.class.php';
+require_once 'includes/classes/MathCaptcha.class.php';
+require_once 'includes/classes/RegistrationRateLimit.class.php';
 
 require_once 'includes/classes/class.theme.php';
 require_once 'includes/classes/class.template.php';

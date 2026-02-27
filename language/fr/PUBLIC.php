@@ -85,6 +85,9 @@ $LNG['registerErrorMailSame']		= 'Les deux adresses e-Mail renseignèes ne sont 
 $LNG['registerErrorMailExist']		= 'L\'adresse e-mail est dèjà enregistrè!';
 $LNG['registerErrorRules']			= 'Vous devez accepter les règles!';
 $LNG['registerErrorCaptcha']		= 'Le code de sècuritè est incorrect!';
+$LNG['registerErrorRateLimit']		= 'Trop de tentatives d\'inscription. Veuillez patienter %d minute(s).';
+$LNG['registerErrorSpam']			= 'Inscription échouée.';
+$LNG['registerErrorTooFast']		= 'Formulaire soumis trop rapidement. Veuillez réessayer.';
 
 $LNG['registerMailVertifyTitle']	= 'Activation de l\'enregistrement sur le jeu: %s';
 $LNG['registerMailVertifyError']	= 'Impossible d\'envoyer l\'e-Mail: %s';

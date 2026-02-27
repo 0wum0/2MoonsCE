@@ -95,6 +95,9 @@ $LNG['registerErrorMailSame']		= 'Sie haben 2 unterschiedliche E-Mail-Adressen a
 $LNG['registerErrorMailExist']		= 'Die E-Mail-Adresse ist bereits registriert!';
 $LNG['registerErrorRules']			= 'Du musst die Regeln akzeptieren!';
 $LNG['registerErrorCaptcha']		= 'Der Sicherheitscode ist falsch!';
+$LNG['registerErrorRateLimit']		= 'Zu viele Registrierungsversuche. Bitte warte %d Minute(n).';
+$LNG['registerErrorSpam']			= 'Registrierung fehlgeschlagen.';
+$LNG['registerErrorTooFast']		= 'Das Formular wurde zu schnell abgesendet. Bitte versuche es erneut.';
 
 $LNG['registerMailVertifyTitle']	= 'Aktivierung der Registrierung auf der Website: %s';
 $LNG['registerMailVertifyError']	= 'Fehler beim Versenden der Mail: %s';

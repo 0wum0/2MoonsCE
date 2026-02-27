@@ -30,6 +30,8 @@ class ShowRegisterPage extends AbstractLoginPage
 		$universeSelect	= array();	
 		$referralData	= array('id' => 0, 'name' => '');
 		$accountName	= "";
+
+		$captcha = MathCaptcha::generate();
 		
 		$externalAuth	= HTTP::_GP('externalAuth', array());
 		$referralID 	= HTTP::_GP('referralID', 0);
@@ -94,7 +96,10 @@ class ShowRegisterPage extends AbstractLoginPage
 			'accountName'		=> $accountName,
 			'externalAuth'		=> $externalAuth,
 			'universeSelect'	=> $universeSelect,
-			'registerRulesDesc'	=> sprintf($LNG['registerRulesDesc'], '<a href="index.php?page=rules">'.$LNG['menu_rules'].'</a>')
+			'registerRulesDesc'	=> sprintf($LNG['registerRulesDesc'], '<a href="index.php?page=rules">'.$LNG['menu_rules'].'</a>'),
+			'mathCaptchaQuestion'	=> $captcha['question'],
+			'mathCaptchaToken'		=> $captcha['token'],
+			'formLoadTime'			=> time(),
 		));
 		
 		$this->display('page.register.default.tpl');
@@ -108,6 +113,36 @@ class ShowRegisterPage extends AbstractLoginPage
 		if($config->game_disable == 0 || $config->reg_closed == 1)
 		{
 			$this->printMessage($LNG['registerErrorUniClosed'], array(array(
+				'label'	=> $LNG['registerBack'],
+				'url'	=> 'javascript:window.history.back()',
+			)));
+		}
+
+		$clientIp = Session::getClientIp();
+
+		if (!RegistrationRateLimit::isAllowed($clientIp))
+		{
+			$remaining = RegistrationRateLimit::getRemainingSeconds($clientIp);
+			$minutes   = (int)ceil($remaining / 60);
+			$this->printMessage(sprintf($LNG['registerErrorRateLimit'], $minutes), array(array(
+				'label'	=> $LNG['registerBack'],
+				'url'	=> 'javascript:window.history.back()',
+			)));
+		}
+
+		$honeypot = HTTP::_GP('website', '');
+		if (!empty($honeypot))
+		{
+			$this->printMessage($LNG['registerErrorSpam'], array(array(
+				'label'	=> $LNG['registerBack'],
+				'url'	=> 'javascript:window.history.back()',
+			)));
+		}
+
+		$formLoadTime = HTTP::_GP('form_load_time', 0);
+		if ((time() - $formLoadTime) < 3)
+		{
+			$this->printMessage($LNG['registerErrorTooFast'], array(array(
 				'label'	=> $LNG['registerBack'],
 				'url'	=> 'javascript:window.history.back()',
 			)));
@@ -216,6 +251,13 @@ class ShowRegisterPage extends AbstractLoginPage
 			$errors[]	= $LNG['registerErrorMailExist'];
 		}
 		
+		$mathAnswer = HTTP::_GP('math_captcha_answer', '');
+		$mathToken  = HTTP::_GP('math_captcha_token', '');
+		if (!MathCaptcha::verify($mathAnswer, $mathToken))
+		{
+			$errors[]	= $LNG['registerErrorCaptcha'];
+		}
+
 		if ($config->capaktiv === '1')
 		{
             require('includes/libs/reCAPTCHA/autoload.php');
@@ -229,6 +271,7 @@ class ShowRegisterPage extends AbstractLoginPage
 		}
 						
 		if (!empty($errors)) {
+			RegistrationRateLimit::record($clientIp);
 			$this->printMessage(implode("<br>\r\n", $errors), array(array(
 				'label'	=> $LNG['registerBack'],
 				'url'	=> 'javascript:window.history.back()',

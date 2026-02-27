@@ -12,6 +12,12 @@
 			<input type="hidden" value="{{ externalAuth.account }}" name="externalAuth[account]">
 			<input type="hidden" value="{{ externalAuth.method }}" name="externalAuth[method]">
 			<input type="hidden" value="{{ referralData.id }}" name="referralID">
+			<input type="hidden" value="{{ mathCaptchaToken }}" name="math_captcha_token">
+			<input type="hidden" value="{{ formLoadTime }}" name="form_load_time">
+			<div class="lp-field lp-honeypot" aria-hidden="true">
+				<label for="website" class="lp-label">Website</label>
+				<input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+			</div>
 			
 			<div class="lp-field">
 				<label for="universe" class="lp-label">{{ LNG.chose_a_uni }}</label>
@@ -83,6 +89,12 @@
 			</div>
 			{% endif %}
 			
+			<div class="lp-field">
+				<label for="math_captcha_answer" class="lp-label">{{ LNG.registerCaptcha }}: {{ mathCaptchaQuestion }} = ?</label>
+				<div class="lp-input-wrapper">
+					<input type="number" class="lp-input lp-input--short" name="math_captcha_answer" id="math_captcha_answer" autocomplete="off" required>
+				</div>
+			</div>
 			{% if recaptchaEnable %}
 			<div class="lp-field lp-captcha">
 				<label class="lp-label">{{ LNG.registerCaptcha }}</label>
