@@ -113,7 +113,7 @@
 var SmartChat = (function(){
     var _open    = false;
     var _channel = 'global';
-    var _sinceId = 0;
+    var _sinceId = parseInt(localStorage.getItem('sc_sinceId') || '0', 10);
     var _pollTimer = null;
     var _isAdmin = {{ authlevel > 0 ? 'true' : 'false' }};
     var _myId    = {{ userID|default(0) }};
@@ -153,7 +153,10 @@ var SmartChat = (function(){
                 }
                 var newMsgs = [];
                 d.messages.forEach(function(m){
-                    if(m.id > _sinceId){ _sinceId = m.id; }
+                    if(m.id > _sinceId){
+                        _sinceId = m.id;
+                        localStorage.setItem('sc_sinceId', _sinceId);
+                    }
                     appendMessage(m, initial);
                     if(!initial) newMsgs.push(m);
                 });
@@ -347,7 +350,7 @@ var SmartChat = (function(){
         var t = document.createElement('div');
         t.className = 'sc-toast';
         var preview = m.message.replace(/\[.*?\]/g,'').substring(0,60);
-        t.innerHTML = '<div class="sc-toast-user">'+escHtml(m.username)+'</div>'
+        t.innerHTML = '<div class="sc-toast-user">'+escHtml(m.username)+'<button class="sc-toast-close" onclick="event.stopPropagation();this.parentNode.parentNode.remove()" title="Schließen">&times;</button></div>'
             + '<div class="sc-toast-text">'+escHtml(preview)+'</div>';
         t.onclick = function(){ toggle(); t.remove(); };
         c.appendChild(t);
@@ -369,6 +372,16 @@ var SmartChat = (function(){
     }
 
     /* ── Background poll for toasts (even when closed) ── */
+    (function seedSinceId(){
+        if(_sinceId > 0) return;
+        fetch('game.php?page=chat&action=fetch&channel=global&since=0', {credentials:'same-origin'})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(!d.ok) return;
+                d.messages.forEach(function(m){ if(m.id > _sinceId) _sinceId = m.id; });
+                localStorage.setItem('sc_sinceId', _sinceId);
+            }).catch(function(){});
+    })();
     setInterval(function(){
         if(!_open) fetchMessages(false);
     }, 15000);
@@ -497,8 +510,10 @@ var SmartChat = (function(){
     transform:translateX(120%); opacity:0; transition:transform .35s cubic-bezier(.22,1,.36,1), opacity .3s;
 }
 .sc-toast.sc-toast-in { transform:translateX(0); opacity:1; }
-.sc-toast-user { font-size:11px; font-weight:700; color:#00d4ff; font-family:var(--font-hud,sans-serif); margin-bottom:3px; }
+.sc-toast-user { font-size:11px; font-weight:700; color:#00d4ff; font-family:var(--font-hud,sans-serif); margin-bottom:3px; display:flex; align-items:center; justify-content:space-between; }
 .sc-toast-text { font-size:12px; color:rgba(255,255,255,0.7); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sc-toast-close { background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:14px; line-height:1; padding:0 0 0 8px; flex-shrink:0; }
+.sc-toast-close:hover { color:#fff; }
 </style>
 {% endautoescape %}
 
