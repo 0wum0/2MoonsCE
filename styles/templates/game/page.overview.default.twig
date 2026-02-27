@@ -55,46 +55,8 @@ window.OVERVIEW_DATA = {
 
   <div class="ov-main-grid">
 
-    <!-- ══════════ LEFT: Planet Stats + Server Info ══════════ -->
+    <!-- ══════════ LEFT: Server Info ══════════ -->
     <div class="ov-col-left">
-
-      <!-- PLANET STATS -->
-      <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-info-circle"></i> {{ LNG["type_planet_" ~ planet_type] }}</div>
-        <div class="ov-planet-stats">
-          <div class="ov-stat-item">
-            <i class="fas fa-arrows-alt-h"></i>
-            <div class="ov-stat-body">
-              <span class="ov-stat-val">{{ planet_diameter }} {{ LNG.ov_distance_unit }}</span>
-              <span class="ov-stat-lbl">{{ LNG.ov_diameter }}</span>
-            </div>
-          </div>
-          <div class="ov-stat-item">
-            <i class="fas fa-thermometer-half"></i>
-            <div class="ov-stat-body">
-              <span class="ov-stat-val">{{ planet_temp_min }}° – {{ planet_temp_max }}°</span>
-              <span class="ov-stat-lbl">{{ LNG.ov_temperature }}</span>
-            </div>
-          </div>
-          <div class="ov-stat-item">
-            <i class="fas fa-th-large"></i>
-            <div class="ov-stat-body">
-              <span class="ov-stat-val {% if planet_field_current >= planet_field_max %}ov-danger{% endif %}">{{ planet_field_current }} / {{ planet_field_max }}</span>
-              <span class="ov-stat-lbl">{{ LNG.ov_fields }}</span>
-            </div>
-            <div class="ov-field-bar"><div class="ov-field-fill" style="width:{{ planet_field_max > 0 ? ((planet_field_current / planet_field_max) * 100)|round(1) : 0 }}%"></div></div>
-          </div>
-          {% if Moon is defined and Moon %}
-          <div class="ov-stat-item">
-            <i class="fas fa-moon" style="color:var(--gold)"></i>
-            <div class="ov-stat-body">
-              <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-stat-val" style="color:var(--gold)">{{ Moon.name }}</a>
-              <span class="ov-stat-lbl">{{ LNG.fcm_moon }}</span>
-            </div>
-          </div>
-          {% endif %}
-        </div>
-      </div>
 
       <!-- SERVER INFO -->
       <div class="ov-card">
@@ -157,6 +119,38 @@ window.OVERVIEW_DATA = {
         <a href="game.php?page=buildings" class="ov-planet-hero" id="ovPlanetHero" title="{{ LNG.ov_buildings|default('Gebäude') }}">
           <div class="ov-planet-scene">
             <canvas class="ov-stars-canvas" id="ovStarsCanvas"></canvas>
+
+            <!-- LEFT STATS OVERLAY -->
+            <div class="ov-scene-overlay ov-scene-left" onclick="event.preventDefault();event.stopPropagation();">
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.ov_diameter }}</span>
+                <span class="ov-scene-val">{{ planet_diameter }}</span>
+              </div>
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.ov_temperature }}</span>
+                <span class="ov-scene-val">{{ planet_temp_min }}° / {{ planet_temp_max }}°</span>
+              </div>
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.ov_fields }}</span>
+                <span class="ov-scene-val {% if planet_field_current >= planet_field_max %}ov-danger{% endif %}">{{ planet_field_current }}/{{ planet_field_max }}</span>
+                <div class="ov-scene-bar"><div class="ov-scene-fill" style="width:{{ planet_field_max > 0 ? ((planet_field_current / planet_field_max)*100)|round(1) : 0 }}%"></div></div>
+              </div>
+              {% if Moon is defined and Moon %}
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.fcm_moon }}</span>
+                <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-scene-val" style="color:var(--gold)" onclick="event.stopPropagation()">{{ Moon.name }}</a>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- RIGHT TYPE OVERLAY -->
+            <div class="ov-scene-overlay ov-scene-right" onclick="event.preventDefault();event.stopPropagation();">
+              <div class="ov-scene-type-badge">{{ LNG["type_planet_" ~ planet_type] }}</div>
+              <div class="ov-scene-coord">
+                <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" onclick="event.stopPropagation()" style="color:var(--cyan);font-family:var(--font-mono);font-size:11px;">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
+              </div>
+            </div>
+
             <div class="ov-planet-img-wrap" id="ovPlanetImgWrap">
               <img src="styles/theme/gow/planeten/{{ planetimage }}.jpg"
                    onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'"
@@ -173,9 +167,6 @@ window.OVERVIEW_DATA = {
               <i class="fas fa-city"></i>
               <span>{{ LNG.lm_buildings|default('Gebäude') }}</span>
             </div>
-          </div>
-          <div class="ov-coord-badge">
-            <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" onclick="event.stopPropagation()">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
           </div>
         </a>
       </div>
@@ -319,10 +310,10 @@ window.OVERVIEW_DATA = {
 .ov-news-count { font-size:10px; color:var(--dim); font-family:var(--font-hud); white-space:nowrap; }
 
 /* ── MAIN GRID ── */
-.ov-main-grid { display:grid; grid-template-columns:240px 1fr 240px; gap:14px; align-items:start; }
-@media(max-width:1100px){ .ov-main-grid { grid-template-columns:220px 1fr; } .ov-col-right { display:none; } }
+.ov-main-grid { display:grid; grid-template-columns:220px 1fr 220px; gap:14px; align-items:start; }
+@media(max-width:1100px){ .ov-main-grid { grid-template-columns:200px 1fr; } .ov-col-right { display:none; } }
 @media(max-width:760px){ .ov-main-grid { grid-template-columns:1fr; } }
-/* INFO ROWS (server/planet left col) */
+/* INFO ROWS */
 .ov-info-rows { padding:4px 0; }
 .ov-info-row { display:flex; justify-content:space-between; align-items:center; padding:7px 14px; border-bottom:1px solid rgba(255,255,255,0.04); gap:8px; }
 .ov-info-row:last-child { border-bottom:none; }
@@ -331,6 +322,21 @@ window.OVERVIEW_DATA = {
 .ov-info-val { font-size:12px; color:var(--white); font-weight:600; text-align:right; }
 .ov-info-row-rank { flex-direction:column; align-items:flex-start; gap:3px; }
 .ov-rank-val { font-size:11px; color:var(--text); font-weight:400; line-height:1.4; }
+/* ── PLANET SCENE OVERLAYS ── */
+.ov-scene-overlay { position:absolute; top:0; bottom:0; width:36%; display:flex; flex-direction:column; justify-content:center; gap:10px; padding:16px 14px; z-index:4; pointer-events:none; }
+.ov-scene-overlay * { pointer-events:auto; }
+.ov-scene-left { left:0; background:linear-gradient(to right, rgba(2,4,8,0.82) 0%, rgba(2,4,8,0.4) 70%, transparent 100%); align-items:flex-start; }
+.ov-scene-right { right:0; background:linear-gradient(to left, rgba(2,4,8,0.82) 0%, rgba(2,4,8,0.4) 70%, transparent 100%); align-items:flex-end; text-align:right; }
+.ov-scene-stat { display:flex; flex-direction:column; gap:2px; }
+.ov-scene-lbl { font-family:var(--font-hud); font-size:8px; letter-spacing:1.5px; color:rgba(0,212,255,0.7); text-transform:uppercase; }
+.ov-scene-val { font-size:12px; color:#fff; font-weight:700; line-height:1.2; }
+.ov-scene-val.ov-danger { color:var(--red); }
+.ov-scene-bar { height:3px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:3px; width:80px; overflow:hidden; }
+.ov-scene-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--purple)); border-radius:2px; }
+.ov-scene-type-badge { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.25); border-radius:20px; padding:3px 10px; font-family:var(--font-hud); font-size:8px; letter-spacing:1.5px; color:var(--cyan); text-transform:uppercase; white-space:nowrap; }
+.ov-scene-coord { margin-top:4px; }
+/* remove old coord badge below planet */
+.ov-coord-badge { display:none; }
 
 /* ── CARDS ── */
 .ov-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px; }
