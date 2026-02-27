@@ -260,6 +260,7 @@ function ShowAccountDataPage()
 			$fleet			= '';
 			$defense		= '';
 			$DestruyeD		= 0;
+			$AllianceHave	= '';
 			$mas			= '';
 			$sus_time		= '';
 			$sus_longer		= '';
