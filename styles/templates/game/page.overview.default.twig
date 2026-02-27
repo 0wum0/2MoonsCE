@@ -55,37 +55,13 @@ window.OVERVIEW_DATA = {
 
   <div class="ov-main-grid">
 
-    <!-- ══════════ LEFT: Server Info ══════════ -->
+    <!-- ══════════ LEFT: Quick Actions ++ ══════════ -->
     <div class="ov-col-left">
 
-      <!-- SERVER INFO -->
+      <!-- QUICK ACTIONS -->
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-server"></i> {{ LNG.ov_server_info|default('Server') }}</div>
-        <div class="ov-info-rows">
-          <div class="ov-info-row">
-            <span class="ov-info-lbl"><i class="fas fa-users"></i> {{ LNG.ov_online_user }}</span>
-            <span class="ov-info-val" style="color:var(--green)">{{ onlineUser }}</span>
-          </div>
-          <div class="ov-info-row">
-            <span class="ov-info-lbl"><i class="fas fa-comments"></i> Chat</span>
-            <span class="ov-info-val" style="color:{% if chatOnline is defined and chatOnline|length > 0 %}var(--green){% else %}var(--dim){% endif %}">
-              {% if chatOnline is defined %}{{ chatOnline|length }}{% else %}0{% endif %}
-            </span>
-          </div>
-          <div class="ov-info-row">
-            <span class="ov-info-lbl"><i class="fas fa-shield-alt"></i> {{ LNG.ov_admins_online }}</span>
-            <span class="ov-info-val">
-              {% if AdminsOnline %}
-                {% for ID, Name in AdminsOnline %}<a href="#" onclick="return Dialog.PM({{ ID }});" style="color:var(--red)">{{ Name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
-              {% else %}<span style="color:var(--dim)">–</span>{% endif %}
-            </span>
-          </div>
-          <div class="ov-info-row ov-info-row-rank">
-            <span class="ov-info-lbl"><i class="fas fa-chart-line"></i> {{ LNG.ov_points }}</span>
-            <span class="ov-info-val ov-rank-val">{{ rankInfo|raw }}</span>
-          </div>
-        </div>
-        <div class="ov-server-actions">
+        <div class="ov-card-header"><i class="fas fa-bolt"></i> {{ LNG.ov_server_info|default('Aktionen') }}</div>
+        <div class="ov-server-actions ov-server-actions-col">
           <a href="game.php?page=ticket" class="ov-btn ov-btn-sm"><i class="fas fa-headset"></i> Support</a>
           <a href="game.php?page=messages" class="ov-btn ov-btn-sm"><i class="fas fa-envelope"></i> {{ LNG.lm_messages }}</a>
           <a href="game.php?page=statistics" class="ov-btn ov-btn-sm"><i class="fas fa-chart-bar"></i> {{ LNG.lm_statistics|default('Statistik') }}</a>
@@ -120,8 +96,9 @@ window.OVERVIEW_DATA = {
           <div class="ov-planet-scene">
             <canvas class="ov-stars-canvas" id="ovStarsCanvas"></canvas>
 
-            <!-- LEFT STATS OVERLAY -->
-            <div class="ov-scene-overlay ov-scene-left" onclick="event.preventDefault();event.stopPropagation();">
+            <!-- LEFT: PLANET STATS OVERLAY -->
+            <div class="ov-scene-overlay ov-scene-left">
+              <div class="ov-scene-type-badge">{{ LNG["type_planet_" ~ planet_type] }}</div>
               <div class="ov-scene-stat">
                 <span class="ov-scene-lbl">{{ LNG.ov_diameter }}</span>
                 <span class="ov-scene-val">{{ planet_diameter }}</span>
@@ -141,13 +118,35 @@ window.OVERVIEW_DATA = {
                 <a href="game.php?page=overview&cp={{ Moon.id }}&re=0" class="ov-scene-val" style="color:var(--gold)" onclick="event.stopPropagation()">{{ Moon.name }}</a>
               </div>
               {% endif %}
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">Koordinaten</span>
+                <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" onclick="event.stopPropagation()" class="ov-scene-val" style="color:var(--cyan);font-size:11px;font-family:var(--font-mono)">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
+              </div>
             </div>
 
-            <!-- RIGHT TYPE OVERLAY -->
-            <div class="ov-scene-overlay ov-scene-right" onclick="event.preventDefault();event.stopPropagation();">
-              <div class="ov-scene-type-badge">{{ LNG["type_planet_" ~ planet_type] }}</div>
-              <div class="ov-scene-coord">
-                <a href="game.php?page=galaxy&galaxy={{ galaxy }}&system={{ system }}" onclick="event.stopPropagation()" style="color:var(--cyan);font-family:var(--font-mono);font-size:11px;">[{{ galaxy }}:{{ system }}:{{ planet }}]</a>
+            <!-- RIGHT: SERVER INFO OVERLAY -->
+            <div class="ov-scene-overlay ov-scene-right">
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.ov_online_user }}</span>
+                <span class="ov-scene-val" style="color:var(--green)">{{ onlineUser }}</span>
+              </div>
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">Chat</span>
+                <span class="ov-scene-val" style="color:{% if chatOnline is defined and chatOnline|length > 0 %}var(--green){% else %}var(--dim){% endif %}">
+                  {% if chatOnline is defined %}{{ chatOnline|length }}{% else %}0{% endif %}
+                </span>
+              </div>
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.ov_admins_online }}</span>
+                <span class="ov-scene-val">
+                  {% if AdminsOnline %}
+                    {% for ID, Name in AdminsOnline %}<a href="#" onclick="event.stopPropagation();return Dialog.PM({{ ID }});" style="color:var(--red)">{{ Name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+                  {% else %}<span style="color:var(--dim)">–</span>{% endif %}
+                </span>
+              </div>
+              <div class="ov-scene-stat">
+                <span class="ov-scene-lbl">{{ LNG.ov_points }}</span>
+                <span class="ov-scene-val" style="font-size:10px;font-weight:400;color:var(--text)">{{ rankInfo|raw }}</span>
               </div>
             </div>
 
@@ -323,20 +322,22 @@ window.OVERVIEW_DATA = {
 .ov-info-row-rank { flex-direction:column; align-items:flex-start; gap:3px; }
 .ov-rank-val { font-size:11px; color:var(--text); font-weight:400; line-height:1.4; }
 /* ── PLANET SCENE OVERLAYS ── */
-.ov-scene-overlay { position:absolute; top:0; bottom:0; width:36%; display:flex; flex-direction:column; justify-content:center; gap:10px; padding:16px 14px; z-index:4; pointer-events:none; }
-.ov-scene-overlay * { pointer-events:auto; }
-.ov-scene-left { left:0; background:linear-gradient(to right, rgba(2,4,8,0.82) 0%, rgba(2,4,8,0.4) 70%, transparent 100%); align-items:flex-start; }
-.ov-scene-right { right:0; background:linear-gradient(to left, rgba(2,4,8,0.82) 0%, rgba(2,4,8,0.4) 70%, transparent 100%); align-items:flex-end; text-align:right; }
+.ov-scene-overlay { position:absolute; top:0; bottom:0; width:34%; display:flex; flex-direction:column; justify-content:center; gap:9px; padding:14px 13px; z-index:4; pointer-events:none; }
+.ov-scene-overlay a, .ov-scene-overlay span[onclick], .ov-scene-overlay a[onclick] { pointer-events:auto; }
+.ov-scene-left { left:0; background:linear-gradient(to right, rgba(2,4,8,0.88) 0%, rgba(2,4,8,0.55) 60%, transparent 100%); align-items:flex-start; }
+.ov-scene-right { right:0; background:linear-gradient(to left, rgba(2,4,8,0.88) 0%, rgba(2,4,8,0.55) 60%, transparent 100%); align-items:flex-end; text-align:right; }
 .ov-scene-stat { display:flex; flex-direction:column; gap:2px; }
 .ov-scene-lbl { font-family:var(--font-hud); font-size:8px; letter-spacing:1.5px; color:rgba(0,212,255,0.7); text-transform:uppercase; }
 .ov-scene-val { font-size:12px; color:#fff; font-weight:700; line-height:1.2; }
 .ov-scene-val.ov-danger { color:var(--red); }
-.ov-scene-bar { height:3px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:3px; width:80px; overflow:hidden; }
+.ov-scene-bar { height:3px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:3px; width:72px; overflow:hidden; }
 .ov-scene-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--purple)); border-radius:2px; }
 .ov-scene-type-badge { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.25); border-radius:20px; padding:3px 10px; font-family:var(--font-hud); font-size:8px; letter-spacing:1.5px; color:var(--cyan); text-transform:uppercase; white-space:nowrap; }
 .ov-scene-coord { margin-top:4px; }
-/* remove old coord badge below planet */
 .ov-coord-badge { display:none; }
+/* actions column layout */
+.ov-server-actions-col { display:flex; flex-direction:column; gap:6px; padding:10px 12px; }
+.ov-server-actions-col .ov-btn { width:100%; justify-content:center; }
 
 /* ── CARDS ── */
 .ov-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px; }
@@ -349,7 +350,7 @@ window.OVERVIEW_DATA = {
 
 /* ── PLANET HERO ── */
 .ov-planet-hero { display:block; text-decoration:none; cursor:pointer; position:relative; }
-.ov-planet-scene { position:relative; width:100%; height:240px; overflow:hidden; background:radial-gradient(ellipse at 50% 60%,#0a0f1e 0%,#020408 100%); }
+.ov-planet-scene { position:relative; width:100%; height:280px; overflow:hidden; background:radial-gradient(ellipse at 50% 60%,#0a0f1e 0%,#020408 100%); }
 .ov-stars-canvas { position:absolute; inset:0; width:100%; height:100%; opacity:.9; pointer-events:none; }
 .ov-planet-img-wrap { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:190px; height:190px; border-radius:50%; transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; will-change:transform; }
 .ov-planet-img { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; filter:saturate(1.15) contrast(1.05); }
