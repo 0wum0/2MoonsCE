@@ -13,8 +13,17 @@ class MathCaptcha
 {
     private const SESSION_KEY = 'mathcaptcha';
 
+    private static function ensureSession(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            Session::init();
+            @session_start();
+        }
+    }
+
     public static function generate(): array
     {
+        self::ensureSession();
         $a = random_int(1, 12);
         $b = random_int(1, 12);
         $ops = ['+', '-', '*'];
@@ -56,6 +65,7 @@ class MathCaptcha
 
     public static function verify(string $userAnswer, string $token): bool
     {
+        self::ensureSession();
         self::pruneExpired();
 
         if (empty($token) || !isset($_SESSION[self::SESSION_KEY][$token])) {
