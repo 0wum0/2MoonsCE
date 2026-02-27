@@ -10,16 +10,16 @@
 	{% if goto %}
 	<meta http-equiv="refresh" content="{{ gotoinsec }};URL={{ goto }}">
 	{% endif %}
-	<link rel="stylesheet" href="../styles/resource/css/install/smartmoons.install.css?v=1.0.1">
+	<link rel="stylesheet" href="/styles/resource/css/install/smartmoons.install.css?v=1.0.2">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-	<script type="text/javascript" src="../scripts/base/jquery.js"></script>
+	<script type="text/javascript" src="/scripts/base/jquery.js"></script>
 	{% block script %}{% endblock %}
 	{% if execscript is defined and execscript %}
 	<script type="text/javascript">$(function(){ {{ execscript|raw }} });</script>
 	{% endif %}
-	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
 <canvas id="ins-bg-canvas"></canvas>

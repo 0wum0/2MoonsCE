@@ -34,7 +34,7 @@ $LNG->includeData(array('L18N', 'INGAME', 'INSTALL', 'CUSTOM'));
 $mode = HTTP::_GP('mode', '');
 
 $template = new template();
-// Twig caching is handled automatically in class.template.php
+$template->clearAllCache();
 $template->assign_vars(array(
 	'lang'       => $LNG->getLanguage(),
 	'Selector'   => $LNG->getAllowedLangs(false),

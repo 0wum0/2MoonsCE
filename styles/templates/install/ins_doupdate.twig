@@ -1,9 +1,9 @@
 {% include "ins_header.twig" %}
 
 {% if update %}
-	<div class="ins-alert-success"><i class="fas fa-check-circle"></i> {{ sprintf(LNG.upgrade_success, revision) }}</div>
+	<div class="ins-alert-success"><i class="fas fa-check-circle"></i> {{ LNG.upgrade_success|format(revision)|raw }}</div>
 {% else %}
-	<div class="ins-info"><i class="fas fa-info-circle"></i> {{ sprintf(LNG.upgrade_nothingtodo, revision) }}</div>
+	<div class="ins-info"><i class="fas fa-info-circle"></i> {{ LNG.upgrade_nothingtodo|format(revision)|raw }}</div>
 {% endif %}
 
 <div style="margin-top:20px">
