@@ -41,7 +41,7 @@ function ShowRightsPage()
 					$_POST['rights']	= array();
 				}
 				
-				if($_POST['action'] == 'send') {
+				if(($_POST['action'] ?? '') == 'send') {
 					$GLOBALS['DATABASE']->query("UPDATE ".USERS." SET `rights` = '".serialize(array_map('intval', $_POST['rights']))."' WHERE `id` = '".$id."';");
 				}
 				
