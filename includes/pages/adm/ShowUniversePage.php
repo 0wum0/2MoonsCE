@@ -16,7 +16,7 @@ declare(strict_types=1);
  * @link https://github.com/jkroepke/2Moons
  */
  
-if ($USER['authlevel'] != AUTH_ADM || $_GET['sid'] != session_id())
+if ($USER['authlevel'] != AUTH_ADM || ($_GET['sid'] ?? '') != session_id())
 {
 	throw new Exception("Permission error!");
 }
