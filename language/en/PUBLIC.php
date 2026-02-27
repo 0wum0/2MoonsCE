@@ -58,6 +58,7 @@ $LNG['loginHeader']					= 'Login';
 $LNG['loginUsername']				= 'Username';
 $LNG['loginPassword']				= 'Password';
 $LNG['loginButton']					= 'Login';
+$LNG['loginRemember']				= 'Remember me';
 $LNG['loginInfo']					= 'With the login I accept the %s.';
 $LNG['loginWelcome']				= 'Welcome to %s';
 $LNG['loginServerDesc']				= '%s is a space strategy game with hundreds of players playing together <strong>at the same time</strong> trying to be the best. Everything what you need to the play is a Standard Browser.';

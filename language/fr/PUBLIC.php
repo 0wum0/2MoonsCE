@@ -46,6 +46,7 @@ $LNG['loginHeader']					= 'Connexion';
 $LNG['loginUsername']				= 'Login';
 $LNG['loginPassword']				= 'Mot de passe';
 $LNG['loginButton']					= 'Se connecter';
+$LNG['loginRemember']				= 'Se souvenir de moi';
 $LNG['loginInfo']					= 'En me connectant j\'accepte les %s.';
 $LNG['loginWelcome']				= 'Bienvenue sur %s';
 $LNG['loginServerDesc']				= '%s est un jeu de stratégie spatial regroupant des milliers d\'utilisateurs par univers <strong>en meme temps</strong> essayez d\'être le meilleur, d\'etre le maître de votre univers. La seule chose dont vous avez besoin c\'est un navigateur internet (ou application du PlayStore).';

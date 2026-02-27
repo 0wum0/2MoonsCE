@@ -65,6 +65,12 @@
 				<h2 class="lp-card__title">{{ LNG.loginHeader }}</h2>
 			</div>
 			<div class="lp-card__body">
+				{% if loginError %}
+				<div class="lp-login-notice lp-login-notice--error" role="alert">
+					<span class="lp-login-notice__icon">&#9888;</span>
+					<span>{{ loginError }}</span>
+				</div>
+				{% endif %}
 				<form id="login" name="login" action="index.php?page=login" data-action="index.php?page=login" method="post" class="lp-form">
 					<div class="lp-field">
 						<label for="universe" class="lp-label">{{ LNG.universe }}</label>
@@ -84,6 +90,14 @@
 							<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.loginPassword }}" autocomplete="current-password">
 						</div>
 					</div>
+					<div class="lp-login-row">
+						<label class="lp-remember">
+							<input type="checkbox" name="rememberMe" value="1" class="lp-remember__input">
+							<span class="lp-remember__checkmark"></span>
+							<span class="lp-remember__label">{{ LNG.loginRemember }}</span>
+						</label>
+						{% if mailEnable %}<a href="index.php?page=lostPassword" class="lp-login-forgot">{{ LNG.buttonLostPassword }}</a>{% endif %}
+					</div>
 					<div class="lp-form__footer">
 						<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg lp-btn--full">
 							<span class="btn-label">{{ LNG.loginButton }}</span>
@@ -95,9 +109,8 @@
 				<div class="lp-form__links">
 					<div class="lp-links">
 						<a href="index.php?page=register">{{ LNG.buttonRegister }}</a>
-						{% if mailEnable %}<a href="index.php?page=lostPassword">{{ LNG.buttonLostPassword }}</a>{% endif %}
 					</div>
-					<span class="lp-desc">{{ loginInfo }}</span>
+					{% if loginInfo %}<span class="lp-desc">{{ loginInfo }}</span>{% endif %}
 				</div>
 			</div>
 		</div>
@@ -106,5 +119,5 @@
 </div>
 {% endblock %}
 {% block script %}
-<script>{% if code %}alert({{ code|json_encode|raw }});{% endif %}</script>
+{% if code %}<script>window.LoginUI.errorMessage = {{ code|json_encode|raw }};</script>{% endif %}
 {% endblock %}
