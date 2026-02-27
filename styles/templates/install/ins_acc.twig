@@ -1,33 +1,29 @@
 {% include "ins_header.twig" %}
 
-<div class="step-description">
-	<p>{{ LNG.step4_desc|raw }}</p>
-</div>
+<div class="ins-info" style="margin-bottom:18px"><i class="fas fa-user-shield"></i> {{ LNG.step4_desc|raw }}</div>
 
-<form action="index.php?mode=install&step=8" method="post" class="row g-3">
+<form action="index.php?mode=install&step=8" method="post" style="display:flex;flex-direction:column;gap:14px">
 	<input type="hidden" name="post" value="1">
-	
-	<div class="col-12">
-		<label class="form-label">{{ LNG.step4_admin_name }}</label>
-		<input type="text" name="username" value="{{ name }}" class="form-control" placeholder="admin" required>
-		<div class="form-text">{{ LNG.step4_admin_name_desc }}</div>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step4_admin_name }}</label>
+		<input type="text" name="username" value="{{ name }}" placeholder="admin" required>
+		<div style="font-size:11px;color:var(--dim);margin-top:4px">{{ LNG.step4_admin_name_desc }}</div>
 	</div>
-	
-	<div class="col-12">
-		<label class="form-label">{{ LNG.step4_admin_pass }}</label>
-		<input type="password" name="password" value="{{ password }}" class="form-control" placeholder="secure_password" required>
-		<div class="form-text">{{ LNG.step4_admin_pass_desc }}</div>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step4_admin_pass }}</label>
+		<input type="password" name="password" value="{{ password }}" placeholder="secure_password" required>
+		<div style="font-size:11px;color:var(--dim);margin-top:4px">{{ LNG.step4_admin_pass_desc }}</div>
 	</div>
-	
-	<div class="col-12">
-		<label class="form-label">{{ LNG.step4_admin_mail }}</label>
-		<input type="email" name="email" value="{{ mail }}" class="form-control" placeholder="admin@example.com" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step4_admin_mail }}</label>
+		<input type="email" name="email" value="{{ mail }}" placeholder="admin@example.com" required>
 	</div>
-	
-	<div class="col-12 text-center mt-4">
-		<button type="submit" name="next" class="btn btn-primary btn-lg">
-			👤 {{ LNG.continue }}
-		</button>
+
+	<div style="margin-top:8px">
+		<button type="submit" name="next"><i class="fas fa-user-plus"></i> {{ LNG.continue }}</button>
 	</div>
 </form>
 {% include "ins_footer.twig" %}

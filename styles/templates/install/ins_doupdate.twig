@@ -1,13 +1,13 @@
 {% include "ins_header.twig" %}
-<tr>
-	<td colspan="2">
-		<div id="main" align="left">
-		{% if update %}
-			<p>{{ sprintf(LNG.upgrade_success, revision) }}</p>
-		{% else %}
-			<p>{{ sprintf(LNG.upgrade_nothingtodo, revision) }}</p>
-		{% endif %}
-		</div><br><a href="../index.php"><button style="cursor: pointer;">{{ LNG.upgrade_back }}</button></a>
-	</td>
-</tr>
+
+{% if update %}
+	<div class="ins-alert-success"><i class="fas fa-check-circle"></i> {{ sprintf(LNG.upgrade_success, revision) }}</div>
+{% else %}
+	<div class="ins-info"><i class="fas fa-info-circle"></i> {{ sprintf(LNG.upgrade_nothingtodo, revision) }}</div>
+{% endif %}
+
+<div style="margin-top:20px">
+	<a href="../index.php"><button><i class="fas fa-home"></i> {{ LNG.upgrade_back }}</button></a>
+</div>
+
 {% include "ins_footer.twig" %}

@@ -1,11 +1,52 @@
+		</div><!-- /.ins-card-body -->
+	</div><!-- /.ins-card -->
+
+	<div class="ins-footer">
+		&copy; {{ "now"|date("Y") }} SmartMoons &mdash; Modern fork of <a href="https://github.com/jkroepke/2Moons" target="_blank">2Moons</a> by Jan-Otto Kröpke
 	</div>
-</div>
 
-<!-- Footer -->
-<div class="installer-footer">
-	<p>&copy; 2025 SmartMoons - Modern fork of 2Moons by 0wum0</p>
-	<p>Original 2Moons by Jan-Otto Kröpke (2009-2016)</p>
-</div>
+</div><!-- /.ins-page -->
 
+<script>
+(function(){
+	if(typeof THREE === 'undefined') return;
+	var canvas = document.getElementById('ins-bg-canvas');
+	if(!canvas) return;
+	var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:false, alpha:true});
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
+	renderer.setClearColor(0x000000,0);
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,2000);
+	camera.position.z = 500;
+	var n = 1600, pos = new Float32Array(n*3), sz = new Float32Array(n);
+	for(var i=0;i<n;i++){
+		pos[i*3]=(Math.random()-.5)*2000;
+		pos[i*3+1]=(Math.random()-.5)*2000;
+		pos[i*3+2]=(Math.random()-.5)*2000;
+		sz[i]=Math.random()*2+.3;
+	}
+	var geo = new THREE.BufferGeometry();
+	geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+	geo.setAttribute('size',new THREE.BufferAttribute(sz,1));
+	var mat = new THREE.PointsMaterial({color:0xa8c8e8,size:1.2,transparent:true,opacity:0.55,sizeAttenuation:true});
+	scene.add(new THREE.Points(geo,mat));
+	function resize(){
+		var W=window.innerWidth,H=window.innerHeight;
+		renderer.setSize(W,H);
+		camera.aspect=W/H; camera.updateProjectionMatrix();
+	}
+	resize();
+	window.addEventListener('resize',resize);
+	var f=0;
+	(function loop(){
+		requestAnimationFrame(loop);
+		f++;
+		scene.rotation.y+=0.00005;
+		scene.rotation.x+=0.00002;
+		mat.opacity=0.45+Math.sin(f*0.005)*0.08;
+		renderer.render(scene,camera);
+	})();
+})();
+</script>
 </body>
 </html>

@@ -1,26 +1,25 @@
 {% include "ins_header.twig" %}
 
-<div class="step-description">
-	<p>{{ LNG.intro_text|raw }}</p>
+<div class="ins-info">
+	<i class="fas fa-info-circle"></i> {{ LNG.intro_text|raw }}
 </div>
 
-<div class="d-grid gap-3">
-	<a href="index.php?mode=install&amp;step=2" class="btn btn-primary btn-lg">
-		🚀 {{ LNG.intro_install }}
+<div style="margin-top:16px">
+	<a href="index.php?mode=install&amp;step=2" class="ins-btn ins-btn-primary">
+		<i class="fas fa-rocket"></i> {{ LNG.intro_install }}
 	</a>
 </div>
 
 {% if canUpgrade %}
-<div class="mt-4">
-	<h3 class="text-center mb-3">{{ LNG.menu_upgrade }}</h3>
-	<div class="step-description">
-		<p>{{ LNG.intro_upgrade_text|raw }}</p>
-	</div>
-	<div class="d-grid gap-3">
-		<a href="index.php?mode=upgrade" class="btn btn-secondary btn-lg">
-			⬆️ {{ LNG.continueUpgrade }}
-		</a>
-	</div>
+<div class="ins-divider"></div>
+<h2><i class="fas fa-arrow-up" style="color:var(--gold)"></i> {{ LNG.menu_upgrade }}</h2>
+<div class="ins-info">
+	<i class="fas fa-info-circle"></i> {{ LNG.intro_upgrade_text|raw }}
+</div>
+<div style="margin-top:16px">
+	<a href="index.php?mode=upgrade" class="ins-btn ins-btn-secondary">
+		<i class="fas fa-upload"></i> {{ LNG.continueUpgrade }}
+	</a>
 </div>
 {% endif %}
 

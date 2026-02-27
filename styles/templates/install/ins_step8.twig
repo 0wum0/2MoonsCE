@@ -1,23 +1,21 @@
 {% include "ins_header.twig" %}
 
-<div class="text-center">
-	<div class="success-message">
-		<h2 class="mb-3">🎉 {{ LNG.step6_head }}</h2>
-		<p class="mb-4">{{ LNG.step6_desc }}</p>
-	</div>
-	
-	<div class="step-description">
-		<h3 class="mb-3">{{ LNG.step6_info_head }}</h3>
-		<p>{{ LNG.step6_info_additional|raw }}</p>
-	</div>
-	
-	<div class="d-grid gap-3 mt-4">
-		<a href="../admin.php" class="btn btn-primary btn-lg">
-			🚀 {{ LNG.login }}
-		</a>
-		<a href="../index.php" class="btn btn-secondary btn-lg">
-			🌌 Enter SmartMoons Universe
-		</a>
-	</div>
+<div class="ins-alert-success" style="margin-bottom:18px;font-size:16px">
+	<i class="fas fa-check-circle"></i> <strong>{{ LNG.step6_head }}</strong>
+	<p style="margin-top:8px;font-size:13px">{{ LNG.step6_desc }}</p>
+</div>
+
+<div class="ins-info" style="margin-bottom:20px">
+	<strong>{{ LNG.step6_info_head }}</strong><br>
+	<span style="font-size:12px">{{ LNG.step6_info_additional|raw }}</span>
+</div>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+	<a href="../admin.php" class="ins-btn ins-btn-primary">
+		<i class="fas fa-shield-alt"></i> Admin Panel
+	</a>
+	<a href="../index.php" class="ins-btn ins-btn-secondary">
+		<i class="fas fa-globe"></i> {{ LNG.login }}
+	</a>
 </div>
 {% include "ins_footer.twig" %}

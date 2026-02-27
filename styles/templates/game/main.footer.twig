@@ -33,58 +33,473 @@
             <span>{{ LNG.lm_galaxy }}</span>
         </a>
 
-        <a href="#" onclick="SmartChat.toggle();return false;" class="dock-btn" id="dock-chat-btn">
+        <button class="dock-btn" id="dock-chat-btn" onclick="SmartChat.toggle();return false;" aria-label="Chat">
             <i class="fas fa-comments"></i>
             <span>Chat</span>
-        </a>
+            <span class="chat-dock-badge" id="chatDockBadge" style="display:none"></span>
+        </button>
     </div>
 </nav>
 
-<!-- chat-fab: NUR Desktop sichtbar (Mobile nutzt Dock-Chat-Button) -->
-<button id="chat-fab" class="chat-fab chat-fab-desktop-only" onclick="SmartChat.toggle();return false;" aria-label="Chat öffnen">
+<!-- FAB: desktop only -->
+<button id="chat-fab" class="sc-fab" onclick="SmartChat.toggle()" aria-label="Chat öffnen" title="Chat">
     <i class="fas fa-comments"></i>
-    <span id="chat-fab-indicator" class="chat-fab-indicator"></span>
+    <span class="sc-fab-badge" id="scFabBadge" style="display:none"></span>
 </button>
 
-<!-- GLOBAL CHAT OVERLAY -->
-<div id="smart-chat-panel" class="smart-chat-panel">
-    <div class="smart-chat-header">
-        <div class="smart-chat-tabs">
-            <button class="chat-tab active" data-tab="global" onclick="SmartChat.switchTab('global',this)">Global</button>
-            <button class="chat-tab" data-tab="alliance" onclick="SmartChat.switchTab('alliance',this)">Allianz</button>
+<!-- ═══════════ SMARTCHAT PANEL ═══════════ -->
+<div id="scPanel" class="sc-panel" role="dialog" aria-label="Chat">
+    <div class="sc-header">
+        <div class="sc-tabs">
+            <button class="sc-tab active" data-ch="global"   onclick="SmartChat.switchTab('global',this)"><i class="fas fa-globe-americas"></i> Global</button>
+            <button class="sc-tab"         data-ch="alliance" onclick="SmartChat.switchTab('alliance',this)"><i class="fas fa-users"></i> Allianz</button>
         </div>
-        <button class="smart-chat-close" onclick="SmartChat.toggle()"><i class="fas fa-times"></i></button>
+        <div class="sc-header-actions">
+            {% if authlevel > 0 %}
+            <button class="sc-icon-btn" onclick="SmartChat.showBans()" title="Banliste"><i class="fas fa-ban"></i></button>
+            {% endif %}
+            <button class="sc-icon-btn" onclick="SmartChat.toggle()" title="Schließen"><i class="fas fa-times"></i></button>
+        </div>
     </div>
-    <div class="smart-chat-body">
-        <iframe id="smart-chat-iframe" src="" class="smart-chat-iframe" allowtransparency="true"></iframe>
+
+    <!-- messages -->
+    <div class="sc-messages" id="scMessages">
+        <div class="sc-loading"><i class="fas fa-spinner fa-spin"></i></div>
+    </div>
+
+    <!-- banned notice -->
+    <div class="sc-banned-notice" id="scBannedNotice" style="display:none">
+        <i class="fas fa-ban"></i> Du bist vom Chat gebannt.
+    </div>
+
+    <!-- no-alliance notice -->
+    <div class="sc-banned-notice" id="scNoAlliNotice" style="display:none">
+        <i class="fas fa-users-slash"></i> Kein Allianz-Chat ohne Allianz.
+    </div>
+
+    <!-- input -->
+    <div class="sc-input-area" id="scInputArea">
+        <div class="sc-bbbar">
+            <button type="button" class="sc-bb" onclick="SmartChat.bb('b')" title="Fett"><b>B</b></button>
+            <button type="button" class="sc-bb" onclick="SmartChat.bb('i')" title="Kursiv"><i>I</i></button>
+            <button type="button" class="sc-bb" onclick="SmartChat.bb('u')" title="Unterstrichen"><u>U</u></button>
+            <button type="button" class="sc-bb" onclick="SmartChat.bb('color','#ffcc00')" title="Farbe" style="color:#fc0">A</button>
+            <button type="button" class="sc-bb" onclick="SmartChat.bb('url')" title="Link">URL</button>
+        </div>
+        <div class="sc-compose">
+            <textarea id="scInput" class="sc-input" placeholder="Nachricht…" maxlength="800" rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();SmartChat.send();}"></textarea>
+            <button class="sc-send-btn" onclick="SmartChat.send()" title="Senden"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- admin ban list modal -->
+    <div class="sc-modal" id="scBanModal" style="display:none">
+        <div class="sc-modal-inner">
+            <div class="sc-modal-header">
+                <span><i class="fas fa-ban"></i> Chat-Banliste</span>
+                <button onclick="SmartChat.hideBans()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="sc-modal-body" id="scBanList"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
     </div>
 </div>
 
+<!-- Toast container -->
+<div id="scToastContainer" class="sc-toast-container"></div>
+
 {% autoescape false %}
 <script>
-var SmartChat=(function(){
-    var isOpen=false;
-    function updateIndicator(show){
-        var indicator=document.getElementById('chat-fab-indicator');
-        if(indicator) indicator.style.display = show ? 'block' : 'none';
+var SmartChat = (function(){
+    var _open    = false;
+    var _channel = 'global';
+    var _sinceId = 0;
+    var _pollTimer = null;
+    var _isAdmin = {{ authlevel > 0 ? 'true' : 'false' }};
+    var _myId    = {{ userID|default(0) }};
+    var _isAlliance = {{ allyId|default(0) > 0 ? 'true' : 'false' }};
+
+    /* ── DOM helpers ── */
+    function $id(id){ return document.getElementById(id); }
+    function escHtml(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+    /* ── BBCode renderer (client-side preview) ── */
+    function renderBB(s){
+        s = escHtml(s);
+        s = s.replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>');
+        s = s.replace(/\[i\]([\s\S]*?)\[\/i\]/gi,'<em>$1</em>');
+        s = s.replace(/\[u\]([\s\S]*?)\[\/u\]/gi,'<u>$1</u>');
+        s = s.replace(/\[color=([^\]]+)\]([\s\S]*?)\[\/color\]/gi,'<span style="color:$1">$2</span>');
+        s = s.replace(/\[url=([^\]]+)\]([\s\S]*?)\[\/url\]/gi,'<a href="$1" target="_blank" rel="noopener">$2</a>');
+        s = s.replace(/\[url\]([\s\S]*?)\[\/url\]/gi,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+        s = s.replace(/\n/g,'<br>');
+        return s;
     }
+
+    /* ── Fetch ── */
+    function fetchMessages(initial){
+        var params = 'action=fetch&channel='+_channel+(initial ? '' : '&since='+_sinceId);
+        fetch('game.php?page=chat&'+params, {credentials:'same-origin'})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(!d.ok) return;
+                _isAdmin = d.is_admin;
+                if(initial){
+                    _sinceId = 0;
+                    $id('scMessages').innerHTML = '';
+                    if(d.messages.length === 0){
+                        $id('scMessages').innerHTML = '<div class="sc-empty">Noch keine Nachrichten.</div>';
+                    }
+                }
+                var newMsgs = [];
+                d.messages.forEach(function(m){
+                    if(m.id > _sinceId){ _sinceId = m.id; }
+                    appendMessage(m, initial);
+                    if(!initial) newMsgs.push(m);
+                });
+                if(!initial && newMsgs.length > 0 && !_open){
+                    newMsgs.forEach(function(m){ showToast(m); });
+                    updateBadge(true);
+                }
+                toggleInputUI(d.is_banned, _channel === 'alliance' && !_isAlliance);
+            })
+            .catch(function(){});
+    }
+
+    /* ── Append a single message ── */
+    function appendMessage(m, prepend){
+        var box = $id('scMessages');
+        if(!box) return;
+        var empty = box.querySelector('.sc-empty');
+        if(empty) empty.remove();
+
+        var isMine = m.user_id === _myId;
+        var el = document.createElement('div');
+        el.className = 'sc-msg' + (isMine ? ' sc-msg-mine' : '');
+        el.setAttribute('data-id', m.id);
+
+        var time = new Date(m.created_at * 1000);
+        var hh = time.getHours().toString().padStart(2,'0');
+        var mm = time.getMinutes().toString().padStart(2,'0');
+
+        var adminActions = '';
+        if(_isAdmin){
+            adminActions = '<span class="sc-admin-bar">'
+                + '<button class="sc-admin-btn" onclick="SmartChat.deleteMsg('+m.id+')" title="Löschen"><i class="fas fa-trash"></i></button>'
+                + '<button class="sc-admin-btn" onclick="SmartChat.banUser('+m.user_id+',\''+escHtml(m.username)+'\')" title="Bannen"><i class="fas fa-ban"></i></button>'
+                + '</span>';
+        }
+
+        el.innerHTML = '<div class="sc-msg-meta"><span class="sc-msg-user'+(isMine?' sc-msg-me':'')+'">'+escHtml(m.username)+'</span>'
+            + '<span class="sc-msg-time">'+hh+':'+mm+'</span>'+adminActions+'</div>'
+            + '<div class="sc-msg-text">'+renderBB(m.message)+'</div>';
+
+        if(prepend === true){
+            box.insertBefore(el, box.firstChild);
+        } else {
+            box.appendChild(el);
+            box.scrollTop = box.scrollHeight;
+        }
+    }
+
+    /* ── Send ── */
+    function send(){
+        var inp = $id('scInput');
+        if(!inp) return;
+        var msg = inp.value.trim();
+        if(!msg) return;
+        inp.value = '';
+        inp.style.height = '';
+
+        var fd = new FormData();
+        fd.append('action','send');
+        fd.append('channel',_channel);
+        fd.append('message',msg);
+
+        fetch('game.php?page=chat', {method:'POST', credentials:'same-origin', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(!d.ok){ showSysMsg(d.error || 'Fehler'); return; }
+                appendMessage(d.message, false);
+                if(d.message.id > _sinceId) _sinceId = d.message.id;
+            })
+            .catch(function(){ showSysMsg('Netzwerkfehler'); });
+    }
+
+    /* ── Delete (admin) ── */
+    function deleteMsg(id){
+        if(!confirm('Nachricht löschen?')) return;
+        var fd = new FormData();
+        fd.append('action','delete'); fd.append('msg_id',id);
+        fetch('game.php?page=chat', {method:'POST', credentials:'same-origin', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(d.ok){ var el = document.querySelector('[data-id="'+id+'"]'); if(el) el.remove(); }
+            }).catch(function(){});
+    }
+
+    /* ── Ban (admin) ── */
+    function banUser(uid, username){
+        var reason = prompt('Grund für Bann von '+username+' (optional):');
+        if(reason === null) return;
+        var fd = new FormData();
+        fd.append('action','ban'); fd.append('user_id',uid); fd.append('reason',reason||'');
+        fetch('game.php?page=chat', {method:'POST', credentials:'same-origin', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){ if(d.ok) showSysMsg(username+' gebannt.'); })
+            .catch(function(){});
+    }
+
+    /* ── Ban list ── */
+    function showBans(){
+        $id('scBanModal').style.display = 'flex';
+        $id('scBanList').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        fetch('game.php?page=chat&action=bans', {credentials:'same-origin'})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(!d.ok || d.bans.length === 0){
+                    $id('scBanList').innerHTML = '<p style="color:var(--dim)">Keine aktiven Banns.</p>';
+                    return;
+                }
+                var html = '';
+                d.bans.forEach(function(b){
+                    html += '<div class="sc-ban-row"><span>'+escHtml(b.username||'#'+b.user_id)+'</span>'
+                        +'<span class="sc-ban-reason">'+escHtml(b.reason)+'</span>'
+                        +'<button class="sc-admin-btn" onclick="SmartChat.unban('+b.user_id+')">Entbannen</button></div>';
+                });
+                $id('scBanList').innerHTML = html;
+            }).catch(function(){ $id('scBanList').innerHTML = 'Fehler'; });
+    }
+    function hideBans(){ $id('scBanModal').style.display = 'none'; }
+
+    function unban(uid){
+        var fd = new FormData(); fd.append('action','unban'); fd.append('user_id',uid);
+        fetch('game.php?page=chat', {method:'POST', credentials:'same-origin', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){ if(d.ok) showBans(); }).catch(function(){});
+    }
+
+    /* ── Tab switch ── */
+    function switchTab(ch, btn){
+        _channel = ch;
+        _sinceId = 0;
+        document.querySelectorAll('.sc-tab').forEach(function(t){ t.classList.remove('active'); });
+        if(btn) btn.classList.add('active');
+        if(ch === 'alliance' && !_isAlliance){
+            $id('scMessages').innerHTML = '';
+            toggleInputUI(false, true);
+            return;
+        }
+        fetchMessages(true);
+    }
+
+    /* ── Toggle open/close ── */
     function toggle(){
-        var p=document.getElementById('smart-chat-panel');if(!p)return;
-        isOpen=!isOpen;p.classList.toggle('open',isOpen);
-        if(isOpen){var f=document.getElementById('smart-chat-iframe');if(f&&!f.src)f.src='./chat/index.php';}
-        updateIndicator(!isOpen);
+        _open = !_open;
+        var p = $id('scPanel');
+        if(!p) return;
+        p.classList.toggle('open', _open);
+        if(_open){
+            updateBadge(false);
+            fetchMessages(true);
+            startPoll();
+        } else {
+            stopPoll();
+        }
     }
-    function switchTab(tab,btn){
-        var f=document.getElementById('smart-chat-iframe');if(!f)return;
-        f.src='./chat/index.php'+(tab==='alliance'?'?action=alliance':'');
-        document.querySelectorAll('.chat-tab').forEach(function(t){t.classList.remove('active');});
-        if(btn)btn.classList.add('active');
+
+    /* ── Polling ── */
+    function startPoll(){
+        stopPoll();
+        _pollTimer = setInterval(function(){
+            fetchMessages(false);
+        }, 4000);
     }
-    window.setInterval(function(){ if(!isOpen) updateIndicator(true); }, 30000);
-    updateIndicator(true);
-    return{toggle:toggle,switchTab:switchTab};
+    function stopPoll(){ clearInterval(_pollTimer); _pollTimer = null; }
+
+    /* ── Badge ── */
+    function updateBadge(show){
+        [$id('scFabBadge'), $id('chatDockBadge')].forEach(function(el){
+            if(el) el.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    /* ── UI helpers ── */
+    function toggleInputUI(isBanned, noAlli){
+        $id('scBannedNotice').style.display = isBanned ? 'flex' : 'none';
+        $id('scNoAlliNotice').style.display = (!isBanned && noAlli) ? 'flex' : 'none';
+        $id('scInputArea').style.display    = (!isBanned && !noAlli) ? 'flex' : 'none';
+    }
+    function showSysMsg(txt){
+        var box = $id('scMessages');
+        if(!box) return;
+        var el = document.createElement('div');
+        el.className = 'sc-sys-msg';
+        el.textContent = txt;
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    /* ── Toast ── */
+    function showToast(m){
+        var c = $id('scToastContainer');
+        if(!c) return;
+        var t = document.createElement('div');
+        t.className = 'sc-toast';
+        var preview = m.message.replace(/\[.*?\]/g,'').substring(0,60);
+        t.innerHTML = '<div class="sc-toast-user">'+escHtml(m.username)+'</div>'
+            + '<div class="sc-toast-text">'+escHtml(preview)+'</div>';
+        t.onclick = function(){ toggle(); t.remove(); };
+        c.appendChild(t);
+        setTimeout(function(){ t.classList.add('sc-toast-in'); }, 20);
+        setTimeout(function(){ t.classList.remove('sc-toast-in'); setTimeout(function(){ t.remove(); }, 400); }, 5000);
+    }
+
+    /* ── BBCode insert ── */
+    function bb(tag, val){
+        var ta = $id('scInput');
+        if(!ta) return;
+        var s = ta.selectionStart, e = ta.selectionEnd;
+        var sel = ta.value.substring(s,e);
+        var open = '['+tag+(val?'='+val:'')+']';
+        var close = '[/'+tag+']';
+        ta.value = ta.value.substring(0,s) + open + (sel||'') + close + ta.value.substring(e);
+        ta.focus();
+        ta.selectionStart = ta.selectionEnd = s + open.length + (sel||'').length + close.length;
+    }
+
+    /* ── Background poll for toasts (even when closed) ── */
+    setInterval(function(){
+        if(!_open) fetchMessages(false);
+    }, 15000);
+
+    return { toggle:toggle, switchTab:switchTab, send:send, deleteMsg:deleteMsg,
+             banUser:banUser, showBans:showBans, hideBans:hideBans, unban:unban, bb:bb };
 })();
 </script>
+
+<style>
+/* ══════════════════════════════════════════════
+   SMARTCHAT STYLES
+══════════════════════════════════════════════ */
+.sc-fab {
+    position:fixed; bottom:24px; left:24px; z-index:1200;
+    width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,#00d4ff,#7c4dff);
+    border:none; color:#fff; font-size:20px; cursor:pointer;
+    box-shadow:0 4px 20px rgba(0,212,255,0.45);
+    transition:transform .2s, box-shadow .2s;
+    display:flex; align-items:center; justify-content:center;
+}
+.sc-fab:hover { transform:scale(1.1); box-shadow:0 6px 28px rgba(0,212,255,0.6); }
+.sc-fab-badge, .chat-dock-badge {
+    position:absolute; top:2px; right:2px;
+    width:10px; height:10px; border-radius:50%;
+    background:#ff4757; border:2px solid #0a0d14;
+}
+@media(max-width:768px){ .sc-fab { display:none !important; } }
+
+/* Panel */
+.sc-panel {
+    position:fixed; bottom:90px; left:16px; z-index:1100;
+    width:360px; max-height:560px;
+    display:flex; flex-direction:column;
+    background:rgba(10,13,24,0.97);
+    border:1px solid rgba(0,212,255,0.22);
+    border-radius:16px;
+    box-shadow:0 8px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,212,255,0.06);
+    backdrop-filter:blur(16px);
+    transform:translateY(20px) scale(0.96); opacity:0; pointer-events:none;
+    transition:transform .25s cubic-bezier(.22,1,.36,1), opacity .2s ease;
+}
+.sc-panel.open { transform:translateY(0) scale(1); opacity:1; pointer-events:all; }
+@media(max-width:768px){
+    .sc-panel { bottom:72px; left:8px; right:8px; width:auto; max-height:70vh; }
+}
+
+/* Header */
+.sc-header { display:flex; align-items:center; justify-content:space-between; padding:10px 12px 0; flex-shrink:0; }
+.sc-tabs { display:flex; gap:4px; }
+.sc-tab {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    color:rgba(255,255,255,0.5); border-radius:8px; padding:5px 14px; font-size:11px;
+    cursor:pointer; transition:.15s; display:flex; align-items:center; gap:5px;
+    font-family:var(--font-hud,sans-serif); letter-spacing:.8px;
+}
+.sc-tab.active { background:rgba(0,212,255,0.15); border-color:rgba(0,212,255,0.35); color:#00d4ff; }
+.sc-tab:hover:not(.active) { background:rgba(255,255,255,0.08); color:#fff; }
+.sc-header-actions { display:flex; gap:4px; }
+.sc-icon-btn { background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; padding:4px 6px; border-radius:6px; transition:.15s; font-size:13px; }
+.sc-icon-btn:hover { color:#fff; background:rgba(255,255,255,0.1); }
+
+/* Messages */
+.sc-messages {
+    flex:1; overflow-y:auto; padding:10px 12px; display:flex;
+    flex-direction:column; gap:6px; min-height:0;
+    scrollbar-width:thin; scrollbar-color:rgba(0,212,255,0.2) transparent;
+}
+.sc-messages::-webkit-scrollbar { width:4px; }
+.sc-messages::-webkit-scrollbar-thumb { background:rgba(0,212,255,0.2); border-radius:2px; }
+.sc-loading, .sc-empty { color:rgba(255,255,255,0.3); font-size:12px; text-align:center; padding:20px 0; }
+.sc-sys-msg { font-size:11px; color:rgba(255,150,0,0.8); text-align:center; font-style:italic; }
+
+.sc-msg { background:rgba(255,255,255,0.04); border-radius:10px; padding:7px 10px; border:1px solid rgba(255,255,255,0.05); }
+.sc-msg-mine { background:rgba(0,212,255,0.07); border-color:rgba(0,212,255,0.15); }
+.sc-msg-meta { display:flex; align-items:center; gap:6px; margin-bottom:3px; flex-wrap:wrap; }
+.sc-msg-user { font-size:11px; font-weight:700; color:rgba(0,212,255,0.9); font-family:var(--font-hud,sans-serif); }
+.sc-msg-user.sc-msg-me { color:#7c4dff; }
+.sc-msg-time { font-size:10px; color:rgba(255,255,255,0.25); margin-left:auto; }
+.sc-msg-text { font-size:12px; color:rgba(255,255,255,0.85); line-height:1.5; word-break:break-word; }
+.sc-admin-bar { display:flex; gap:3px; margin-left:4px; }
+.sc-admin-btn { background:none; border:none; color:rgba(255,80,80,0.5); cursor:pointer; font-size:10px; padding:1px 3px; border-radius:3px; transition:.1s; }
+.sc-admin-btn:hover { color:#ff4757; background:rgba(255,71,87,0.1); }
+
+/* Banned / no-alli notice */
+.sc-banned-notice { padding:12px; text-align:center; font-size:12px; color:rgba(255,100,100,0.8); gap:6px; align-items:center; justify-content:center; flex-shrink:0; }
+
+/* Input */
+.sc-input-area { flex-direction:column; padding:8px 10px 10px; border-top:1px solid rgba(255,255,255,0.06); flex-shrink:0; gap:5px; display:flex; }
+.sc-bbbar { display:flex; gap:3px; flex-wrap:wrap; }
+.sc-bb { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); border-radius:4px; width:28px; height:22px; cursor:pointer; font-size:11px; transition:.1s; padding:0; }
+.sc-bb:hover { background:rgba(0,212,255,0.15); color:#00d4ff; border-color:rgba(0,212,255,0.3); }
+.sc-compose { display:flex; gap:6px; align-items:flex-end; }
+.sc-input {
+    flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+    color:#fff; border-radius:8px; padding:7px 10px; font-size:12px; resize:none;
+    min-height:34px; max-height:100px; overflow-y:auto; line-height:1.4;
+    font-family:inherit; transition:border-color .15s;
+}
+.sc-input:focus { outline:none; border-color:rgba(0,212,255,0.4); }
+.sc-send-btn {
+    background:linear-gradient(135deg,#00d4ff,#7c4dff); border:none; color:#fff;
+    width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:14px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:.15s; box-shadow:0 2px 8px rgba(0,212,255,0.3);
+}
+.sc-send-btn:hover { box-shadow:0 4px 14px rgba(0,212,255,0.5); transform:scale(1.05); }
+
+/* Modal (ban list) */
+.sc-modal { position:absolute; inset:0; background:rgba(0,0,0,0.7); border-radius:16px; z-index:10; align-items:center; justify-content:center; }
+.sc-modal-inner { background:#0d1120; border:1px solid rgba(0,212,255,0.2); border-radius:12px; width:90%; max-height:80%; display:flex; flex-direction:column; overflow:hidden; }
+.sc-modal-header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.07); color:#00d4ff; font-size:12px; font-family:var(--font-hud,sans-serif); }
+.sc-modal-header button { background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:14px; }
+.sc-modal-body { padding:10px 14px; overflow-y:auto; font-size:12px; }
+.sc-ban-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.sc-ban-row span:first-child { font-weight:700; color:#fff; min-width:80px; }
+.sc-ban-reason { flex:1; color:rgba(255,255,255,0.4); font-size:11px; }
+
+/* Toast */
+.sc-toast-container { position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.sc-toast {
+    background:rgba(10,13,24,0.95); border:1px solid rgba(0,212,255,0.25); border-radius:12px;
+    padding:10px 14px; min-width:220px; max-width:300px; cursor:pointer; pointer-events:all;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+    transform:translateX(120%); opacity:0; transition:transform .35s cubic-bezier(.22,1,.36,1), opacity .3s;
+}
+.sc-toast.sc-toast-in { transform:translateX(0); opacity:1; }
+.sc-toast-user { font-size:11px; font-weight:700; color:#00d4ff; font-family:var(--font-hud,sans-serif); margin-bottom:3px; }
+.sc-toast-text { font-size:12px; color:rgba(255,255,255,0.7); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+</style>
 {% endautoescape %}
 
 <div id="dialog" style="display:none;"></div>

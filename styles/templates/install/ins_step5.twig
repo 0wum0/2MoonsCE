@@ -1,15 +1,8 @@
 {% include "ins_header.twig" %}
-<tr>
-	<td colspan="2">
-		<div class="installcontent">
-			<div id="main" class="left">
-				<h2>{{ LNG.step3_head }}</h2>
-				<p>{{ LNG.step3_desc }}</p>
-				<div style="text-align:center;"><p>
-					<a href="index.php?mode=install&step=6"><button>{{ LNG.continue }}</button></a>
-				</p></div>
-			</div>
-		</div>
-	</td>
-</tr>
+
+<h2>{{ LNG.step3_head }}</h2>
+<div class="ins-info" style="margin:12px 0 20px"><i class="fas fa-info-circle"></i> {{ LNG.step3_desc }}</div>
+
+<a href="index.php?mode=install&step=6"><button><i class="fas fa-arrow-right"></i> {{ LNG.continue }}</button></a>
+
 {% include "ins_footer.twig" %}

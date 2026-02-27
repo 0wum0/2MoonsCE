@@ -1,6 +1,4 @@
 {% include "ins_header.twig" %}
-<tr>
-<td class="left">
 <h2>{{ LNG.licence_head }}</h2>
 <p>{{ LNG.licence_desc }}</p>
 <div id="licence">
@@ -637,30 +635,14 @@ copy of the Program in return for a fee.</p>
 </div>
 <form action="index.php?mode=install&step=1" method="post">
 <input type="hidden" name="post" value="1"> 
-<table style="width: 100%;max-width:100%;margin-top:10px">
-	<tr>
-		<td class="transparent" width="70">
-			<input type="checkbox" name="accept">
-		</td>
-		<td class="transparent left">
-			<label>{{ LNG.licence_accept }}</label>
-		</td>
-	</tr>
-	{% if accept is defined %}
-	<tr>
-		<td class="transparent" colspan="2">
-			<span class="no">{{ LNG.licence_need_accept }}</span>
-		</td>
-	</tr>
-	{% endif %}
-	<tr>
-		<td class="transparent" colspan="2">
-			<input type="submit" value="{{ LNG.continue }}">
-		</td>
-	</tr>
-</table>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+	<input type="checkbox" name="accept" id="lic-accept" style="width:18px;height:18px;flex-shrink:0">
+	<label for="lic-accept" style="font-size:13px;cursor:pointer">{{ LNG.licence_accept }}</label>
+</div>
+{% if accept is defined %}
+<div class="ins-alert-error" style="margin-bottom:12px"><i class="fas fa-exclamation-circle"></i> {{ LNG.licence_need_accept }}</div>
+{% endif %}
+<input type="submit" value="{{ LNG.continue }}">
 </form>
 </div>
-</th>
-</tr>
 {% include "ins_footer.twig" %}

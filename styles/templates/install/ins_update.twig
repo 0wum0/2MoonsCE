@@ -1,22 +1,21 @@
 {% include "ins_header.twig" %}
-<tr>
-	<td colspan="2">
-		<div id="main">
-			<h2 class="left">{{ LNG.upgrade_intro_welcome }}</h2>
-			{% if updates %}
-				<form action="?mode=doupgrade" method="POST">
-					<p class="left">{{ LNG.upgrade_available|format(sql_revision, file_revision)|raw }}</p>
 
-					{% for file, content in updates %}
-						<div><p class="left">{{ file }}</p><div style="border: 1px solid #1C1F23; padding: 5px 10px; margin: 5px 10px;" class="left">{{ content|raw }}</div></div>
-					{% endfor %}
-					<p><input type="submit" value="{{ LNG.continue }}"></p>
-				</form>
-			{% else %}
-				<p class="left">{{ LNG.upgrade_notavailable|format(sql_revision)|raw }}</p>
-				<p><a href="index.php"><button style="cursor: pointer;">{{ LNG.upgrade_back }}</button></a></p>
-			{% endif %}
+<h2>{{ LNG.upgrade_intro_welcome }}</h2>
+
+{% if updates %}
+	<div class="ins-info"><i class="fas fa-info-circle"></i>{{ LNG.upgrade_available|format(sql_revision, file_revision)|raw }}</div>
+	<form action="?mode=doupgrade" method="POST">
+		{% for file, content in updates %}
+			<div class="ins-file-label" style="margin-top:16px"><i class="fas fa-file-code"></i> {{ file }}</div>
+			<div class="ins-sql-preview">{{ content|raw }}</div>
+		{% endfor %}
+		<div style="margin-top:20px">
+			<input type="submit" value="{{ LNG.continue }}">
 		</div>
-	</td>
-</tr>
+	</form>
+{% else %}
+	<div class="ins-alert-success"><i class="fas fa-check-circle"></i> {{ LNG.upgrade_notavailable|format(sql_revision)|raw }}</div>
+	<a href="index.php"><button><i class="fas fa-arrow-left"></i> {{ LNG.upgrade_back }}</button></a>
+{% endif %}
+
 {% include "ins_footer.twig" %}

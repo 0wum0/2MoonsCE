@@ -1,109 +1,43 @@
 {% include "ins_header.twig" %}
 
-<div class="step-description">
-	<p>{{ LNG.req_desc|raw }}</p>
-</div>
+<div class="ins-info" style="margin-bottom:18px"><i class="fas fa-info-circle"></i> {{ LNG.req_desc|raw }}</div>
 
-<div class="requirements-grid">
-	<div class="requirement-item">
-		<div class="requirement-icon {{ 'yes' in PHP|raw ? 'success' : 'error' }}">
-			{{ 'yes' in PHP|raw ? '✓' : '✗' }}
-		</div>
-		<div class="requirement-text">
-			<div class="requirement-title">{{ LNG.req_php_need }}</div>
-			<div class="requirement-desc">{{ LNG.req_php_need_desc|raw }}</div>
-			<div class="mt-2">{{ PHP|raw }}</div>
-		</div>
-	</div>
-
-	<div class="requirement-item">
-		<div class="requirement-icon {{ 'yes' in global|raw ? 'success' : 'error' }}">
-			{{ 'yes' in global|raw ? '✓' : '✗' }}
-		</div>
-		<div class="requirement-text">
-			<div class="requirement-title">{{ LNG.reg_global_need }}</div>
-			<div class="requirement-desc">{{ LNG.reg_global_desc|raw }}</div>
-			<div class="mt-2">{{ global|raw }}</div>
-		</div>
-	</div>
-
-	<div class="requirement-item">
-		<div class="requirement-icon {{ 'yes' in pdo|raw ? 'success' : 'error' }}">
-			{{ 'yes' in pdo|raw ? '✓' : '✗' }}
-		</div>
-		<div class="requirement-text">
-			<div class="requirement-title">{{ LNG.reg_pdo_active }}</div>
-			<div class="requirement-desc">{{ LNG.reg_pdo_desc|raw }}</div>
-			<div class="mt-2">{{ pdo|raw }}</div>
-		</div>
-	</div>
-
-	<div class="requirement-item">
-		<div class="requirement-icon {{ 'yes' in gdlib|raw ? 'success' : 'error' }}">
-			{{ 'yes' in gdlib|raw ? '✓' : '✗' }}
-		</div>
-		<div class="requirement-text">
-			<div class="requirement-title">{{ LNG.reg_gd_need }}</div>
-			<div class="requirement-desc">{{ LNG.reg_gd_desc|raw }}</div>
-			<div class="mt-2">{{ gdlib|raw }}</div>
-		</div>
-	</div>
-
-	<div class="requirement-item">
-		<div class="requirement-icon {{ 'yes' in json|raw ? 'success' : 'error' }}">
-			{{ 'yes' in json|raw ? '✓' : '✗' }}
-		</div>
-		<div class="requirement-text">
-			<div class="requirement-title">{{ LNG.reg_json_need }}</div>
-			<div class="mt-2">{{ json|raw }}</div>
-		</div>
-	</div>
-
-	<div class="requirement-item">
-		<div class="requirement-icon {{ 'yes' in iniset|raw ? 'success' : 'error' }}">
-			{{ 'yes' in iniset|raw ? '✓' : '✗' }}
-		</div>
-		<div class="requirement-text">
-			<div class="requirement-title">{{ LNG.reg_iniset_need }}</div>
-			<div class="mt-2">{{ iniset|raw }}</div>
-		</div>
-	</div>
-
+<div style="display:flex;flex-direction:column;gap:10px">
+	<div class="ins-req-row"><span>{{ LNG.req_php_need }}</span><span>{{ PHP|raw }}</span></div>
+	<div class="ins-req-row"><span>{{ LNG.reg_global_need }}</span><span>{{ global|raw }}</span></div>
+	<div class="ins-req-row"><span>{{ LNG.reg_pdo_active }}</span><span>{{ pdo|raw }}</span></div>
+	<div class="ins-req-row"><span>{{ LNG.reg_gd_need }}</span><span>{{ gdlib|raw }}</span></div>
+	<div class="ins-req-row"><span>{{ LNG.reg_json_need }}</span><span>{{ json|raw }}</span></div>
+	<div class="ins-req-row"><span>{{ LNG.reg_iniset_need }}</span><span>{{ iniset|raw }}</span></div>
 	{{ dir|raw }}
 	{{ config|raw }}
 </div>
 
-{{ done|raw }}
+<div style="margin-top:20px">{{ done|raw }}</div>
 {% if ftp == 0 %}
-<div class="mt-4">
-	<h3 class="text-center mb-3">{{ LNG.req_ftp_head }}</h3>
-	<div class="step-description">
-		<p>{{ LNG.req_ftp_desc|raw }}</p>
+<div class="ins-divider"></div>
+<h2>{{ LNG.req_ftp_head }}</h2>
+<div class="ins-info"><i class="fas fa-info-circle"></i> {{ LNG.req_ftp_desc|raw }}</div>
+<form name="ftp" id="ftp" action="" onsubmit="return false;" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.req_ftp_host }}</label>
+		<input type="text" name="host" placeholder="ftp.example.com">
 	</div>
-	
-	<form name="ftp" id="ftp" action="" onsubmit="return false;" class="row g-3">
-		<div class="col-md-6">
-			<label class="form-label">{{ LNG.req_ftp_host }}</label>
-			<input type="text" name="host" class="form-control" placeholder="ftp.example.com">
-		</div>
-		<div class="col-md-6">
-			<label class="form-label">{{ LNG.req_ftp_username }}</label>
-			<input type="text" name="user" class="form-control" placeholder="username">
-		</div>
-		<div class="col-md-6">
-			<label class="form-label">{{ LNG.req_ftp_password }}</label>
-			<input type="password" name="pass" class="form-control" placeholder="password">
-		</div>
-		<div class="col-md-6">
-			<label class="form-label">{{ LNG.req_ftp_dir }}</label>
-			<input type="text" name="path" class="form-control" placeholder="/path/to/smartmoons">
-		</div>
-		<div class="col-12 text-center">
-			<button type="button" class="btn btn-secondary" onclick="submitftp();">
-				🔧 {{ LNG.req_ftp_send }}
-			</button>
-		</div>
-	</form>
-</div>
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.req_ftp_username }}</label>
+		<input type="text" name="user" placeholder="username">
+	</div>
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.req_ftp_password }}</label>
+		<input type="password" name="pass" placeholder="password">
+	</div>
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.req_ftp_dir }}</label>
+		<input type="text" name="path" placeholder="/path/to/smartmoons">
+	</div>
+	<div style="grid-column:span 2;text-align:center">
+		<button type="button" onclick="submitftp();"><i class="fas fa-wrench"></i> {{ LNG.req_ftp_send }}</button>
+	</div>
+</form>
 {% endif %}
 {% include "ins_footer.twig" %}

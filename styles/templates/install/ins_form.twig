@@ -1,46 +1,42 @@
 {% include "ins_header.twig" %}
 
-<div class="step-description">
-	<p>{{ LNG.step1_desc|raw }}</p>
-</div>
+<div class="ins-info" style="margin-bottom:18px"><i class="fas fa-database"></i> {{ LNG.step1_desc|raw }}</div>
 
-<form action="index.php?mode=install&step=4" method="post" class="row g-3">
+<form action="index.php?mode=install&step=4" method="post" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 	<input type="hidden" name="post" value="1">
-	
-	<div class="col-md-6">
-		<label class="form-label">{{ LNG.step1_mysql_server }}</label>
-		<input type="text" name="host" value="{{ host }}" class="form-control" placeholder="localhost" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step1_mysql_server }}</label>
+		<input type="text" name="host" value="{{ host }}" placeholder="localhost" required>
 	</div>
-	
-	<div class="col-md-6">
-		<label class="form-label">{{ LNG.step1_mysql_port }}</label>
-		<input type="text" name="port" value="3306" class="form-control" placeholder="3306" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step1_mysql_port }}</label>
+		<input type="text" name="port" value="3306" placeholder="3306" required>
 	</div>
-	
-	<div class="col-md-6">
-		<label class="form-label">{{ LNG.step1_mysql_dbuser }}</label>
-		<input type="text" name="user" value="{{ user }}" class="form-control" placeholder="database_user" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step1_mysql_dbuser }}</label>
+		<input type="text" name="user" value="{{ user }}" placeholder="database_user" required>
 	</div>
-	
-	<div class="col-md-6">
-		<label class="form-label">{{ LNG.step1_mysql_dbpass }}</label>
-		<input type="password" name="passwort" value="{{ password }}" class="form-control" placeholder="database_password" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step1_mysql_dbpass }}</label>
+		<input type="password" name="passwort" value="{{ password }}" placeholder="database_password" required>
 	</div>
-	
-	<div class="col-md-6">
-		<label class="form-label">{{ LNG.step1_mysql_dbname }}</label>
-		<input type="text" name="dbname" value="{{ dbname }}" class="form-control" placeholder="smartmoons_db" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step1_mysql_dbname }}</label>
+		<input type="text" name="dbname" value="{{ dbname }}" placeholder="smartmoons_db" required>
 	</div>
-	
-	<div class="col-md-6">
-		<label class="form-label">{{ LNG.step1_mysql_prefix }}</label>
-		<input type="text" name="prefix" value="uni1_" class="form-control" placeholder="uni1_" required>
+
+	<div class="ins-form-group">
+		<label class="ins-form-label">{{ LNG.step1_mysql_prefix }}</label>
+		<input type="text" name="prefix" value="uni1_" placeholder="uni1_" required>
 	</div>
-	
-	<div class="col-12 text-center mt-4">
-		<button type="submit" name="next" class="btn btn-primary btn-lg">
-			🚀 {{ LNG.continue }}
-		</button>
+
+	<div style="grid-column:span 2;text-align:center;margin-top:8px">
+		<button type="submit" name="next"><i class="fas fa-rocket"></i> {{ LNG.continue }}</button>
 	</div>
 </form>
 {% include "ins_footer.twig" %}

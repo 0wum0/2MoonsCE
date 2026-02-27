@@ -1,13 +1,9 @@
 {% include "ins_header.twig" %}
-<tr>
-	<td colspan="2">
-		<div class="installcontent">	
-			<div id="lang" align="right">{{ LNG.intro_lang }}: <select id="lang" name="lang" onchange="document.location = '?lang='+$(this).val();">{% for key, value in Selector %}<option value="{{ key }}"{% if key == lang %} selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
-		<div id="main" align="left">
-			<h1>{{ fcm_info }}</h1>
-			{{ mes|raw }}
-			</div>
-		</div>
-	</td>
-</tr>
+
+<h2>{{ fcm_info }}</h2>
+<div class="ins-alert-error" style="margin-top:12px">
+	<i class="fas fa-exclamation-triangle"></i>
+	{{ mes|raw }}
+</div>
+
 {% include "ins_footer.twig" %}
