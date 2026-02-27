@@ -383,7 +383,7 @@ var SmartChat = (function(){
    SMARTCHAT STYLES
 ══════════════════════════════════════════════ */
 .sc-fab {
-    position:fixed; bottom:24px; left:24px; z-index:1200;
+    position:fixed; bottom:24px; right:24px; z-index:1200;
     width:52px; height:52px; border-radius:50%;
     background:linear-gradient(135deg,#00d4ff,#7c4dff);
     border:none; color:#fff; font-size:20px; cursor:pointer;
@@ -401,7 +401,7 @@ var SmartChat = (function(){
 
 /* Panel */
 .sc-panel {
-    position:fixed; bottom:90px; left:16px; z-index:1100;
+    position:fixed; bottom:90px; right:16px; z-index:1100;
     width:360px; max-height:560px;
     display:flex; flex-direction:column;
     background:rgba(10,13,24,0.97);
@@ -414,7 +414,7 @@ var SmartChat = (function(){
 }
 .sc-panel.open { transform:translateY(0) scale(1); opacity:1; pointer-events:all; }
 @media(max-width:768px){
-    .sc-panel { bottom:72px; left:8px; right:8px; width:auto; max-height:70vh; }
+    .sc-panel { bottom:72px; left:8px; right:8px; width:auto; max-height:70vh; } /* mobile: full width */
 }
 
 /* Header */
