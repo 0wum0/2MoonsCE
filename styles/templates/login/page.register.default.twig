@@ -2,7 +2,7 @@
 
 {% block title %}{{ LNG.siteTitleRegister }}{% endblock %}
 {% block content %}
-<div class="lp-card">
+<div class="lp-card lp-card--register">
 	<div class="lp-card__header">
 		<h2 class="lp-card__title">{{ LNG.siteTitleRegister }}</h2>
 	</div>
@@ -36,40 +36,42 @@
 				<span class="lp-desc">{{ LNG.registerUsernameDesc }}</span>
 			</div>
 			
-			<div class="lp-field">
-				<label for="password" class="lp-label">{{ LNG.registerPassword }}</label>
-				<div class="lp-input-wrapper">
-					<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.registerPassword }}">
+			<div class="lp-field-row">
+				<div class="lp-field">
+					<label for="password" class="lp-label">{{ LNG.registerPassword }}</label>
+					<div class="lp-input-wrapper">
+						<input type="password" class="lp-input" name="password" id="password" placeholder="{{ LNG.registerPassword }}">
+					</div>
+					{% if error.password %}<span class="lp-error">{{ LNG.registerPasswordError|default('Invalid password') }}</span>{% endif %}
+					<span class="lp-desc">{{ LNG.registerPasswordDesc }}</span>
 				</div>
-				{% if error.password %}<span class="lp-error">{{ LNG.registerPasswordError|default('Invalid password') }}</span>{% endif %}
-				<span class="lp-desc">{{ LNG.registerPasswordDesc }}</span>
+				<div class="lp-field">
+					<label for="passwordReplay" class="lp-label">{{ LNG.registerPasswordReplay }}</label>
+					<div class="lp-input-wrapper">
+						<input type="password" class="lp-input" name="passwordReplay" id="passwordReplay" placeholder="{{ LNG.registerPasswordReplay }}">
+					</div>
+					{% if error.passwordReplay %}<span class="lp-error">{{ LNG.registerPasswordReplayError|default('Passwords do not match') }}</span>{% endif %}
+					<span class="lp-desc">{{ LNG.registerPasswordReplayDesc }}</span>
+				</div>
 			</div>
 			
-			<div class="lp-field">
-				<label for="passwordReplay" class="lp-label">{{ LNG.registerPasswordReplay }}</label>
-				<div class="lp-input-wrapper">
-					<input type="password" class="lp-input" name="passwordReplay" id="passwordReplay" placeholder="{{ LNG.registerPasswordReplay }}">
+			<div class="lp-field-row">
+				<div class="lp-field">
+					<label for="email" class="lp-label">{{ LNG.registerEmail }}</label>
+					<div class="lp-input-wrapper">
+						<input type="email" class="lp-input" name="email" id="email" placeholder="{{ LNG.registerEmail }}">
+					</div>
+					{% if error.email %}<span class="lp-error">{{ LNG.registerEmailError|default('Invalid email') }}</span>{% endif %}
+					<span class="lp-desc">{{ LNG.registerEmailDesc }}</span>
 				</div>
-				{% if error.passwordReplay %}<span class="lp-error">{{ LNG.registerPasswordReplayError|default('Passwords do not match') }}</span>{% endif %}
-				<span class="lp-desc">{{ LNG.registerPasswordReplayDesc }}</span>
-			</div>
-			
-			<div class="lp-field">
-				<label for="email" class="lp-label">{{ LNG.registerEmail }}</label>
-				<div class="lp-input-wrapper">
-					<input type="email" class="lp-input" name="email" id="email" placeholder="{{ LNG.registerEmail }}">
+				<div class="lp-field">
+					<label for="emailReplay" class="lp-label">{{ LNG.registerEmailReplay }}</label>
+					<div class="lp-input-wrapper">
+						<input type="email" class="lp-input" name="emailReplay" id="emailReplay" placeholder="{{ LNG.registerEmailReplay }}">
+					</div>
+					{% if error.emailReplay %}<span class="lp-error">{{ LNG.registerEmailReplayError|default('Emails do not match') }}</span>{% endif %}
+					<span class="lp-desc">{{ LNG.registerEmailReplayDesc }}</span>
 				</div>
-				{% if error.email %}<span class="lp-error">{{ LNG.registerEmailError|default('Invalid email') }}</span>{% endif %}
-				<span class="lp-desc">{{ LNG.registerEmailDesc }}</span>
-			</div>
-			
-			<div class="lp-field">
-				<label for="emailReplay" class="lp-label">{{ LNG.registerEmailReplay }}</label>
-				<div class="lp-input-wrapper">
-					<input type="email" class="lp-input" name="emailReplay" id="emailReplay" placeholder="{{ LNG.registerEmailReplay }}">
-				</div>
-				{% if error.emailReplay %}<span class="lp-error">{{ LNG.registerEmailReplayError|default('Emails do not match') }}</span>{% endif %}
-				<span class="lp-desc">{{ LNG.registerEmailReplayDesc }}</span>
 			</div>
 			
 			{% if languages|length > 1 %}
@@ -89,10 +91,11 @@
 			</div>
 			{% endif %}
 			
-			<div class="lp-field">
-				<label for="math_captcha_answer" class="lp-label">{{ LNG.registerCaptcha }}: {{ mathCaptchaQuestion }} = ?</label>
+			<div class="lp-field lp-field--captcha">
+				<label for="math_captcha_answer" class="lp-label">{{ LNG.registerCaptcha }}: <strong>{{ mathCaptchaQuestion }} = ?</strong></label>
+				<span class="lp-desc">{{ LNG.registerCaptchaDesc }}</span>
 				<div class="lp-input-wrapper">
-					<input type="number" class="lp-input lp-input--short" name="math_captcha_answer" id="math_captcha_answer" autocomplete="off" required>
+					<input type="number" class="lp-input" name="math_captcha_answer" id="math_captcha_answer" autocomplete="off" required inputmode="numeric">
 				</div>
 			</div>
 			{% if recaptchaEnable %}
@@ -114,7 +117,7 @@
 			</div>
 			
 			<div class="lp-form__footer">
-				<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg">{{ LNG.buttonRegister }}</button>
+				<button type="submit" class="lp-btn lp-btn--primary lp-btn--lg lp-btn--full">{{ LNG.buttonRegister }}</button>
 			</div>
 		</form>
 	</div>

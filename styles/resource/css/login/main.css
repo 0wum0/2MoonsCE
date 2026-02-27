@@ -4,7 +4,7 @@ html, body {
     margin: 0;
     padding: 0;
 }
-body {
+body:not(.auth-body) {
     background: url(../../images/login/background.jpg) repeat scroll 0 0 #000000;
     color: #FFFFFF;
     font-family: verdana;
@@ -13,16 +13,25 @@ body {
 	line-height:14px;
 }
 
-input, textarea, select, option, button{
+body:not(.auth-body) input,
+body:not(.auth-body) textarea,
+body:not(.auth-body) select,
+body:not(.auth-body) option,
+body:not(.auth-body) button {
 	background-color:#171F2F;
 	color:#BBB;
 }
 
-input, textarea, button{
+body:not(.auth-body) input,
+body:not(.auth-body) textarea,
+body:not(.auth-body) button {
 	padding: 1px 5px;
 }
 
-input, textarea, select, button {
+body:not(.auth-body) input,
+body:not(.auth-body) textarea,
+body:not(.auth-body) select,
+body:not(.auth-body) button {
 	border:1px solid #444;
 }
 

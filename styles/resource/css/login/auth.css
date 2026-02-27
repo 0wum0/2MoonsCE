@@ -92,6 +92,11 @@
 ═══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* styles.css sets html{font-size:62.5%} which breaks rem — re-anchor to 16px */
+html:has(.auth-body) {
+    font-size: 100%;
+}
+
 .auth-body {
     font-family: 'Space Grotesk', system-ui, -apple-system, Arial, sans-serif;
     font-size: 1.0625rem;
@@ -969,11 +974,12 @@
 
 .lp-label,
 .auth-label {
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--c-muted);
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--c-text);
     font-weight: 600;
+    line-height: 1.4;
 }
 
 .lp-input-wrapper,
@@ -1040,22 +1046,26 @@
 }
 
 .lp-desc {
-    font-size: 0.78rem;
-    color: var(--c-muted);
-    line-height: 1.45;
+    font-size: 0.86rem;
+    color: rgba(180, 215, 255, 0.75);
+    line-height: 1.5;
 }
 
 .lp-error,
 .error {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     color: var(--c-red);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .lp-form__footer {
     margin-top: var(--sp-sm);
     display: flex;
     justify-content: flex-end;
+}
+
+.lp-form__footer:has(.lp-btn--full) {
+    justify-content: stretch;
 }
 
 .lp-form__links,
@@ -1168,6 +1178,57 @@
     border-radius: var(--r-md);
     padding: var(--sp-sm);
     display: inline-block;
+}
+
+/* Math CAPTCHA field — highlighted so users see it clearly */
+.lp-field--captcha {
+    background: rgba(111, 209, 255, 0.05);
+    border: 1px solid rgba(111, 209, 255, 0.25);
+    border-radius: var(--r-md);
+    padding: var(--sp-sm) var(--sp-md);
+    gap: 10px;
+}
+
+.lp-field--captcha .lp-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--c-cyan);
+    letter-spacing: 0;
+}
+
+.lp-field--captcha .lp-input {
+    max-width: 140px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.1em;
+    color: var(--c-cyan);
+    border-color: rgba(111, 209, 255, 0.35);
+}
+
+.lp-field--captcha .lp-input:focus {
+    border-color: var(--c-cyan);
+    box-shadow: 0 0 0 3px rgba(111, 209, 255, 0.20);
+}
+
+/* Register card — constrain width for better readability */
+.lp-card--register {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Paired fields (password+repeat, email+repeat) side by side on wide screens */
+.lp-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-md);
+}
+
+@media (max-width: 600px) {
+    .lp-field-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 .password-toggle {
