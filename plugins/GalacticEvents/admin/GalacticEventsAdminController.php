@@ -55,6 +55,39 @@ function ShowGalacticEventsAdminPage(): void
     $settings = $db->getSettings();
     $errors   = [];
     $success  = false;
+    $actionMsg = '';
+
+    // ── GET actions ───────────────────────────────────────────────────────────
+    $getAction = HTTP::_GP('ge_action', '');
+
+    if ($getAction === 'triggerNow') {
+        try {
+            $s = $db->getSettings();
+            if (!empty($s)) {
+                $eventId = $db->createEvent($s);
+                $db->updateLastCheck(defined('TIMESTAMP') ? TIMESTAMP : time());
+                $actionMsg = 'Event ausgelöst (ID: ' . $eventId . ').';
+            } else {
+                $actionMsg = 'Fehler: Keine Settings-Zeile gefunden.';
+            }
+        } catch (Throwable $e) {
+            $actionMsg = 'Fehler: ' . htmlspecialchars($e->getMessage());
+        }
+        $settings = $db->getSettings();
+    }
+
+    if ($getAction === 'stopEvent') {
+        try {
+            $now = defined('TIMESTAMP') ? TIMESTAMP : time();
+            Database::get()->update(
+                'UPDATE `' . $db->tableEvents() . '` SET `active_until` = :now WHERE `active_until` > :now2;',
+                [':now' => $now, ':now2' => $now]
+            );
+            $actionMsg = 'Alle aktiven Events beendet.';
+        } catch (Throwable $e) {
+            $actionMsg = 'Fehler: ' . htmlspecialchars($e->getMessage());
+        }
+    }
 
     // ── POST: save settings ───────────────────────────────────────────────────
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -115,6 +148,7 @@ function ShowGalacticEventsAdminPage(): void
             'settings'     => $settings,
             'errors'       => $errors,
             'success'      => $success,
+            'actionMsg'    => $actionMsg,
             'recentEvents' => $recentEvents,
             'activeEvent'  => $activeEvent,
             'effectLabels' => $effectLabels,

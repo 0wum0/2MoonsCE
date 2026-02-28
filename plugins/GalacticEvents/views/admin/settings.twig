@@ -61,6 +61,10 @@
         <div class="ge-alert ge-alert--success">&#x2714; Einstellungen wurden gespeichert.</div>
         {% endif %}
 
+        {% if actionMsg is defined and actionMsg %}
+        <div class="ge-alert ge-alert--success">&#x26A1; {{ actionMsg }}</div>
+        {% endif %}
+
         {% if errors is defined and errors|length > 0 %}
         <div class="ge-alert ge-alert--error">
             {% for err in errors %}<div>&#x26A0; {{ err }}</div>{% endfor %}
@@ -68,14 +72,29 @@
         {% endif %}
 
         {% if activeEvent is not empty %}
-        <div class="ge-active-event">
-            <div class="ge-active-event__title">&#x26A1; Aktives Event: {{ activeEvent.name }}</div>
-            <div class="ge-active-event__meta">
-                Effekt: {{ activeEvent.effect_type }}
-                {{ activeEvent.effect_value > 0 ? '+' : '' }}{{ activeEvent.effect_value }}%
-                &nbsp;|&nbsp;
-                Endet: {{ activeEvent.active_until|date('d.m.Y H:i:s') }}
+        <div class="ge-active-event" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+                <div class="ge-active-event__title">&#x26A1; Aktives Event: {{ activeEvent.name }}</div>
+                <div class="ge-active-event__meta">
+                    Effekt: {{ activeEvent.effect_type }}
+                    {{ activeEvent.effect_value > 0 ? '+' : '' }}{{ activeEvent.effect_value }}%
+                    &nbsp;|&nbsp;
+                    Endet: {{ activeEvent.active_until|date('d.m.Y H:i:s') }}
+                </div>
             </div>
+            <a href="admin.php?page=plugin_galactic_events&amp;ge_action=stopEvent"
+               class="ge-btn" style="background:#6e1010;white-space:nowrap;"
+               onclick="return confirm('Alle aktiven Events jetzt beenden?');">
+                &#x23F9; Event stoppen
+            </a>
+        </div>
+        {% else %}
+        <div style="margin-bottom:14px;">
+            <a href="admin.php?page=plugin_galactic_events&amp;ge_action=triggerNow"
+               class="ge-btn" style="background:#0e4f77;">
+                &#x25B6; Event jetzt ausl&ouml;sen (Test)
+            </a>
+            <span style="font-size:0.78rem;color:#475569;margin-left:10px;">L&ouml;st sofort ein Event mit den aktuellen Einstellungen aus.</span>
         </div>
         {% endif %}
 
