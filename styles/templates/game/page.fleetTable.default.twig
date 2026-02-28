@@ -167,7 +167,7 @@
         {% if maxFleetSlots == activeFleetSlots %}
         <div class="p-3 text-center text-muted">{{ LNG.fl_no_more_slots }}</div>
         {% else %}
-        <form action="game.php?page=fleetStep1" method="post" class="p-3">
+        <form action="game.php?page=fleetStep1" method="post" class="p-3" id="fleet-launch-form">
             <input type="hidden" name="galaxy" value="{{ targetGalaxy }}">
             <input type="hidden" name="system" value="{{ targetSystem }}">
             <input type="hidden" name="planet" value="{{ targetPlanet }}">
@@ -211,7 +211,7 @@
                 </table>
             </div>
 
-            <!-- Mobile: cards with touch-friendly inputs (name= set here, desktop inputs disabled via JS) -->
+            <!-- Mobile: cards with touch-friendly inputs (no name= here, values synced to desktop inputs on submit) -->
             <div class="ship-select-mobile">
                 {% for FleetRow in FleetsOnPlanet %}
                 {% if FleetRow.speed != 0 %}
@@ -222,7 +222,7 @@
                     </div>
                     <div class="ship-card-input-row">
                         <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.max(0,(parseInt(el.value)||0)-1);el.value=v;">−</button>
-                        <input type="number" name="ship{{ FleetRow.id }}" id="ship{{ FleetRow.id }}_minput" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
+                        <input type="number" id="ship{{ FleetRow.id }}_minput" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
                         <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.min({{ FleetRow.count }},(parseInt(el.value)||0)+1);el.value=v;">+</button>
                         <button type="button" class="ship-stepper-max" onclick="document.getElementById('ship{{ FleetRow.id }}_minput').value={{ FleetRow.count }};">Max</button>
                     </div>
@@ -235,8 +235,8 @@
 
             {% if FleetsOnPlanet|length > 0 %}
             <div class="action-bar-bottom mt-3">
-                <a href="javascript:noShips();" class="btn-ghost">{{ LNG.fl_remove_all_ships }}</a>
-                <a href="javascript:maxShips();" class="btn-ghost">{{ LNG.fl_select_all_ships }}</a>
+                <a href="javascript:noShips();" class="btn-ghost-text">{{ LNG.fl_remove_all_ships }}</a>
+                <a href="javascript:maxShips();" class="btn-ghost-text">{{ LNG.fl_select_all_ships }}</a>
                 <button type="submit" class="btn-action-glow">{{ LNG.fl_continue }}</button>
             </div>
             {% endif %}
@@ -270,20 +270,23 @@
 (function() {
     function isMobileView() { return window.innerWidth <= 768; }
 
-    function syncInputStates() {
-        var desktopInputs = document.querySelectorAll('.ship-select-desktop input.glass-input');
-        var mobileInputs  = document.querySelectorAll('.ship-select-mobile input.ship-card-num-input');
-        if (isMobileView()) {
-            desktopInputs.forEach(function(el) { el.disabled = true; });
-            mobileInputs.forEach(function(el)  { el.disabled = false; });
-        } else {
-            desktopInputs.forEach(function(el) { el.disabled = false; });
-            mobileInputs.forEach(function(el)  { el.disabled = true; });
-        }
+    // On submit: if mobile view, copy mobile input values into the named desktop inputs
+    var form = document.getElementById('fleet-launch-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            if (isMobileView()) {
+                document.querySelectorAll('.ship-card-num-input').forEach(function(mInput) {
+                    // id pattern: ship201_minput → ship201_input
+                    var desktopId = mInput.id.replace('_minput', '_input');
+                    var desktopEl = document.getElementById(desktopId);
+                    if (desktopEl) {
+                        desktopEl.disabled = false;
+                        desktopEl.value = mInput.value;
+                    }
+                });
+            }
+        });
     }
-
-    syncInputStates();
-    window.addEventListener('resize', syncInputStates);
 })();
 </script>
 {% endblock %}

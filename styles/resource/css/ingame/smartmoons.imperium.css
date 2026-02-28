@@ -374,3 +374,206 @@
 .progress-track .progress-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--purple)); border-radius:3px; transition:width 0.5s ease; }
 .progress-track.expedition .progress-fill { background:linear-gradient(90deg,var(--gold),var(--orange)); }
 
+/* ── Fleet row states ── */
+.fleet-row td { transition:background 0.15s; }
+.fleet-row.returning td { background:rgba(0,212,255,0.03) !important; }
+.fleet-row.returning { border-left:2px solid var(--cyan); }
+
+/* ── Mission badge ── */
+.mission-badge {
+  font-family:var(--font-hud); font-size:9px; letter-spacing:1px; text-transform:uppercase;
+  padding:2px 8px; border-radius:5px; display:inline-block; white-space:nowrap;
+  background:rgba(0,212,255,0.1); border:1px solid var(--border2); color:var(--cyan);
+}
+.mission-badge.m-1 { background:rgba(255,61,87,0.12); border-color:rgba(255,61,87,0.3); color:var(--red); }
+.mission-badge.m-2 { background:rgba(255,61,87,0.10); border-color:rgba(255,61,87,0.25); color:var(--red); }
+.mission-badge.m-3 { background:rgba(0,212,255,0.10); border-color:var(--border2); color:var(--cyan); }
+.mission-badge.m-4 { background:rgba(0,230,118,0.10); border-color:rgba(0,230,118,0.25); color:var(--green); }
+.mission-badge.m-5 { background:rgba(255,170,0,0.10); border-color:rgba(255,170,0,0.25); color:var(--gold); }
+.mission-badge.m-6 { background:rgba(180,124,255,0.12); border-color:rgba(180,124,255,0.3); color:var(--purple); }
+.mission-badge.m-7 { background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:var(--green); }
+.mission-badge.m-8 { background:rgba(255,170,0,0.08); border-color:rgba(255,170,0,0.2); color:var(--gold); }
+.mission-badge.m-9 { background:rgba(255,61,87,0.15); border-color:rgba(255,61,87,0.35); color:var(--red); }
+.mission-badge.m-15{ background:rgba(0,212,255,0.08); border-color:var(--border); color:var(--dim); }
+
+/* ── Small status tag below mission ── */
+.small-status { font-size:10px; margin-top:3px; display:flex; align-items:center; gap:4px; }
+
+/* ── Coord link ── */
+.coord-link { color:var(--cyan) !important; font-family:var(--font-mono); font-size:11px; text-decoration:none !important; }
+.coord-link:hover { color:var(--white) !important; text-shadow:0 0 6px rgba(0,212,255,0.5); }
+
+/* ── Action bar (fleet table bottom) ── */
+.action-bar-bottom {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 0; justify-content:flex-end;
+}
+
+/* ── Ghost text button (inline text links styled as buttons) ── */
+.btn-ghost-text {
+  font-family:var(--font-hud) !important; font-size:9px !important; letter-spacing:1.5px !important;
+  text-transform:uppercase !important; padding:7px 14px !important; border-radius:8px !important;
+  border:1px solid var(--border) !important; background:transparent !important;
+  color:var(--dim) !important; cursor:pointer !important; transition:var(--transition) !important;
+  display:inline-flex !important; align-items:center !important; gap:6px !important;
+  text-decoration:none !important;
+}
+.btn-ghost-text:hover { border-color:var(--border2) !important; color:var(--text) !important; background:rgba(255,255,255,0.04) !important; }
+
+/* ── Ship select: desktop table hidden on mobile, mobile cards hidden on desktop ── */
+.ship-select-desktop { display:block; }
+.ship-select-mobile  { display:none; }
+@media (max-width:768px) {
+  .ship-select-desktop { display:none !important; }
+  .ship-select-mobile  { display:block !important; }
+}
+
+/* ── Ship select mobile cards ── */
+.ship-select-card {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 14px; border-bottom:1px solid rgba(0,212,255,0.05);
+  background:rgba(0,0,0,0.2);
+}
+.ship-select-card:last-child { border-bottom:none; }
+.ship-card-info { display:flex; flex-direction:column; gap:2px; flex:1; }
+.ship-card-name { font-size:12px; color:var(--text); }
+.ship-card-avail { font-size:10px; color:var(--dim); }
+.ship-card-input-row { display:flex; align-items:center; gap:4px; }
+.ship-card-num-input {
+  width:54px !important; text-align:center !important; font-family:var(--font-mono) !important;
+  font-size:13px !important; padding:5px 4px !important; border-radius:6px !important;
+}
+.ship-stepper-btn {
+  width:30px; height:30px; border-radius:6px; border:1px solid var(--border);
+  background:rgba(255,255,255,0.05); color:var(--text); font-size:15px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; transition:var(--transition);
+}
+.ship-stepper-btn:hover { border-color:var(--border2); color:var(--cyan); background:rgba(0,212,255,0.08); }
+.ship-stepper-max {
+  font-family:var(--font-hud); font-size:8px; letter-spacing:1px; padding:5px 9px;
+  border-radius:6px; border:1px solid var(--border2); background:rgba(0,212,255,0.08);
+  color:var(--cyan); cursor:pointer; transition:var(--transition);
+}
+.ship-stepper-max:hover { background:rgba(0,212,255,0.16); }
+
+/* ── Mobile fleet movement cards ── */
+.fleet-cards-mobile { display:none; }
+@media (max-width:768px) {
+  .fleet-table-main { display:none !important; }
+  .fleet-cards-mobile { display:block !important; }
+}
+.fleet-mobile-card {
+  padding:12px 14px; border-bottom:1px solid rgba(0,212,255,0.05);
+  background:rgba(0,0,0,0.2);
+}
+.fleet-mobile-card.returning { border-left:3px solid var(--cyan); }
+.fleet-mobile-card:last-child { border-bottom:none; }
+.fleet-mobile-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.fleet-mobile-route { font-size:11px; color:var(--dim); display:flex; flex-direction:column; gap:2px; margin-bottom:6px; }
+.fleet-mobile-times { display:flex; gap:12px; font-family:var(--font-mono); font-size:11px; color:var(--text); }
+
+/* ── Bonus grid ── */
+.bonus-grid { display:flex; gap:10px; flex-wrap:wrap; padding:12px 16px; }
+.bonus-item { display:flex; flex-direction:column; gap:3px; flex:1; min-width:100px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
+.bonus-label { font-family:var(--font-hud); font-size:8px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; }
+.bonus-val { font-family:var(--font-mono); font-size:14px; font-weight:600; }
+
+/* ── Fleet step layout ── */
+.fleet-step-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:900px) { .fleet-step-grid { grid-template-columns:1fr; } }
+.target-panel { padding:16px !important; }
+.shortcuts-panel { padding:16px !important; }
+.coords-input-group { display:flex; gap:8px; margin-bottom:12px; }
+.coord-field { display:flex; flex-direction:column; gap:4px; flex:1; }
+.coord-field label { font-family:var(--font-hud); font-size:9px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; }
+.target-type-selector { margin-bottom:12px; }
+.target-type-selector label { font-family:var(--font-hud); font-size:9px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; display:block; margin-bottom:5px; }
+.fleet-status-info { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.info-row { display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+.info-row:last-child { border-bottom:none; }
+.speed-slider-box { margin-top:10px; }
+.speed-slider-box label { font-family:var(--font-hud); font-size:9px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; display:block; margin-bottom:6px; }
+.glass-range { width:100%; accent-color:var(--cyan); cursor:pointer; }
+.shortcut-group h4 { font-family:var(--font-hud); font-size:9px; letter-spacing:2px; color:var(--dim); text-transform:uppercase; margin:0 0 8px 0; }
+.shortcut-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.shortcut-chip {
+  padding:6px 10px; border-radius:7px; border:1px solid var(--border);
+  background:rgba(0,212,255,0.05); cursor:pointer; transition:var(--transition);
+  display:flex; flex-direction:column; gap:1px;
+}
+.shortcut-chip:hover { border-color:var(--border2); background:rgba(0,212,255,0.10); }
+.shortcut-chip.acs { border-color:rgba(180,124,255,0.25); background:rgba(180,124,255,0.06); }
+.shortcut-chip.acs:hover { background:rgba(180,124,255,0.14); }
+.chip-name { font-size:11px; color:var(--text); }
+.chip-coord { font-family:var(--font-mono); font-size:10px; color:var(--dim); }
+.glass-select-wrapper { position:relative; }
+
+/* ── Fleet Step 2 layout ── */
+.fleet-step2-grid { display:grid; grid-template-columns:1fr 320px; gap:14px; align-items:start; }
+@media (max-width:900px) { .fleet-step2-grid { grid-template-columns:1fr; } }
+.step2-main { display:flex; flex-direction:column; gap:14px; }
+.step2-sidebar { display:flex; flex-direction:column; gap:14px; }
+
+/* Mission selector */
+.mission-panel { overflow:hidden; }
+.mission-grid { display:flex; flex-wrap:wrap; gap:8px; padding:14px; }
+.mission-card {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:12px 14px; border-radius:10px; border:2px solid var(--border);
+  background:rgba(0,0,0,0.3); cursor:pointer; transition:var(--transition);
+  min-width:80px; text-align:center;
+}
+.mission-card:hover { border-color:var(--border2); background:rgba(0,212,255,0.06); }
+.mission-card input[type="radio"] { display:none; }
+.mission-card:has(input:checked) { border-color:var(--cyan); background:rgba(0,212,255,0.10); box-shadow:0 0 10px rgba(0,212,255,0.15); }
+.mission-icon { font-size:20px; color:var(--dim); }
+.mission-card:has(input:checked) .mission-icon { color:var(--cyan); }
+.mission-name { font-family:var(--font-hud); font-size:8px; letter-spacing:1px; text-transform:uppercase; color:var(--dim); }
+.mission-card:has(input:checked) .mission-name { color:var(--cyan); }
+
+/* Resource load panel */
+.resource-panel { overflow:hidden; }
+.panel-header .storage-info { margin-left:auto; font-family:var(--font-mono); font-size:10px; color:var(--dim); }
+.res-load-group { display:flex; flex-direction:column; gap:0; }
+.res-load-item {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.res-load-item:last-child { border-bottom:none; }
+.res-icon-label { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text); }
+.res-icon-label img { width:20px; height:20px; object-fit:contain; }
+.res-input-wrapper { display:flex; align-items:center; gap:6px; }
+.res-actions {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; border-top:1px solid var(--border); background:rgba(0,0,0,0.2);
+  flex-wrap:wrap;
+}
+.consumption-info { font-family:var(--font-hud); font-size:9px; color:var(--dim); letter-spacing:1px; }
+
+/* btn-ghost tiny & small size modifiers */
+.btn-ghost.tiny, .btn-ghost-text.tiny { padding:4px 9px !important; font-size:8px !important; }
+.btn-ghost.small, .btn-ghost-text.small { padding:5px 12px !important; font-size:8px !important; }
+
+/* Hold time */
+.hold-panel { overflow:hidden; }
+.hold-panel .glass-select-wrapper { padding:12px 14px; }
+
+/* Alert box */
+.alert-box { padding:10px 14px; border-radius:8px; border:1px solid; font-size:12px; display:flex; align-items:flex-start; gap:8px; }
+.alert-box.warning { background:rgba(255,170,0,0.08); border-color:rgba(255,170,0,0.3); color:var(--gold); }
+.alert-box.danger  { background:rgba(255,61,87,0.08); border-color:rgba(255,61,87,0.3); color:var(--red); }
+.alert-box.info    { background:rgba(0,212,255,0.08); border-color:rgba(0,212,255,0.25); color:var(--cyan); }
+
+/* Briefing sidebar */
+.briefing-panel { overflow:hidden; }
+.briefing-list { display:flex; flex-direction:column; }
+.briefing-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:12px;
+}
+.briefing-item:last-child { border-bottom:none; }
+.briefing-item > span:first-child { color:var(--dim); font-size:11px; }
+.action-area { padding:12px 14px; border-top:1px solid var(--border); }
+.full-width { width:100%; }
+.justify-center { justify-content:center; }

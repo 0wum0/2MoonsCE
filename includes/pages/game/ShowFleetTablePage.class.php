@@ -271,6 +271,15 @@ class ShowFleetTablePage extends AbstractGamePage
 				$returnTime	= $fleetsRow['fleet_end_time'];
 			}
 			
+			$targetUserName = '';
+			$targetUserID   = 0;
+			if (!empty($fleetsRow['fleet_target_owner']) && $fleetsRow['fleet_target_owner'] != $USER['id']) {
+				$targetUserID   = (int) $fleetsRow['fleet_target_owner'];
+				$sqlUser = "SELECT username FROM %%USERS%% WHERE id = :uid LIMIT 1;";
+				$targetUserRow = $db->selectSingle($sqlUser, [':uid' => $targetUserID]);
+				$targetUserName = $targetUserRow['username'] ?? '';
+			}
+
 			$FlyingFleetList[]	= array(
 				'id'			=> $fleetsRow['fleet_id'],
 				'mission'		=> $fleetsRow['fleet_mission'],
@@ -289,6 +298,8 @@ class ShowFleetTablePage extends AbstractGamePage
 				'returntime'	=> $returnTime,
 				'resttime'		=> $returnTime - TIMESTAMP,
 				'FleetList'		=> $FleetList[$fleetsRow['fleet_id']],
+				'targetUser'	=> $targetUserName,
+				'targetUserID'	=> $targetUserID,
 			);
 		}
 		
