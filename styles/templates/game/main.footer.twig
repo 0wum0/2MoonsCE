@@ -35,33 +35,33 @@
     </div>
 </footer>
 
-<nav class="mobile-dock">
+<nav class="mobile-dock" role="navigation" aria-label="Mobile Navigation">
     <div class="mobile-dock-inner">
-        <a href="game.php?page=overview" class="dock-btn {% if GET.page|default('overview') == 'overview' %}active{% endif %}">
+        <a href="game.php?page=overview" class="dock-btn {% if GET.page is not defined or GET.page == 'overview' %}active{% endif %}" aria-label="{{ LNG.lm_overview }}">
             <i class="fas fa-home"></i>
             <span>{{ LNG.lm_overview }}</span>
         </a>
 
-        <a href="game.php?page=buildings" class="dock-btn {% if GET.page == 'buildings' %}active{% endif %}">
+        <a href="game.php?page=buildings" class="dock-btn {% if GET.page is defined and GET.page in ['buildings','research','shipyard','defense'] %}active{% endif %}" aria-label="{{ LNG.lm_buildings }}">
             <i class="fas fa-city"></i>
             <span>{{ LNG.lm_buildings }}</span>
         </a>
 
-        <a href="game.php?page=fleetTable" class="dock-btn {% if GET.page|default('') == 'fleetTable' %}active{% endif %}">
+        <a href="game.php?page=fleetTable" class="dock-btn dock-btn-center {% if GET.page is defined and GET.page in ['fleetTable','fleetStep1','fleetStep2','fleetStep3'] %}active{% endif %}" aria-label="{{ LNG.lm_fleet }}">
             <i class="fas fa-rocket"></i>
             <span>{{ LNG.lm_fleet }}</span>
         </a>
 
-        <a href="game.php?page=galaxy" class="dock-btn {% if GET.page == 'galaxy' %}active{% endif %}">
+        <a href="game.php?page=messages" class="dock-btn {% if GET.page is defined and GET.page == 'messages' %}active{% endif %}" aria-label="{{ LNG.lm_messages }}">
+            <i class="fas fa-envelope"></i>
+            {% if new_message > 0 %}<span class="dock-badge">{{ new_message > 9 ? '9+' : new_message }}</span>{% endif %}
+            <span>{{ LNG.lm_messages }}</span>
+        </a>
+
+        <a href="game.php?page=galaxy" class="dock-btn {% if GET.page is defined and GET.page in ['galaxy','galaxyMap'] %}active{% endif %}" aria-label="{{ LNG.lm_galaxy }}">
             <i class="fas fa-globe"></i>
             <span>{{ LNG.lm_galaxy }}</span>
         </a>
-
-        <button class="dock-btn" id="dock-chat-btn" onclick="SmartChat.toggle();return false;" aria-label="Chat">
-            <i class="fas fa-comments"></i>
-            <span>Chat</span>
-            <span class="chat-dock-badge" id="chatDockBadge" style="display:none"></span>
-        </button>
     </div>
 </nav>
 

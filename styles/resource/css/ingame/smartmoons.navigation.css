@@ -327,8 +327,10 @@ body.loading #game-header::after { width:100%; }
   border-top:1px solid var(--border);
   padding-bottom:env(safe-area-inset-bottom,0);
   display:none;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.5),0 -1px 0 rgba(0,212,255,0.08);
 }
 .mobile-dock { display:flex; justify-content:space-around; align-items:center; padding:6px 8px; }
+.mobile-dock-inner { display:flex; justify-content:space-around; align-items:center; width:100%; gap:0; }
 .dock-item {
   display:flex; flex-direction:column; align-items:center; gap:3px;
   padding:5px 12px; color:var(--dim); text-decoration:none !important;
@@ -341,15 +343,21 @@ body.loading #game-header::after { width:100%; }
 .dock-item.active .icon-box { text-shadow:0 0 10px var(--cyan); }
 /* Legacy dock-btn compat */
 .dock-btn {
-  display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:5px 12px; color:var(--dim); text-decoration:none !important;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:6px 4px 4px; color:var(--dim); text-decoration:none !important;
   font-size:9px; font-family:var(--font-hud); letter-spacing:0.5px;
   transition:var(--transition); border-radius:8px; position:relative; flex:1;
+  background:none; border:none; cursor:pointer; min-width:0;
 }
-.dock-btn i { font-size:17px; line-height:1; display:block; margin-bottom:2px; }
-.dock-btn span { font-size:9px; }
+.dock-btn i { font-size:18px; line-height:1; display:block; }
+.dock-btn span:not(.dock-badge) { font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:52px; }
 .dock-btn:hover, .dock-btn.active { color:var(--cyan); }
 .dock-btn.active i { text-shadow:0 0 10px var(--cyan); }
+.dock-btn.active::after { content:''; position:absolute; bottom:-1px; left:25%; right:25%; height:2px; background:var(--cyan); border-radius:2px; box-shadow:0 0 6px var(--cyan); }
+/* Center fleet button: slightly elevated */
+.dock-btn-center { margin-top:-6px; }
+.dock-btn-center i { font-size:20px; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.dock-btn-center.active i { filter:drop-shadow(0 0 6px var(--cyan)); }
 .dock-fab-wrapper { display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0; }
 .dock-fab {
   width:52px; height:52px; border-radius:50%; margin-top:-14px;
@@ -510,13 +518,23 @@ body.loading #game-header::after { width:100%; }
 }
 @media(max-width:768px) {
   .mobile-dock { display:flex !important; }
-  body { padding-bottom:70px; }
+  body { padding-bottom:calc(62px + env(safe-area-inset-bottom,0px)); }
   #page-content { padding:12px 12px 30px; }
   .res-bar-row { padding:0 8px; }
+  .res-bar { flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start; padding:6px 4px; gap:5px;
+    scrollbar-width:none; -ms-overflow-style:none; }
+  .res-bar::-webkit-scrollbar { display:none; }
+  .res-bar-container { position:relative; }
+  .res-bar-container::after {
+    content:''; position:absolute; right:0; top:0; bottom:0; width:28px;
+    background:linear-gradient(to right,transparent,rgba(3,6,15,0.92));
+    pointer-events:none;
+  }
   .header-row-main { padding:0 10px; gap:6px; }
   .logo-text { display:none; }
   #toast-container { bottom:80px; right:12px; }
   .overview-grid { grid-template-columns:1fr; }
+  body.sidebar-open { overflow:hidden; }
 }
 
 /* ── MOBILE: compact header, all 7 icons visible ── */
