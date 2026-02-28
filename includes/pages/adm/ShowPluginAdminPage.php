@@ -186,6 +186,30 @@ function ShowPluginAdminPage(): void
         }
     }
 
+    // ── Build plugin-id → admin route page name map ───────────────────────────
+
+    // adminRoutes keys are page names (e.g. 'plugin_galactic_events')
+    // We need to match them back to plugin ids by checking the registered file paths.
+    $adminRouteMap = [];
+    foreach ($pm->getAdminRoutes() as $pageName => $route) {
+        // File path contains plugins/<id>/ — extract id from path
+        $pluginsDir = str_replace('\\', '/', ROOT_PATH . 'plugins/');
+        $filePath   = str_replace('\\', '/', $route['file']);
+        if (str_starts_with($filePath, $pluginsDir)) {
+            $rel   = substr($filePath, strlen($pluginsDir));
+            $parts = explode('/', $rel);
+            if (!empty($parts[0])) {
+                $adminRouteMap[$parts[0]] = $pageName;
+            }
+        }
+    }
+
+    // Attach admin_page to each installed plugin
+    foreach ($installedPlugins as &$pluginRow) {
+        $pluginRow['admin_page'] = $adminRouteMap[(string)$pluginRow['id']] ?? '';
+    }
+    unset($pluginRow);
+
     // ── Render ────────────────────────────────────────────────────────────────
 
     $template = new template();

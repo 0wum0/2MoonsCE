@@ -390,6 +390,15 @@ class PluginManager
     }
 
     /**
+     * Return all registered admin routes: pageName → ['file', 'fn']
+     * @return array<string, array{file: string, fn: string}>
+     */
+    public function getAdminRoutes(): array
+    {
+        return $this->adminRoutes;
+    }
+
+    /**
      * Dispatch an admin page route registered by a plugin.
      * Returns true if handled, false if not found.
      */

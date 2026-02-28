@@ -1113,10 +1113,15 @@ function pfaqCopy(btn) {
                     <i class="fas fa-play"></i> Aktivieren
                 </a>
                 {% endif %}
+                {% if plugin.admin_page is defined and plugin.admin_page %}
+                <a href="admin.php?page={{ plugin.admin_page }}" class="pm-btn pm-btn-primary">
+                    <i class="fas fa-sliders-h"></i> Admin-Panel
+                </a>
+                {% endif %}
                 {% if plugin.settings is defined and plugin.settings is not empty %}
-                <button class="pm-btn pm-btn-primary"
+                <button class="pm-btn" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:#a5b4fc;"
                         onclick="pmOpenSettings({{ plugin|json_encode|e('html_attr') }})">
-                    <i class="fas fa-cog"></i> Einstellungen
+                    <i class="fas fa-cog"></i> Config
                 </button>
                 {% endif %}
                 <a href="admin.php?page=pluginAdmin&amp;action=uninstall&amp;pluginId={{ plugin.id }}"
