@@ -83,6 +83,35 @@ function ShowPluginAdminPage(): void
         }
     }
 
+    if ($action === 'saveConfig' && $id !== '') {
+        try {
+            $manifest  = $pm->readManifest(ROOT_PATH . 'plugins/' . $id);
+            $settings  = is_array($manifest['settings'] ?? null) ? $manifest['settings'] : [];
+            $newConfig = [];
+            foreach ($settings as $field) {
+                $key  = preg_replace('/[^a-z0-9_\-]/', '', strtolower((string) ($field['key'] ?? '')));
+                $type = (string) ($field['type'] ?? 'text');
+                if ($key === '') {
+                    continue;
+                }
+                $raw = $_POST['cfg_' . $key] ?? null;
+                if ($type === 'bool' || $type === 'checkbox') {
+                    $newConfig[$key] = ($raw === '1' || $raw === 'true' || $raw === 'on') ? true : false;
+                } elseif ($type === 'int' || $type === 'number') {
+                    $newConfig[$key] = (int) $raw;
+                } elseif ($type === 'float') {
+                    $newConfig[$key] = (float) $raw;
+                } else {
+                    $newConfig[$key] = (string) ($raw ?? '');
+                }
+            }
+            $pm->setAllConfig($id, $newConfig);
+            $message = 'Einstellungen für Plugin "' . htmlspecialchars($id) . '" gespeichert.';
+        } catch (Throwable $e) {
+            $error = 'Fehler beim Speichern: ' . htmlspecialchars($e->getMessage());
+        }
+    }
+
     if ($action === 'upload' && isset($_FILES['plugin_zip'])) {
         $file = $_FILES['plugin_zip'];
 
@@ -111,6 +140,23 @@ function ShowPluginAdminPage(): void
     // ── Load plugin list ──────────────────────────────────────────────────────
 
     $installedPlugins = $pm->getAllPlugins();
+
+    // Enrich each installed plugin with settings schema + current config
+    foreach ($installedPlugins as &$pluginRow) {
+        $pid = (string) $pluginRow['id'];
+        try {
+            $mf = $pm->readManifest(ROOT_PATH . 'plugins/' . $pid);
+            $pluginRow['settings']    = is_array($mf['settings'] ?? null) ? $mf['settings'] : [];
+            $pluginRow['description'] = (string) ($mf['description'] ?? '');
+            $pluginRow['author']      = (string) ($mf['author']      ?? '');
+        } catch (Throwable $e) {
+            $pluginRow['settings']    = [];
+            $pluginRow['description'] = '';
+            $pluginRow['author']      = '';
+        }
+        $pluginRow['config'] = $pm->getAllConfig($pid);
+    }
+    unset($pluginRow);
 
     // Scan filesystem for plugins not yet in DB
     $scanned = $pm->scanPluginsDir();

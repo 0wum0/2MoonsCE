@@ -5,5 +5,69 @@
     "type":        "game",
     "description": "Erzeugt zufällige globale Galaktische Events mit Produktions-, Bau- und Forschungsbonus/-malus.",
     "author":      "SmartMoons Dev",
-    "modules":     ["module/GalacticEventsModule.php"]
+    "modules":     ["module/GalacticEventsModule.php"],
+    "settings": [
+        {
+            "key":     "event_interval_min",
+            "type":    "int",
+            "label":   "Mindest-Intervall (Minuten)",
+            "default": 60,
+            "hint":    "Minimale Zeit zwischen zwei Events in Minuten."
+        },
+        {
+            "key":     "event_interval_max",
+            "type":    "int",
+            "label":   "Maximal-Intervall (Minuten)",
+            "default": 240,
+            "hint":    "Maximale Zeit zwischen zwei Events in Minuten."
+        },
+        {
+            "key":     "event_duration_min",
+            "type":    "int",
+            "label":   "Mindest-Dauer (Minuten)",
+            "default": 30,
+            "hint":    "Minimale Dauer eines aktiven Events."
+        },
+        {
+            "key":     "event_duration_max",
+            "type":    "int",
+            "label":   "Maximal-Dauer (Minuten)",
+            "default": 120,
+            "hint":    "Maximale Dauer eines aktiven Events."
+        },
+        {
+            "key":     "max_bonus_percent",
+            "type":    "int",
+            "label":   "Maximaler Bonus/Malus (%)",
+            "default": 50,
+            "hint":    "Obergrenze für Produktions-, Bau- und Forschungsbonus/-malus in Prozent."
+        },
+        {
+            "key":     "allow_malus",
+            "type":    "bool",
+            "label":   "Malus-Events erlauben",
+            "default": true,
+            "hint":    "Wenn deaktiviert, werden nur positive Bonus-Events erzeugt."
+        },
+        {
+            "key":     "notify_players",
+            "type":    "bool",
+            "label":   "Spieler benachrichtigen",
+            "default": true,
+            "hint":    "Zeigt eine Benachrichtigung beim Start eines neuen Events."
+        },
+        {
+            "key":     "event_type",
+            "type":    "select",
+            "label":   "Event-Typ Filter",
+            "default": "all",
+            "options": [
+                { "value": "all",        "label": "Alle Events" },
+                { "value": "production", "label": "Nur Produktion" },
+                { "value": "build",      "label": "Nur Bau" },
+                { "value": "research",   "label": "Nur Forschung" }
+            ],
+            "hint": "Welche Typen von Events erzeugt werden dürfen."
+        }
+    ]
 }

@@ -200,6 +200,60 @@
                     <li><strong>MINOR</strong> &ndash; Neue Features, abwärtskompatibel</li>
                     <li><strong>PATCH</strong> &ndash; Bugfixes</li>
                 </ul>
+                <h4>Plugin-Einstellungen (<code>"settings"</code>)</h4>
+                <p>Mit dem optionalen <code>"settings"</code>-Array können Plugins konfigurierbare Felder definieren. Der Admin kann diese Werte bequem über das Plugin-Admin-Panel bearbeiten. Die Werte werden in der DB gespeichert und sind in <code>plugin.php</code> über <code>PluginManager::get()-&gt;getConfig()</code> abrufbar.</p>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>"settings": [
+    {
+        "key":     "my_interval",
+        "type":    "int",
+        "label":   "Intervall (Minuten)",
+        "default": 60,
+        "hint":    "Zeit zwischen zwei Ausführungen."
+    },
+    {
+        "key":     "enabled",
+        "type":    "bool",
+        "label":   "Feature aktivieren",
+        "default": true,
+        "hint":    "Schaltet das Feature ein oder aus."
+    },
+    {
+        "key":     "mode",
+        "type":    "select",
+        "label":   "Modus",
+        "default": "normal",
+        "options": [
+            { "value": "normal", "label": "Normal" },
+            { "value": "turbo",  "label": "Turbo"  }
+        ]
+    }
+]</pre>
+                </div>
+                <h4>Feldtypen</h4>
+                <div class="pfaq-grid2">
+                    <div><strong>text</strong> — Einzeiliges Textfeld (Standard)</div>
+                    <div><strong>int / number</strong> — Ganzzahl-Eingabe</div>
+                    <div><strong>float</strong> — Dezimalzahl-Eingabe</div>
+                    <div><strong>bool / checkbox</strong> — Ein/Aus-Schalter</div>
+                    <div><strong>select</strong> — Dropdown, benötigt <code>"options"</code>-Array</div>
+                    <div><strong>textarea</strong> — Mehrzeiliges Textfeld</div>
+                </div>
+                <h4>Config in plugin.php lesen</h4>
+                <div class="pfaq-code-wrap">
+                    <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
+                    <pre>$pm = PluginManager::get();
+
+// Mit Default-Wert falls noch nichts gespeichert:
+$interval = (int)    $pm-&gt;getConfig('mein-plugin', 'my_interval', 60);
+$enabled  = (bool)   $pm-&gt;getConfig('mein-plugin', 'enabled',     true);
+$mode     = (string) $pm-&gt;getConfig('mein-plugin', 'mode',        'normal');
+
+// Ganzes Config-Array:
+$config = $pm-&gt;getAllConfig('mein-plugin');</pre>
+                </div>
+                <div class="pfaq-tip">&#9989; Immer einen sinnvollen <code>"default"</code>-Wert in der <code>manifest.json</code> angeben &ndash; er wird im Settings-Dialog als Vorbelegung angezeigt und als Fallback in <code>getConfig()</code> genutzt.</div>
                 <div class="pfaq-note">&#9888; Die <code>id</code> in der <code>manifest.json</code> muss exakt mit dem Ordnernamen unter <code>plugins/</code> übereinstimmen. Stimmt beides nicht überein, schlägt die Installation fehl.</div>
             </div>
         </details>
@@ -1038,6 +1092,14 @@ function pfaqCopy(btn) {
                     <span class="pm-badge pm-badge-inactive">&#9675; Inaktiv</span>
                     {% endif %}
                 </div>
+                {% if plugin.description is defined and plugin.description %}
+                <div class="pm-card-desc">{{ plugin.description }}</div>
+                {% endif %}
+                {% if plugin.author is defined and plugin.author %}
+                <div style="font-size:0.72rem;color:#475569;">
+                    <i class="fas fa-user" style="font-size:10px;margin-right:4px;"></i>{{ plugin.author }}
+                </div>
+                {% endif %}
             </div>
             <div class="pm-card-footer">
                 {% if plugin.is_active %}
@@ -1050,6 +1112,12 @@ function pfaqCopy(btn) {
                    class="pm-btn pm-btn-success">
                     <i class="fas fa-play"></i> Aktivieren
                 </a>
+                {% endif %}
+                {% if plugin.settings is defined and plugin.settings is not empty %}
+                <button class="pm-btn pm-btn-primary"
+                        onclick="pmOpenSettings({{ plugin|json_encode|e('html_attr') }})">
+                    <i class="fas fa-cog"></i> Einstellungen
+                </button>
                 {% endif %}
                 <a href="admin.php?page=pluginAdmin&amp;action=uninstall&amp;pluginId={{ plugin.id }}"
                    class="pm-btn pm-btn-danger"
@@ -1241,6 +1309,170 @@ function pfaqCopy(btn) {
                 fname.style.display = 'block';
             }
         });
+    }
+})();
+</script>
+
+<!-- ── Plugin Settings Modal ──────────────────────────────── -->
+<div id="pm-settings-overlay" style="display:none;position:fixed;inset:0;z-index:9900;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+    <div id="pm-settings-modal" style="
+        background:#0d1526;border:1px solid rgba(56,189,248,0.3);border-radius:14px;
+        width:min(520px,95vw);max-height:85vh;display:flex;flex-direction:column;
+        box-shadow:0 20px 60px rgba(0,0,0,0.8);overflow:hidden;
+    ">
+        <!-- Modal header -->
+        <div style="padding:18px 22px 14px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px;flex-shrink:0;">
+            <div id="pm-modal-avatar" style="
+                width:38px;height:38px;border-radius:9px;flex-shrink:0;
+                display:flex;align-items:center;justify-content:center;
+                font-size:16px;font-weight:700;color:#fff;
+                background:linear-gradient(135deg,#1e3a5f,#0f2440);
+                border:1px solid rgba(56,189,248,0.2);
+            "></div>
+            <div style="flex:1;min-width:0;">
+                <div id="pm-modal-title" style="font-size:0.95rem;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                <div id="pm-modal-subtitle" style="font-size:0.72rem;font-family:monospace;color:#7dd3fc;margin-top:1px;opacity:.8;"></div>
+            </div>
+            <button onclick="pmCloseSettings()" style="
+                background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+                color:#64748b;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:0.8rem;
+                transition:all .15s;
+            " onmouseover="this.style.background='rgba(239,68,68,0.12)';this.style.color='#fca5a5';"
+               onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='#64748b';">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <!-- Modal body (scrollable) -->
+        <div style="overflow-y:auto;flex:1;padding:20px 22px;" id="pm-modal-body">
+            <form id="pm-settings-form" method="post" action="admin.php?page=pluginAdmin&amp;action=saveConfig">
+                <input type="hidden" name="pluginId" id="pm-modal-plugin-id">
+                <div id="pm-modal-fields"></div>
+                <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">
+                    <button type="button" onclick="pmCloseSettings()" class="pm-btn" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);color:#64748b;">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="pm-btn pm-btn-primary" style="font-size:0.85rem;padding:7px 18px;">
+                        <i class="fas fa-save"></i> Speichern
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.pm-field-wrap { margin-bottom: 16px; }
+.pm-field-label { display:block; font-size:0.8rem; font-weight:600; color:#cbd5e1; margin-bottom:5px; }
+.pm-field-hint  { font-size:0.73rem; color:#475569; margin-top:4px; }
+.pm-field-input {
+    width:100%; background:#0a1020; border:1px solid rgba(56,189,248,0.2);
+    border-radius:7px; padding:8px 11px; color:#e2e8f0; font-size:0.875rem;
+    outline:none; transition:border-color .2s; box-sizing:border-box;
+}
+.pm-field-input:focus { border-color:#38bdf8; }
+.pm-field-input[type=number] { -moz-appearance:textfield; }
+.pm-field-select {
+    width:100%; background:#0a1020; border:1px solid rgba(56,189,248,0.2);
+    border-radius:7px; padding:8px 11px; color:#e2e8f0; font-size:0.875rem;
+    outline:none; cursor:pointer; transition:border-color .2s;
+}
+.pm-field-select:focus { border-color:#38bdf8; }
+.pm-toggle-row { display:flex; align-items:center; gap:12px; }
+.pm-toggle-row .pm-field-label { margin:0; flex:1; }
+</style>
+
+<script>
+(function() {
+    var overlay = document.getElementById('pm-settings-overlay');
+
+    window.pmOpenSettings = function(plugin) {
+        if (!plugin || !plugin.settings || !plugin.settings.length) return;
+
+        document.getElementById('pm-modal-title').textContent    = plugin.name || plugin.id;
+        document.getElementById('pm-modal-subtitle').textContent = plugin.id;
+        document.getElementById('pm-modal-avatar').textContent   = (plugin.name || plugin.id).charAt(0).toUpperCase();
+        document.getElementById('pm-modal-plugin-id').value      = plugin.id;
+
+        var fields  = plugin.settings || [];
+        var config  = plugin.config   || {};
+        var html    = '';
+
+        fields.forEach(function(f) {
+            var key   = f.key   || '';
+            var label = f.label || key;
+            var type  = f.type  || 'text';
+            var hint  = f.hint  || f.description || '';
+            var curVal = config[key];
+            if (curVal === undefined || curVal === null) {
+                curVal = f.default !== undefined ? f.default : '';
+            }
+            var inputId = 'pm-field-' + key;
+            var inputName = 'cfg_' + key;
+
+            html += '<div class="pm-field-wrap">';
+
+            if (type === 'bool' || type === 'checkbox') {
+                var checked = (curVal === true || curVal === '1' || curVal === 'true') ? 'checked' : '';
+                html += '<div class="pm-toggle-row">'
+                     +  '<label class="pm-field-label" for="' + inputId + '">' + escHtml(label) + '</label>'
+                     +  '<input type="hidden" name="' + inputName + '" value="0">'
+                     +  '<input type="checkbox" id="' + inputId + '" name="' + inputName + '" value="1"'
+                     +  ' ' + checked + ' style="width:18px;height:18px;accent-color:#22c55e;cursor:pointer;">'
+                     +  '</div>';
+            } else if (type === 'select' && Array.isArray(f.options)) {
+                html += '<label class="pm-field-label" for="' + inputId + '">' + escHtml(label) + '</label>';
+                html += '<select id="' + inputId + '" name="' + inputName + '" class="pm-field-select">';
+                f.options.forEach(function(opt) {
+                    var oVal   = typeof opt === 'object' ? (opt.value || '') : opt;
+                    var oLabel = typeof opt === 'object' ? (opt.label || oVal) : opt;
+                    var sel    = (String(curVal) === String(oVal)) ? ' selected' : '';
+                    html += '<option value="' + escAttr(String(oVal)) + '"' + sel + '>' + escHtml(String(oLabel)) + '</option>';
+                });
+                html += '</select>';
+            } else if (type === 'textarea') {
+                html += '<label class="pm-field-label" for="' + inputId + '">' + escHtml(label) + '</label>';
+                html += '<textarea id="' + inputId + '" name="' + inputName
+                     +  '" class="pm-field-input" rows="4" style="resize:vertical;">'
+                     +  escHtml(String(curVal)) + '</textarea>';
+            } else {
+                var inputType = (type === 'int' || type === 'number' || type === 'float') ? 'number' : 'text';
+                var step      = (type === 'float') ? ' step="any"' : '';
+                html += '<label class="pm-field-label" for="' + inputId + '">' + escHtml(label) + '</label>';
+                html += '<input type="' + inputType + '" id="' + inputId + '" name="' + inputName
+                     +  '" class="pm-field-input" value="' + escAttr(String(curVal)) + '"' + step + '>';
+            }
+
+            if (hint) {
+                html += '<div class="pm-field-hint">' + escHtml(hint) + '</div>';
+            }
+            html += '</div>';
+        });
+
+        document.getElementById('pm-modal-fields').innerHTML = html;
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.pmCloseSettings = function() {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    // Close on backdrop click
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) pmCloseSettings();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay.style.display !== 'none') pmCloseSettings();
+    });
+
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
     }
 })();
 </script>

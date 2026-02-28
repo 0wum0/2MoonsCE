@@ -799,6 +799,73 @@ class PluginManager
         return $this->loadedPlugins;
     }
 
+    // ── Plugin Config (stored in config_json column) ─────────────────────────
+
+    /**
+     * Read the full config array for a plugin.
+     *
+     * @return array<string, mixed>
+     */
+    public function getAllConfig(string $id): array
+    {
+        $row = $this->dbGetPlugin($id);
+        if ($row === null || empty($row['config_json'])) {
+            return [];
+        }
+        $data = json_decode((string) $row['config_json'], true);
+        return is_array($data) ? $data : [];
+    }
+
+    /**
+     * Get a single config value for a plugin.
+     */
+    public function getConfig(string $id, string $key, mixed $default = null): mixed
+    {
+        return $this->getAllConfig($id)[$key] ?? $default;
+    }
+
+    /**
+     * Persist a full config array for a plugin.
+     *
+     * @param array<string, mixed> $config
+     */
+    public function setAllConfig(string $id, array $config): void
+    {
+        try {
+            $db = Database::get();
+            $db->update(
+                'UPDATE %%PLUGINS%% SET config_json = :cfg, updated_at = :now WHERE id = :id;',
+                [
+                    ':cfg' => json_encode($config, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+                    ':now' => time(),
+                    ':id'  => $id,
+                ]
+            );
+        } catch (Throwable $e) {
+            error_log('[PluginManager] setAllConfig error for "' . $id . '": ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Set a single config key for a plugin (merges into existing config).
+     */
+    public function setConfig(string $id, string $key, mixed $value): void
+    {
+        $config       = $this->getAllConfig($id);
+        $config[$key] = $value;
+        $this->setAllConfig($id, $config);
+    }
+
+    /**
+     * Delete a single config key for a plugin.
+     */
+    public function deleteConfig(string $id, string $key): void
+    {
+        $config = $this->getAllConfig($id);
+        unset($config[$key]);
+        $this->setAllConfig($id, $config);
+    }
+
     // ── Language ─────────────────────────────────────────────────────────────
 
     private function loadLanguage(string $id): void
