@@ -55,14 +55,20 @@ class botActionsCronjob implements CronjobTask
         
         $log("Config: bots_per_tick={$botsPerTick}");
 
-        // BotEngine laden
-        $enginePath = ROOT_PATH . 'includes/classes/bot/BotEngine.class.php';
+        // BotEngine + BotActions laden
+        $enginePath  = ROOT_PATH . 'includes/classes/bot/BotEngine.class.php';
+        $actionsPath = ROOT_PATH . 'includes/classes/bot/BotActions.class.php';
         if (!file_exists($enginePath)) {
-            $log("FEHLER: BotEngine nicht gefunden");
+            $log("FEHLER: BotEngine nicht gefunden: {$enginePath}");
             $log('--- botActionsCronjob Ende ---');
             return;
         }
         require_once $enginePath;
+        if (file_exists($actionsPath)) {
+            require_once $actionsPath;
+        } else {
+            $log("WARNUNG: BotActions nicht gefunden: {$actionsPath} – Economy-Aktionen werden übersprungen");
+        }
 
         $universeID = defined('ROOT_UNI') ? (int)ROOT_UNI : 1;
         $log("Universe-ID: {$universeID}");

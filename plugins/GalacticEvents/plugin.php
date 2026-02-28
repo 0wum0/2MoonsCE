@@ -86,7 +86,7 @@ $pm->registerCronjob(
     // Derive a web-relative URL from the absolute plugin path.
     // ROOT_PATH is the filesystem root of the web app, so stripping it gives
     // the path relative to the document root.
-    $pluginWebBase = 'plugins/GalacticEvents/assets';
+    $pluginWebBase = '/plugins/GalacticEvents/assets';
 
     $cssUrl = $pluginWebBase . '/css/events.css';
     $jsUrl  = $pluginWebBase . '/js/events.js';

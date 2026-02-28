@@ -952,7 +952,25 @@ class BotEngine
     {
         $sql = "SELECT * FROM %%USERS%% WHERE id = :id;";
         $row = $this->db->selectSingle($sql, [':id' => $userId]);
-        return is_array($row) ? $row : null;
+        if (!is_array($row)) return null;
+
+        // Ensure factor array is present — normally set by getFactors() in ingame context.
+        // In cron context it is missing, causing FleetFunctions to crash on $USER['factor']['FleetSlots'].
+        if (empty($row['factor']) || !is_array($row['factor'])) {
+            $row['factor'] = [
+                'FleetSlots'  => 0,
+                'FlyTime'     => 0,
+                'Spy'         => 0,
+                'BotFactor'   => 0,
+                'ExpFactor'   => 0,
+                'ResearchTime'=> 0,
+                'BuildTime'   => 0,
+                'MetalProd'   => 0,
+                'CrystalProd' => 0,
+                'DeutProd'    => 0,
+            ];
+        }
+        return $row;
     }
 
     private function getMainPlanet(int $ownerId, int $universeId): ?array

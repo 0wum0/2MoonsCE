@@ -1196,19 +1196,15 @@ async function fetchGalaxy() {
 
 async function fetchFleets() {
   // NOTE: must NOT swallow error on initial call so Promise.all can reject
-  const url = window.SM.apiBase + 'fleets';
-  console.log('[GalaxyMap] fetchFleets →', url);
-  const r = await fetch(url);
+  const r = await fetch(window.SM.apiBase + 'fleets');
   if (!r.ok) throw new Error('fleets API ' + r.status);
   const text = await r.text();
-  console.log('[GalaxyMap] fleets raw response:', text.slice(0, 500));
   try {
     fleetData = JSON.parse(text);
   } catch(e) {
-    console.warn('[GalaxyMap] Fleet JSON parse error:', text.slice(0, 200));
+    console.warn('Fleet JSON parse error:', text.slice(0, 200));
     return; // non-fatal on poll failures
   }
-  console.log('[GalaxyMap] fleets parsed: count=', fleetData.count, 'fleets=', fleetData.fleets);
   if (fleetData.server_time) {
     serverTimeOffset = fleetData.server_time - (Date.now() / 1000);
   }
