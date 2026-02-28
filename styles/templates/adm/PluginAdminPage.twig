@@ -716,6 +716,213 @@ if (isset($GLOBALS['LNG']) &amp;&amp; $GLOBALS['LNG'] instanceof Language) {
     </div><!-- /pfaq-body -->
 </div><!-- /pfaq-wrap -->
 
+<style>
+/* ── Plugin Marketplace Styles ───────────────────────────── */
+.pm-stats-bar {
+    display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px;
+}
+.pm-stat {
+    flex: 1; min-width: 120px;
+    background: var(--adm-card-bg, #131929);
+    border: 1px solid var(--adm-border, #1e2d4a);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+}
+.pm-stat-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+}
+.pm-stat-val { font-size: 1.4rem; font-weight: 700; color: #e2e8f0; line-height: 1; }
+.pm-stat-lbl { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+
+/* Toolbar */
+.pm-toolbar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.pm-search {
+    flex: 1; min-width: 200px;
+    background: var(--adm-card-bg, #131929);
+    border: 1px solid var(--adm-border, #1e2d4a);
+    border-radius: 8px; padding: 9px 14px 9px 36px;
+    color: #e2e8f0; font-size: 0.875rem; outline: none;
+    transition: border-color .2s;
+}
+.pm-search:focus { border-color: #38bdf8; }
+.pm-search-wrap { position: relative; flex: 1; min-width: 200px; }
+.pm-search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 13px; pointer-events: none; }
+.pm-filter-btn {
+    padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem;
+    background: var(--adm-card-bg, #131929);
+    border: 1px solid var(--adm-border, #1e2d4a);
+    color: #94a3b8; transition: all .2s; white-space: nowrap;
+}
+.pm-filter-btn.active, .pm-filter-btn:hover {
+    background: rgba(56,189,248,0.1); border-color: #38bdf8; color: #7dd3fc;
+}
+
+/* Cards grid */
+.pm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px; margin-bottom: 30px;
+}
+.pm-card {
+    background: var(--adm-card-bg, #131929);
+    border: 1px solid var(--adm-border, #1e2d4a);
+    border-radius: 12px; padding: 0;
+    display: flex; flex-direction: column;
+    transition: border-color .2s, box-shadow .2s;
+    overflow: hidden;
+}
+.pm-card:hover {
+    border-color: rgba(56,189,248,0.35);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(56,189,248,0.1);
+}
+.pm-card.is-active { border-color: rgba(34,197,94,0.3); }
+.pm-card.is-active:hover { border-color: rgba(34,197,94,0.55); box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(34,197,94,0.15); }
+
+/* Card header strip */
+.pm-card-header {
+    height: 5px;
+    background: linear-gradient(90deg, #1e2d4a, #1e3a5a);
+}
+.pm-card.is-active .pm-card-header {
+    background: linear-gradient(90deg, #065f46, #0d9488);
+}
+.pm-card.is-discover .pm-card-header {
+    background: linear-gradient(90deg, #78350f, #d97706);
+}
+
+/* Card body */
+.pm-card-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+.pm-card-top { display: flex; align-items: flex-start; gap: 12px; }
+.pm-card-avatar {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #1e3a5f, #0f2440);
+    border: 1px solid rgba(56,189,248,0.2);
+    letter-spacing: 0;
+}
+.pm-card.is-active .pm-card-avatar { background: linear-gradient(135deg, #064e3b, #0d9488); border-color: rgba(34,197,94,0.25); }
+.pm-card.is-discover .pm-card-avatar { background: linear-gradient(135deg, #7c2d12, #d97706); border-color: rgba(245,158,11,0.25); }
+
+.pm-card-title-wrap { flex: 1; min-width: 0; }
+.pm-card-name { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-card-id   { font-size: 0.72rem; font-family: monospace; color: #7dd3fc; margin-top: 2px; opacity: .8; }
+
+/* Toggle switch */
+.pm-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.pm-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.pm-toggle-slider {
+    position: absolute; inset: 0; background: #1e2d4a; border-radius: 22px;
+    cursor: pointer; transition: background .25s;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.pm-toggle-slider::before {
+    content: ''; position: absolute;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #475569; top: 2px; left: 2px;
+    transition: transform .25s, background .25s;
+}
+.pm-toggle input:checked + .pm-toggle-slider { background: rgba(34,197,94,0.25); border-color: rgba(34,197,94,0.4); }
+.pm-toggle input:checked + .pm-toggle-slider::before { transform: translateX(18px); background: #22c55e; }
+
+/* Meta tags */
+.pm-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.pm-badge {
+    font-size: 0.7rem; padding: 2px 8px; border-radius: 20px;
+    border: 1px solid transparent; white-space: nowrap;
+}
+.pm-badge-version { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.2); color: #7dd3fc; }
+.pm-badge-type    { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.2); color: #a78bfa; }
+.pm-badge-active  { background: rgba(34,197,94,0.1);  border-color: rgba(34,197,94,0.25);  color: #86efac; }
+.pm-badge-inactive{ background: rgba(100,116,139,0.12); border-color: rgba(100,116,139,0.2); color: #64748b; }
+.pm-badge-discover{ background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25);  color: #fbbf24; }
+
+.pm-card-desc { font-size: 0.82rem; color: #64748b; line-height: 1.5; flex: 1; }
+
+/* Card footer */
+.pm-card-footer {
+    padding: 11px 18px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    background: rgba(0,0,0,0.15);
+}
+.pm-btn {
+    padding: 5px 13px; border-radius: 6px; font-size: 0.78rem; font-weight: 500;
+    cursor: pointer; border: 1px solid transparent; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: all .18s; white-space: nowrap;
+}
+.pm-btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+.pm-btn-danger:hover { background: rgba(239,68,68,0.22); }
+.pm-btn-primary { background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.35); color: #7dd3fc; }
+.pm-btn-primary:hover { background: rgba(56,189,248,0.24); }
+.pm-btn-success { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: #86efac; }
+.pm-btn-success:hover { background: rgba(34,197,94,0.22); }
+
+/* Empty state */
+.pm-empty {
+    grid-column: 1/-1;
+    text-align: center; padding: 40px 20px;
+    color: #475569; font-size: 0.9rem;
+}
+.pm-empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: .4; }
+
+/* Section title */
+.pm-section-title {
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: #475569;
+    margin: 0 0 14px; display: flex; align-items: center; gap: 8px;
+}
+.pm-section-title::after {
+    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.04);
+}
+
+/* Drag-and-drop upload zone */
+.pm-upload-zone {
+    border: 2px dashed rgba(56,189,248,0.25);
+    border-radius: 12px; padding: 32px 24px;
+    text-align: center; cursor: pointer;
+    transition: all .2s; background: rgba(56,189,248,0.03);
+    position: relative;
+}
+.pm-upload-zone:hover, .pm-upload-zone.drag-over {
+    border-color: #38bdf8; background: rgba(56,189,248,0.07);
+}
+.pm-upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.pm-upload-icon { font-size: 2rem; color: #38bdf8; margin-bottom: 8px; opacity: .7; }
+.pm-upload-title { color: #e2e8f0; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.pm-upload-sub   { color: #64748b; font-size: 0.8rem; }
+.pm-upload-file-name { margin-top: 10px; font-size: 0.82rem; color: #7dd3fc; display: none; }
+
+/* Hook debug */
+.pm-hook-box {
+    background: var(--adm-card-bg, #131929);
+    border: 1px solid var(--adm-border, #1e2d4a);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+}
+.pm-hook-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+}
+.pm-hook-toggle h2 { color: var(--adm-neon-blue,#38bdf8); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 10px; }
+.pm-hook-body { display: none; margin-top: 16px; }
+.pm-hook-body.open { display: block; }
+.pm-hook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px){ .pm-hook-grid { grid-template-columns: 1fr; } }
+.pm-hook-col-title { font-size: 0.75rem; color: #64748b; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.pm-hook-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.pm-hook-table tr { border-bottom: 1px solid #0f1a2e; }
+.pm-hook-table td { padding: 5px 8px; }
+</style>
+
 <script>
 function pfaqToggle() {
     var body = document.getElementById('pfaqBody');
@@ -747,142 +954,204 @@ function pfaqCopy(btn) {
 }
 </script>
 
-<!-- ZIP Upload -->
-<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
-    <h2 style="color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0 0 16px;">Plugin per ZIP installieren</h2>
-    <form method="post" action="admin.php?page=pluginAdmin&amp;action=upload" enctype="multipart/form-data">
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <input type="file" name="plugin_zip" accept=".zip" required
-                   style="flex:1;min-width:200px;background:#0d1526;border:1px solid #1e2d4a;color:#e2e8f0;padding:8px 12px;border-radius:6px;">
-            <button type="submit"
-                    style="background:var(--adm-neon-blue,#38bdf8);color:#0a0e17;font-weight:600;padding:9px 20px;border:none;border-radius:6px;cursor:pointer;">
-                &#128229; Hochladen &amp; Installieren
-            </button>
-        </div>
-        <p style="color:#64748b;font-size:0.8rem;margin:8px 0 0;">
-            ZIP muss eine <code>manifest.json</code> mit den Feldern <code>id</code>, <code>name</code>, <code>version</code> enthalten.
-        </p>
-    </form>
-</div>
-
-<!-- Installed Plugins -->
-<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
-    <h2 style="color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0 0 16px;">Installierte Plugins</h2>
-
-    {% if installedPlugins is empty %}
-    <p style="color:#64748b;">Keine Plugins installiert.</p>
-    {% else %}
-    <table style="width:100%;border-collapse:collapse;">
-        <thead>
-            <tr style="border-bottom:1px solid #1e2d4a;color:#94a3b8;font-size:0.8rem;text-transform:uppercase;">
-                <th style="padding:8px 12px;text-align:left;">ID</th>
-                <th style="padding:8px 12px;text-align:left;">Name</th>
-                <th style="padding:8px 12px;text-align:left;">Version</th>
-                <th style="padding:8px 12px;text-align:left;">Typ</th>
-                <th style="padding:8px 12px;text-align:left;">Status</th>
-                <th style="padding:8px 12px;text-align:left;">Aktionen</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for plugin in installedPlugins %}
-        <tr style="border-bottom:1px solid #0f1a2e;">
-            <td style="padding:10px 12px;font-family:monospace;color:#7dd3fc;">{{ plugin.id }}</td>
-            <td style="padding:10px 12px;color:#e2e8f0;">{{ plugin.name }}</td>
-            <td style="padding:10px 12px;color:#94a3b8;">{{ plugin.version }}</td>
-            <td style="padding:10px 12px;color:#94a3b8;">{{ plugin.type }}</td>
-            <td style="padding:10px 12px;">
-                {% if plugin.is_active %}
-                <span style="background:rgba(34,197,94,0.15);color:#86efac;padding:3px 10px;border-radius:20px;font-size:0.8rem;">Aktiv</span>
-                {% else %}
-                <span style="background:rgba(100,116,139,0.2);color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:0.8rem;">Inaktiv</span>
-                {% endif %}
-            </td>
-            <td style="padding:10px 12px;">
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                {% if plugin.is_active %}
-                <a href="admin.php?page=pluginAdmin&amp;action=deactivate&amp;pluginId={{ plugin.id }}"
-                   style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid #f59e0b;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
-                    Deaktivieren
-                </a>
-                {% else %}
-                <a href="admin.php?page=pluginAdmin&amp;action=activate&amp;pluginId={{ plugin.id }}"
-                   style="background:rgba(34,197,94,0.15);color:#86efac;border:1px solid #22c55e;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
-                    Aktivieren
-                </a>
-                {% endif %}
-                <a href="admin.php?page=pluginAdmin&amp;action=uninstall&amp;pluginId={{ plugin.id }}"
-                   onclick="return confirm('Plugin {{ plugin.name }} wirklich deinstallieren? Dieser Vorgang kann nicht rückgängig gemacht werden.');"
-                   style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid #ef4444;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
-                    Deinstallieren
-                </a>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<!-- ── Stats Bar ──────────────────────────────────────────── -->
+{% set activeCount    = installedPlugins|filter(p => p.is_active)|length %}
+{% set inactiveCount  = installedPlugins|filter(p => not p.is_active)|length %}
+{% set discoverCount  = uninstalledPlugins|length %}
+<div class="pm-stats-bar">
+    <div class="pm-stat">
+        <div class="pm-stat-icon" style="background:rgba(56,189,248,0.12);color:#38bdf8;">&#128230;</div>
+        <div><div class="pm-stat-val">{{ installedPlugins|length }}</div><div class="pm-stat-lbl">Installiert</div></div>
+    </div>
+    <div class="pm-stat">
+        <div class="pm-stat-icon" style="background:rgba(34,197,94,0.12);color:#22c55e;">&#9989;</div>
+        <div><div class="pm-stat-val">{{ activeCount }}</div><div class="pm-stat-lbl">Aktiv</div></div>
+    </div>
+    <div class="pm-stat">
+        <div class="pm-stat-icon" style="background:rgba(100,116,139,0.12);color:#64748b;">&#9744;</div>
+        <div><div class="pm-stat-val">{{ inactiveCount }}</div><div class="pm-stat-lbl">Inaktiv</div></div>
+    </div>
+    <div class="pm-stat">
+        <div class="pm-stat-icon" style="background:rgba(245,158,11,0.12);color:#f59e0b;">&#128193;</div>
+        <div><div class="pm-stat-val">{{ discoverCount }}</div><div class="pm-stat-lbl">Verfügbar</div></div>
+    </div>
+    {% if hookDebug is defined %}
+    <div class="pm-stat">
+        <div class="pm-stat-icon" style="background:rgba(167,139,250,0.12);color:#a78bfa;">&#128279;</div>
+        <div><div class="pm-stat-val">{{ hookDebug.actions|length + hookDebug.filters|length }}</div><div class="pm-stat-lbl">Hook Listeners</div></div>
+    </div>
     {% endif %}
 </div>
 
-<!-- Uninstalled (filesystem only) Plugins -->
-{% if uninstalledPlugins is not empty %}
-<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
-    <h2 style="color:#f59e0b;font-size:1rem;margin:0 0 16px;">&#128193; Gefundene Plugins (nicht installiert)</h2>
-    <p style="color:#64748b;font-size:0.85rem;margin:0 0 16px;">Diese Plugins liegen im <code>plugins/</code>-Verzeichnis, sind aber noch nicht in der Datenbank registriert.</p>
-    <table style="width:100%;border-collapse:collapse;">
-        <thead>
-            <tr style="border-bottom:1px solid #1e2d4a;color:#94a3b8;font-size:0.8rem;text-transform:uppercase;">
-                <th style="padding:8px 12px;text-align:left;">ID</th>
-                <th style="padding:8px 12px;text-align:left;">Name</th>
-                <th style="padding:8px 12px;text-align:left;">Version</th>
-                <th style="padding:8px 12px;text-align:left;">Aktion</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for plugin in uninstalledPlugins %}
-        <tr style="border-bottom:1px solid #0f1a2e;">
-            <td style="padding:10px 12px;font-family:monospace;color:#7dd3fc;">{{ plugin.id }}</td>
-            <td style="padding:10px 12px;color:#e2e8f0;">{{ plugin.name }}</td>
-            <td style="padding:10px 12px;color:#94a3b8;">{{ plugin.version }}</td>
-            <td style="padding:10px 12px;">
-                <a href="admin.php?page=pluginAdmin&amp;action=installLocal&amp;pluginId={{ plugin.id }}"
-                   style="background:rgba(56,189,248,0.15);color:#7dd3fc;border:1px solid #38bdf8;padding:4px 12px;border-radius:5px;font-size:0.8rem;text-decoration:none;">
-                    Installieren
+<!-- ── Toolbar: Search + Filter ──────────────────────────── -->
+<div class="pm-toolbar">
+    <div class="pm-search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="pm-search" class="pm-search" placeholder="Plugin suchen…" oninput="pmFilter()">
+    </div>
+    <button class="pm-filter-btn active" id="pm-f-all"      onclick="pmSetFilter('all',      this)">Alle</button>
+    <button class="pm-filter-btn"        id="pm-f-active"   onclick="pmSetFilter('active',   this)">Aktiv</button>
+    <button class="pm-filter-btn"        id="pm-f-inactive" onclick="pmSetFilter('inactive', this)">Inaktiv</button>
+    <button class="pm-filter-btn"        id="pm-f-discover" onclick="pmSetFilter('discover', this)">Neu verfügbar</button>
+</div>
+
+<!-- ── Installed Plugins ──────────────────────────────────── -->
+<div id="pm-section-installed">
+    <div class="pm-section-title"><i class="fas fa-puzzle-piece" style="color:#38bdf8"></i> Installierte Plugins</div>
+    <div class="pm-grid" id="pm-installed-grid">
+        {% if installedPlugins is empty %}
+        <div class="pm-empty">
+            <i class="fas fa-box-open"></i>
+            Keine Plugins installiert. Lade ein ZIP hoch oder installiere ein gefundenes Plugin.
+        </div>
+        {% else %}
+        {% for plugin in installedPlugins %}
+        {% set initial = plugin.name|slice(0,1)|upper %}
+        <div class="pm-card {% if plugin.is_active %}is-active{% endif %}"
+             data-id="{{ plugin.id }}"
+             data-name="{{ plugin.name|lower }}"
+             data-state="{{ plugin.is_active ? 'active' : 'inactive' }}">
+            <div class="pm-card-header"></div>
+            <div class="pm-card-body">
+                <div class="pm-card-top">
+                    <div class="pm-card-avatar">{{ initial }}</div>
+                    <div class="pm-card-title-wrap">
+                        <div class="pm-card-name">{{ plugin.name }}</div>
+                        <div class="pm-card-id">{{ plugin.id }}</div>
+                    </div>
+                    <!-- Toggle switch → links to activate/deactivate -->
+                    <a href="admin.php?page=pluginAdmin&amp;action={{ plugin.is_active ? 'deactivate' : 'activate' }}&amp;pluginId={{ plugin.id }}"
+                       title="{{ plugin.is_active ? 'Deaktivieren' : 'Aktivieren' }}"
+                       style="text-decoration:none;">
+                        <label class="pm-toggle" onclick="event.preventDefault();window.location.href=this.parentElement.href;">
+                            <input type="checkbox" {% if plugin.is_active %}checked{% endif %} readonly>
+                            <span class="pm-toggle-slider"></span>
+                        </label>
+                    </a>
+                </div>
+                <div class="pm-card-meta">
+                    <span class="pm-badge pm-badge-version">v{{ plugin.version }}</span>
+                    <span class="pm-badge pm-badge-type">{{ plugin.type }}</span>
+                    {% if plugin.is_active %}
+                    <span class="pm-badge pm-badge-active">&#9679; Aktiv</span>
+                    {% else %}
+                    <span class="pm-badge pm-badge-inactive">&#9675; Inaktiv</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="pm-card-footer">
+                {% if plugin.is_active %}
+                <a href="admin.php?page=pluginAdmin&amp;action=deactivate&amp;pluginId={{ plugin.id }}"
+                   class="pm-btn" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#fbbf24;">
+                    <i class="fas fa-pause"></i> Deaktivieren
                 </a>
-            </td>
-        </tr>
+                {% else %}
+                <a href="admin.php?page=pluginAdmin&amp;action=activate&amp;pluginId={{ plugin.id }}"
+                   class="pm-btn pm-btn-success">
+                    <i class="fas fa-play"></i> Aktivieren
+                </a>
+                {% endif %}
+                <a href="admin.php?page=pluginAdmin&amp;action=uninstall&amp;pluginId={{ plugin.id }}"
+                   class="pm-btn pm-btn-danger"
+                   onclick="return confirm('Plugin \'{{ plugin.name }}\' wirklich deinstallieren?\nDieser Vorgang kann nicht rückgängig gemacht werden.');">
+                    <i class="fas fa-trash-alt"></i> Deinstallieren
+                </a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ── Discovered (not installed) Plugins ────────────────── -->
+{% if uninstalledPlugins is not empty %}
+<div id="pm-section-discover">
+    <div class="pm-section-title" style="color:#f59e0b;"><i class="fas fa-folder-open" style="color:#f59e0b"></i> Gefunden – nicht installiert</div>
+    <div class="pm-grid" id="pm-discover-grid">
+        {% for plugin in uninstalledPlugins %}
+        {% set initial = plugin.name|slice(0,1)|upper %}
+        <div class="pm-card is-discover"
+             data-id="{{ plugin.id }}"
+             data-name="{{ plugin.name|lower }}"
+             data-state="discover">
+            <div class="pm-card-header"></div>
+            <div class="pm-card-body">
+                <div class="pm-card-top">
+                    <div class="pm-card-avatar">{{ initial }}</div>
+                    <div class="pm-card-title-wrap">
+                        <div class="pm-card-name">{{ plugin.name }}</div>
+                        <div class="pm-card-id">{{ plugin.id }}</div>
+                    </div>
+                </div>
+                <div class="pm-card-meta">
+                    <span class="pm-badge pm-badge-version">v{{ plugin.version }}</span>
+                    {% if plugin.type is defined %}
+                    <span class="pm-badge pm-badge-type">{{ plugin.type }}</span>
+                    {% endif %}
+                    <span class="pm-badge pm-badge-discover">&#128193; Nicht installiert</span>
+                </div>
+                {% if plugin.description is defined and plugin.description %}
+                <div class="pm-card-desc">{{ plugin.description }}</div>
+                {% endif %}
+            </div>
+            <div class="pm-card-footer">
+                <a href="admin.php?page=pluginAdmin&amp;action=installLocal&amp;pluginId={{ plugin.id }}"
+                   class="pm-btn pm-btn-primary">
+                    <i class="fas fa-download"></i> Installieren
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 
-<!-- Hook Debug Box -->
+<!-- ── ZIP Upload ─────────────────────────────────────────── -->
+<div id="pm-section-upload" style="margin-bottom:30px;">
+    <div class="pm-section-title"><i class="fas fa-upload" style="color:#38bdf8"></i> Plugin per ZIP installieren</div>
+    <form method="post" action="admin.php?page=pluginAdmin&amp;action=upload" enctype="multipart/form-data" id="pm-upload-form">
+        <div class="pm-upload-zone" id="pm-drop-zone">
+            <input type="file" name="plugin_zip" accept=".zip" required id="pm-zip-input">
+            <div class="pm-upload-icon">&#128229;</div>
+            <div class="pm-upload-title">ZIP hierher ziehen oder klicken zum Auswählen</div>
+            <div class="pm-upload-sub">Nur <strong>.zip</strong> — muss <code>manifest.json</code> mit <code>id</code>, <code>name</code>, <code>version</code> enthalten</div>
+            <div class="pm-upload-file-name" id="pm-file-name"></div>
+        </div>
+        <div style="margin-top:12px;text-align:right;">
+            <button type="submit" id="pm-upload-btn"
+                    style="background:#38bdf8;color:#0a0e17;font-weight:600;padding:9px 22px;border:none;border-radius:8px;cursor:pointer;font-size:0.875rem;display:inline-flex;align-items:center;gap:7px;transition:background .2s;"
+                    onmouseover="this.style.background='#0ea5e9'" onmouseout="this.style.background='#38bdf8'">
+                <i class="fas fa-cloud-upload-alt"></i> Hochladen &amp; Installieren
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ── Hook Debug ─────────────────────────────────────────── -->
 {% if hookDebug is defined %}
-<div class="admin-card" style="background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';">
-        <h2 style="color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0;display:flex;align-items:center;gap:10px;">
-            &#128279; Registrierte Hooks
+<div class="pm-hook-box">
+    <div class="pm-hook-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
+        <h2>
+            <i class="fas fa-link" style="color:#a78bfa;font-size:0.9rem"></i>
+            Registrierte Hooks
             <span style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:20px;padding:1px 10px;font-size:0.75rem;font-weight:400;">
                 {{ hookDebug.actions|length }} Actions &bull; {{ hookDebug.filters|length }} Filters
             </span>
         </h2>
         <span style="color:#475569;font-size:0.75rem;">&#9660; Aufklappen</span>
     </div>
-    <div style="display:none;margin-top:16px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="pm-hook-body">
+        <div class="pm-hook-grid">
             <div>
-                <div style="font-size:0.75rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
-                    Actions ({{ hookDebug.actions|length }})
-                </div>
+                <div class="pm-hook-col-title">Actions ({{ hookDebug.actions|length }})</div>
                 {% if hookDebug.actions is empty %}
                 <div style="color:#475569;font-size:0.85rem;">Keine Actions registriert.</div>
                 {% else %}
-                <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                <table class="pm-hook-table">
                     {% for hook in hookDebug.actions %}
-                    <tr style="border-bottom:1px solid #0f1a2e;">
-                        <td style="padding:5px 8px;font-family:monospace;color:#7dd3fc;">{{ hook.name }}</td>
-                        <td style="padding:5px 8px;color:#94a3b8;text-align:right;white-space:nowrap;">
+                    <tr>
+                        <td style="font-family:monospace;color:#7dd3fc;">{{ hook.name }}</td>
+                        <td style="color:#94a3b8;text-align:right;white-space:nowrap;">
                             <span style="background:rgba(56,189,248,0.1);border-radius:4px;padding:1px 8px;">{{ hook.count }} Listener</span>
                         </td>
                     </tr>
@@ -891,17 +1160,15 @@ function pfaqCopy(btn) {
                 {% endif %}
             </div>
             <div>
-                <div style="font-size:0.75rem;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
-                    Filters ({{ hookDebug.filters|length }})
-                </div>
+                <div class="pm-hook-col-title">Filters ({{ hookDebug.filters|length }})</div>
                 {% if hookDebug.filters is empty %}
                 <div style="color:#475569;font-size:0.85rem;">Keine Filter registriert.</div>
                 {% else %}
-                <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                <table class="pm-hook-table">
                     {% for hook in hookDebug.filters %}
-                    <tr style="border-bottom:1px solid #0f1a2e;">
-                        <td style="padding:5px 8px;font-family:monospace;color:#a78bfa;">{{ hook.name }}</td>
-                        <td style="padding:5px 8px;color:#94a3b8;text-align:right;white-space:nowrap;">
+                    <tr>
+                        <td style="font-family:monospace;color:#a78bfa;">{{ hook.name }}</td>
+                        <td style="color:#94a3b8;text-align:right;white-space:nowrap;">
                             <span style="background:rgba(167,139,250,0.1);border-radius:4px;padding:1px 8px;">{{ hook.count }} Listener</span>
                         </td>
                     </tr>
@@ -910,9 +1177,72 @@ function pfaqCopy(btn) {
                 {% endif %}
             </div>
         </div>
-        <p style="color:#475569;font-size:0.75rem;margin:12px 0 0;">&#8505; Nur Hooks die zum Zeitpunkt des Seitenaufrufs registriert sind (aktive Plugins). Reine Anzeige, kein Eingriff.</p>
+        <p style="color:#475569;font-size:0.75rem;margin:12px 0 0;">&#8505; Nur Hooks die zum Zeitpunkt des Seitenaufrufs registriert sind (aktive Plugins).</p>
     </div>
 </div>
 {% endif %}
+
+<script>
+(function() {
+    var currentFilter = 'all';
+
+    // Search + filter
+    window.pmFilter = function() {
+        var q = document.getElementById('pm-search').value.toLowerCase().trim();
+        document.querySelectorAll('.pm-card').forEach(function(card) {
+            var name  = (card.dataset.name  || '').toLowerCase();
+            var id    = (card.dataset.id    || '').toLowerCase();
+            var state = card.dataset.state || '';
+            var matchSearch = !q || name.indexOf(q) !== -1 || id.indexOf(q) !== -1;
+            var matchFilter = currentFilter === 'all'
+                || (currentFilter === 'active'   && state === 'active')
+                || (currentFilter === 'inactive' && state === 'inactive')
+                || (currentFilter === 'discover' && state === 'discover');
+            card.style.display = (matchSearch && matchFilter) ? '' : 'none';
+        });
+    };
+
+    window.pmSetFilter = function(f, btn) {
+        currentFilter = f;
+        document.querySelectorAll('.pm-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        pmFilter();
+    };
+
+    // Drag-and-drop upload zone
+    var zone  = document.getElementById('pm-drop-zone');
+    var input = document.getElementById('pm-zip-input');
+    var fname = document.getElementById('pm-file-name');
+
+    if (zone && input) {
+        input.addEventListener('change', function() {
+            if (input.files.length) {
+                fname.textContent = '📎 ' + input.files[0].name;
+                fname.style.display = 'block';
+            }
+        });
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', function() {
+            zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            var files = e.dataTransfer.files;
+            if (files.length) {
+                // Build a new FileList-compatible object via DataTransfer
+                var dt = new DataTransfer();
+                dt.items.add(files[0]);
+                input.files = dt.files;
+                fname.textContent = '📎 ' + files[0].name;
+                fname.style.display = 'block';
+            }
+        });
+    }
+})();
+</script>
 
 {% include 'overall_footer.twig' %}
