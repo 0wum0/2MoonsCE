@@ -102,6 +102,8 @@ window.OVERVIEW_DATA = {
       </div>
       {% endif %}
 
+      {{ hook('overview.after_planets') }}
+
       <!-- DEBRIS -->
       {% if GalaxyRows is defined and GalaxyRows and (GalaxyRows.debris.metal > 0 or GalaxyRows.debris.crystal > 0) %}
       <div class="ov-card">

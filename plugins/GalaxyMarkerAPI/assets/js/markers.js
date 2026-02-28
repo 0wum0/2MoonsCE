@@ -24,14 +24,10 @@
      * The core galaxy map renders into a <canvas> inside #galaxy-map or .galaxy-map-wrap.
      */
     function findCanvas() {
-        var wrap = document.getElementById('galaxy-map')
-                || document.querySelector('.galaxy-map-wrap')
-                || document.querySelector('.galaxy-canvas-wrap');
-        if (wrap) {
-            return wrap.querySelector('canvas') || wrap;
-        }
-        return document.querySelector('canvas[data-galaxy-map]')
-            || document.querySelector('#galaxy-three-canvas');
+        // SmartMoons Galaxy Map uses #gm-canvas directly
+        return document.getElementById('gm-canvas')
+            || document.querySelector('.galaxy-wrapper canvas')
+            || document.querySelector('canvas[data-galaxy-map]');
     }
 
     /**
@@ -139,7 +135,9 @@
      * Falls back to 1 if not detectable.
      */
     function currentGalaxy() {
-        var input = document.getElementById('galaxy')
+        // SmartMoons Galaxy Map uses #nav-g for the galaxy navigation input
+        var input = document.getElementById('nav-g')
+                 || document.getElementById('galaxy')
                  || document.querySelector('input[name="galaxy"]');
         if (input) {
             return parseInt(input.value, 10) || 1;
@@ -171,22 +169,21 @@
         // Initial render
         renderMarkers(overlay, markers, currentGalaxy());
 
-        // Re-render when the galaxy navigation changes.
-        // Listen for the custom event fired by the galaxy map JS, or fall back
-        // to observing the galaxy input value.
-        document.addEventListener('galaxy.navigate', function (e) {
-            var g = (e && e.detail && e.detail.galaxy) ? e.detail.galaxy : currentGalaxy();
-            renderMarkers(overlay, markers, g);
-        });
-
-        // Fallback: observe galaxy input changes
-        var galaxyInput = document.getElementById('galaxy')
+        // Observe galaxy navigation input (#nav-g in SmartMoons galaxy map)
+        var galaxyInput = document.getElementById('nav-g')
+                       || document.getElementById('galaxy')
                        || document.querySelector('input[name="galaxy"]');
         if (galaxyInput) {
             galaxyInput.addEventListener('change', function () {
                 renderMarkers(overlay, markers, currentGalaxy());
             });
         }
+
+        // Also listen for the GM.navJump / GM.navHome custom event
+        document.addEventListener('galaxy.navigate', function (e) {
+            var g = (e && e.detail && e.detail.galaxy) ? parseInt(e.detail.galaxy, 10) : currentGalaxy();
+            renderMarkers(overlay, markers, g);
+        });
 
         // Re-render on canvas resize
         if (typeof ResizeObserver !== 'undefined') {

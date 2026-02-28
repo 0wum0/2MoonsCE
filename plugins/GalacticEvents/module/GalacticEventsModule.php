@@ -165,6 +165,23 @@ class GalacticEventsModule implements GameModuleInterface
                 }
             }, 20);
 
+            // ── overview.after_planets – inline event card ────────────────────
+            $hm->addAction('overview.after_planets', function (array $hookCtx): string {
+                try {
+                    if (!defined('MODE') || MODE !== 'INGAME') {
+                        return '';
+                    }
+                    $event = $this->getActiveEvent();
+                    if ($event === null) {
+                        return '';
+                    }
+                    return $this->renderOverviewCard($event);
+                } catch (Throwable $e) {
+                    error_log('[GalacticEventsModule] overview.after_planets hook error: ' . $e->getMessage());
+                    return '';
+                }
+            }, 20);
+
         } catch (Throwable $e) {
             error_log('[GalacticEventsModule] boot() error: ' . $e->getMessage());
         }
@@ -194,6 +211,91 @@ class GalacticEventsModule implements GameModuleInterface
     {
         // Reset per-request cache so tests/AJAX sub-requests get fresh data.
         $this->activeEventCache = false;
+    }
+
+    // ── Overview card ─────────────────────────────────────────────────────────
+
+    /**
+     * Render a full `.ov-card` compatible event card for the overview page.
+     * @param array<string,mixed> $event
+     */
+    private function renderOverviewCard(array $event): string
+    {
+        $now   = defined('TIMESTAMP') ? TIMESTAMP : time();
+        $until = (int)($event['active_until'] ?? 0);
+        $secs  = max(0, $until - $now);
+        $value = (float)($event['effect_value'] ?? 0);
+        $sign  = $value >= 0 ? '+' : '';
+        $name  = htmlspecialchars((string)($event['name'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $type  = (string)($event['effect_type'] ?? '');
+
+        $typeLabels = [
+            'metal_production'     => 'Metall-Produktion',
+            'crystal_production'   => 'Kristall-Produktion',
+            'deuterium_production' => 'Deuterium-Produktion',
+            'energy_output'        => 'Energie',
+            'build_time'           => 'Bauzeit',
+            'research_time'        => 'Forschungszeit',
+        ];
+        $typeLabel = htmlspecialchars($typeLabels[$type] ?? $type, ENT_QUOTES, 'UTF-8');
+
+        $colorMap = [
+            'metal_production'     => '#94a3b8',
+            'crystal_production'   => '#a78bfa',
+            'deuterium_production' => '#38bdf8',
+            'energy_output'        => '#fbbf24',
+            'build_time'           => '#f87171',
+            'research_time'        => '#34d399',
+        ];
+        $color = $colorMap[$type] ?? '#38bdf8';
+
+        $h  = (int)floor($secs / 3600);
+        $m  = (int)floor(($secs % 3600) / 60);
+        $s  = $secs % 60;
+        $cd = sprintf('%02d:%02d:%02d', $h, $m, $s);
+
+        $pct = min(100, max(0, (int)(($secs / max(1, $until - ($until - ($secs + 1)))) * 100)));
+
+        return '
+<div class="ov-card" id="ov-ge-card" style="border-color:' . $color . '33;background:linear-gradient(135deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));">
+  <div class="ov-card-header" style="color:' . $color . ';border-bottom-color:' . $color . '22;">
+    <i class="fas fa-meteor" style="color:' . $color . '"></i>
+    &#x1F30C; Galaktisches Event
+  </div>
+  <div class="ov-card-body" style="padding:12px 14px;">
+    <div style="font-size:12px;font-weight:700;color:' . $color . ';margin-bottom:6px;">' . $name . '</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:11px;color:var(--dim);">' . $typeLabel . '</span>
+      <span style="font-size:13px;font-weight:900;color:' . $color . ';">' . $sign . $value . '%</span>
+    </div>
+    <div style="height:3px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:8px;overflow:hidden;">
+      <div id="ov-ge-bar" style="height:100%;background:' . $color . ';border-radius:2px;width:100%;transition:width 1s linear;"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:10px;color:var(--dim);font-family:var(--font-hud);letter-spacing:1px;">ENDET IN</span>
+      <span id="ov-ge-countdown" style="font-size:13px;font-weight:700;font-family:var(--font-hud);color:' . $color . ';" data-until="' . $until . '">' . $cd . '</span>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var el=document.getElementById("ov-ge-countdown");
+  var bar=document.getElementById("ov-ge-bar");
+  if(!el)return;
+  var until=parseInt(el.getAttribute("data-until"),10);
+  var totalSecs=' . $secs . ';
+  function tick(){
+    var now=Math.floor(Date.now()/1000);
+    var left=Math.max(0,until-now);
+    var h=Math.floor(left/3600),m=Math.floor((left%3600)/60),s=left%60;
+    el.textContent=(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+    if(bar&&totalSecs>0)bar.style.width=Math.round(left/totalSecs*100)+"%";
+    if(left>0)setTimeout(tick,1000);
+    else{el.closest(".ov-card")&&(el.closest(".ov-card").style.display="none");}
+  }
+  tick();
+})();
+</script>';
     }
 
     // ── Internal helpers ──────────────────────────────────────────────────────
