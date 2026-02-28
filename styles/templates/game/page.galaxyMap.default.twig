@@ -148,6 +148,13 @@
   display: none; /* hidden on desktop */
 }
 
+/* ── Mobile: hide 3D view button, only 2D available ─────────────── */
+@media (max-width: 768px) {
+  #vb-3d { display: none !important; }
+  #gm-view-row .vw-btn:only-child,
+  #vb-2d { flex: 1 1 100%; }
+}
+
 @media (max-width: 768px) {
   /* Canvas fills the full 100dvh (mobile browser bars excluded) */
   .galaxy-wrapper, #gm-canvas {
@@ -401,7 +408,7 @@
   <div id="gm-side" class="galaxy-viewPanel">
     <div style="margin-bottom:11px">
       <div class="sp-h"><i class="fas fa-sliders-h" style="margin-right:5px"></i>VIEW MODE</div>
-      <div class="vw-row">
+      <div class="vw-row" id="gm-view-row">
         <div class="vw-btn on" id="vb-3d" onclick="GM.setView('3d')">3D</div>
         <div class="vw-btn"   id="vb-2d" onclick="GM.setView('2d')">2D</div>
       </div>
@@ -598,6 +605,13 @@ function init() {
   initMobilePanel();
   measureFooterHeight();
 
+  // Apply correct initial camera for whichever view mode was set by the boot IIFE
+  if (!is3D) {
+    orb.r = 4000; orb.phi = 0.01; orb.theta = 0;
+    pan.x = 0; pan.z = 0;
+  }
+  syncCamera();
+
   // Single rAF loop – start before fetch so canvas is live immediately
   animate();
 
@@ -777,7 +791,7 @@ function buildPlanets(planets) {
     }));
     sunSprite.position.copy(sunPos);
     sunSprite.scale.setScalar(28);
-    sunSprite.userData = { isSun: true, galaxy: g, system: s };
+    sunSprite.userData = { isSun: true, baseSunScale: 28, galaxy: g, system: s };
     sunGroup.add(sunSprite);
 
     // Sun core sphere (always visible, emissive)
@@ -982,47 +996,47 @@ function rebuildFleetMeshes() {
     // foreign = dashed gray, very thin
     let lineCol, lineOpacity, useDash, dotCol, dotSize;
     if (isOwn) {
-      lineCol = 0x00e87a; lineOpacity = 0.85; useDash = false;
-      dotCol = '#00e87a'; dotSize = 7;
+      lineCol = 0x00e87a; lineOpacity = 0.90; useDash = false;
+      dotCol = '#00e87a'; dotSize = 20;
     } else if (isAlly) {
-      lineCol = 0xa855f7; lineOpacity = 0.55; useDash = true;
-      dotCol = '#a855f7'; dotSize = 5;
+      lineCol = 0xa855f7; lineOpacity = 0.70; useDash = true;
+      dotCol = '#a855f7'; dotSize = 16;
     } else if (isHostile) {
-      lineCol = 0xffffff; lineOpacity = 0.55; useDash = true;
-      dotCol = '#ff6688'; dotSize = 4;
-    } else { // foreign – gray, dashed, very dim
-      lineCol = 0x6688aa; lineOpacity = 0.30; useDash = true;
-      dotCol = '#6688aa'; dotSize = 3;
+      lineCol = 0xff3355; lineOpacity = 0.80; useDash = true;
+      dotCol = '#ff3355'; dotSize = 18;
+    } else { // foreign – gray, dashed
+      lineCol = 0x6688aa; lineOpacity = 0.45; useDash = true;
+      dotCol = '#6688aa'; dotSize = 12;
     }
 
-    // Full path line (start → end) — built once, not per-frame
-    const pathPoints = st.curve.getPoints(48);
+    // Full path line (start → end, ghost/dim background)
+    const pathPoints = st.curve.getPoints(64);
     const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
     let pathLine;
     if (useDash) {
       const pm = new THREE.LineDashedMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity * 0.30,
-        dashSize: 6, gapSize: 5, depthWrite: false
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.55,
+        dashSize: 18, gapSize: 10, depthWrite: false, linewidth: 1
       });
       pathLine = new THREE.Line(pathGeo, pm);
       pathLine.computeLineDistances();
     } else {
       pathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity * 0.20, depthWrite: false
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.45, depthWrite: false
       }));
     }
     pathLine.userData = { fleet: f };
     fleetGroup.add(pathLine);
 
-    // Trail line (start → current position along curve)
-    const trailCount = Math.max(2, Math.round(prg * 48));
+    // Trail line (start → current dot position — brighter/solid)
+    const trailCount = Math.max(2, Math.round(Math.max(0.01, prg) * 64));
     const trailPoints = st.curve.getPoints(trailCount);
     const trailGeo = new THREE.BufferGeometry().setFromPoints(trailPoints);
     let trailLine;
     if (useDash) {
       const tm = new THREE.LineDashedMaterial({
         color: lineCol, transparent: true, opacity: lineOpacity,
-        dashSize: 5, gapSize: 4, depthWrite: false
+        dashSize: 14, gapSize: 6, depthWrite: false, linewidth: 1
       });
       trailLine = new THREE.Line(trailGeo, tm);
       trailLine.computeLineDistances();
@@ -1034,13 +1048,14 @@ function rebuildFleetMeshes() {
     trailLine.userData = { fleet: f, isTrail: true };
     fleetGroup.add(trailLine);
 
-    // Fleet dot at current position along curve
-    const curPos = st.curve.getPoint(prg);
+    // Fleet dot at current position — large enough to be visible at galaxy scale
+    const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
     const ds = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: circleTex(dotCol), transparent: true, depthWrite: false, sizeAttenuation: true
+      map: circleTex(dotCol), transparent: true, depthWrite: false,
+      sizeAttenuation: true, blending: THREE.AdditiveBlending
     }));
-    ds.position.set(curPos.x, curPos.y, curPos.z);
-    ds.scale.setScalar(dotSize);
+    ds.position.set(curPos.x, curPos.y + 4, curPos.z); // slight Y lift so it's above orbit plane
+    ds.scale.setScalar(dotSize * 4); // scale up: orbit radii are 60-260 units, dot must be visible
     ds.userData = { fleet: f, isFleetDot: true };
     fleetGroup.add(ds);
   }
@@ -1113,6 +1128,8 @@ function loadDemo() {
   galaxyData={planets, current_user_id:window.SM.userId};
   buildPlanets(planets);
 
+  const MISSION_NAMES_JS = {1:'ATTACK',2:'ACS_ATTACK',3:'TRANSPORT',4:'DEPLOY',5:'HOLD',6:'ESPIONAGE',7:'COLONY',8:'RECYCLE',9:'DESTROY',11:'EXPEDITION'};
+  const nowDemo = Date.now()/1000;
   const demoFleets=[];
   for (let i=0;i<30;i++) {
     const sp=planets[Math.floor(Math.random()*planets.length)];
@@ -1120,14 +1137,20 @@ function loadDemo() {
     if (!sp||!ep||sp.id===ep.id) continue;
     const m=[1,3,6,8][Math.floor(Math.random()*4)];
     const hostile=m===1&&sp.user_id!==window.SM.userId;
+    const travelDur = 120 + Math.random()*600; // 2-12 minutes
+    const elapsed   = Math.random() * travelDur;
+    const st = nowDemo - elapsed;
+    const et = st + travelDur;
     demoFleets.push({
-      id:i, mission:m, owner:sp.username, ally_tag:sp.ally_tag,
+      id:i+1, mission:m, mission_name:MISSION_NAMES_JS[m]||'TRANSPORT',
+      owner_name:sp.username||'Commander', ally_tag:sp.ally_tag,
       is_own:sp.user_id===window.SM.userId, is_hostile:hostile,
       is_ally:!hostile && sp.user_id!==window.SM.userId && sp.ally_id>0 && sp.ally_id===window.SM.allyId,
       color:hostile?'#e8304a':m===6?'#ffee00':m===8?'#ff9900':'#00d4ff',
       start:{g:sp.galaxy,s:sp.system,p:sp.planet},
       end:{g:ep.galaxy,s:ep.system,p:ep.planet},
-      progress:Math.random()
+      start_time:st, end_time:et,
+      progress: elapsed/travelDur
     });
   }
   fleetData={fleets:demoFleets};
@@ -1616,9 +1639,9 @@ function navHome() {
 }
 function reloadFleets(){ fetchFleets(); }
 
-// ── Render loop ────────────────────────────────────────────
+// ── Render loop ───────────────────────────────────────────────
 let needFleetRebuild = false;
-let fleetRebuildCooldown = 0;
+let fleetRebuildCooldown = -1; // start at -1 so first frame always rebuilds if fleets exist
 let lastTime = 0;
 function animate(now = 0){
   requestAnimationFrame(animate); frame++;
@@ -1647,8 +1670,9 @@ function animate(now = 0){
   // Sun sprite subtle pulse
   sunGroup.children.forEach(obj => {
     if (obj.isSprite && obj.userData.isSun) {
+      const base = obj.userData.baseSunScale || 28;
       const sp = Math.sin(frame * 0.018) * 0.08 + 1.0;
-      obj.scale.setScalar(12 * sp);
+      obj.scale.setScalar(base * sp);
     }
   });
 
@@ -1696,16 +1720,29 @@ function animate(now = 0){
   renderer.render(scene, camera);
 }
 
-// Boot – restore saved view preference
+// Boot – restore saved view preference; force 2D on mobile
 (function() {
-  try {
-    const saved = localStorage.getItem('galaxy_view');
-    if (saved === '2d') {
-      is3D = false;
-      document.getElementById('vb-3d').classList.remove('on');
-      document.getElementById('vb-2d').classList.add('on');
-    }
-  } catch(e) {}
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    // Mobile: always 2D, ignore saved preference
+    is3D = false;
+    const b3 = document.getElementById('vb-3d');
+    const b2 = document.getElementById('vb-2d');
+    if (b3) { b3.classList.remove('on'); b3.style.display = 'none'; }
+    if (b2) b2.classList.add('on');
+    try { localStorage.setItem('galaxy_view', '2d'); } catch(e) {}
+  } else {
+    try {
+      const saved = localStorage.getItem('galaxy_view');
+      if (saved === '2d') {
+        is3D = false;
+        const b3 = document.getElementById('vb-3d');
+        const b2 = document.getElementById('vb-2d');
+        if (b3) b3.classList.remove('on');
+        if (b2) b2.classList.add('on');
+      }
+    } catch(e) {}
+  }
 })();
 init();
 return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
