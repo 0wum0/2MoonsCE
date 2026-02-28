@@ -35,7 +35,19 @@
 
         <div class="tech-grid">
             {% for ID, Element in ResearchList %}
-            <div class="content-box tech-card {% if not Element.buyable %}disabled{% endif %}">
+            <div class="content-box tech-card {% if not Element.buyable %}disabled{% endif %}"
+                 data-tt-name="{{ LNG.tech[ID] }}"
+                 data-tt-level="{{ Element.level }}"
+                 data-tt-max="{{ Element.maxLevel }}"
+                 data-tt-time="{{ Element.elementTime|time }}"
+                 {% for RessID, RessAmount in Element.costResources %}
+                   {% if RessID == 901 %}data-tt-metal="{{ RessAmount }}"
+                   {% elseif RessID == 902 %}data-tt-crystal="{{ RessAmount }}"
+                   {% elseif RessID == 903 %}data-tt-deut="{{ RessAmount }}"
+                   {% elseif RessID == 921 %}data-tt-energy="{{ RessAmount }}"
+                   {% endif %}
+                 {% endfor %}
+                 >
 
                 <div class="tech-visual">
                     <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="tech-img">

@@ -230,13 +230,7 @@ body.loading #game-header::after { width:100%; }
 .res-trend.down { color:var(--red); }
 .res-trend.flat { color:rgba(168,200,232,0.7); }
 .res-item-tooltip { cursor:pointer !important; }
-.res-item-tooltip[data-res-tooltip]:hover::after {
-  content:attr(data-res-tooltip); position:absolute; bottom:calc(100% + 8px); left:50%;
-  transform:translateX(-50%); background:var(--panel2); border:1px solid var(--border2);
-  border-radius:8px; padding:8px 12px; font-family:var(--font-mono); font-size:11px;
-  color:var(--text); white-space:pre; z-index:1000; pointer-events:none;
-  box-shadow:var(--shadow-md); min-width:120px; text-align:center;
-}
+/* Tooltip rendered as HTML popup via JS (sm-res-tooltip div) – no CSS attr() fallback needed */
 
 /* ── SIDEBAR ── */
 #leftmenu {

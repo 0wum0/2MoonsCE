@@ -220,6 +220,11 @@
                 </div>
             </div>
 
+            <!-- THEME TOGGLE -->
+            <button id="sm-theme-toggle" class="notif-btn" title="Dark/Light Mode" aria-label="Theme umschalten" style="flex-shrink:0">
+                <i class="fas fa-moon" id="sm-theme-icon"></i>
+            </button>
+
             <!-- FORUM BENACHRICHTIGUNGEN -->
             <div class="notif-icon-wrap" id="forum-notif-wrap">
                 <button class="notif-btn{% if forum_notif_count is defined and forum_notif_count > 0 %} notif-btn-active{% endif %}" id="forum-notif-btn" onclick="SmartNotif.toggle('forum')">
@@ -489,44 +494,147 @@ if(typeof resourceTicker==='function'){
     }
     markActiveSections(); // Einmalig beim Load
 
-    /* === FEATURE 1: Ressource-Tooltip via data-res-tooltip Attribut ==
-       Füllt das CSS-attr(data-res-tooltip) mit formatiertem Text.
-       Läuft einmalig + beim 2s-Interval Tick der applyResourceBars. */
-    function updateResTooltips() {
-        var items = document.querySelectorAll('.res-item-tooltip[data-res-current]');
-        items.forEach(function(item) {
-            var name       = item.getAttribute('data-res-name') || '';
-            var current    = Number(item.getAttribute('data-res-current')) || 0;
-            var max        = Number(item.getAttribute('data-res-max'))     || 0;
-            var production = Number(item.getAttribute('data-res-production')) || 0;
+    /* === FEATURE 1: Ressource-Tooltip – reiches HTML-Popup === */
+    var resTooltipEl = null;
+    var resTooltipTimer = null;
 
-            // Dynamischen aktuellen Wert aus dem DOM holen (falls resourceTicker läuft)
-            var valEl = name ? document.getElementById('current_' + name) : null;
-            if (valEl) {
-                // Nutze innerHTML da resourceTicker dort einträgt
-                var raw = valEl.textContent || valEl.innerText || '';
-                // current bleibt als Näherung
-            }
+    function getResTooltipEl() {
+        if (!resTooltipEl) {
+            resTooltipEl = document.createElement('div');
+            resTooltipEl.id = 'sm-res-tooltip';
+            resTooltipEl.style.cssText = [
+                'position:fixed','z-index:9800','pointer-events:none',
+                'background:rgba(4,14,38,0.97)','border:1px solid rgba(0,212,255,0.28)',
+                'border-radius:10px','padding:12px 15px','min-width:180px',
+                'backdrop-filter:blur(20px)','-webkit-backdrop-filter:blur(20px)',
+                'box-shadow:0 8px 30px rgba(0,0,0,0.7),0 0 0 1px rgba(0,212,255,0.06)',
+                'opacity:0','transform:translateY(6px)',
+                'transition:opacity 0.18s ease,transform 0.18s ease',
+                'font-family:var(--font-mono,monospace)','font-size:12px',
+                'color:var(--text,#c8e6ff)','line-height:1.6'
+            ].join(';');
+            document.body.appendChild(resTooltipEl);
+        }
+        return resTooltipEl;
+    }
 
-            var pct   = max > 0 ? Math.min(100, (current / max) * 100).toFixed(1) : '0.0';
-            var prod  = production;
-            var prodStr;
-            if (prod > 0)      prodStr = '+' + Math.round(prod).toLocaleString('de-DE') + '/h';
-            else if (prod < 0) prodStr = Math.round(prod).toLocaleString('de-DE') + '/h';
-            else               prodStr = '\u00b10/h';
+    function fmtNum(n) {
+        return Math.round(n).toLocaleString('de-DE');
+    }
 
-            var tooltipText = name + '\n' + pct + '% voll\n' + prodStr;
-            item.setAttribute('data-res-tooltip', tooltipText);
+    function buildResTooltipHTML(item) {
+        var name       = item.getAttribute('data-res-name') || '';
+        var label      = item.getAttribute('data-tooltip-content') || name;
+        var current    = Number(item.getAttribute('data-res-current')) || 0;
+        var max        = Number(item.getAttribute('data-res-max')) || 0;
+        var production = Number(item.getAttribute('data-res-production')) || 0;
+
+        // Live current value from resourceTicker if available
+        var valEl = name ? document.getElementById('current_' + name) : null;
+        if (valEl) {
+            var raw = (valEl.textContent || valEl.innerText || '').replace(/\./g,'').replace(/,/g,'.');
+            var parsed = parseFloat(raw);
+            if (!isNaN(parsed) && parsed >= 0) current = parsed;
+        }
+
+        var pct = max > 0 ? Math.min(100, (current / max) * 100) : 0;
+        var pctStr = pct.toFixed(1);
+
+        // Time to full (in minutes/hours)
+        var timeToFull = '';
+        if (production > 0 && max > 0 && current < max) {
+            var remaining = max - current;
+            var minutes = Math.ceil(remaining / production * 60);
+            if (minutes < 60)      timeToFull = minutes + ' Min.';
+            else if (minutes < 1440) timeToFull = Math.floor(minutes/60) + 'h ' + (minutes%60) + 'm';
+            else                    timeToFull = Math.floor(minutes/1440) + 'd ' + Math.floor((minutes%1440)/60) + 'h';
+        } else if (production <= 0 && current >= max) {
+            timeToFull = 'Voll';
+        }
+
+        // Production color
+        var prodColor = production > 0 ? '#22d3ee' : (production < 0 ? '#ef4444' : '#7a9ab8');
+        var prodPrefix = production > 0 ? '+' : '';
+        var prodStr = prodPrefix + fmtNum(production) + '/h';
+
+        // Bar color based on pct
+        var barColor;
+        if (pct <= 30)       barColor = '#ef4444';
+        else if (pct <= 70)  barColor = '#eab308';
+        else if (pct < 98)   barColor = '#22d3ee';
+        else                 barColor = '#f97316';
+
+        var timeRow = timeToFull
+            ? '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px"><span style="color:#7a9ab8">Zeit bis voll</span><span style="color:#a3e635">' + timeToFull + '</span></div>'
+            : '';
+
+        return '<div style="font-size:11px;letter-spacing:2px;color:var(--cyan,#00d4ff);margin-bottom:8px;text-transform:uppercase">' + label + '</div>'
+            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Aktuell</span><span style="color:#fff">' + fmtNum(current) + '</span></div>'
+            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Maximum</span><span style="color:#7a9ab8">' + fmtNum(max) + '</span></div>'
+            + '<div style="height:1px;background:rgba(0,212,255,0.1);margin:7px 0"></div>'
+            + '<div style="margin-bottom:6px">'
+            +   '<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="color:#7a9ab8">Lager</span><span style="color:' + barColor + '">' + pctStr + '%</span></div>'
+            +   '<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">'
+            +     '<div style="height:100%;width:' + pctStr + '%;background:' + barColor + ';border-radius:3px;transition:width 0.4s"></div>'
+            +   '</div>'
+            + '</div>'
+            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Produktion</span><span style="color:' + prodColor + '">' + prodStr + '</span></div>'
+            + timeRow;
+    }
+
+    function showResTooltip(item, e) {
+        var tt = getResTooltipEl();
+        tt.innerHTML = buildResTooltipHTML(item);
+        positionResTooltip(tt, e);
+        tt.style.opacity = '1';
+        tt.style.transform = 'translateY(0)';
+    }
+
+    function positionResTooltip(tt, e) {
+        tt.style.display = 'block';
+        var rect = tt.getBoundingClientRect();
+        var W = window.innerWidth, H = window.innerHeight;
+        var ttW = 200, ttH = 160;
+        var x = e.clientX + 14;
+        var y = e.clientY - 20;
+        if (x + ttW > W - 8) x = e.clientX - ttW - 14;
+        if (y + ttH > H - 8) y = H - ttH - 8;
+        if (y < 4) y = 4;
+        tt.style.left = x + 'px';
+        tt.style.top  = y + 'px';
+    }
+
+    function hideResTooltip() {
+        if (!resTooltipEl) return;
+        resTooltipEl.style.opacity = '0';
+        resTooltipEl.style.transform = 'translateY(6px)';
+    }
+
+    function initResTooltips() {
+        document.querySelectorAll('.res-item-tooltip').forEach(function(item) {
+            if (item._rtt) return;
+            item._rtt = true;
+            item.addEventListener('mouseenter', function(e) {
+                clearTimeout(resTooltipTimer);
+                showResTooltip(item, e);
+            });
+            item.addEventListener('mousemove', function(e) {
+                if (resTooltipEl && resTooltipEl.style.opacity === '1') {
+                    positionResTooltip(resTooltipEl, e);
+                }
+            });
+            item.addEventListener('mouseleave', function() {
+                resTooltipTimer = setTimeout(hideResTooltip, 120);
+            });
         });
     }
 
-    // Initial + alle 5s aktualisieren (weniger aggressiv als der 1s-Ticker)
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updateResTooltips);
+        document.addEventListener('DOMContentLoaded', initResTooltips);
     } else {
-        updateResTooltips();
+        initResTooltips();
     }
-    window.setInterval(updateResTooltips, 5000);
+    window.setInterval(initResTooltips, 3000);
 
     /* === FEATURE 4: Ressource-Warnung Toast bei >= 90% Füllstand ==
        Einmalig pro Ressource pro Session (sessionStorage Guard). */
@@ -591,6 +699,37 @@ if(typeof resourceTicker==='function'){
         fab.classList.toggle('dock-fab-active', bodyId === 'fleetTable');
     }
     setDockFabActive();
+
+    /* === FEATURE 6: Dark / Light Mode Toggle === */
+    (function() {
+        var STORAGE_KEY = 'sm_theme';
+        var html = document.documentElement;
+        var btn  = document.getElementById('sm-theme-toggle');
+        var icon = document.getElementById('sm-theme-icon');
+
+        function applyTheme(t) {
+            html.setAttribute('data-theme', t);
+            if (icon) icon.className = (t === 'light') ? 'fas fa-sun' : 'fas fa-moon';
+            if (btn) {
+                btn.title = (t === 'light') ? 'Dark Mode aktivieren' : 'Light Mode aktivieren';
+                btn.setAttribute('aria-label', btn.title);
+            }
+        }
+
+        function getSaved() {
+            try { return localStorage.getItem(STORAGE_KEY) || 'dark'; } catch(e) { return 'dark'; }
+        }
+
+        applyTheme(getSaved());
+
+        if (btn) {
+            btn.addEventListener('click', function() {
+                var next = (html.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
+                applyTheme(next);
+                try { localStorage.setItem(STORAGE_KEY, next); } catch(e) {}
+            });
+        }
+    })();
 
 })();
 </script>

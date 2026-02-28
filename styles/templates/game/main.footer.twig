@@ -572,6 +572,150 @@ var LoginConfig = {
 {{ hook('ingame.footer.beforeScripts') }}
 {% if pluginJs is defined %}{% for jsPath in pluginJs %}<script src="{{ jsPath }}"></script>
 {% endfor %}{% endif %}
+
+<!-- ELEMENT TOOLTIP SYSTEM (Gebäude / Technologien / Schiffe) -->
+<div id="sm-el-tooltip" style="
+  position:fixed;z-index:9900;pointer-events:none;
+  background:rgba(4,10,28,0.97);border:1px solid rgba(0,212,255,0.28);
+  border-radius:12px;padding:0;min-width:210px;max-width:280px;
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.85),0 0 0 1px rgba(0,212,255,0.06);
+  opacity:0;transform:translateY(6px);
+  transition:opacity 0.16s ease,transform 0.16s ease;
+  font-family:var(--font-mono,'Share Tech Mono',monospace);
+  font-size:12px;color:var(--text,#a8c8e8);overflow:hidden;
+  display:none;
+"></div>
+
+<script>
+(function(){
+  var tt = document.getElementById('sm-el-tooltip');
+  if(!tt) return;
+
+  var timer = null;
+  var activeEl = null;
+
+  function fmt(n) {
+    return Number(n).toLocaleString('de-DE');
+  }
+
+  function buildHTML(el) {
+    var name     = el.getAttribute('data-tt-name')    || '';
+    var level    = el.getAttribute('data-tt-level')   || '';
+    var desc     = el.getAttribute('data-tt-desc')    || '';
+    var metal    = el.getAttribute('data-tt-metal')   || '';
+    var crystal  = el.getAttribute('data-tt-crystal') || '';
+    var deut     = el.getAttribute('data-tt-deut')    || '';
+    var energy   = el.getAttribute('data-tt-energy')  || '';
+    var time     = el.getAttribute('data-tt-time')    || '';
+    var maxLvl   = el.getAttribute('data-tt-max')     || '';
+
+    var headerColor = level ? 'rgba(0,212,255,0.15)' : 'rgba(168,85,247,0.12)';
+    var accentColor = level ? '#00d4ff' : '#b47cff';
+
+    var html = '<div style="padding:10px 13px 8px;background:' + headerColor + ';border-bottom:1px solid rgba(255,255,255,0.06)">'
+      + '<div style="font-size:10px;letter-spacing:2px;color:' + accentColor + ';text-transform:uppercase;font-family:var(--font-hud,\'Orbitron\',monospace)">' + name + '</div>';
+
+    if (level !== '') {
+      html += '<div style="font-size:9px;color:rgba(168,200,232,0.55);margin-top:2px">Level ' + level;
+      if (maxLvl) html += ' / ' + maxLvl;
+      html += '</div>';
+    }
+    html += '</div>';
+
+    html += '<div style="padding:10px 13px">';
+
+    if (desc) {
+      html += '<div style="font-size:11px;color:rgba(168,200,232,0.7);line-height:1.5;margin-bottom:8px;font-family:var(--font-body,\'Exo 2\',sans-serif)">' + desc + '</div>'
+            + '<div style="height:1px;background:rgba(0,212,255,0.08);margin-bottom:8px"></div>';
+    }
+
+    var hasCost = metal || crystal || deut;
+    if (hasCost) {
+      html += '<div style="font-size:9px;letter-spacing:1.5px;color:rgba(168,200,232,0.4);margin-bottom:5px;text-transform:uppercase">Kosten</div>';
+      html += '<div style="display:flex;flex-direction:column;gap:4px">';
+      if (metal)   html += '<div style="display:flex;justify-content:space-between"><span style="color:rgba(168,200,232,0.5)">Metall</span><span style="color:#e2a84b">'  + fmt(metal)   + '</span></div>';
+      if (crystal) html += '<div style="display:flex;justify-content:space-between"><span style="color:rgba(168,200,232,0.5)">Kristall</span><span style="color:#5bc8fa">' + fmt(crystal) + '</span></div>';
+      if (deut)    html += '<div style="display:flex;justify-content:space-between"><span style="color:rgba(168,200,232,0.5)">Deuterium</span><span style="color:#a3e635">'+ fmt(deut)    + '</span></div>';
+      if (energy)  html += '<div style="display:flex;justify-content:space-between"><span style="color:rgba(168,200,232,0.5)">Energie</span><span style="color:#facc15">'  + energy        + '</span></div>';
+      html += '</div>';
+    }
+
+    if (time) {
+      if (hasCost) html += '<div style="height:1px;background:rgba(0,212,255,0.07);margin:7px 0"></div>';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center">'
+           +  '<span style="color:rgba(168,200,232,0.4);font-size:9px;letter-spacing:1px;text-transform:uppercase">Bauzeit</span>'
+           +  '<span style="color:var(--cyan,#00d4ff)">' + time + '</span>'
+           + '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function positionTT(e) {
+    var W = window.innerWidth, H = window.innerHeight;
+    var ttW = 240, ttH = 200;
+    var x = e.clientX + 16;
+    var y = e.clientY - 10;
+    if (x + ttW > W - 8) x = e.clientX - ttW - 16;
+    if (y + ttH > H - 8) y = H - ttH - 8;
+    if (y < 4) y = 4;
+    tt.style.left = x + 'px';
+    tt.style.top  = y + 'px';
+  }
+
+  function show(el, e) {
+    tt.innerHTML = buildHTML(el);
+    tt.style.display = 'block';
+    positionTT(e);
+    requestAnimationFrame(function() {
+      tt.style.opacity = '1';
+      tt.style.transform = 'translateY(0)';
+    });
+  }
+
+  function hide() {
+    tt.style.opacity = '0';
+    tt.style.transform = 'translateY(6px)';
+    setTimeout(function() {
+      if (tt.style.opacity === '0') tt.style.display = 'none';
+    }, 180);
+  }
+
+  function initElTooltips() {
+    document.querySelectorAll('[data-tt-name]').forEach(function(el) {
+      if (el._smtt) return;
+      el._smtt = true;
+      el.addEventListener('mouseenter', function(e) {
+        clearTimeout(timer);
+        activeEl = el;
+        show(el, e);
+      });
+      el.addEventListener('mousemove', function(e) {
+        if (activeEl === el) positionTT(e);
+      });
+      el.addEventListener('mouseleave', function() {
+        clearTimeout(timer);
+        activeEl = null;
+        timer = setTimeout(hide, 100);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initElTooltips);
+  } else {
+    initElTooltips();
+  }
+  // Re-run for dynamically added elements
+  window.setInterval(initElTooltips, 3000);
+
+  // Public API
+  window.SmElTooltip = { init: initElTooltips };
+})();
+</script>
+
 {{ hook('footer_end') }}
 {{ hook('ingame.footer.afterScripts') }}
 {% endautoescape %}

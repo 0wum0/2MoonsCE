@@ -89,6 +89,36 @@ img { max-width: 100%; height: auto; }
   --transition-slow:all 0.5s cubic-bezier(0.4,0,0.2,1);
 }
 
+/* ── LIGHT MODE OVERRIDES ── */
+html[data-theme="light"] {
+  --bg0:#e8eef8; --bg1:#dce4f2; --bg2:#cdd9ee; --bg3:#bccde8;
+  --panel:rgba(220,232,250,0.97); --panel2:rgba(208,222,244,0.98);
+  --border:rgba(0,100,200,0.18); --border2:rgba(0,100,200,0.30); --border3:rgba(0,100,200,0.50);
+  --cyan:#0066cc; --cyan2:#0080ff; --gold:#b07800; --green:#007a38;
+  --red:#cc1a2e; --purple:#6633cc; --orange:#cc5500; --dim:#7a90aa;
+  --text:#2a3e56; --white:#0d1a2e;
+  --shadow-sm:0 2px 8px rgba(0,40,100,0.14); --shadow-md:0 4px 20px rgba(0,40,100,0.18);
+  --shadow-lg:0 8px 40px rgba(0,40,100,0.22);
+  --glow-cyan:0 0 12px rgba(0,102,204,0.2); --glow-red:0 0 12px rgba(200,26,46,0.2);
+  --color-bg-primary:#e8eef8; --color-bg-secondary:#dce4f2;
+  --color-text-primary:#0d1a2e; --color-text-secondary:#2a3e56;
+  --color-text-muted:#7a90aa;
+}
+html[data-theme="light"] body,
+html[data-theme="light"] body.aerospace-theme {
+  background-color:var(--bg0);
+  color:var(--text);
+}
+html[data-theme="light"] body::before {
+  background-image:linear-gradient(rgba(0,80,200,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,80,200,0.04) 1px,transparent 1px);
+}
+html[data-theme="light"] body::after {
+  background:radial-gradient(ellipse 90% 60% at 50% -5%,rgba(0,80,200,0.06) 0%,transparent 70%);
+}
+html[data-theme="light"] select option { background:#dce4f2; color:#0d1a2e; }
+html[data-theme="light"] ::-webkit-scrollbar-thumb { background:rgba(0,100,200,0.28); }
+
 /* ── BODY & GLOBAL BACKGROUND ── */
 html { scroll-behavior:smooth; font-size:16px; height:auto; min-height:100%; overflow-x:hidden; }
 body, body.aerospace-theme {

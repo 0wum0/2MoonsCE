@@ -303,41 +303,89 @@
 /* ── Player card ─────────────────────────────────────────────────── */
 #gm-card {
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:395px;background:var(--panel);backdrop-filter:blur(26px);
-  border:1px solid rgba(168,85,247,.32);border-radius:14px;
-  padding:20px;z-index:300;display:none;
-  box-shadow:0 20px 60px rgba(0,0,0,.92),0 0 50px rgba(168,85,247,.1);
+  width:420px;max-width:calc(100vw - 24px);
+  background:rgba(4,10,28,0.97);backdrop-filter:blur(28px);
+  border:1px solid rgba(168,85,247,.38);border-radius:16px;
+  overflow:hidden;z-index:300;display:none;
+  box-shadow:0 24px 70px rgba(0,0,0,.95),0 0 60px rgba(168,85,247,.12),inset 0 1px 0 rgba(255,255,255,.06);
   animation:fadeScale .25s ease;
 }
 @keyframes fadeScale {
   from{opacity:0;transform:translate(-50%,-50%) scale(.88)}
   to  {opacity:1;transform:translate(-50%,-50%) scale(1)}
 }
-.pc-x { position:absolute;top:10px;right:14px;background:none;border:none;color:var(--dim);font-size:19px;cursor:pointer; }
-.pc-x:hover { color:var(--red); }
-.pc-hdr { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
+.pc-banner {
+  height:72px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(0,212,255,.18) 0%,rgba(168,85,247,.22) 50%,rgba(0,0,0,.4) 100%);
+}
+.pc-banner::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,rgba(4,10,28,.9) 100%);
+}
+.pc-banner-grid {
+  position:absolute;inset:0;opacity:.12;
+  background-image:linear-gradient(rgba(0,212,255,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.4) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.pc-av-wrap { position:absolute;left:18px;bottom:-20px;z-index:2; }
 .pc-av {
-  width:46px;height:46px;border-radius:50%;flex-shrink:0;
+  width:56px;height:56px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:700;color:#fff;font-family:'Orbitron',monospace;
+  font-size:22px;font-weight:700;color:#fff;font-family:'Orbitron',monospace;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  border:3px solid rgba(4,10,28,.9);box-shadow:0 0 20px rgba(168,85,247,.4);
+}
+.pc-x { position:absolute;top:10px;right:14px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);color:var(--dim);font-size:15px;cursor:pointer;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;z-index:10;transition:all .2s; }
+.pc-x:hover { color:var(--red);background:rgba(255,48,96,.18);border-color:rgba(255,48,96,.35); }
+.pc-body-inner { padding:28px 18px 16px; }
+.pc-hdr { display:flex;align-items:flex-end;gap:12px;margin-bottom:12px; }
+.pc-hdr-info { flex:1; }
+.pc-nm { font-family:'Orbitron',monospace;font-size:15px;color:#fff;font-weight:700; }
+.pc-al { font-size:11px;color:var(--purple);margin-top:2px;letter-spacing:.5px; }
+.pc-on { font-size:10px;color:var(--dim);margin-top:3px;display:flex;align-items:center;gap:5px; }
+.dot { display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+.dot-on  { background:var(--green);box-shadow:0 0 6px var(--green); }
+.dot-off { background:var(--dim); }
+.pc-divider { height:1px;background:rgba(255,255,255,.06);margin:10px 0; }
+.pc-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px; }
+.pc-st {
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:8px 10px;
+  transition:border-color .2s;
+}
+.pc-st:hover { border-color:rgba(0,212,255,.2); }
+.pc-st-lbl { font-size:9px;color:var(--dim);font-family:'Orbitron',monospace;letter-spacing:1px;text-transform:uppercase; }
+.pc-st-val { font-size:13px;color:#fff;margin-top:2px;font-family:'Orbitron',monospace; }
+.pc-st-rnk { font-size:9px;color:var(--cyan);margin-top:1px; }
+.pc-fights { display:flex;justify-content:space-around;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:10px 8px;margin-bottom:10px; }
+.pcf { text-align:center; }
+.pcf-n { font-family:'Orbitron',monospace;font-size:15px;font-weight:700; }
+.pcf-l { font-size:9px;color:var(--dim);margin-top:3px;letter-spacing:.8px; }
+.pc-winbar-wrap { margin-bottom:10px; }
+.pc-winbar-lbl { display:flex;justify-content:space-between;font-size:9px;color:var(--dim);font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:4px; }
+.pc-winbar-track { height:6px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;display:flex; }
+.pc-winbar-w { height:100%;background:var(--green);transition:width .6s cubic-bezier(.4,0,.2,1); }
+.pc-winbar-d { height:100%;background:rgba(168,200,232,.35); }
+.pc-winbar-l { height:100%;background:var(--red); }
+.pc-acts { display:flex;gap:7px;flex-wrap:wrap;justify-content:center; }
+
+/* ── Player search results ──────────────────────────────────────── */
+.gm-sr-item {
+  display:flex;align-items:center;gap:8px;
+  padding:7px 9px;border-radius:7px;cursor:pointer;
+  border:1px solid transparent;transition:all .15s;
+  font-size:11px;
+}
+.gm-sr-item:hover { background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.15); }
+.gm-sr-av {
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;font-family:'Orbitron',monospace;
   background:linear-gradient(135deg,var(--cyan),var(--purple));
 }
-.pc-nm { font-family:'Orbitron',monospace;font-size:14px;color:#fff; }
-.pc-al { font-size:12px;color:var(--purple);margin-top:2px; }
-.pc-on { font-size:10px;color:var(--dim);margin-top:3px; }
-.pc-on .dot { display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px; }
-.dot-on  { background:var(--green);box-shadow:0 0 5px var(--green); }
-.dot-off { background:var(--dim); }
-.pc-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px; }
-.pc-st { background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.05);border-radius:7px;padding:7px 9px; }
-.pc-st-lbl { font-size:9px;color:var(--dim);font-family:'Orbitron',monospace;letter-spacing:1px; }
-.pc-st-val { font-size:13px;color:#fff;margin-top:1px; }
-.pc-st-rnk { font-size:9px;color:var(--dim); }
-.pc-fights { display:flex;justify-content:space-around;margin-bottom:10px; }
-.pcf { text-align:center; }
-.pcf-n { font-family:'Orbitron',monospace;font-size:14px; }
-.pcf-l { font-size:10px;color:var(--dim);margin-top:2px; }
-.pc-acts { display:flex;gap:7px;flex-wrap:wrap;justify-content:center; }
+.gm-sr-name { color:var(--text);font-family:'Orbitron',monospace;letter-spacing:.5px;flex:1; }
+.gm-sr-coord { font-size:9px;color:var(--dim); }
+.gm-sr-pts { font-size:9px;color:var(--cyan);font-family:'Orbitron',monospace; }
+.gm-sr-none { text-align:center;padding:10px;font-size:10px;color:var(--dim);font-family:'Orbitron',monospace;letter-spacing:1px; }
 
 /* ── Tooltip ─────────────────────────────────────────────────────── */
 #gm-tip {
@@ -445,6 +493,15 @@
       <div class="leg"><div class="leg-dash" style="color:#ffffff;opacity:.7"></div>Hostile Fleet</div>
     </div>
     <hr class="sp-sep">
+    <div style="margin-bottom:11px">
+      <div class="sp-h"><i class="fas fa-search" style="margin-right:5px"></i>PLAYER SEARCH</div>
+      <div style="position:relative">
+        <input type="text" id="gm-search-inp" class="sp-inp" placeholder="Spielername…" autocomplete="off" style="padding-right:32px">
+        <button id="gm-search-clear" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;display:none;" title="Löschen"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="gm-search-results" style="margin-top:5px;max-height:140px;overflow-y:auto;"></div>
+    </div>
+    <hr class="sp-sep">
     <div style="margin-bottom:10px">
       <div class="sp-h"><i class="fas fa-chart-bar" style="margin-right:5px"></i>UNIVERSE STATS</div>
       <div class="st-row"><span class="sk">Planets</span><span class="sv c" id="st-p">–</span></div>
@@ -470,7 +527,11 @@
   <!-- Player card -->
   <div id="gm-card">
     <button class="pc-x" onclick="GM.closeCard()"><i class="fas fa-times"></i></button>
-    <div id="pc-body"></div>
+    <div class="pc-banner">
+      <div class="pc-banner-grid"></div>
+      <div class="pc-av-wrap"><div id="pc-av-letter" class="pc-av">?</div></div>
+    </div>
+    <div class="pc-body-inner" id="pc-body"></div>
   </div>
 
   <!-- Tooltip -->
@@ -1514,29 +1575,49 @@ async function showCard(userId){
 
 function renderCard(d){
   const isSelf=d.is_self||d.id===window.SM.userId;
-  const onTxt=d.online
-    ?'<span class="dot dot-on"></span>Online now'
-    :'<span class="dot dot-off"></span>Offline';
+  const letter=(d.username||'?')[0].toUpperCase();
+  const avEl=document.getElementById('pc-av-letter');
+  if(avEl) avEl.textContent=letter;
+
+  const onDot=d.online
+    ?'<span class="dot dot-on"></span><span style="color:var(--green)">Online</span>'
+    :'<span class="dot dot-off"></span><span>Offline</span>';
+
+  const total=d.wons+d.loos+d.draws||1;
+  const wPct=((d.wons/total)*100).toFixed(0);
+  const lPct=((d.loos/total)*100).toFixed(0);
+  const dPct=((d.draws/total)*100).toFixed(0);
+
+  const coordStr=`${d.galaxy}:${d.system}:${d.planet}`;
+
   document.getElementById('pc-body').innerHTML=`
     <div class="pc-hdr">
-      <div class="pc-av">${(d.username||'?')[0].toUpperCase()}</div>
-      <div>
+      <div style="width:56px;flex-shrink:0"></div>
+      <div class="pc-hdr-info">
         <div class="pc-nm">${d.username}</div>
-        <div class="pc-al">${d.ally_tag?`[${d.ally_tag}] ${d.ally_name}`:'No Alliance'}</div>
-        <div class="pc-on">${onTxt}</div>
+        <div class="pc-al">${d.ally_tag?`<i class="fas fa-shield-alt" style="font-size:9px;margin-right:4px"></i>[${d.ally_tag}] ${d.ally_name}`:'<span style="color:var(--dim)">No Alliance</span>'}</div>
+        <div class="pc-on">${onDot} <span style="color:var(--dim);font-size:9px;margin-left:4px">${coordStr}</span></div>
       </div>
     </div>
+    <div class="pc-divider"></div>
     <div class="pc-grid">
-      <div class="pc-st"><div class="pc-st-lbl">TOTAL POINTS</div><div class="pc-st-val">${d.total_points}</div><div class="pc-st-rnk">Rank #${d.total_rank}</div></div>
-      <div class="pc-st"><div class="pc-st-lbl">FLEET POINTS</div><div class="pc-st-val">${d.fleet_points}</div><div class="pc-st-rnk">Rank #${d.fleet_rank}</div></div>
-      <div class="pc-st"><div class="pc-st-lbl">TECH POINTS</div><div class="pc-st-val">${d.tech_points}</div><div class="pc-st-rnk">Rank #${d.tech_rank}</div></div>
-      <div class="pc-st"><div class="pc-st-lbl">BUILD POINTS</div><div class="pc-st-val">${d.build_points}</div><div class="pc-st-rnk">Rank #${d.build_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">Total Points</div><div class="pc-st-val">${d.total_points}</div><div class="pc-st-rnk"># ${d.total_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">Fleet Points</div><div class="pc-st-val">${d.fleet_points}</div><div class="pc-st-rnk"># ${d.fleet_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">Tech Points</div><div class="pc-st-val">${d.tech_points}</div><div class="pc-st-rnk"># ${d.tech_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">Build Points</div><div class="pc-st-val">${d.build_points}</div><div class="pc-st-rnk"># ${d.build_rank}</div></div>
+      <div class="pc-st"><div class="pc-st-lbl">Defense Points</div><div class="pc-st-val">${d.defs_points||'–'}</div><div class="pc-st-rnk"># ${d.defs_rank||'–'}</div></div>
+      <div class="pc-st" style="display:flex;flex-direction:column;justify-content:center;align-items:center">
+        <div class="pc-st-lbl" style="text-align:center">Win Rate</div>
+        <div class="pc-st-val" style="color:var(--gold);font-size:18px">${d.win_pct}%</div>
+      </div>
     </div>
-    <div class="pc-fights">
-      <div class="pcf"><div class="pcf-n" style="color:var(--green)">${d.wons}</div><div class="pcf-l">WINS</div></div>
-      <div class="pcf"><div class="pcf-n" style="color:var(--red)">${d.loos}</div><div class="pcf-l">LOSSES</div></div>
-      <div class="pcf"><div class="pcf-n" style="color:var(--dim)">${d.draws}</div><div class="pcf-l">DRAWS</div></div>
-      <div class="pcf"><div class="pcf-n" style="color:var(--gold)">${d.win_pct}%</div><div class="pcf-l">WIN RATE</div></div>
+    <div class="pc-winbar-wrap">
+      <div class="pc-winbar-lbl"><span><i class="fas fa-check" style="color:var(--green)"></i> ${d.wons} W</span><span style="color:var(--dim)">${d.draws} D</span><span><i class="fas fa-times" style="color:var(--red)"></i> ${d.loos} L</span></div>
+      <div class="pc-winbar-track">
+        <div class="pc-winbar-w" style="width:${wPct}%"></div>
+        <div class="pc-winbar-d" style="width:${dPct}%"></div>
+        <div class="pc-winbar-l" style="width:${lPct}%"></div>
+      </div>
     </div>
     ${!isSelf?`<div class="pc-acts">
       <a class="ap-btn ab-spy" href="game.php?page=fleetTable&galaxy=${d.galaxy}&system=${d.system}&planet=${d.planet}&planettype=1&target_mission=6"><i class="fas fa-satellite"></i> SPY</a>
@@ -1638,6 +1719,93 @@ function navHome() {
   }
 }
 function reloadFleets(){ fetchFleets(); }
+
+// ── Player Search ──────────────────────────────────────────
+(function(){
+  const inp  = document.getElementById('gm-search-inp');
+  const res  = document.getElementById('gm-search-results');
+  const clr  = document.getElementById('gm-search-clear');
+  if(!inp||!res) return;
+
+  let debounceT=null;
+  let lastQuery='';
+
+  function clearSearch(){
+    inp.value='';
+    res.innerHTML='';
+    clr.style.display='none';
+    lastQuery='';
+  }
+  if(clr) clr.addEventListener('click',clearSearch);
+
+  function renderSearchResults(players){
+    if(!players||!players.length){
+      res.innerHTML='<div class="gm-sr-none">KEINE TREFFER</div>';
+      return;
+    }
+    res.innerHTML=players.slice(0,8).map(p=>{
+      const letter=(p.username||'?')[0].toUpperCase();
+      const coord=p.galaxy&&p.system?`${p.galaxy}:${p.system}:${p.planet||1}`:'';
+      return `<div class="gm-sr-item" data-uid="${p.id}" data-g="${p.galaxy||1}" data-s="${p.system||1}" data-p="${p.planet||1}">
+        <div class="gm-sr-av">${letter}</div>
+        <span class="gm-sr-name">${p.username}</span>
+        ${coord?`<span class="gm-sr-coord">${coord}</span>`:''}
+        ${p.total_points?`<span class="gm-sr-pts">${p.total_points}</span>`:''}
+      </div>`;
+    }).join('');
+    res.querySelectorAll('.gm-sr-item').forEach(el=>{
+      el.addEventListener('click',function(){
+        const uid=parseInt(el.dataset.uid);
+        const g=parseInt(el.dataset.g)||1;
+        const s=parseInt(el.dataset.s)||1;
+        const sunKey=`${g}:${s}:0`;
+        const sunPos=posMap[sunKey]||toWorld(g,s,0,0,1);
+        flyTo(sunPos,400);
+        document.getElementById('nav-g').value=g;
+        document.getElementById('nav-s').value=s;
+        setTimeout(()=>GM.showCard(uid),600);
+        clearSearch();
+      });
+    });
+  }
+
+  function searchLocally(q){
+    if(!galaxyData||!galaxyData.planets) return null;
+    const ql=q.toLowerCase();
+    const seen={};
+    const hits=[];
+    galaxyData.planets.forEach(p=>{
+      if(!p.owner_name||seen[p.owner_id]) return;
+      if(p.owner_name.toLowerCase().indexOf(ql)>=0){
+        seen[p.owner_id]=true;
+        hits.push({id:p.owner_id,username:p.owner_name,galaxy:p.galaxy,system:p.system,planet:p.planet,total_points:''});
+      }
+    });
+    return hits;
+  }
+
+  inp.addEventListener('input',function(){
+    const q=inp.value.trim();
+    clr.style.display=q?'flex':'none';
+    if(q===lastQuery) return;
+    lastQuery=q;
+    clearTimeout(debounceT);
+    if(q.length<2){ res.innerHTML=''; return; }
+    debounceT=setTimeout(function(){
+      const local=searchLocally(q);
+      if(local&&local.length){ renderSearchResults(local); return; }
+      res.innerHTML='<div class="gm-sr-none"><i class="fas fa-spinner fa-spin"></i> SEARCHING…</div>';
+      fetch(`game.php?page=galaxyMap&mode=search&q=${encodeURIComponent(q)}`)
+        .then(r=>r.json())
+        .then(d=>renderSearchResults(d.players||d))
+        .catch(()=>{ const l2=searchLocally(q); renderSearchResults(l2||[]); });
+    },320);
+  });
+
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){ clearSearch(); inp.blur(); }
+  });
+})();
 
 // ── Render loop ───────────────────────────────────────────────
 let needFleetRebuild = false;

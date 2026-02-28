@@ -52,7 +52,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     public function __construct()
     {
         $mode = HTTP::_GP('mode', 'show');
-        if (in_array($mode, ['fleets', 'galaxy', 'card'], true)) {
+        if (in_array($mode, ['fleets', 'galaxy', 'card', 'search'], true)) {
             // JSON API modes: skip eco resource calc, go directly to ajax window
             $this->setWindow('ajax');
         } else {
@@ -281,6 +281,62 @@ class ShowGalaxyMapPage extends AbstractGamePage
             'server_time'     => TIMESTAMP,
             'count'           => count($planets),
         ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
+
+    // ── JSON: player search ─────────────────────────────────────
+    public function search(): void
+    {
+        global $USER;
+
+        ob_end_clean();
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['players' => []]);
+            exit;
+        }
+
+        $q = trim(HTTP::_GP('q', ''));
+        if (strlen($q) < 2) {
+            echo json_encode(['players' => []]);
+            exit;
+        }
+
+        $db = Database::get();
+
+        $sql = 'SELECT
+            u.id, u.username, u.ally_id,
+            a.ally_tag, a.ally_name,
+            sp.total_points, sp.total_rank,
+            p.galaxy, p.system, p.planet
+        FROM %%USERS%% u
+        LEFT JOIN %%ALLIANCE%%   a  ON a.id  = u.ally_id
+        LEFT JOIN %%STATPOINTS%% sp ON sp.id_owner = u.id AND sp.stat_type = 1
+        LEFT JOIN %%PLANETS%%    p  ON p.id_owner  = u.id AND p.planet_type = 1
+        WHERE u.username LIKE :q
+          AND u.authlevel = 0
+        ORDER BY sp.total_points DESC
+        LIMIT 10;';
+
+        $rows = $db->select($sql, [':q' => '%' . $q . '%']);
+
+        $players = [];
+        foreach ($rows as $r) {
+            $players[] = [
+                'id'           => (int) $r['id'],
+                'username'     => $r['username'] ?? '',
+                'ally_tag'     => $r['ally_tag'] ?? '',
+                'ally_name'    => $r['ally_name'] ?? '',
+                'galaxy'       => (int) ($r['galaxy'] ?? 1),
+                'system'       => (int) ($r['system'] ?? 1),
+                'planet'       => (int) ($r['planet'] ?? 1),
+                'total_rank'   => (int) ($r['total_rank']   ?? 0),
+                'total_points' => number_format((float) ($r['total_points'] ?? 0)),
+            ];
+        }
+
+        echo json_encode(['players' => $players], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         exit;
     }
 

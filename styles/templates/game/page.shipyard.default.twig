@@ -68,7 +68,17 @@
             
             <div class="ship-grid-container">
                 {% for ID, Element in elementList %}
-                <div class="ship-card-item">
+                <div class="ship-card-item"
+                     data-tt-name="{{ LNG.tech[ID] }}"
+                     data-tt-time="{{ Element.elementTime|time }}"
+                     {% for RessID, RessAmount in Element.costResources %}
+                       {% if RessID == 901 %}data-tt-metal="{{ RessAmount }}"
+                       {% elseif RessID == 902 %}data-tt-crystal="{{ RessAmount }}"
+                       {% elseif RessID == 903 %}data-tt-deut="{{ RessAmount }}"
+                       {% elseif RessID == 921 %}data-tt-energy="{{ RessAmount }}"
+                       {% endif %}
+                     {% endfor %}
+                     >
                     
                     <div class="ship-img-box" onclick="return Dialog.info({{ ID }})">
                         <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}">
