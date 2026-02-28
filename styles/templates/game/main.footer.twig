@@ -52,11 +52,11 @@
             <span>{{ LNG.lm_fleet }}</span>
         </a>
 
-        <a href="game.php?page=messages" class="dock-btn {% if GET.page is defined and GET.page == 'messages' %}active{% endif %}" aria-label="{{ LNG.lm_messages }}">
-            <i class="fas fa-envelope"></i>
-            {% if new_message > 0 %}<span class="dock-badge">{{ new_message > 9 ? '9+' : new_message }}</span>{% endif %}
-            <span>{{ LNG.lm_messages }}</span>
-        </a>
+        <button class="dock-btn" onclick="SmartChat.toggle();return false;" aria-label="Chat">
+            <i class="fas fa-comments"></i>
+            <span class="dock-badge" id="chatDockBadge" style="display:none"></span>
+            <span>Chat</span>
+        </button>
 
         <a href="game.php?page=galaxy" class="dock-btn {% if GET.page is defined and GET.page in ['galaxy','galaxyMap'] %}active{% endif %}" aria-label="{{ LNG.lm_galaxy }}">
             <i class="fas fa-globe"></i>
