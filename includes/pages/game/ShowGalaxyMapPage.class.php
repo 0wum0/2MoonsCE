@@ -123,30 +123,35 @@ class ShowGalaxyMapPage extends AbstractGamePage
             $elapsed   = max(0, $now - $startTime);
             $progress  = min(1.0, $elapsed / $duration);
 
+            $mission   = (int) $r['fleet_mission'];
             $isOwn     = ((int) $r['fleet_owner'] === (int) $USER['id']);
-            $isHostile = (!$isOwn
+            // is_hostile: ANY combat mission by anyone (not just against current player)
+            $isCombat  = in_array($mission, [1, 2, 9], true);
+            $isHostile = (!$isOwn && $isCombat);
+            // is_targeting_me: extra flag – this fleet is coming for the current player
+            $isTargetingMe = (!$isOwn
                 && (int) $r['fleet_target_owner'] === (int) $USER['id']
-                && in_array((int) $r['fleet_mission'], [1, 2, 6, 9, 10], true));
+                && $isCombat);
             $isAlly    = (!$isOwn && !$isHostile
                 && (int) ($r['owner_ally_id'] ?? 0) > 0
                 && (int) ($r['owner_ally_id'] ?? 0) === (int) ($USER['ally_id'] ?? 0));
+            // is_neutral: all non-own, non-ally, non-hostile fleets (transport, espionage etc.)
+            $isNeutral = (!$isOwn && !$isHostile && !$isAlly);
 
             if ($isOwn) {
                 $color = '#00d4ff';
+            } elseif ($isTargetingMe) {
+                $color = '#ff0033'; // bright red for fleets targeting ME
             } elseif ($isHostile) {
-                $color = '#e8304a';
+                $color = '#e8304a'; // red for all other combat fleets
             } elseif ($isAlly) {
                 $color = '#a855f7';
-            } elseif ((int) $r['fleet_mission'] === 6) {
-                $color = '#ffee00';
-            } elseif ((int) $r['fleet_mission'] === 8) {
-                $color = '#ff9900';
             } else {
-                $color = '#6688aa';
+                $color = '#aabbcc'; // neutral/foreign = light gray
             }
 
-            $missionName = self::MISSION_NAMES[(int) $r['fleet_mission']] ?? 'UNKNOWN';
-            // Show owner name for own/hostile/ally fleets; hide for foreign
+            $missionName = self::MISSION_NAMES[$mission] ?? 'UNKNOWN';
+            // Show owner name for own/hostile/ally fleets; hide for neutral foreign
             $ownerDisplay = ($isOwn || $isHostile || $isAlly)
                 ? ($r['owner_name'] ?? '?')
                 : '???';
@@ -171,10 +176,12 @@ class ShowGalaxyMapPage extends AbstractGamePage
                 'end_time'     => $endTime,
                 'progress'     => round($progress, 6),
                 'remaining'    => max(0, $endTime - $now),
-                'is_own'       => $isOwn,
-                'is_hostile'   => $isHostile,
-                'is_ally'      => $isAlly,
-                'color'        => $color,
+                'is_own'          => $isOwn,
+                'is_hostile'      => $isHostile,
+                'is_targeting_me' => $isTargetingMe,
+                'is_ally'         => $isAlly,
+                'is_neutral'      => $isNeutral,
+                'color'           => $color,
             ];
         }
 

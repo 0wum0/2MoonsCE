@@ -489,8 +489,9 @@
       <hr class="sp-sep" style="margin:5px 0">
       <div class="leg"><div class="leg-line" style="background:#00e87a;opacity:.9"></div>Your Fleet</div>
       <div class="leg"><div class="leg-dash" style="color:#a855f7"></div>Alliance Fleet</div>
-      <div class="leg"><div class="leg-dash" style="color:#aabbcc;opacity:.6"></div>Foreign Fleet</div>
-      <div class="leg"><div class="leg-dash" style="color:#ffffff;opacity:.7"></div>Hostile Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#ddeeff;opacity:.7"></div>Neutral Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#ff3355"></div>Combat Fleet</div>
+      <div class="leg"><div class="leg-dash" style="color:#ff0033"></div>Attacking Me!</div>
     </div>
     <hr class="sp-sep">
     <div style="margin-bottom:11px">
@@ -1087,15 +1088,18 @@ function rebuildFleetMeshes() {
     const prg = Math.min(1, Math.max(0, st.displayPrg));
 
     // Ownership flags
-    const isOwn     = !!f.is_own;
-    const isHostile = !!f.is_hostile;
-    const isAlly    = !isOwn && !isHostile && !!f.is_ally;
+    const isOwn         = !!f.is_own;
+    const isHostile     = !!f.is_hostile;
+    const isTargetingMe = !!f.is_targeting_me;
+    const isAlly        = !isOwn && !isHostile && !!f.is_ally;
+    const isNeutral     = !!f.is_neutral; // non-combat, non-own, non-ally
 
-    // Per-spec colors:
-    // own     = solid green (#00e87a)
-    // ally    = dashed purple (#a855f7)
-    // hostile = dashed thin white, blinks
-    // foreign = dashed gray, very thin
+    // Color scheme:
+    // own          = solid green (#00e87a)
+    // ally         = dashed purple (#a855f7)
+    // targeting_me = bright red dashed (combat fleet heading for ME)
+    // hostile      = red dashed (any other combat fleet)
+    // neutral      = white dashed (transport, espionage, colony etc.)
     let lineCol, lineOpacity, useDash, dotCol, dotSize;
     if (isOwn) {
       lineCol = 0x00e87a; lineOpacity = 0.90; useDash = false;
@@ -1103,12 +1107,15 @@ function rebuildFleetMeshes() {
     } else if (isAlly) {
       lineCol = 0xa855f7; lineOpacity = 0.70; useDash = true;
       dotCol = '#a855f7'; dotSize = 16;
+    } else if (isTargetingMe) {
+      lineCol = 0xff0033; lineOpacity = 0.95; useDash = true;
+      dotCol = '#ff0033'; dotSize = 20; // largest – danger!
     } else if (isHostile) {
       lineCol = 0xff3355; lineOpacity = 0.80; useDash = true;
-      dotCol = '#ff3355'; dotSize = 18;
-    } else { // foreign – gray, dashed
-      lineCol = 0x6688aa; lineOpacity = 0.45; useDash = true;
-      dotCol = '#6688aa'; dotSize = 12;
+      dotCol = '#ff3355'; dotSize = 16;
+    } else { // neutral – white dashed
+      lineCol = 0xddeeff; lineOpacity = 0.50; useDash = true;
+      dotCol = '#ddeeff'; dotSize = 12;
     }
 
     // Full path line (start → end, ghost/dim background)
@@ -1219,14 +1226,21 @@ async function fetchFleets() {
 }
 
 function fleetArrivalToast(f) {
-  const isOwn     = !!f.is_own;
-  const isHostile = !!f.is_hostile;
-  if (!isOwn && !isHostile) return; // only notify for own / hostile fleets
-  const col  = isHostile ? '#ff3355' : '#00e87a';
-  const icon = isHostile ? '⚠' : '✓';
-  const label = isHostile
-    ? `HOSTILE FLEET ARRIVED [${f.end?.g}:${f.end?.s}:${f.end?.p}]`
-    : `${f.mission_name || 'FLEET'} ARRIVED [${f.end?.g}:${f.end?.s}:${f.end?.p}]`;
+  const isOwn         = !!f.is_own;
+  const isHostile     = !!f.is_hostile;
+  const isTargetingMe = !!f.is_targeting_me;
+  if (!isOwn && !isHostile) return; // only notify for own / combat fleets
+  let col, icon, label;
+  if (isTargetingMe) {
+    col = '#ff0033'; icon = '🚨';
+    label = `UNDER ATTACK! [${f.end?.g}:${f.end?.s}:${f.end?.p}]`;
+  } else if (isHostile) {
+    col = '#ff3355'; icon = '⚠';
+    label = `COMBAT FLEET ARRIVED [${f.end?.g}:${f.end?.s}:${f.end?.p}]`;
+  } else {
+    col = '#00e87a'; icon = '✓';
+    label = `${f.mission_name || 'FLEET'} ARRIVED [${f.end?.g}:${f.end?.s}:${f.end?.p}]`;
+  }
   showFleetToast(icon + ' ' + label, col);
 }
 
@@ -1380,26 +1394,46 @@ function syncCamera() {
 // ── Footer height measurement (fixes overlap) ───────────────
 function measureFooterHeight() {
   const measure = () => {
-    // Try game footer selectors in order of specificity
-    const footer = document.querySelector('.mobile-dock, .footer, footer, #footer, .game-footer, .ingame-footer')
-      || document.querySelector('[class*="footer"]:not(#gm-root *)') || document.querySelector('[class*="dock"]:not(#gm-root *)');
+    const root = document.getElementById('gm-root');
+    if (!root) return;
+
+    // Priority 1: mobile-dock (bottom nav bar on mobile)
+    const dock = document.querySelector('nav.mobile-dock, .mobile-dock');
+    if (dock) {
+      const style = window.getComputedStyle(dock);
+      // Visible if display != none
+      if (style.display !== 'none') {
+        const h = dock.getBoundingClientRect().height || dock.offsetHeight || 62;
+        // Add safe-area-inset-bottom for iPhone notch
+        const safeArea = parseInt(getComputedStyle(document.documentElement)
+          .getPropertyValue('--sab') || '0') || 0;
+        root.style.setProperty('--ingameFooterH', (h + safeArea) + 'px');
+        return;
+      }
+    }
+
+    // Priority 2: game footer
+    const footer = document.querySelector('.game-footer, footer.game-footer');
     if (footer) {
       const style = window.getComputedStyle(footer);
       const isFixed = style.position === 'fixed' || style.position === 'sticky';
       if (isFixed) {
-        const h = footer.getBoundingClientRect().height;
-        document.getElementById('gm-root').style.setProperty('--ingameFooterH', h + 'px');
+        root.style.setProperty('--ingameFooterH', footer.getBoundingClientRect().height + 'px');
         return;
       }
     }
-    // Fallback: on mobile, assume 70px dock height so FAB/panel never hide behind it
+
+    // Fallback: on mobile assume 62px dock
     if (window.innerWidth <= 768) {
-      document.getElementById('gm-root').style.setProperty('--ingameFooterH', '70px');
+      root.style.setProperty('--ingameFooterH', '62px');
+    } else {
+      root.style.setProperty('--ingameFooterH', '0px');
     }
   };
   measure();
-  // Re-measure on resize (mobile orientation change etc.)
   window.addEventListener('resize', measure, { passive: true });
+  // Re-measure after fonts/layout settle
+  setTimeout(measure, 300);
 }
 
 // ── Mobile panel toggle (FAB) ───────────────────────────────
