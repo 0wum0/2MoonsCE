@@ -245,10 +245,20 @@ window.OVERVIEW_DATA = {
       {% endif %}
 
       <!-- FLEETS -->
-      {% if fleets is defined and fleets %}
+      {% if fleets is defined and fleets|length > 0 %}
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-rocket"></i> {{ LNG.ov_fleet|default('Flotten') }}</div>
-        <div class="ov-fleet-body">{{ fleets|raw }}</div>
+        <div class="ov-card-header"><i class="fas fa-rocket"></i> {{ LNG.ov_fleet|default('Flotten') }} <span class="ov-badge">{{ fleets|length }}</span></div>
+        <div class="ov-fleet-body">
+          {% for fleetEntry in fleets %}
+          <div class="ov-fleet-entry {% if fleetEntry.isHostile %}ov-fleet-hostile{% elseif fleetEntry.isOwn %}ov-fleet-own{% else %}ov-fleet-foreign{% endif %}">
+            <div class="ov-fleet-text">{{ fleetEntry.text|raw }}</div>
+            <div class="ov-fleet-timer" data-fleet-time="{{ fleetEntry.resttime }}">
+              <i class="fas fa-clock"></i>
+              <span class="ov-fleet-countdown">–</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
       {% endif %}
 
@@ -435,8 +445,17 @@ window.OVERVIEW_DATA = {
 .ov-server-actions { display:flex; gap:8px; padding:12px 14px; flex-wrap:wrap; border-top:1px solid var(--border); }
 
 /* ── FLEET BODY ── */
-.ov-fleet-body { padding:0 4px; font-size:12px; }
+.ov-fleet-body { padding:4px 0; font-size:12px; }
 .ov-fleet-body table { width:100%; }
+.ov-fleet-entry { padding:9px 14px; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; gap:4px; }
+.ov-fleet-entry:last-child { border-bottom:none; }
+.ov-fleet-entry.ov-fleet-own  { border-left:2px solid var(--cyan); }
+.ov-fleet-entry.ov-fleet-hostile { border-left:2px solid var(--red); background:rgba(255,61,87,0.03); }
+.ov-fleet-entry.ov-fleet-foreign { opacity:.8; }
+.ov-fleet-text { font-size:12px; color:var(--text); line-height:1.5; }
+.ov-fleet-text a { color:var(--cyan) !important; }
+.ov-fleet-timer { font-family:var(--font-mono); font-size:11px; color:var(--dim); display:flex; align-items:center; gap:5px; }
+.ov-fleet-entry.ov-fleet-hostile .ov-fleet-timer { color:var(--red); }
 
 /* ── REFERRAL ── */
 .ov-ref-code-block { display:flex; flex-direction:column; gap:3px; }
@@ -569,6 +588,29 @@ window.OVERVIEW_DATA = {
         if (pct < 100) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
+    });
+  })();
+
+  /* ── FLEET COUNTDOWN TIMERS ── */
+  (function(){
+    function fmt(s) {
+      s = Math.max(0, Math.floor(s));
+      var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+      return (h>0 ? h+'h ' : '') + (m>0||h>0 ? m+'m ' : '') + sec+'s';
+    }
+    document.querySelectorAll('.ov-fleet-timer').forEach(function(el){
+      var total = parseInt(el.getAttribute('data-fleet-time')) || 0;
+      var cd = el.querySelector('.ov-fleet-countdown');
+      if (!cd) return;
+      if (total <= 0) { cd.textContent = '–'; return; }
+      var start = Date.now();
+      function tick(){
+        var left = total - (Date.now() - start) / 1000;
+        if (left <= 0) { cd.textContent = '–'; return; }
+        cd.textContent = fmt(left);
+        setTimeout(tick, 1000);
+      }
+      tick();
     });
   })();
 
