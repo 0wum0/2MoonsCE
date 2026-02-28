@@ -511,8 +511,8 @@
       <div class="st-row"><span class="sk">Debris Fields</span><span class="sv" id="st-d" style="color:#ff9900">–</span></div>
       <div class="st-row"><span class="sk">Selected</span><span class="sv" id="st-sel" style="color:var(--dim)">–</span></div>
     </div>
-    <button class="sp-btn c" onclick="GM.reloadFleets()" style="font-size:9px"><i class="fas fa-sync-alt" style="margin-right:5px"></i>REFRESH FLEETS</button>
-    <div style="text-align:center;font-size:9px;color:var(--dim);margin-top:5px;font-family:'Orbitron',monospace" id="upd-time">Auto-refresh: 5s</div>
+    <button class="sp-btn c" id="gm-reload-fleets" onclick="GM.reloadFleets()" style="font-size:9px"><i class="fas fa-sync-alt" style="margin-right:5px"></i>REFRESH FLEETS</button>
+    <div style="text-align:center;font-size:9px;color:var(--dim);margin-top:5px;font-family:'Orbitron',monospace" id="upd-time">Auto-refresh aktiv</div>
   </div>
 
   <!-- Action panel -->
@@ -692,8 +692,49 @@ function init() {
     .catch(() => { clearTimeout(loaderTimeout); ldTxt.textContent = 'DEMO MODE'; loadDemo(); hideLoader(800); });
   fetchFleets().catch(e => console.warn('Initial fleet fetch failed:', e));
 
-  // Fleet polling every 5 s – silent wrapper so poll errors don't throw
-  setInterval(() => fetchFleets().catch(e => console.warn('Fleet poll:', e)), 5000);
+  // ── Adaptive fleet polling engine ──────────────────────────────
+  // Interval adapts based on fleet proximity:
+  //   2 s  – any fleet arriving within 60 s
+  //   5 s  – fleets active but none imminent
+  //  15 s  – no fleets at all / tab hidden
+  let fleetPollTimer = null;
+  let fleetPollPaused = false;
+
+  function getAdaptiveInterval() {
+    const nowSec = (Date.now() / 1000) + serverTimeOffset;
+    const states = Object.values(fleetAnimState);
+    if (!states.length) return 15000;
+    const minEta = Math.min(...states.map(st => Math.max(0, (st.data?.end_time || 0) - nowSec)));
+    if (minEta <= 60) return 2000;
+    return 5000;
+  }
+
+  function schedulePoll() {
+    clearTimeout(fleetPollTimer);
+    if (fleetPollPaused) return;
+    const interval = getAdaptiveInterval();
+    const secs = (interval / 1000).toFixed(0);
+    set('upd-time', `Auto-refresh: ${secs}s`);
+    fleetPollTimer = setTimeout(() => {
+      fetchFleets()
+        .catch(e => console.warn('Fleet poll:', e))
+        .finally(() => schedulePoll());
+    }, interval);
+  }
+
+  // Pause when tab hidden, resume immediately on focus
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      fleetPollPaused = true;
+      clearTimeout(fleetPollTimer);
+    } else {
+      fleetPollPaused = false;
+      // Immediate re-fetch on tab focus then re-schedule
+      fetchFleets().catch(e => console.warn('Fleet resume poll:', e)).finally(() => schedulePoll());
+    }
+  });
+
+  schedulePoll();
 }
 
 function hideLoader(delay=0) {
@@ -1160,8 +1201,92 @@ async function fetchFleets() {
   if (fleetData.server_time) {
     serverTimeOffset = fleetData.server_time - (Date.now() / 1000);
   }
-  if (fleetData.fleets) { buildFleets(fleetData.fleets); updateStats(); }
+  if (fleetData.fleets) {
+    // Arrival detection: compare against previously known fleet IDs
+    const prevIds = new Set(Object.keys(fleetAnimState).map(Number));
+    const newIds  = new Set(fleetData.fleets.map(f => f.id));
+    prevIds.forEach(id => {
+      if (!newIds.has(id)) {
+        const st = fleetAnimState[id];
+        if (st && st.data) fleetArrivalToast(st.data);
+      }
+    });
+    buildFleets(fleetData.fleets);
+    updateStats();
+    updateFleetBadge();
+  }
   set('upd-time', 'Updated ' + new Date().toLocaleTimeString());
+}
+
+function fleetArrivalToast(f) {
+  const isOwn     = !!f.is_own;
+  const isHostile = !!f.is_hostile;
+  if (!isOwn && !isHostile) return; // only notify for own / hostile fleets
+  const col  = isHostile ? '#ff3355' : '#00e87a';
+  const icon = isHostile ? '⚠' : '✓';
+  const label = isHostile
+    ? `HOSTILE FLEET ARRIVED [${f.end?.g}:${f.end?.s}:${f.end?.p}]`
+    : `${f.mission_name || 'FLEET'} ARRIVED [${f.end?.g}:${f.end?.s}:${f.end?.p}]`;
+  showFleetToast(icon + ' ' + label, col);
+}
+
+function showFleetToast(msg, color) {
+  let container = document.getElementById('gm-fleet-toasts');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'gm-fleet-toasts';
+    container.style.cssText = 'position:fixed;top:64px;right:16px;z-index:9800;display:flex;flex-direction:column;gap:6px;pointer-events:none;';
+    document.body.appendChild(container);
+  }
+  const t = document.createElement('div');
+  t.style.cssText = `
+    background:rgba(4,10,28,0.97);border:1px solid ${color};border-radius:8px;
+    padding:8px 14px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1.5px;
+    color:${color};box-shadow:0 4px 20px rgba(0,0,0,0.7);
+    opacity:0;transform:translateX(24px);
+    transition:opacity .25s ease,transform .25s ease;
+    pointer-events:none;white-space:nowrap;
+  `;
+  t.textContent = msg;
+  container.appendChild(t);
+  requestAnimationFrame(() => {
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(0)';
+  });
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(24px)';
+    setTimeout(() => t.remove(), 300);
+  }, 5000);
+}
+
+function updateFleetBadge() {
+  const states = Object.values(fleetAnimState);
+  const hostileCount = states.filter(st => st.data?.is_hostile).length;
+  const totalCount   = states.length;
+  let badge = document.getElementById('gm-fleet-badge');
+  if (!badge) {
+    const btn = document.getElementById('gm-reload-fleets');
+    if (!btn) return;
+    badge = document.createElement('span');
+    badge.id = 'gm-fleet-badge';
+    badge.style.cssText = 'position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;font-size:9px;font-family:\'Orbitron\',monospace;display:flex;align-items:center;justify-content:center;padding:0 3px;pointer-events:none;';
+    btn.style.position = 'relative';
+    btn.appendChild(badge);
+  }
+  if (hostileCount > 0) {
+    badge.textContent = hostileCount;
+    badge.style.background = '#ff3355';
+    badge.style.color = '#fff';
+    badge.style.display = 'flex';
+  } else if (totalCount > 0) {
+    badge.textContent = totalCount;
+    badge.style.background = 'rgba(0,212,255,0.7)';
+    badge.style.color = '#000';
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 // ── Demo fallback ──────────────────────────────────────────
@@ -1718,7 +1843,17 @@ function navHome() {
     if (hp) selectPlanet(hp);
   }
 }
-function reloadFleets(){ fetchFleets(); }
+function reloadFleets(){
+  const btn = document.getElementById('gm-reload-fleets');
+  const icon = btn?.querySelector('i');
+  if (icon) icon.classList.add('fa-spin');
+  fetchFleets()
+    .catch(e => console.warn('Manual fleet reload:', e))
+    .finally(() => {
+      if (icon) icon.classList.remove('fa-spin');
+      updateFleetBadge();
+    });
+}
 
 // ── Player Search ──────────────────────────────────────────
 (function(){
@@ -1873,10 +2008,28 @@ function animate(now = 0){
     fleetRebuildCooldown = 3;
   }
 
-  // Hostile blink – only mutates material opacity, no geometry changes
+  // Hostile blink + "arriving soon" pulse – only mutates material/scale, no geometry changes
+  const nowSecAnim = (Date.now() / 1000) + serverTimeOffset;
   fleetGroup.children.forEach(obj => {
-    if (obj.isLine && obj.userData?.fleet?.is_hostile && obj.material?.isLineDashedMaterial) {
+    const f = obj.userData?.fleet;
+    if (!f) return;
+    if (obj.isLine && f.is_hostile && obj.material?.isLineDashedMaterial) {
       obj.material.opacity = 0.18 + Math.abs(Math.sin(frame * 0.05)) * 0.42;
+    }
+    if (obj.isSprite && obj.userData.isFleetDot) {
+      const eta = Math.max(0, (f.end_time || 0) - nowSecAnim);
+      if (eta > 0 && eta <= 30) {
+        // Arriving soon: fast blink + scale pulse
+        const blink = 0.55 + Math.abs(Math.sin(frame * 0.18)) * 0.45;
+        const scalePulse = 1.0 + Math.abs(Math.sin(frame * 0.14)) * 0.5;
+        obj.material.opacity = blink;
+        const base = obj.userData._baseDotScale || obj.scale.x;
+        if (!obj.userData._baseDotScale) obj.userData._baseDotScale = obj.scale.x;
+        obj.scale.setScalar(base * scalePulse);
+      } else if (eta <= 0) {
+        // Past ETA: full opacity, no pulse
+        obj.material.opacity = 1.0;
+      }
     }
   });
 
