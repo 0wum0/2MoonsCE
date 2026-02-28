@@ -1,7 +1,4 @@
 ﻿<?php
-
-declare(strict_types=1);
-
 /**
  *	SmartMoons / 2Moons Community Edition (2MoonsCE)
  * 
