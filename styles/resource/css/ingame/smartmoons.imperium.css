@@ -234,7 +234,10 @@
   text-transform:uppercase !important; padding:7px 16px !important; border-radius:8px !important;
   border:1px solid var(--border) !important; background:rgba(255,255,255,0.04) !important;
   color:var(--text) !important; cursor:pointer !important; transition:var(--transition) !important;
-  display:inline-flex !important; align-items:center !important; gap:6px !important; text-decoration:none !important;
+  display:inline-flex !important; align-items:center !important; gap:6px !important;
+  text-decoration:none !important;
+  /* override components.css icon-only sizing */
+  width:auto !important; height:auto !important;
 }
 .btn-ghost:hover { background:rgba(255,255,255,0.09) !important; border-color:var(--border2) !important; color:var(--white) !important; }
 .btn-ghost.small, .btn-action-glow.small { padding:5px 12px !important; font-size:8px !important; }
