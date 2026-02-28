@@ -1,38 +1,29 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 /**
- * CombatFramework – Plugin System v1.2 Combat Hook Extension
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * Thin wrapper around the core calculateAttack() function.
- * Provides two mandatory hook points via HookManager:
- *
- *   combat.pre_calculate  (filter)
- *     Receives and returns the combat context array before the engine runs.
- *     Context keys:
- *       'attackers'    – attacker fleet array (by reference semantics via copy)
- *       'defenders'    – defender fleet array (by reference semantics via copy)
- *       'fleetTF'      – attacker debris % (Fleet_Cdr config)
- *       'defTF'        – defender debris % (Defs_Cdr config)
- *       'meta'         – arbitrary plugin data (initially [])
- *
- *   combat.post_calculate (filter)
- *     Receives and returns the combat result array after the engine runs.
- *     Result keys (from calculateAttack return value):
- *       'won'          – 'a' (attacker), 'r' (defender), 'w' (draw)
- *       'debris'       – ['attacker'=>[901,902], 'defender'=>[901,902]]
- *       'rw'           – round-by-round data array
- *       'unitLost'     – ['attacker'=>int, 'defender'=>int]
- *       'meta'         – arbitrary plugin data (initially [])
- *     Second argument $context contains ['ctx' => pre_calculate context].
- *
- * Without any plugins registered:
- *   - applyFilters() is a no-op (returns value unchanged)
- *   - Combat result is byte-for-byte identical to calling calculateAttack() directly
- *
- * Usage (replaces direct calculateAttack() call):
- *   $combatResult = CombatFramework::run($fleetAttack, $fleetDefend, $fleetIntoDebris, $defIntoDebris);
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
 if (class_exists('CombatFramework', false)) {
     return;

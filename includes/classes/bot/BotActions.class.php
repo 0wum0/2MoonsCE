@@ -1,24 +1,28 @@
-<?php
+﻿<?php
 declare(strict_types=1);
 
 /**
- * BotActions.class.php
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * Zentraler Layer für Bot-Aktionen (Build/Research/Shipyard/Officers/Trader),
- * inkl. Feature-Toggles (aus DB: uni{X}_bot_setting) + Defaults/Fallbacks.
- *
- * Wichtig:
- * - Keine Redirects
- * - Kein Template
- * - Nutzt dieselben Datenstrukturen wie normale Player (Queues / Resource Abzug)
- *
- * Erwartete DB-Spalten (aus deinem ALTER TABLE):
- *  enabled, pve_enabled, pvp_enabled,
- *  can_build, can_research, can_shipyard, can_expedition, can_recycle, can_raid,
- *  max_actions_per_tick, max_build_queue_fill, max_research_queue_fill, max_shipyard_queue_fill,
- *  raid_min_cargo_metal, raid_min_cargo_crystal, raid_min_gain, ...
- *
- * Außerdem (optional): ships_array (Fleet Preset serialized)
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
 
 class BotActions

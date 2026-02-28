@@ -1,32 +1,29 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 /**
- *  2Moons
- *  Copyright (C) 2011  Slaver
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package 2Moons
- * @author Slaver <slaver7@gmail.com>
- * @copyright 2009 Lucky <lucky@xgproyect.net> (XGProyecto)
- * @copyright 2011 Slaver <slaver7@gmail.com> (Fork/2Moons)
- * @license http://www.gnu.org/licenses/gpl.html GNU GPLv3 License
- * @version 1.5 (2011-07-31)
- * @info $Id: CUSTOM.php 2095 2011-12-21 19:39:40Z slaver7 $
- * @link http://code.google.com/p/2moons/
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
  
 // If you have custom lang vars, you can include them here. The file ll be not overwrite by updatemanager

@@ -1,25 +1,29 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 /**
- * ProductionModule – v2 Core Wrapper Module
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * Wraps the existing ResourceUpdate / production calculation system.
- * Does NOT replace any logic — only provides additional hook points that
- * plugins can attach to.
- *
- * Hook points exposed:
- *   FILTER  'production.calculate'  ($temp, $context)
- *       Called inside ReBuildCache() after the raw per-resource totals are
- *       assembled but before multipliers are applied.
- *       $temp  = array keyed by resource ID (901/902/903/911) with
- *               'plus', 'minus', 'max' sub-keys.
- *       $context = ['planet' => $PLANET, 'user' => $USER]
- *       (This is an alias / re-export of the existing 'game.production' hook.)
- *
- * The module is enabled by default (wrapper mode = no gameplay change).
- * To disable, set config key 'module_production_enabled' to 0.
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
 class ProductionModule implements GameModuleInterface
 {

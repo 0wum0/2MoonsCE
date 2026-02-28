@@ -1,45 +1,29 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 /**
- * ElementRegistry – Plugin System v1.2 "Dynamic Element Registry"
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * Central in-memory registry for game elements (buildings, tech, fleet, defense).
- * Bootstraps from the legacy cache arrays, allows plugins to register new elements
- * via registerElements(), then exports updated legacy arrays so all existing core
- * code continues to work unchanged.
- *
- * Load order (wired in common.php):
- *   1. vars.php / VarsBuildCache  → legacy arrays available
- *   2. PluginManager::loadActivePlugins() → plugin.php files included, hooks registered
- *   3. ElementRegistry::bootFromLegacyArrays() → registry built from cache
- *   4. PluginManager::dispatchRegisterElements() → plugins add new elements
- *   5. HookManager filters (game.pricelist etc.) → existing v1.1 hooks still run
- *   6. ElementRegistry::exportLegacy*() → updated arrays written back to globals
- *
- * Element definition array (all keys optional except id/type):
- * [
- *   'id'          => int,               // required, unique element ID
- *   'type'        => string,            // required: building|tech|fleet|defense|missile|officier|dmfunc
- *   'nameKey'     => string,            // planet/user column name (e.g. 'my_building')
- *   'cost'        => [901=>M,902=>C,903=>D,911=>E,921=>DM],
- *   'factor'      => float,             // cost scaling factor per level (buildings/tech)
- *   'max'         => int,               // max level (0 = unlimited)
- *   'requirements'=> [elementId=>level, ...],
- *   'onPlanetType'=> [1,3],             // planet types this building appears on (buildings only)
- *   'stats'       => [                  // optional combat/production stats
- *     'attack'    => int,
- *     'shield'    => int,
- *     'speed'     => int,
- *     'capacity'  => int,
- *     'consumption'=> int,
- *   ],
- *   'metadata'    => array,             // arbitrary plugin data
- * ]
- *
- * Query API note: use ElementRegistry::get() to retrieve the singleton instance,
- * then call ->find(int $id) to look up an element by ID.
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
 if (class_exists('ElementRegistry', false)) {
     return;

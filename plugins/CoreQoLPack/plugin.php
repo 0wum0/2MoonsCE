@@ -1,23 +1,29 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 /**
- * CoreQoLPack – Plugin Bootstrap
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * Registers:
- *  - CSS via head_end
- *  - Toast container div via ingame.header.after
- *  - JS  via footer_end
- *
- * Features (all handled in qol.js):
- *  1) AJAX Form Intercept  – forms with class="ajax-form"
- *  2) Forum Autosave       – localStorage, 5s interval, per thread-id
- *  3) Live Resource Sync   – fetch every 10s, DOM-update only
- *  4) Toast Notifications  – minimal, no external framework
- *
- * The GameModuleInterface module (CoreQoLModule) is loaded automatically
- * by PluginManager via manifest["modules"].
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
 
 (static function (): void {

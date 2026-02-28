@@ -1,28 +1,29 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 /**
- * sm-elements-test – Plugin System v1.2 Dynamic Element Registry Test
+ *	SmartMoons / 2Moons Community Edition (2MoonsCE)
+ * 
+ *	Based on the original 2Moons project:
+ *	
+ * @copyright 2009 Lucky
+ * @copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+ * @licence MIT
+ * @version 1.8.0
+ * @link https://github.com/jkroepke/2Moons
+ *  2Moons 
+ *   by Jan-Otto Kröpke 2009-2016
  *
- * Registers two new elements purely via ElementRegistry (no DB, no SQL):
- *
- *   ID 950 – Quantum Extractor (building, planet type 1+3)
- *            Requires: Metal Mine (ID 1) level 5, Robot Factory (ID 14) level 2
- *
- *   ID 960 – Stealth Drone (fleet/ship)
- *            Requires: Shipyard (ID 21) level 4, Combustion Engine tech (ID 115) level 3
- *
- * Both elements will appear in their respective menus automatically because
- * exportLegacyReslist() injects them into $reslist['build'] / $reslist['fleet']
- * and exportLegacyPricelist() / exportLegacyResourceMap() make them fully
- * accessible to BuildFunctions, ShowBuildingsPage, ShowShipyardPage, etc.
- *
- * Language strings are injected into $LNG['tech'] so templates can render names.
- * The nameKey (planet column) is set to a safe dummy value; since no DB column
- * exists, $PLANET['smet_quantum_extractor'] will be NULL/0 — the building shows
- * at level 0 and can be queued (the queue stores the level, not a planet column).
- * For a production plugin you would add the column via install.sql.
+ * Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
+ * Refactoring and feature extensions:
+ * @copyright 2024-2026 Florian Engelhardt (0wum0)
+ * @link https://github.com/0wum0/2MoonsCE
+ * @eMail info.browsergame@gmail.com
+ * 
+ * Licensed under the MIT License.
+ * See LICENSE for details.
+ * @visit http://makeit.uno/
  */
 
 // ── 1. Register element callbacks via Plugin System v1.2 ─────────────────────
