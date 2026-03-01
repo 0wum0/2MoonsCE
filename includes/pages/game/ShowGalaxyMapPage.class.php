@@ -107,13 +107,13 @@ class ShowGalaxyMapPage extends AbstractGamePage
             own.ally_id   AS owner_ally_id
         FROM %%FLEETS%% f
         LEFT JOIN %%USERS%% own ON own.id = f.fleet_owner
-        WHERE f.fleet_start_time <= :now
-          AND f.fleet_end_time   >  :now
-          AND f.fleet_mission    <> 10
+        WHERE f.fleet_universe  =  :universe
+          AND f.fleet_end_time  >  :now
+          AND f.fleet_mission   <> 10
         ORDER BY f.fleet_start_time ASC
         LIMIT 500;';
 
-        $rows = $db->select($sql, [':now' => $now]);
+        $rows = $db->select($sql, [':now' => $now, ':universe' => Universe::current()]);
 
         $fleets = [];
         foreach ($rows as $r) {
