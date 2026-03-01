@@ -119,6 +119,23 @@ html[data-theme="light"] body::after {
 html[data-theme="light"] select option { background:#dce4f2; color:#0d1a2e; }
 html[data-theme="light"] ::-webkit-scrollbar-thumb { background:rgba(0,100,200,0.28); }
 
+/* ── MOBILE DARK-MODE AUFHELLUNG (≤ 768px, nur wenn nicht Light-Mode) ── */
+@media (max-width: 768px) {
+  html:not([data-theme="light"]) {
+    --bg0:#0a1020; --bg1:#0e1830; --bg2:#121f3a; --bg3:#162540;
+    --panel:rgba(12,22,52,0.96); --panel2:rgba(8,16,42,0.98);
+    --border:rgba(0,200,255,0.18); --border2:rgba(0,200,255,0.30);
+    --text:#bcd4ee; --white:#eef6ff;
+    --sm-bg0:#0a1020; --sm-bg1:#0e1830; --sm-bg2:#121f3a; --sm-bg3:#162540;
+    --sm-panel:rgba(12,22,52,0.96); --sm-panel2:rgba(8,16,42,0.98);
+    --color-bg-primary:#0a1020; --color-bg-secondary:#0e1830;
+    --color-bg-elevated:#162540; --color-bg-card:#121f3a;
+    --color-text-primary:#eef6ff; --color-text-secondary:#bcd4ee;
+  }
+  html:not([data-theme="light"]) #bg-canvas { opacity: 0.35; }
+  html:not([data-theme="light"]) body::before { opacity: 0.5; }
+}
+
 /* ── BODY & GLOBAL BACKGROUND ── */
 html { scroll-behavior:smooth; font-size:16px; height:auto; min-height:100%; overflow-x:hidden; }
 body, body.aerospace-theme {
