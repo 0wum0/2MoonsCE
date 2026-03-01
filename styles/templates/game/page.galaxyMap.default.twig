@@ -1057,10 +1057,10 @@ function buildPlanets(planets) {
           ally_id: 0, ally_tag: '', total_rank: 0, total_points: 0,
           is_own: false, is_ally: false, has_moon: false, has_debris: false, is_empty: true
         };
-        // Clearly visible on both desktop and mobile
-        const emptyColor   = '#2a6a9c';
-        const emptyOpacity = (window.innerWidth <= 768) ? 0.80 : 0.65;
-        const emptyScale   = (window.innerWidth <= 768) ? 5.0 : 4.0;
+        // Same visual weight as a user planet (avg rankScale ≈ 0.9 → sz ≈ 4.0)
+        const emptyColor   = '#5ab4e8'; // bright steel-blue – clearly visible
+        const emptyOpacity = 0.85;
+        const emptyScale   = 4.5;       // identical base size to user planets
         const emptySprite = new THREE.Sprite(new THREE.SpriteMaterial({
           map: circleTex(emptyColor), transparent: true, opacity: emptyOpacity,
           depthWrite: false, sizeAttenuation: true
@@ -1146,27 +1146,29 @@ function rebuildFleetMeshes() {
     const isNeutral     = !!f.is_neutral; // non-combat, non-own, non-ally
 
     // Color scheme:
-    // own          = solid green (#00e87a)
+    // own          = solid cyan (#00d4ff)
     // ally         = dashed purple (#a855f7)
     // targeting_me = bright red dashed (combat fleet heading for ME)
     // hostile      = red dashed (any other combat fleet)
     // neutral      = white dashed (transport, espionage, colony etc.)
+    // On mobile the camera is at r=4000, so dots need to be much larger
+    const dotMult = (window.innerWidth <= 768) ? 14 : 4;
     let lineCol, lineOpacity, useDash, dotCol, dotSize;
     if (isOwn) {
-      lineCol = 0x00e87a; lineOpacity = 0.90; useDash = false;
-      dotCol = '#00e87a'; dotSize = 20;
+      lineCol = 0x00d4ff; lineOpacity = 0.95; useDash = false;
+      dotCol = '#00d4ff'; dotSize = 22; // cyan – high contrast vs dark bg
     } else if (isAlly) {
-      lineCol = 0xa855f7; lineOpacity = 0.70; useDash = true;
-      dotCol = '#a855f7'; dotSize = 16;
+      lineCol = 0xa855f7; lineOpacity = 0.80; useDash = true;
+      dotCol = '#a855f7'; dotSize = 18;
     } else if (isTargetingMe) {
-      lineCol = 0xff0033; lineOpacity = 0.95; useDash = true;
-      dotCol = '#ff0033'; dotSize = 20; // largest – danger!
+      lineCol = 0xff0033; lineOpacity = 0.98; useDash = true;
+      dotCol = '#ff0033'; dotSize = 22; // largest – danger!
     } else if (isHostile) {
-      lineCol = 0xff3355; lineOpacity = 0.80; useDash = true;
-      dotCol = '#ff3355'; dotSize = 16;
+      lineCol = 0xff3355; lineOpacity = 0.85; useDash = true;
+      dotCol = '#ff3355'; dotSize = 18;
     } else { // neutral – white dashed
-      lineCol = 0xddeeff; lineOpacity = 0.50; useDash = true;
-      dotCol = '#ddeeff'; dotSize = 12;
+      lineCol = 0xddeeff; lineOpacity = 0.65; useDash = true;
+      dotCol = '#ddeeff'; dotSize = 14;
     }
 
     // Full path line (start → end, ghost/dim background)
@@ -1215,7 +1217,7 @@ function rebuildFleetMeshes() {
       sizeAttenuation: true, blending: THREE.AdditiveBlending
     }));
     ds.position.set(curPos.x, curPos.y + 4, curPos.z); // slight Y lift so it's above orbit plane
-    ds.scale.setScalar(dotSize * 4); // scale up: orbit radii are 60-260 units, dot must be visible
+    ds.scale.setScalar(dotSize * dotMult); // scale up: orbit radii are 60-260 units, dot must be visible
     ds.userData = { fleet: f, isFleetDot: true };
     fleetGroup.add(ds);
   }
