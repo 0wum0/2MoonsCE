@@ -748,10 +748,11 @@ function init() {
   function getAdaptiveInterval() {
     const nowSec = (Date.now() / 1000) + serverTimeOffset;
     const states = Object.values(fleetAnimState);
-    if (!states.length) return 15000;
+    // 3 s when no fleets known – catches newly dispatched fleets quickly
+    if (!states.length) return 3000;
     const minEta = Math.min(...states.map(st => Math.max(0, (st.data?.end_time || 0) - nowSec)));
     if (minEta <= 60) return 2000;
-    return 5000;
+    return 4000;
   }
 
   function schedulePoll() {
@@ -776,6 +777,14 @@ function init() {
       fleetPollPaused = false;
       // Immediate re-fetch on tab focus then re-schedule
       fetchFleets().catch(e => console.warn('Fleet resume poll:', e)).finally(() => schedulePoll());
+    }
+  });
+
+  // Also re-fetch on window focus (user switches browser tab / app back to map)
+  window.addEventListener('focus', () => {
+    if (!fleetPollPaused) {
+      clearTimeout(fleetPollTimer);
+      fetchFleets().catch(e => console.warn('Fleet focus poll:', e)).finally(() => schedulePoll());
     }
   });
 
@@ -1239,10 +1248,9 @@ async function fetchGalaxy() {
   }
   if (galaxyData.planets) {
     buildPlanets(galaxyData.planets);
-    // Re-resolve fleet positions now that posMap is populated
-    if (fleetData && fleetData.fleets && fleetData.fleets.length > 0) {
-      buildFleets(fleetData.fleets);
-    }
+    // posMap is now populated – always re-fetch fleets immediately so
+    // newly dispatched fleets that arrived during galaxy load are shown
+    fetchFleets().catch(e => console.warn('Post-galaxy fleet fetch:', e));
     updateStats();
   }
 }
