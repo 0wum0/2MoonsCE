@@ -148,6 +148,34 @@
   display: none; /* hidden on desktop */
 }
 
+/* FAB rendered OUTSIDE #gm-root so it is never clipped by overflow */
+#gm-fab-outer {
+  display: none;
+  position: fixed;
+  bottom: 72px;
+  right: 14px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0,212,255,.18);
+  border: 2px solid rgba(0,212,255,.55);
+  color: #00d4ff;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 9100;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.65), 0 0 18px rgba(0,212,255,.18);
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, transform .15s;
+  pointer-events: all;
+}
+#gm-fab-outer:hover, #gm-fab-outer.active {
+  background: rgba(0,212,255,.32);
+  transform: scale(1.08);
+}
+
 /* ── Mobile: hide 3D view button, only 2D available ─────────────── */
 @media (max-width: 768px) {
   #vb-3d { display: none !important; }
@@ -161,11 +189,11 @@
     height: 100dvh !important;
   }
 
-  /* Side panel: fixed bottom-right FAB on mobile */
+  /* Side panel: slides up from bottom */
   #gm-side {
     position: fixed;
     top: auto;
-    bottom: calc(var(--ingameFooterH) + 58px);
+    bottom: calc(var(--ingameFooterH) + 68px);
     left: auto;
     right: 12px;
     width: calc(100vw - 24px);
@@ -175,43 +203,30 @@
     transform: translateY(110%);
     transition: transform .28s cubic-bezier(.4,0,.2,1);
     border-radius: 14px 14px 6px 6px;
-    z-index: 500;
+    z-index: 8100;
   }
   #gm-side.panel-open {
     transform: translateY(0);
   }
 
-  /* FAB toggle button */
+  /* Old inner FAB: hide (replaced by outer FAB) */
   #gm-panel-toggle {
-    display: flex;
-    align-items: center; justify-content: center;
-    position: fixed;
-    bottom: calc(var(--ingameFooterH) + 10px);
-    right: 12px;
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    background: rgba(0,212,255,.15);
-    border: 1px solid rgba(0,212,255,.4);
-    color: var(--cyan);
-    font-size: 18px;
-    cursor: pointer;
-    z-index: 501;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 4px 16px rgba(0,0,0,.6);
-    transition: background .2s;
-    pointer-events: all;
+    display: none !important;
   }
-  #gm-panel-toggle:hover, #gm-panel-toggle.active {
-    background: rgba(0,212,255,.30);
+
+  /* Outer FAB visible on mobile */
+  #gm-fab-outer {
+    display: flex;
   }
 
   /* Action panel: full width on mobile */
   #gm-action {
     min-width: unset;
     width: calc(100vw - 20px);
-    bottom: calc(var(--ingameFooterH) + 60px);
+    bottom: calc(var(--ingameFooterH) + 68px);
     left: 10px;
     transform: none;
+    z-index: 8200;
   }
   @keyframes slideUp {
     from{opacity:0;transform:translateY(14px)}
@@ -449,7 +464,7 @@
     <button id="gm-close" onclick="window.history.back()"><i class="fas fa-times" style="margin-right:5px"></i>CLOSE MAP</button>
   </div>
 
-  <!-- Mobile FAB to open/close side panel -->
+  <!-- Mobile FAB (inner stub, hidden on mobile – real FAB is #gm-fab-outer outside #gm-root) -->
   <button id="gm-panel-toggle" title="Map Controls"><i class="fas fa-sliders-h"></i></button>
 
   <!-- Side panel -->
@@ -540,6 +555,8 @@
 
   <div id="gm-hint">SCROLL = ZOOM  •  DRAG = ROTATE / PAN  •  CLICK PLANET = ACTIONS</div>
 </div>
+<!-- Outer FAB: lives outside #gm-root so it is never clipped -->
+<button id="gm-fab-outer" title="Map Controls" aria-label="Map Controls öffnen"><i class="fas fa-sliders-h"></i></button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 {% autoescape false %}
@@ -934,6 +951,9 @@ function buildPlanets(planets) {
       const heightOff   = (slot % 2 === 0 ? 1 : -1) * (slot * 0.6);
 
       // Orbit ring (static line, no picking)
+      // On mobile 2D we use a brighter colour so rings are clearly visible
+      const ringOpacity  = (window.innerWidth <= 768) ? 0.55 : 0.22;
+      const ringColorHex = (window.innerWidth <= 768) ? 0x1e5a8a : 0x1a3a55;
       const ringPts = [];
       for (let i = 0; i <= 64; i++) {
         const a = (i / 64) * Math.PI * 2;
@@ -944,7 +964,7 @@ function buildPlanets(planets) {
       }
       const ringLine = new THREE.Line(
         new THREE.BufferGeometry().setFromPoints(ringPts),
-        new THREE.LineBasicMaterial({ color: 0x1a3a55, transparent: true, opacity: 0.22, depthWrite: false })
+        new THREE.LineBasicMaterial({ color: ringColorHex, transparent: true, opacity: ringOpacity, depthWrite: false })
       );
       ringLine.userData = { isOrbitRing: true }; // excluded from raycaster
       sunGroup.add(ringLine);
@@ -1010,13 +1030,17 @@ function buildPlanets(planets) {
           ally_id: 0, ally_tag: '', total_rank: 0, total_points: 0,
           is_own: false, is_ally: false, has_moon: false, has_debris: false, is_empty: true
         };
+        // Brighter & larger on mobile so empty slots are clearly visible
+        const emptyColor   = '#2a6a9c';
+        const emptyOpacity = (window.innerWidth <= 768) ? 0.70 : 0.45;
+        const emptyScale   = (window.innerWidth <= 768) ? 3.5 : 2.5;
         const emptySprite = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: circleTex('#1a3a5c'), transparent: true, opacity: 0.28,
+          map: circleTex(emptyColor), transparent: true, opacity: emptyOpacity,
           depthWrite: false, sizeAttenuation: true
         }));
         emptySprite.position.set(initX, heightOff, initZ);
-        emptySprite.scale.setScalar(2.2);
-        emptySprite.userData = { type: 'planet', planet: emptyPl, baseScale: 2.2, key };
+        emptySprite.scale.setScalar(emptyScale);
+        emptySprite.userData = { type: 'planet', planet: emptyPl, baseScale: emptyScale, key };
         planetGroup.add(emptySprite);
         planetMeshes.push(emptySprite);
         posMap[key] = emptySprite.position.clone();
@@ -1438,32 +1462,41 @@ function measureFooterHeight() {
 
 // ── Mobile panel toggle (FAB) ───────────────────────────────
 function initMobilePanel() {
-  const fab   = document.getElementById('gm-panel-toggle');
-  const panel = document.getElementById('gm-side');
-  if (!fab || !panel) return;
+  const innerFab = document.getElementById('gm-panel-toggle');
+  const outerFab = document.getElementById('gm-fab-outer');
+  const panel    = document.getElementById('gm-side');
+  if (!panel) return;
+
+  function togglePanel(e) {
+    if (e) e.stopPropagation();
+    const open = panel.classList.toggle('panel-open');
+    if (innerFab) innerFab.classList.toggle('active', open);
+    if (outerFab) outerFab.classList.toggle('active', open);
+    try { localStorage.setItem('galaxyPanel', open ? 'open' : 'collapsed'); } catch(e2) {}
+  }
+
+  function closePanel() {
+    panel.classList.remove('panel-open');
+    if (innerFab) innerFab.classList.remove('active');
+    if (outerFab) outerFab.classList.remove('active');
+    try { localStorage.setItem('galaxyPanel', 'collapsed'); } catch(e) {}
+  }
 
   // Restore saved state
   try {
     if (localStorage.getItem('galaxyPanel') === 'open') {
       panel.classList.add('panel-open');
-      fab.classList.add('active');
+      if (innerFab) innerFab.classList.add('active');
+      if (outerFab) outerFab.classList.add('active');
     }
   } catch(e) {}
 
-  fab.addEventListener('click', e => {
-    e.stopPropagation();
-    const open = panel.classList.toggle('panel-open');
-    fab.classList.toggle('active', open);
-    try { localStorage.setItem('galaxyPanel', open ? 'open' : 'collapsed'); } catch(e2) {}
-  });
+  if (innerFab) innerFab.addEventListener('click', togglePanel);
+  if (outerFab) outerFab.addEventListener('click', togglePanel);
 
   // Tap on canvas closes panel (mobile UX)
   canvas.addEventListener('touchstart', () => {
-    if (window.innerWidth <= 768 && panel.classList.contains('panel-open')) {
-      panel.classList.remove('panel-open');
-      fab.classList.remove('active');
-      try { localStorage.setItem('galaxyPanel', 'collapsed'); } catch(e) {}
-    }
+    if (window.innerWidth <= 768 && panel.classList.contains('panel-open')) closePanel();
   }, { passive: true });
 }
 
