@@ -349,22 +349,28 @@ class ShowOverviewPage extends AbstractGamePage
 	{
 		global $LNG, $PLANET;
 
-		$newname        = HTTP::_GP('name', '', UTF8_SUPPORT);
-		if (!empty($newname))
-		{
-			if (!PlayerUtil::isNameValid($newname)) {
-				$this->sendJSON(array('message' => $LNG['ov_newname_specialchar'], 'error' => true));
-			} else {
-				$db = Database::get();
-                $sql = "UPDATE %%PLANETS%% SET name = :newName WHERE id = :planetID;";
-                $db->update($sql, array(
-                    ':newName'  => $newname,
-                    ':planetID' => $PLANET['id']
-                ));
+		// Clean any buffered HTML output and set JSON header
+		while (ob_get_level() > 0) { ob_end_clean(); }
+		header('Content-Type: application/json; charset=utf-8');
 
-                $this->sendJSON(array('message' => $LNG['ov_newname_done'], 'error' => false));
-			}
+		$newname = HTTP::_GP('name', '', UTF8_SUPPORT);
+
+		if (empty($newname)) {
+			echo json_encode(['error' => true, 'message' => 'Name darf nicht leer sein.']);
+			exit;
 		}
+
+		if (!PlayerUtil::isNameValid($newname)) {
+			echo json_encode(['error' => true, 'message' => $LNG['ov_newname_specialchar']]);
+			exit;
+		}
+
+		$db = Database::get();
+		$sql = "UPDATE %%PLANETS%% SET name = :newName WHERE id = :planetID;";
+		$db->update($sql, [':newName' => $newname, ':planetID' => $PLANET['id']]);
+
+		echo json_encode(['error' => false, 'message' => $LNG['ov_newname_done']]);
+		exit;
 	}
 	
 	function delete() 
