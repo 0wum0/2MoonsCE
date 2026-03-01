@@ -68,14 +68,16 @@ class FlyingFleetsTable
 				':acsId'	=> $acsID
 			);
 		} elseif($this->missions) {
-			$where = '(fleet_owner = :userId OR fleet_target_owner = :userId) AND fleet_mission IN ('.$this->missions.')';
-			$param = array(
-				':userId'	=> $this->userId
-			);
-		} else {
-			$where  = 'fleet_owner = :userId OR (fleet_target_owner = :userId AND fleet_mission != 8)';
+			$where = '(fleet_owner = :userId OR fleet_target_owner = :userId2) AND fleet_mission IN ('.$this->missions.')';
 			$param = array(
 				':userId'	=> $this->userId,
+				':userId2'	=> $this->userId,
+			);
+		} else {
+			$where  = 'fleet_owner = :userId OR (fleet_target_owner = :userId2 AND fleet_mission != 8)';
+			$param = array(
+				':userId'	=> $this->userId,
+				':userId2'	=> $this->userId,
 			);
 		}
 
@@ -86,7 +88,9 @@ class FlyingFleetsTable
 		LEFT JOIN %%USERS%% targetuser ON (targetuser.id = fleet.fleet_target_owner)
 		LEFT JOIN %%PLANETS%% ownplanet ON (ownplanet.id = fleet.fleet_start_id)
 		LEFT JOIN %%PLANETS%% targetplanet ON (targetplanet.id = fleet.fleet_end_id)
-		WHERE '.$where.';';
+		WHERE fleet.fleet_universe = :universe AND ('.$where.');';
+
+		$param[':universe'] = Universe::current();
 
 		return Database::get()->select($sql, $param);
 	}

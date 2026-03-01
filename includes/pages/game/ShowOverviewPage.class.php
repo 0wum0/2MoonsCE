@@ -349,27 +349,36 @@ class ShowOverviewPage extends AbstractGamePage
 	{
 		global $LNG, $PLANET;
 
-		// Clean any buffered HTML output and set JSON header
+		// Clean any buffered HTML and set JSON header
 		while (ob_get_level() > 0) { ob_end_clean(); }
 		header('Content-Type: application/json; charset=utf-8');
 
-		$newname = HTTP::_GP('name', '', UTF8_SUPPORT);
+		try {
+			$newname = HTTP::_GP('name', '', UTF8_SUPPORT);
 
-		if (empty($newname)) {
-			echo json_encode(['error' => true, 'message' => 'Name darf nicht leer sein.']);
-			exit;
+			if (empty($newname)) {
+				echo json_encode(['error' => true, 'message' => 'Name darf nicht leer sein.']);
+				exit;
+			}
+
+			if (!PlayerUtil::isNameValid($newname)) {
+				echo json_encode(['error' => true, 'message' => $LNG['ov_newname_specialchar'] ?? 'Ungültige Zeichen.']);
+				exit;
+			}
+
+			if (empty($PLANET['id'])) {
+				echo json_encode(['error' => true, 'message' => 'Planet nicht gefunden.']);
+				exit;
+			}
+
+			$db  = Database::get();
+			$sql = "UPDATE %%PLANETS%% SET name = :newName WHERE id = :planetID;";
+			$db->update($sql, [':newName' => $newname, ':planetID' => (int)$PLANET['id']]);
+
+			echo json_encode(['error' => false, 'message' => $LNG['ov_newname_done'] ?? 'Erfolgreich umbenannt.']);
+		} catch (\Throwable $e) {
+			echo json_encode(['error' => true, 'message' => 'Server-Fehler: ' . $e->getMessage()]);
 		}
-
-		if (!PlayerUtil::isNameValid($newname)) {
-			echo json_encode(['error' => true, 'message' => $LNG['ov_newname_specialchar']]);
-			exit;
-		}
-
-		$db = Database::get();
-		$sql = "UPDATE %%PLANETS%% SET name = :newName WHERE id = :planetID;";
-		$db->update($sql, [':newName' => $newname, ':planetID' => $PLANET['id']]);
-
-		echo json_encode(['error' => false, 'message' => $LNG['ov_newname_done']]);
 		exit;
 	}
 	

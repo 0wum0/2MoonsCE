@@ -6,16 +6,25 @@ $(function() {
 
 function checkrename()
 {
-	if($.trim($('#name').val()) == '') {
+	var name = $.trim($('#name').val());
+	if(name === '') {
 		return false;
-	} else {
-		$.getJSON('game.php?page=overview&mode=rename&name='+encodeURIComponent($('#name').val()), function(response){
-			alert(response.message);
-			if(!response.error) {
+	}
+	$.ajax({
+		url:  'game.php?page=overview&mode=rename&ajax=1',
+		type: 'POST',
+		data: { name: name },
+		dataType: 'json',
+		success: function(response) {
+			if (response && response.message) alert(response.message);
+			if (response && !response.error) {
 				parent.location.reload();
 			}
-		});
-	}
+		},
+		error: function(xhr) {
+			alert('Fehler beim Speichern. Antwort: ' + xhr.responseText.substring(0, 200));
+		}
+	});
 }
 
 function checkcancel()
