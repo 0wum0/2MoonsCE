@@ -1066,10 +1066,11 @@ function buildPlanets(planets) {
           ally_id: 0, ally_tag: '', total_rank: 0, total_points: 0,
           is_own: false, is_ally: false, has_moon: false, has_debris: false, is_empty: true
         };
-        // Same visual weight as a user planet (avg rankScale ≈ 0.9 → sz ≈ 4.0)
-        const emptyColor   = '#5ab4e8'; // bright steel-blue – clearly visible
-        const emptyOpacity = 0.85;
-        const emptyScale   = 4.5;       // identical base size to user planets
+        // Empty slot: large enough to see at default camera distance (orb.r=3000-4000)
+        // sizeAttenuation=true means scale must be much larger than user planets at close zoom
+        const emptyColor   = '#40c8ff'; // bright cyan-blue – distinct from dark bg
+        const emptyOpacity = 0.90;
+        const emptyScale   = (window.innerWidth <= 768) ? 6.0 : 8.0;
         const emptySprite = new THREE.Sprite(new THREE.SpriteMaterial({
           map: circleTex(emptyColor), transparent: true, opacity: emptyOpacity,
           depthWrite: false, sizeAttenuation: true
@@ -1078,6 +1079,16 @@ function buildPlanets(planets) {
         emptySprite.scale.setScalar(emptyScale);
         emptySprite.userData = { type: 'planet', planet: emptyPl, baseScale: emptyScale, key };
         planetGroup.add(emptySprite);
+        // Outer glow ring so empty slots are visible even when camera is far out
+        const emptyGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: circleTex(emptyColor), transparent: true, opacity: 0.22,
+          depthWrite: false, sizeAttenuation: true
+        }));
+        emptyGlow.position.set(initX, heightOff, initZ);
+        emptyGlow.scale.setScalar(emptyScale * 2.2);
+        emptyGlow.userData = { isGlow: true };
+        planetGroup.add(emptyGlow);
+        orbitData.push({ mesh: emptyGlow, sunX, sunZ, radius: orbitRadius, speed: orbitSpeed * 0.6, angle: initAngle, heightOff, key: null });
         planetMeshes.push(emptySprite);
         posMap[key] = emptySprite.position.clone();
         orbitData.push({ mesh: emptySprite, sunX, sunZ, radius: orbitRadius, speed: orbitSpeed * 0.6, angle: initAngle, heightOff, key });
