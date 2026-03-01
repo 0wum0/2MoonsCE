@@ -26,6 +26,61 @@
 
 {% block script %}
 <script>
+// ── Planet rename ──────────────────────────────────────────
+function ovStartRename() {
+  const display = document.getElementById('ov-planet-name-display');
+  const input   = document.getElementById('ov-planet-name-input');
+  const nameEl  = document.getElementById('ov-pname-text');
+  if (!display || !input || !nameEl) return;
+  input.value = nameEl.textContent;
+  display.style.display = 'none';
+  input.style.display   = 'inline-block';
+  input.focus();
+  input.select();
+}
+function ovCancelRename() {
+  const display = document.getElementById('ov-planet-name-display');
+  const input   = document.getElementById('ov-planet-name-input');
+  if (!display || !input) return;
+  input.style.display   = 'none';
+  display.style.display = '';
+}
+var _ovSaving = false;
+function ovSaveRename() {
+  if (_ovSaving) return;
+  const display = document.getElementById('ov-planet-name-display');
+  const input   = document.getElementById('ov-planet-name-input');
+  const nameEl  = document.getElementById('ov-pname-text');
+  if (!display || !input || !nameEl) return;
+  const newName = input.value.trim();
+  if (!newName || newName === nameEl.textContent) { ovCancelRename(); return; }
+  _ovSaving = true;
+  input.disabled = true;
+  fetch('game.php?page=overview&mode=rename', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'name=' + encodeURIComponent(newName)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data && !data.error) {
+      nameEl.textContent = newName;
+      // Also update page title and planet selector in header if present
+      document.title = document.title.replace(/^[^|]+/, newName + ' ');
+      const selOpt = document.querySelector('#planetSelector option[selected], #planet-select option[selected]');
+      if (selOpt) selOpt.textContent = newName + selOpt.textContent.replace(/^[^\[]+/, '');
+    } else if (data && data.message) {
+      alert(data.message);
+    }
+  })
+  .catch(() => {})
+  .finally(() => {
+    _ovSaving = false;
+    input.disabled = false;
+    ovCancelRename();
+  });
+}
+
 window.OVERVIEW_DATA = {
   planet_name:   {{ planetname|default('Planet')|json_encode|raw }},
   planet_image:  {{ planetimage|default('')|json_encode|raw }},
@@ -125,7 +180,8 @@ window.OVERVIEW_DATA = {
       <div class="ov-card ov-planet-card">
         <div class="ov-card-header">
           <i class="fas fa-globe-americas"></i>
-          <span>&ldquo;{{ planetname }}&rdquo;</span>
+          <span id="ov-planet-name-display" class="ov-planet-name-editable" onclick="ovStartRename()" title="{{ LNG.ov_rename|default('Planet umbenennen') }}">&ldquo;<span id="ov-pname-text">{{ planetname }}</span>&rdquo; <i class="fas fa-pen" style="font-size:9px;opacity:.55;margin-left:3px;"></i></span>
+          <input id="ov-planet-name-input" class="ov-planet-name-input" type="text" maxlength="20" style="display:none" onblur="ovSaveRename()" onkeydown="if(event.key==='Enter')ovSaveRename();if(event.key==='Escape')ovCancelRename();">
           <a href="#" onclick="return Dialog.PlanetAction();" class="ov-icon-btn" title="{{ LNG.ov_planetmenu }}"><i class="fas fa-ellipsis-v"></i></a>
         </div>
         <div class="ov-planet-scene" id="ovPlanetScene">
@@ -317,6 +373,15 @@ window.OVERVIEW_DATA = {
 </div>
 
 <style>
+/* ── PLANET RENAME ── */
+.ov-planet-name-editable { cursor:pointer; transition:color .15s; }
+.ov-planet-name-editable:hover { color:var(--cyan); }
+.ov-planet-name-input {
+  background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.45);
+  border-radius:5px; color:#fff; font-size:13px; font-family:inherit;
+  padding:2px 8px; outline:none; width:160px; margin:0 4px;
+}
+.ov-planet-name-input:focus { border-color:rgba(0,212,255,0.9); box-shadow:0 0 8px rgba(0,212,255,0.25); }
 /* ── PAGE BASE ── */
 .ov-page { padding-bottom:24px; }
 .ov-alert { background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px 16px; margin-bottom:14px; font-size:13px; color:var(--cyan); }
