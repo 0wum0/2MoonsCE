@@ -1,0 +1,23 @@
+# Normalize line endings and enforce no-BOM for all text files
+* text=auto eol=lf
+
+*.php    text eol=lf
+*.json   text eol=lf
+*.twig   text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.html   text eol=lf
+*.md     text eol=lf
+*.sql    text eol=lf
+*.xml    text eol=lf
+
+# Binary files - never touch line endings
+*.gif    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.ico    binary
+*.zip    binary
+*.ttf    binary
+*.woff   binary
+*.woff2  binary
