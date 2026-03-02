@@ -66,7 +66,7 @@ function ShowPluginAdminPage(): void
     $pm     = PluginManager::get();
     $action = HTTP::_GP('action', '');
     $id     = HTTP::_GP('pluginId', '');
-    $id     = preg_replace('/[^a-z0-9\-_]/', '', strtolower($id));
+    $id     = preg_replace('/[^a-zA-Z0-9\-_]/', '', $id);
 
     $message = '';
     $error   = '';
@@ -192,7 +192,8 @@ function ShowPluginAdminPage(): void
             if (isset($scanned[$pid])) {
                 $mf = $scanned[$pid];
             } else {
-                $mf = $pm->readManifest(ROOT_PATH . 'plugins/' . $pid);
+                $dir = resolvePluginDir($pid);
+                $mf  = $dir !== null ? $pm->readManifest($dir) : $pm->readManifest(ROOT_PATH . 'plugins/' . $pid);
             }
             $pluginRow['settings']    = is_array($mf['settings'] ?? null) ? $mf['settings'] : [];
             $pluginRow['description'] = (string) ($mf['description'] ?? '');
