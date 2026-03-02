@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/LiveFleetDb.php';
+require_once ROOT_PATH . 'includes/classes/cronjob/CronjobTask.interface.php';
 
 /**
  * LiveFleetCronjob – runs every 5 minutes.
