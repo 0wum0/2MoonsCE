@@ -231,11 +231,11 @@ class Cronjob
         foreach($cronjobResult as $cronjobRow)
         {
             $cronTabString = implode(' ', array(
-                (string)$cronjobRow['min'], 
-                (string)$cronjobRow['hours'], 
-                (string)$cronjobRow['dom'], 
-                (string)$cronjobRow['month'], 
-                (string)$cronjobRow['dow']
+                trim((string)$cronjobRow['min'])   ?: '*',
+                trim((string)$cronjobRow['hours'])  ?: '*',
+                trim((string)$cronjobRow['dom'])    ?: '*',
+                trim((string)$cronjobRow['month'])  ?: '*',
+                trim((string)$cronjobRow['dow'])    ?: '*',
             ));
 
             try {

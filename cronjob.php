@@ -97,6 +97,21 @@ try {
     );
 }
 
+// ── Load plugin cronjob registrations ────────────────────────────────────────
+// Plugin cronjobs (e.g. GalacticEventsCronjob) register their file paths via
+// PluginManager::registerCronjob() inside plugin.php.  Without this, Cronjob::execute()
+// cannot resolve the path and silently skips the job.
+if (class_exists('PluginManager')) {
+    try {
+        PluginManager::get()->loadActivePlugins();
+    } catch (Throwable $e) {
+        @file_put_contents(ROOT_PATH . 'cache/cron_debug.log',
+            '[' . date('Y-m-d H:i:s') . '] WARNING: loadActivePlugins() failed: ' . $e->getMessage() . PHP_EOL,
+            FILE_APPEND | LOCK_EX
+        );
+    }
+}
+
 // ── Determine which jobs are due ─────────────────────────────────────────────
 $cronjobsTodo = Cronjob::getNeedTodoExecutedJobs();
 $isDue        = in_array($cronjobID, $cronjobsTodo, true);

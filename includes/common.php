@@ -52,7 +52,9 @@ error_reporting(E_ALL & ~E_STRICT);
 date_default_timezone_set(@date_default_timezone_get());
 
 ini_set('display_errors', '1');
-header('Content-Type: text/html; charset=UTF-8');
+if (!defined('MODE') || (MODE !== 'CRON' && PHP_SAPI !== 'cli')) {
+    header('Content-Type: text/html; charset=UTF-8');
+}
 if (!defined('TIMESTAMP')) {
     define('TIMESTAMP', time());
 }
@@ -113,7 +115,8 @@ if (MODE === 'INSTALL')
 }
 
 if(!file_exists('includes/config.php') || filesize('includes/config.php') === 0) {
-	HTTP::redirectTo('install/index.php');
+	if (MODE !== 'CRON') HTTP::redirectTo('install/index.php');
+	else exit('Missing config.php');
 }
 
 try {
@@ -126,7 +129,7 @@ try {
     $dbNeedsUpgrade = true;
 }
 
-if ($dbNeedsUpgrade) {
+if ($dbNeedsUpgrade && MODE !== 'CRON') {
     HTTP::redirectTo('install/index.php?mode=upgrade');
 }
 
