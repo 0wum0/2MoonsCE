@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  *	SmartMoons / 2Moons Community Edition (2MoonsCE)
  * 
