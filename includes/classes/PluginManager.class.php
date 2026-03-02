@@ -486,17 +486,62 @@ class PluginManager
     private array $cronjobPaths = [];
 
     /**
-     * Register a plugin cronjob class file.
+     * Register a plugin cronjob class file AND ensure the DB row exists.
      * Called from plugin.php:
      *   PluginManager::get()->registerCronjob('sm-relics', 'RelicsTick',
      *       'cron/RelicsTick.php');
      *
+     * Optional $schedule overrides the cron timing (default: every 5 minutes).
+     * Uses INSERT IGNORE so calling this on every page load is safe (idempotent).
+     *
      * Cronjob::execute() will find this path when the DB row has class=RelicsTick.
      */
-    public function registerCronjob(string $pluginId, string $className, string $relativeFile): void
-    {
+    public function registerCronjob(
+        string $pluginId,
+        string $className,
+        string $relativeFile,
+        array  $schedule = []
+    ): void {
         $absFile = $this->pluginDir($pluginId) . ltrim($relativeFile, '/');
         $this->cronjobPaths[$className] = $absFile;
+
+        // Auto-insert the cronjob row if it doesn't exist yet (INSERT IGNORE = idempotent).
+        // Only run when DB is available (not during INSTALL mode).
+        if (!defined('MODE') || MODE === 'INSTALL') {
+            return;
+        }
+        try {
+            $db  = Database::get();
+            $min   = $schedule['min']   ?? '*/5';
+            $hours = $schedule['hours'] ?? '*';
+            $dom   = $schedule['dom']   ?? '*';
+            $month = $schedule['month'] ?? '*';
+            $dow   = $schedule['dow']   ?? '*';
+            $name  = $schedule['name']  ?? $className;
+
+            $existing = $db->selectSingle(
+                "SELECT cronjobID FROM %%CRONJOBS%% WHERE `class` = :cls LIMIT 1;",
+                [':cls' => $className],
+                'cronjobID'
+            );
+            if (empty($existing)) {
+                $db->insert(
+                    "INSERT INTO %%CRONJOBS%% (`name`,`isActive`,`min`,`hours`,`dom`,`month`,`dow`,`class`,`nextTime`)"
+                    . " VALUES (:name,1,:min,:hours,:dom,:month,:dow,:class,0);",
+                    [
+                        ':name'  => $name,
+                        ':min'   => $min,
+                        ':hours' => $hours,
+                        ':dom'   => $dom,
+                        ':month' => $month,
+                        ':dow'   => $dow,
+                        ':class' => $className,
+                    ]
+                );
+            }
+        } catch (Throwable $e) {
+            error_log('[PluginManager] registerCronjob DB insert failed for ' . $className . ': ' . $e->getMessage());
+        }
     }
 
     /**
