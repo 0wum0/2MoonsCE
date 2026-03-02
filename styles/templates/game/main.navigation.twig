@@ -94,6 +94,37 @@
             <a href="game.php?page=galaxy" class="nav-link{% if GET.page|default('') == 'galaxy' %} active{% endif %}">
                 <i class="fas fa-globe"></i><span class="nav-link-text">{{ LNG.lm_galaxy }}</span>
             </a>
+            <a href="game.php?page=galaxyMap" class="nav-link{% if GET.page|default('') == 'galaxyMap' %} active{% endif %}" style="padding-left:2rem;">
+                <i class="fas fa-map"></i>
+                <span class="nav-link-text" style="display:flex;align-items:center;gap:6px;">
+                    Galaxy Map
+                    <span id="nav-gm-2d" onclick="event.preventDefault();event.stopPropagation();setGmView('2d');" title="2D Ansicht"
+                          style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:background .2s;">2D</span>
+                    <span id="nav-gm-3d" onclick="event.preventDefault();event.stopPropagation();setGmView('3d');" title="3D Ansicht"
+                          style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:background .2s;">3D</span>
+                </span>
+            </a>
+            <script>
+            (function(){
+                function highlightGmView(v){
+                    var a=document.getElementById('nav-gm-2d'), b=document.getElementById('nav-gm-3d');
+                    if(!a||!b) return;
+                    var active='background:rgba(79,142,247,0.25);border-color:rgba(79,142,247,0.6);color:#7ec8f7;';
+                    var idle='background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);';
+                    a.style.cssText=a.style.cssText.replace(/background[^;]+;/g,'').replace(/border-color[^;]+;/g,'').replace(/color[^;]+;/g,'');
+                    b.style.cssText=b.style.cssText.replace(/background[^;]+;/g,'').replace(/border-color[^;]+;/g,'').replace(/color[^;]+;/g,'');
+                    if(v==='2d'){ a.style.background='rgba(79,142,247,0.25)'; a.style.borderColor='rgba(79,142,247,0.6)'; a.style.color='#7ec8f7'; }
+                    else        { b.style.background='rgba(79,142,247,0.25)'; b.style.borderColor='rgba(79,142,247,0.6)'; b.style.color='#7ec8f7'; }
+                }
+                window.setGmView = function(v){
+                    localStorage.setItem('gm_view', v);
+                    highlightGmView(v);
+                    if(window.location.href.indexOf('galaxyMap')!==-1 && typeof setView==='function') setView(v);
+                    else window.location.href='game.php?page=galaxyMap';
+                };
+                highlightGmView(localStorage.getItem('gm_view')||'3d');
+            })();
+            </script>
             {% endif %}
 
             {% if isModuleAvailable(constant('MODULE_FLEET_TRADER')) %}
