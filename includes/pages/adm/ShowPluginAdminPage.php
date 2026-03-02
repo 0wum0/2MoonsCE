@@ -26,6 +26,39 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
+/**
+ * Resolve the real filesystem path to a plugin directory by its id.
+ * Plugin folder names may differ in casing from the id stored in the DB
+ * (e.g. folder 'GalacticEvents' vs id 'galactic_events').
+ * Scans plugins/ for a sub-directory whose manifest.json declares the given id.
+ * Returns null if not found.
+ */
+function resolvePluginDir(string $pluginId): ?string
+{
+    $base = ROOT_PATH . 'plugins/';
+    if (!is_dir($base)) {
+        return null;
+    }
+    foreach (scandir($base) as $entry) {
+        if ($entry === '.' || $entry === '..') {
+            continue;
+        }
+        $dir = $base . $entry;
+        if (!is_dir($dir)) {
+            continue;
+        }
+        $mf = $dir . '/manifest.json';
+        if (!file_exists($mf)) {
+            continue;
+        }
+        $data = json_decode((string)file_get_contents($mf), true);
+        if (is_array($data) && isset($data['id']) && (string)$data['id'] === $pluginId) {
+            return $dir;
+        }
+    }
+    return null;
+}
+
 function ShowPluginAdminPage(): void
 {
     global $LNG;
@@ -74,7 +107,8 @@ function ShowPluginAdminPage(): void
 
     if ($action === 'installLocal' && $id !== '') {
         try {
-            $manifest = $pm->readManifest(ROOT_PATH . 'plugins/' . $id);
+            $pluginDir = resolvePluginDir($id) ?? (ROOT_PATH . 'plugins/' . $id);
+            $manifest = $pm->readManifest($pluginDir);
             $pm->install($manifest);
             $message = 'Plugin "' . htmlspecialchars($manifest['name']) . '" installiert.';
             $cacheChanged = true;
@@ -85,7 +119,8 @@ function ShowPluginAdminPage(): void
 
     if ($action === 'saveConfig' && $id !== '') {
         try {
-            $manifest  = $pm->readManifest(ROOT_PATH . 'plugins/' . $id);
+            $pluginDir = resolvePluginDir($id) ?? (ROOT_PATH . 'plugins/' . $id);
+            $manifest  = $pm->readManifest($pluginDir);
             $settings  = is_array($manifest['settings'] ?? null) ? $manifest['settings'] : [];
             $newConfig = [];
             foreach ($settings as $field) {
@@ -141,11 +176,24 @@ function ShowPluginAdminPage(): void
 
     $installedPlugins = $pm->getAllPlugins();
 
-    // Enrich each installed plugin with settings schema + current config
+    // Scan filesystem first so we can do case-insensitive folder lookup below.
+    // scanPluginsDir() keys manifests by the id field inside manifest.json, which
+    // matches the DB id — independent of the actual folder name casing.
+    $scanned = $pm->scanPluginsDir();
+
+    // Enrich each installed plugin with settings schema + current config.
+    // Use the scanned manifest (keyed by plugin id) to avoid folder-name casing
+    // mismatches (e.g. folder 'GalacticEvents' vs id 'galactic_events').
     foreach ($installedPlugins as &$pluginRow) {
         $pid = (string) $pluginRow['id'];
         try {
-            $mf = $pm->readManifest(ROOT_PATH . 'plugins/' . $pid);
+            // Prefer the already-scanned manifest (avoids folder-name casing issue).
+            // Fall back to direct path lookup for plugins whose folder name matches id.
+            if (isset($scanned[$pid])) {
+                $mf = $scanned[$pid];
+            } else {
+                $mf = $pm->readManifest(ROOT_PATH . 'plugins/' . $pid);
+            }
             $pluginRow['settings']    = is_array($mf['settings'] ?? null) ? $mf['settings'] : [];
             $pluginRow['description'] = (string) ($mf['description'] ?? '');
             $pluginRow['author']      = (string) ($mf['author']      ?? '');
@@ -157,9 +205,6 @@ function ShowPluginAdminPage(): void
         $pluginRow['config'] = $pm->getAllConfig($pid);
     }
     unset($pluginRow);
-
-    // Scan filesystem for plugins not yet in DB
-    $scanned = $pm->scanPluginsDir();
     $installedIds = array_column($installedPlugins, 'id');
 
     $uninstalledPlugins = [];
@@ -192,21 +237,23 @@ function ShowPluginAdminPage(): void
     // We need to match them back to plugin ids by checking the registered file paths.
     $adminRouteMap = [];
     foreach ($pm->getAdminRoutes() as $pageName => $route) {
-        // File path contains plugins/<id>/ — extract id from path
+        // File path contains plugins/<FolderName>/ — extract folder name from path.
+        // Normalise to lowercase so it matches plugin IDs regardless of folder casing
+        // (e.g. 'GalacticEvents' folder → id 'galactic_events').
         $pluginsDir = str_replace('\\', '/', ROOT_PATH . 'plugins/');
         $filePath   = str_replace('\\', '/', $route['file']);
         if (str_starts_with($filePath, $pluginsDir)) {
             $rel   = substr($filePath, strlen($pluginsDir));
             $parts = explode('/', $rel);
             if (!empty($parts[0])) {
-                $adminRouteMap[$parts[0]] = $pageName;
+                $adminRouteMap[strtolower($parts[0])] = $pageName;
             }
         }
     }
 
     // Attach admin_page to each installed plugin
     foreach ($installedPlugins as &$pluginRow) {
-        $pluginRow['admin_page'] = $adminRouteMap[(string)$pluginRow['id']] ?? '';
+        $pluginRow['admin_page'] = $adminRouteMap[strtolower((string)$pluginRow['id'])] ?? '';
     }
     unset($pluginRow);
 
