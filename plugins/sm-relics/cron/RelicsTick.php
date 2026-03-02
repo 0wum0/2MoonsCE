@@ -24,7 +24,6 @@ declare(strict_types=1);
  * Licensed under the MIT License.
  * See LICENSE for details.
  * @visit http://makeit.uno/
- */10'
  *
  * Every tick:
  *   relic_points += base_points_per_tick + (smr_relic_archive_level * archive_multiplier)

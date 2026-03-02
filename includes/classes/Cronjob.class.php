@@ -94,20 +94,20 @@ class Cronjob
 
         // 3. Job ausführen
         if (file_exists($cronjobPath)) {
-            require_once($cronjobPath);
-            /** @var $cronjobObj CronjobTask */
-            $cronjobObj = new $cronjobClassName;
-            self::cronLog("execute() running: $cronjobClassName");
             try {
+                require_once($cronjobPath);
+                /** @var $cronjobObj CronjobTask */
+                $cronjobObj = new $cronjobClassName;
+                self::cronLog("execute() running: $cronjobClassName");
                 $cronjobObj->run();
                 self::cronLog("execute() finished: $cronjobClassName");
             } catch (Throwable $e) {
                 self::cronLog("execute() ERROR in $cronjobClassName: " . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
-                // Release lock before re-throwing so next run isn't blocked
+                // Release lock so next run isn't blocked (covers parse errors too)
                 $db->update('UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL WHERE cronjobID = :cronjobId;', [
                     ':cronjobId' => $cronjobID
                 ]);
-                throw $e;
+                return;
             }
         } else {
             self::cronLog("execute() ERROR: class file not found: $cronjobPath");
