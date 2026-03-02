@@ -24,7 +24,7 @@ declare(strict_types=1);
  * See LICENSE for details.
  * @visit http://makeit.uno/
  */
-define('DB_VERSION_REQUIRED', 13);
+define('DB_VERSION_REQUIRED', 14);
 define('DB_NAME'			, $databaseConfig['dbname']);
 define('DB_PREFIX'			, $databaseConfig['prefix']);
 
