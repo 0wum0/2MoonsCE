@@ -140,19 +140,28 @@ class Database
     }
 
     /**
-     * Drop the current PDO handle and reconnect.
-     * Use before critical queries in shutdown context (e.g. Session::save())
-     * to clear any open statement cursors that LiteSpeed leaves dangling.
+     * Clear any open PDO statement cursors without reconnecting.
+     * Runs a trivial SELECT 1 with buffered mode to flush internal MySQL
+     * protocol state that LiteSpeed leaves dangling (error 2014).
      */
     public function reconnect(): void
     {
-        $this->dbHandle = null;
-        self::$instance = null;
-        // Re-run constructor via get() on next call — reset state cleanly
-        $fresh = new self();
-        $this->dbHandle       = $fresh->dbHandle;
-        $this->dbTableNames   = $fresh->dbTableNames;
-        self::$instance       = $this;
+        if ($this->dbHandle === null) {
+            return;
+        }
+        try {
+            // Ensure buffered mode is active
+            $this->dbHandle->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+            // Execute and fully consume a trivial query to reset protocol state
+            $stmt = $this->dbHandle->query('SELECT 1');
+            if ($stmt) {
+                $stmt->fetchAll();
+                $stmt->closeCursor();
+                $stmt = null;
+            }
+        } catch (Throwable $e) {
+            // If even this fails the handle is broken – nothing more we can do
+        }
     }
 
     public function getHandle(): ?PDO
