@@ -25,133 +25,293 @@
 
 {% block title %}{{ LNG.write_message }}{% endblock %}
 {% block content %}
-<div class="galactic-write-wrap">
-    <div class="popup-galactic-head">
-        <i class="far fa-edit"></i> {{ LNG.mg_send_new }}
+<style>
+/* ── COMPOSE FORM ─────────────────────────────────────────── */
+.mcc-compose {
+    --c-bg:      #07090f;
+    --c-surface: #0d1220;
+    --c-border:  #1a2840;
+    --c-accent:  #38bdf8;
+    --c-text:    #c8d4e8;
+    --c-muted:   #4a5a72;
+    display: flex; flex-direction: column;
+    height: 100%; min-height: 480px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px; color: var(--c-text);
+    background: var(--c-bg);
+}
+
+/* header */
+.mcc-compose-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(90deg, #080d18 0%, #0d1525 100%);
+    border-bottom: 1px solid var(--c-border);
+    flex-shrink: 0;
+}
+.mcc-compose-head-icon {
+    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+    background: linear-gradient(135deg, #0284c7, #0f172a);
+    border: 1px solid rgba(56,189,248,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--c-accent); font-size: 15px;
+}
+.mcc-compose-head-title {
+    font-size: 15px; font-weight: 700; color: #fff;
+}
+.mcc-compose-head-sub {
+    font-size: 10px; color: var(--c-muted); margin-top: 1px;
+}
+
+/* form body */
+.mcc-compose-body {
+    flex: 1; padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #1e3a5f var(--c-bg);
+}
+.mcc-compose-body::-webkit-scrollbar { width: 5px; }
+.mcc-compose-body::-webkit-scrollbar-track { background: var(--c-bg); }
+.mcc-compose-body::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+
+/* field group */
+.mcc-field { display: flex; flex-direction: column; gap: 5px; }
+.mcc-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--c-muted); font-weight: 700;
+}
+.mcc-input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--c-border); border-radius: 7px;
+    padding: 9px 13px; color: var(--c-text); font-size: 13px;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit; width: 100%; box-sizing: border-box;
+}
+.mcc-input:focus {
+    border-color: rgba(56,189,248,0.5);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.08);
+}
+.mcc-input[readonly] { color: var(--c-muted); cursor: default; }
+.mcc-input::placeholder { color: #2a3a50; }
+
+/* BB toolbar */
+.mcc-bb-toolbar {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding: 8px; border-radius: 7px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--c-border);
+}
+.mcc-bb-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 30px; height: 26px; padding: 0 7px;
+    border-radius: 5px; font-size: 11px; font-weight: 600;
+    background: rgba(255,255,255,0.04); border: 1px solid #1a2840;
+    color: var(--c-muted); cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+}
+.mcc-bb-btn:hover { background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.35); color: var(--c-accent); }
+
+/* textarea */
+.mcc-textarea {
+    resize: vertical; min-height: 160px;
+    line-height: 1.6;
+}
+
+/* char counter */
+.mcc-char-counter {
+    font-size: 10px; color: var(--c-muted); text-align: right;
+}
+.mcc-char-counter.warn { color: #f97316; }
+.mcc-char-counter.over { color: #ef4444; }
+
+/* footer */
+.mcc-compose-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--c-border);
+    background: rgba(0,0,0,0.2);
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+}
+.mcc-send-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 22px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    border: 1px solid rgba(56,189,248,0.4);
+    color: #fff; cursor: pointer; transition: all 0.18s;
+    box-shadow: 0 2px 14px rgba(2,132,199,0.3);
+}
+.mcc-send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    box-shadow: 0 4px 22px rgba(56,189,248,0.4);
+}
+.mcc-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.mcc-send-status {
+    font-size: 11px; color: var(--c-muted); flex: 1;
+}
+</style>
+
+<div class="mcc-compose">
+
+    <div class="mcc-compose-head">
+        <div class="mcc-compose-head-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
+                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div>
+            <div class="mcc-compose-head-title">{{ LNG.mg_send_new }}</div>
+            <div class="mcc-compose-head-sub">Neue Nachricht verfassen</div>
+        </div>
     </div>
 
-    <form name="message" id="message-form-galactic">
+    <form name="message" id="mcc-compose-form">
         <input type="hidden" name="id" value="{{ id }}">
 
-        <div class="g-form-group">
-            <label class="g-label-cyan">{{ LNG.mg_send_to }}</label>
-            {% if allowFreeRecipient %}
-            <input type="text" name="to" id="to" class="g-input-field" value="{{ OwnerRecord.username|default('') }}" placeholder="Empfänger eingeben...">
-            {% else %}
-            <input type="text" name="to" id="to" class="g-input-field g-input-readonly" value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]" readonly>
-            {% endif %}
-        </div>
+        <div class="mcc-compose-body">
 
-        <div class="g-form-group">
-            <label class="g-label-cyan">{{ LNG.mg_subject }}</label>
-            <input type="text" name="subject" id="subject" class="g-input-field" maxlength="40" value="{% if subject %}{{ subject }}{% else %}{{ LNG.mg_no_subject }}{% endif %}">
-        </div>
-
-        <div class="g-form-group">
-            <label class="g-label-cyan">
-                {{ LNG.mg_message }}
-                <span class="char-counter">(<span id="cntChars">0</span> / 5.000)</span>
-            </label>
-
-            <div class="bb-toolbar-galactic">
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('b')"><b>B</b></button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('i')"><i>I</i></button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('u')"><u>U</u></button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('s')"><s>S</s></button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('url')">🔗 Link</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('img')">🖼 Bild</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('quote')">❝ Zitat</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('code')">⌨ Code</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBBHr()">— HR</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBBList()">≡ Liste</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBBOList()">1. Liste</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBBTable()">⊞ Tabelle</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('color=red')">🎨 Farbe</button>
-                <button type="button" class="bb-btn-galactic" onclick="msgBB('size=16')">Aa Größe</button>
+            <div class="mcc-field">
+                <label class="mcc-label">{{ LNG.mg_send_to }}</label>
+                {% if allowFreeRecipient %}
+                <input type="text" name="to" id="to" class="mcc-input" value="{{ OwnerRecord.username|default('') }}" placeholder="Spielername eingeben…">
+                {% else %}
+                <input type="text" name="to" id="to" class="mcc-input" readonly
+                    value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]">
+                {% endif %}
             </div>
 
-            <textarea name="text" id="text" class="g-input-field g-textarea-field" onkeyup="document.getElementById('cntChars').textContent=this.value.length;">{{ message|default('') }}</textarea>
+            <div class="mcc-field">
+                <label class="mcc-label">{{ LNG.mg_subject }}</label>
+                <input type="text" name="subject" id="subject" class="mcc-input" maxlength="40"
+                    value="{% if subject %}{{ subject }}{% else %}{{ LNG.mg_no_subject }}{% endif %}">
+            </div>
+
+            <div class="mcc-field">
+                <label class="mcc-label">{{ LNG.mg_message }}</label>
+                <div class="mcc-bb-toolbar">
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('b')"><b>B</b></button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('i')"><i>I</i></button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('u')"><u>U</u></button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('s')"><s>S</s></button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('url')">🔗</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('img')">🖼</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('quote')">❝ Zitat</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('code')">⌨ Code</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBBHr()">— HR</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBBList()">≡ Liste</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBBOList()">1. Liste</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBBTable()">⊞ Tabelle</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('color=red')">🎨</button>
+                    <button type="button" class="mcc-bb-btn" onclick="msgBB('size=16')">Aa</button>
+                </div>
+                <textarea name="text" id="text" class="mcc-input mcc-textarea"
+                    oninput="mccUpdateCounter(this)">{{ message|default('') }}</textarea>
+                <div class="mcc-char-counter" id="mcc-counter">0 / 5.000</div>
+            </div>
+
         </div>
 
-        <input id="submit-btn" type="button" onClick="check();" class="btn-galactic-send" value="{{ LNG.mg_send }}">
+        <div class="mcc-compose-footer">
+            <button type="button" id="mcc-send-btn" class="mcc-send-btn" onclick="mccSend()">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                </svg>
+                {{ LNG.mg_send }}
+            </button>
+            <span class="mcc-send-status" id="mcc-send-status"></span>
+        </div>
     </form>
+
 </div>
 
 {% autoescape false %}
-<script type="text/javascript">
+<script>
 function msgBB(tag) {
     const area = document.getElementById('text');
     if (!area) return;
-    const start = area.selectionStart;
-    const end   = area.selectionEnd;
-    const sel   = area.value.substring(start, end);
+    const s = area.selectionStart, e = area.selectionEnd;
+    const sel = area.value.substring(s, e);
     let open = tag, close = tag;
-    if (tag.indexOf('=') !== -1) { close = tag.split('=')[0]; }
+    if (tag.indexOf('=') !== -1) close = tag.split('=')[0];
     if (tag === 'url') { open = 'url=https://'; close = 'url'; }
-    const insert = '[' + open + ']' + sel + '[/' + close + ']';
-    area.value = area.value.substring(0, start) + insert + area.value.substring(end);
-    area.selectionStart = area.selectionEnd = start + insert.length;
-    area.focus();
+    const ins = '[' + open + ']' + sel + '[/' + close + ']';
+    area.value = area.value.substring(0, s) + ins + area.value.substring(e);
+    area.selectionStart = area.selectionEnd = s + ins.length;
+    area.focus(); mccUpdateCounter(area);
 }
 function msgBBHr() {
     const area = document.getElementById('text');
-    const pos = area.selectionStart;
-    area.value = area.value.substring(0, pos) + '[hr]\n' + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + 5;
-    area.focus();
+    const p = area.selectionStart;
+    area.value = area.value.substring(0, p) + '[hr]\n' + area.value.substring(p);
+    area.selectionStart = area.selectionEnd = p + 5;
+    area.focus(); mccUpdateCounter(area);
 }
 function msgBBList() {
-    const area = document.getElementById('text');
-    const pos = area.selectionStart;
-    const tpl = '[list]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
-    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + tpl.length;
-    area.focus();
+    const area = document.getElementById('text'), p = area.selectionStart;
+    const t = '[list]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
+    area.value = area.value.substring(0, p) + t + area.value.substring(p);
+    area.selectionStart = area.selectionEnd = p + t.length;
+    area.focus(); mccUpdateCounter(area);
 }
 function msgBBOList() {
-    const area = document.getElementById('text');
-    const pos = area.selectionStart;
-    const tpl = '[list=1]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
-    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + tpl.length;
-    area.focus();
+    const area = document.getElementById('text'), p = area.selectionStart;
+    const t = '[list=1]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
+    area.value = area.value.substring(0, p) + t + area.value.substring(p);
+    area.selectionStart = area.selectionEnd = p + t.length;
+    area.focus(); mccUpdateCounter(area);
 }
 function msgBBTable() {
-    const area = document.getElementById('text');
-    const pos = area.selectionStart;
-    const tpl = '[table]\n[tr][th]Spalte 1[/th][th]Spalte 2[/th][/tr]\n[tr][td]Zelle 1[/td][td]Zelle 2[/td][/tr]\n[/table]\n';
-    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + tpl.length;
-    area.focus();
+    const area = document.getElementById('text'), p = area.selectionStart;
+    const t = '[table]\n[tr][th]Spalte 1[/th][th]Spalte 2[/th][/tr]\n[tr][td]Zelle 1[/td][td]Zelle 2[/td][/tr]\n[/table]\n';
+    area.value = area.value.substring(0, p) + t + area.value.substring(p);
+    area.selectionStart = area.selectionEnd = p + t.length;
+    area.focus(); mccUpdateCounter(area);
 }
-function check(){
-    if(document.getElementById('text').value.trim().length === 0) {
-        alert('{{ LNG.mg_empty_text }}');
-        return false;
+function mccUpdateCounter(area) {
+    const len = area.value.length;
+    const el = document.getElementById('mcc-counter');
+    if (!el) return;
+    el.textContent = len.toLocaleString('de-DE') + ' / 5.000';
+    el.className = 'mcc-char-counter' + (len > 5000 ? ' over' : len > 4000 ? ' warn' : '');
+}
+function mccSend() {
+    const text = document.getElementById('text');
+    if (!text || text.value.trim().length === 0) {
+        document.getElementById('mcc-send-status').textContent = '{{ LNG.mg_empty_text }}';
+        return;
     }
-    const btn = document.getElementById('submit-btn');
+    const btn = document.getElementById('mcc-send-btn');
+    const status = document.getElementById('mcc-send-status');
     btn.disabled = true;
-    btn.value = 'Wird übertragen...';
-    const form = document.getElementById('message-form-galactic');
-    const data = new FormData(form);
-    fetch('game.php?page=messages&mode=send&ajax=1', { method: 'POST', body: new URLSearchParams(data) })
-    .then(r => r.json())
+    status.textContent = 'Wird gesendet…';
+    const form = document.getElementById('mcc-compose-form');
+    fetch('game.php?page=messages&mode=send&ajax=1', {
+        method: 'POST',
+        body: new URLSearchParams(new FormData(form))
+    })
+    .then(function(r) { return r.json(); })
     .then(function(d) {
-        alert(d);
+        status.textContent = d;
+        status.style.color = '#22c55e';
         if (window.parent && typeof window.parent.Message !== 'undefined') {
             window.parent.Message.getMessages(window.parent.Message.MessID || 100, 1);
         }
-        if (parent.$.fancybox) parent.$.fancybox.close();
+        setTimeout(function() {
+            try {
+                if (window.parent && window.parent.ModalManager) window.parent.ModalManager.close();
+                else if (window.parent && window.parent.$.fancybox) window.parent.$.fancybox.close();
+            } catch(e) {}
+        }, 900);
     })
-    .fail(function() {
-        alert('{{ LNG.mg_error }}');
+    .catch(function() {
+        status.textContent = '{{ LNG.mg_error }}';
+        status.style.color = '#ef4444';
         btn.disabled = false;
-        btn.value = '{{ LNG.mg_send }}';
     });
 }
 document.addEventListener('DOMContentLoaded', function() {
     const t = document.getElementById('text');
-    if (t) document.getElementById('cntChars').textContent = t.value.length;
+    if (t) mccUpdateCounter(t);
 });
 </script>
 {% endautoescape %}
