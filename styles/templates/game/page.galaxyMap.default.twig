@@ -42,15 +42,24 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
 
+/* Prevent any page-level scroll when galaxy map is open */
+html:has(#gm-root), body:has(#gm-root) {
+  overflow: hidden !important;
+  max-width: 100vw !important;
+  overscroll-behavior: none;
+}
+
 /* ── Root: covers full viewport over game UI ──────────────────────── */
 #gm-root {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; max-width: 100vw;
   z-index: 8000;
   background: #020510;
   font-family: 'Rajdhani', sans-serif;
   color: #c8e6ff;
   overflow: hidden;
+  overscroll-behavior: none;
   /* Footer height injected by JS as --ingameFooterH */
   --ingameFooterH: 0px;
 }
@@ -65,14 +74,15 @@
 #gm-canvas {
   position: absolute;
   inset: 0;
-  /* 100dvh respects mobile browser chrome (address bar) */
   width: 100% !important;
   height: 100% !important;
+  max-width: 100vw !important;
   display: block;
   cursor: grab;
   pointer-events: all;
   z-index: 1;
   touch-action: none;
+  overscroll-behavior: none;
 }
 #gm-canvas:active { cursor: grabbing; }
 
@@ -186,6 +196,8 @@
   /* JS sets --gm-fab-bottom on :root so FAB sits above mobile dock */
   bottom: var(--gm-fab-bottom, 80px);
   right: 16px;
+  /* Clamp so it never goes off-screen horizontally */
+  max-right: calc(100vw - 64px);
   width: 48px; height: 48px;
   border-radius: 50%;
   background: rgba(2,8,28,.92);
@@ -1369,38 +1381,130 @@ function hideLoader(delay=0) {
   }, delay);
 }
 
+// ── Round star sprite texture ──────────────────────────────
+function makeStarTex() {
+  const sz = 32, c = document.createElement('canvas');
+  c.width = c.height = sz;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(sz/2,sz/2,0, sz/2,sz/2,sz/2);
+  g.addColorStop(0,   'rgba(255,255,255,1.0)');
+  g.addColorStop(0.25,'rgba(255,255,255,0.9)');
+  g.addColorStop(0.6,  'rgba(180,200,255,0.3)');
+  g.addColorStop(1.0,  'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,sz,sz);
+  return new THREE.CanvasTexture(c);
+}
+
 // ── Starfield ──────────────────────────────────────────────
 function buildStars() {
-  const N=8000, pos=new Float32Array(N*3), col=new Float32Array(N*3);
-  for (let i=0;i<N;i++) {
-    const rr=1000+Math.random()*4500, t=Math.random()*Math.PI*2, p=Math.acos(2*Math.random()-1);
-    pos[i*3]=rr*Math.sin(p)*Math.cos(t); pos[i*3+1]=rr*Math.sin(p)*Math.sin(t)*.22; pos[i*3+2]=rr*Math.cos(p);
-    const v=0.5+Math.random()*.5;
-    col[i*3]=v*(0.7+Math.random()*.3); col[i*3+1]=v*(0.8+Math.random()*.2); col[i*3+2]=v;
+  const starTex = makeStarTex();
+  const N = 9000;
+  const pos = new Float32Array(N*3);
+  const col = new Float32Array(N*3);
+  const sz  = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    const rr = 1200 + Math.random()*4800;
+    const t  = Math.random()*Math.PI*2;
+    const p  = Math.acos(2*Math.random()-1);
+    pos[i*3]   = rr*Math.sin(p)*Math.cos(t);
+    pos[i*3+1] = rr*Math.sin(p)*Math.sin(t)*0.20;
+    pos[i*3+2] = rr*Math.cos(p);
+    // Colour tints: mostly white/blue-white, rare warm stars
+    const roll = Math.random();
+    if (roll < 0.12) {
+      // warm orange/yellow
+      col[i*3]=1; col[i*3+1]=0.82+Math.random()*.1; col[i*3+2]=0.45+Math.random()*.2;
+    } else if (roll < 0.25) {
+      // cyan/blue
+      col[i*3]=0.55+Math.random()*.2; col[i*3+1]=0.75+Math.random()*.2; col[i*3+2]=1;
+    } else {
+      // white with slight blue
+      const v = 0.6+Math.random()*.4;
+      col[i*3]=v*0.88; col[i*3+1]=v*0.92; col[i*3+2]=v;
+    }
+    // Varied sizes: most tiny, few larger
+    sz[i] = Math.random() < 0.05 ? 3.5+Math.random()*2 : 1.2+Math.random()*1.4;
   }
-  const geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
-  starField=new THREE.Points(geo,new THREE.PointsMaterial({
-    size:1.3,vertexColors:true,sizeAttenuation:true,transparent:true,opacity:.88,depthWrite:false
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+  geo.setAttribute('size',     new THREE.BufferAttribute(sz,  1));
+  starField = new THREE.Points(geo, new THREE.PointsMaterial({
+    map: starTex,
+    vertexColors: true,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0.92,
+    depthWrite: false,
+    alphaTest: 0.01,
   }));
   scene.add(starField);
 }
 
+// ── Nebula soft-glow texture ───────────────────────────────
+function makeNebulaTex(r, g, b) {
+  const sz = 128, c = document.createElement('canvas');
+  c.width = c.height = sz;
+  const ctx = c.getContext('2d');
+  const cx = sz/2;
+  const grad = ctx.createRadialGradient(cx,cx,0, cx,cx,cx);
+  grad.addColorStop(0,   `rgba(${r},${g},${b},0.55)`);
+  grad.addColorStop(0.35,`rgba(${r},${g},${b},0.18)`);
+  grad.addColorStop(0.7,  `rgba(${r},${g},${b},0.04)`);
+  grad.addColorStop(1.0,  `rgba(${r},${g},${b},0)`);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,sz,sz);
+  return new THREE.CanvasTexture(c);
+}
+
+// ── Nebula clouds ─────────────────────────────────────────
+const nebulaObjects = [];
 function buildNebula() {
-  const N=2500, pos=new Float32Array(N*3);
-  for (let i=0;i<N;i++) {
-    const t=(i/N)*Math.PI*9+Math.random()*.9, rr=(i/N)*500;
-    const arm=Math.floor(Math.random()*3)*(Math.PI*2/3);
-    pos[i*3]=Math.cos(t+arm)*rr+(Math.random()-.5)*22;
-    pos[i*3+1]=(Math.random()-.5)*6;
-    pos[i*3+2]=Math.sin(t+arm)*rr+(Math.random()-.5)*22;
-  }
-  const geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  scene.add(new THREE.Points(geo,new THREE.PointsMaterial({
-    color:0x1a2d99,size:2.8,sizeAttenuation:true,transparent:true,opacity:.18,depthWrite:false
-  })));
+  // Nebula regions: colour, position, count, spread, height spread
+  const regions = [
+    // Blue-violet arm
+    { r:40,  g:60,  b:220, cx:  300, cz:  200, n:28, spread:420, ys:60, scl:[280,420] },
+    // Cyan arm
+    { r:10,  g:180, b:240, cx: -250, cz:  350, n:22, spread:360, ys:50, scl:[220,360] },
+    // Purple/magenta patch
+    { r:160, g:30,  b:200, cx: -380, cz: -220, n:18, spread:300, ys:45, scl:[200,340] },
+    // Teal/green patch
+    { r:20,  g:160, b:140, cx:  420, cz: -300, n:16, spread:280, ys:40, scl:[180,300] },
+    // Red/orange faint
+    { r:220, g:60,  b:40,  cx:  -60, cz: -450, n:14, spread:320, ys:55, scl:[200,350] },
+    // Dense blue core
+    { r:20,  g:40,  b:180, cx:    0, cz:    0, n:20, spread:200, ys:30, scl:[160,260] },
+  ];
+  regions.forEach(reg => {
+    const tex = makeNebulaTex(reg.r, reg.g, reg.b);
+    for (let i = 0; i < reg.n; i++) {
+      const baseOpacity = 0.055 + Math.random()*0.065;
+      const mat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        opacity: baseOpacity,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const sp = new THREE.Sprite(mat);
+      const angle = Math.random()*Math.PI*2;
+      const dist  = Math.random()*reg.spread;
+      sp.position.set(
+        reg.cx + Math.cos(angle)*dist,
+        (Math.random()-0.5)*reg.ys,
+        reg.cz + Math.sin(angle)*dist
+      );
+      const s = reg.scl[0] + Math.random()*(reg.scl[1]-reg.scl[0]);
+      sp.scale.set(s, s, 1);
+      // Gentle drift + breathe animation data
+      sp.userData.nebulaOpacity0 = baseOpacity;
+      sp.userData.nebulaBase = { x: sp.position.x, z: sp.position.z,
+        phase: Math.random()*Math.PI*2, speed: 0.00015+Math.random()*0.00010 };
+      scene.add(sp);
+      nebulaObjects.push(sp);
+    }
+  });
 }
 
 // ── Spiral-Galaxy coordinate system ───────────────────────
@@ -2307,7 +2411,8 @@ function bindEvents() {
   }, { passive: false });
 
   // ── Touch ──
-  // Supports: 1-finger pan, 2-finger pinch-zoom + pan simultaneously
+  // 1-finger: pan (3D) / scroll (2D)
+  // 2-finger: pinch = zoom, vertical drag = tilt (phi), horizontal drag = pan
   let tStart = null, tDist = 0, tMid = null;
   canvas.addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
@@ -2327,9 +2432,10 @@ function bindEvents() {
         x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
         y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
         tx: orb.tx, tz: orb.tz,
-        px: pan.x, pz: pan.z
+        px: pan.x, pz: pan.z,
+        phi: orb.phi, theta: orb.theta  // snap for tilt
       };
-      tStart = null; // cancel single-finger snap
+      tStart = null; // cancel single-finger
     }
   }, { passive: true });
 
@@ -2340,7 +2446,6 @@ function bindEvents() {
       const dy = e.touches[0].clientY - tStart.y;
       drag.moved = Math.max(drag.moved || 0, Math.abs(dx) + Math.abs(dy));
       if (is3D) {
-        // Single finger = pan target
         drag.snapTx = tStart.tx; drag.snapTz = tStart.tz;
         drag.startX = tStart.x;  drag.startY = tStart.y;
         drag.snapPanX = tStart.px; drag.snapPanZ = tStart.pz;
@@ -2351,24 +2456,29 @@ function bindEvents() {
       }
       syncCamera();
     } else if (e.touches.length === 2 && tMid) {
-      const d = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
+      const t0x = e.touches[0].clientX, t0y = e.touches[0].clientY;
+      const t1x = e.touches[1].clientX, t1y = e.touches[1].clientY;
+      const d = Math.hypot(t0x - t1x, t0y - t1y);
+
       // Pinch zoom
       if (tDist > 0) {
         orb.r = Math.max(MIN_DIST, Math.min(MAX_DIST, orb.r * (tDist / d)));
       }
       tDist = d;
-      // Two-finger pan (midpoint movement)
-      const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      const pdx = mx - tMid.x, pdy = my - tMid.y;
+
+      // Current midpoint
+      const mx = (t0x + t1x) / 2;
+      const my = (t0y + t1y) / 2;
+      const pdx = mx - tMid.x;
+      const pdy = my - tMid.y;
+
       if (is3D) {
-        drag.snapTx = tMid.tx; drag.snapTz = tMid.tz;
-        drag.startX = tMid.x;  drag.startY = tMid.y;
-        panTarget(pdx, pdy);
+        // Vertical two-finger drag = tilt (adjust phi)
+        // Horizontal two-finger drag = orbit theta
+        orb.phi   = Math.max(0.08, Math.min(1.55, tMid.phi   - pdy * 0.006));
+        orb.theta = tMid.theta - pdx * 0.006;
       } else {
+        // 2D: two-finger pan
         pan.x = tMid.px - pdx * orb.r * .002;
         pan.z = tMid.pz - pdy * orb.r * .002;
       }
@@ -2381,7 +2491,8 @@ function bindEvents() {
     if (e.changedTouches.length === 1 && (drag.moved || 0) < 10 && tStart) {
       doClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
     }
-    tStart = null;
+    if (e.touches.length < 2) tMid = null;
+    if (e.touches.length === 0) tStart = null;
   }, { passive: true });
 
   window.addEventListener('resize', () => {
@@ -2944,6 +3055,20 @@ function animate(now = 0){
   if (selRing) {
     selRing.material.opacity = 0.35 + Math.abs(Math.sin(frame * 0.04)) * 0.35;
   }
+
+  // Nebula drift: gentle sinusoidal float
+  const tNeb = now * 0.001;
+  nebulaObjects.forEach(sp => {
+    const nb = sp.userData.nebulaBase;
+    if (!nb) return;
+    sp.position.x = nb.x + Math.sin(tNeb * nb.speed * 1000 + nb.phase) * 18;
+    sp.position.z = nb.z + Math.cos(tNeb * nb.speed * 800  + nb.phase) * 14;
+    // Slow opacity breathe
+    sp.material.opacity = sp.userData.nebulaOpacity0 * (0.75 + 0.25 * Math.sin(tNeb * nb.speed * 500 + nb.phase));
+  });
+
+  // Starfield slow spin (barely perceptible)
+  if (starField) starField.rotation.y = tNeb * 0.00008;
 
   renderer.render(scene, camera);
 }
