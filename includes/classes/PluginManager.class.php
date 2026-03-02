@@ -31,7 +31,7 @@ class PluginManager
 
     private const PLUGINS_DIR = 'plugins/';
     private const MANIFEST    = 'manifest.json';
-    private const ID_PATTERN  = '/^[a-z0-9\-_]+$/';
+    private const ID_PATTERN  = '/^[a-zA-Z0-9\-_]+$/';
 
     /** @var array<string, array<string, mixed>> */
     private array $loadedPlugins = [];
@@ -70,6 +70,31 @@ class PluginManager
     private function pluginDir(string $id): string
     {
         return $this->pluginsDir() . $id . '/';
+    }
+
+    /**
+     * Resolve the filesystem directory for a plugin ID.
+     * Scans all subdirectories for a manifest whose 'id' matches,
+     * falling back to treating the id itself as the directory name.
+     */
+    private function dirForId(string $id): string
+    {
+        $base = $this->pluginsDir();
+        if (!is_dir($base)) {
+            return $this->pluginDir($id);
+        }
+        foreach (scandir($base) as $entry) {
+            if ($entry === '.' || $entry === '..') continue;
+            $candidate = $base . $entry . '/';
+            if (!is_dir($candidate)) continue;
+            $mf = $candidate . self::MANIFEST;
+            if (!file_exists($mf)) continue;
+            $data = json_decode((string)file_get_contents($mf), true);
+            if (is_array($data) && isset($data['id']) && $data['id'] === $id) {
+                return $candidate;
+            }
+        }
+        return $this->pluginDir($id);
     }
 
     // ── Manifest ─────────────────────────────────────────────────────────────
@@ -196,7 +221,7 @@ class PluginManager
     public function install(array $manifest): void
     {
         $id  = (string) $manifest['id'];
-        $dir = $this->pluginDir($id);
+        $dir = $this->dirForId($id);
 
         if (!is_dir($dir)) {
             throw new RuntimeException('Plugin directory not found: ' . $dir);
@@ -258,7 +283,7 @@ class PluginManager
      */
     public function uninstall(string $id): void
     {
-        $dir     = $this->pluginDir($id);
+        $dir     = $this->dirForId($id);
         $sqlFile = $dir . 'uninstall.sql';
 
         if (file_exists($sqlFile)) {
@@ -672,7 +697,7 @@ class PluginManager
             }
 
             $id  = (string) $row['id'];
-            $dir = $this->pluginDir($id);
+            $dir = $this->dirForId($id);
 
             if (!is_dir($dir)) {
                 continue;
@@ -722,7 +747,7 @@ class PluginManager
      */
     private function loadPluginModules(string $id, array $row): void
     {
-        $dir = $this->pluginDir($id);
+        $dir = $this->dirForId($id);
         $manifestPath = $dir . self::MANIFEST;
 
         if (!file_exists($manifestPath)) {

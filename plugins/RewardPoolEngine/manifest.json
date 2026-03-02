@@ -1,5 +1,5 @@
 {
-    "id":          "reward_pool_engine",
+    "id":          "RewardPoolEngine",
     "name":        "RewardPoolEngine",
     "version":     "1.0.0",
     "type":        "game",
