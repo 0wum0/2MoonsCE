@@ -956,9 +956,28 @@ class PluginManager
             $userLang = $LNG->getLanguage();
         }
 
-        $dir      = $this->pluginDir($id) . 'lang/';
-        $langFile = $dir . $userLang . '.json';
+        // Map 2Moons full language names to ISO-639-1 codes used by plugin lang files
+        $langMap = [
+            'german'     => 'de',
+            'english'    => 'en',
+            'french'     => 'fr',
+            'spanish'    => 'es',
+            'italian'    => 'it',
+            'polish'     => 'pl',
+            'russian'    => 'ru',
+            'turkish'    => 'tr',
+            'portuguese' => 'pt',
+            'dutch'      => 'nl',
+        ];
+        $isoLang  = $langMap[$userLang] ?? $userLang;
 
+        $dir      = $this->pluginDir($id) . 'lang/';
+        $langFile = $dir . $isoLang . '.json';
+
+        // Fallback: try original name, then 'en'
+        if (!file_exists($langFile)) {
+            $langFile = $dir . $userLang . '.json';
+        }
         if (!file_exists($langFile)) {
             $langFile = $dir . 'en.json';
         }

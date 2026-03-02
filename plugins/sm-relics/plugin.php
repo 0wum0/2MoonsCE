@@ -219,6 +219,15 @@ if (isset($GLOBALS['LNG']) && $GLOBALS['LNG'] instanceof Language) {
     ]]);
 }
 
+// ── 9b. Admin sidebar link (Module & Plugins section) ────────────────────────
+HookManager::get()->addAction('admin.sidebar.modules', function (): void {
+    $page   = \HTTP::_GP('page', '');
+    $active = ($page === 'relicsAdmin') ? ' active' : '';
+    echo '<a href="admin.php?page=relicsAdmin" class="sidebar-link' . $active . '">';
+    echo '<span class="sidebar-link-icon">&#128142;</span> Relikte';
+    echo '</a>';
+}, 10);
+
 // ── 9. Navigation sidebar link (via sidebar_end hook) ─────────────────────────
 HookManager::get()->addAction('sidebar_end', function (): void {
     $page    = \HTTP::_GP('page', '');

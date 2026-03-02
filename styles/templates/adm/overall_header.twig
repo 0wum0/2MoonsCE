@@ -276,17 +276,20 @@
                 <span class="sidebar-link-icon">&#127873;</span> Giveaway
             </a>
             {% endif %}
-            <a href="admin.php?page=pluginAdmin" class="sidebar-link{% if GET.page is defined and GET.page == 'pluginAdmin' %} active{% endif %}">
-                <span class="sidebar-link-icon">&#128230;</span> Plugins
-            </a>
-            {% if authlevel is defined and authlevel == constant('AUTH_ADM') %}
-            <a href="admin.php?page=systemDebug" class="sidebar-link{% if GET.page is defined and GET.page == 'systemDebug' %} active{% endif %}">
-                <span class="sidebar-link-icon">&#128295;</span> System Debug
-            </a>
-            {% endif %}
             {% if authlevel is defined and authlevel == constant('AUTH_ADM') and currentUser is defined and currentUser.id == 1 %}
             <a href="admin.php?page=reset" class="sidebar-link{% if GET.page is defined and GET.page == 'reset' %} active{% endif %}" style="color:var(--adm-neon-red);">
                 <span class="sidebar-link-icon">&#9888;</span> Reset Universe
+            </a>
+            {% endif %}
+
+            <div class="sidebar-section-label">Module &amp; Plugins</div>
+            <a href="admin.php?page=pluginAdmin" class="sidebar-link{% if GET.page is defined and GET.page == 'pluginAdmin' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#129513;</span> Plugin-Manager
+            </a>
+            {{ hook('admin.sidebar.modules') }}
+            {% if authlevel is defined and authlevel == constant('AUTH_ADM') %}
+            <a href="admin.php?page=systemDebug" class="sidebar-link{% if GET.page is defined and GET.page == 'systemDebug' %} active{% endif %}">
+                <span class="sidebar-link-icon">&#128295;</span> System Debug
             </a>
             {% endif %}
 
