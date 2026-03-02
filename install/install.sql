@@ -309,6 +309,7 @@ CREATE TABLE `%PREFIX%cronjobs` (
   `class` varchar(32) NOT NULL,
   `nextTime` int(11) DEFAULT NULL,
   `lock` varchar(32) DEFAULT NULL,
+  `lockTime` int(11) DEFAULT NULL,
   UNIQUE KEY `cronjobID` (`cronjobID`),
   KEY `isActive` (`isActive`,`nextTime`,`lock`,`cronjobID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
