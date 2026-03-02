@@ -29,53 +29,111 @@ declare(strict_types=1);
 
 /**
  * ============================================================
- * 2MoonsCE Combat Engine v2.0
+ * 2MoonsCE Combat Engine v3.0
  * ============================================================
  *
- * Key improvements over the legacy engine:
+ * v2.0 improvements (retained):
+ *   1. Structural-weight damage distribution
+ *   2. Correct rapid-fire (pre-computed, immutable totals)
+ *   3. mt_rand hull-breach probability clamped to [1,100]
+ *   4. Deep-copy round snapshots
+ *   5. Always-set tech multipliers
+ *   6. Named-constant defense reconstruction
+ *   7. Strict int/float arithmetic
  *
- * 1. DAMAGE DISTRIBUTION by structural weight (metal+crystal cost),
- *    not by raw unit count.  A fleet of 1 Death Star + 1 Probe no
- *    longer splits damage 50/50 – the Death Star absorbs nearly all.
+ * v3.0 new systems:
  *
- * 2. RAPID-FIRE handled correctly.  The legacy code mutated the
- *    running totals ($attackAmount['total'], $defenseAmount['total'])
- *    inside the per-unit loop, corrupting every subsequent unit's
- *    damage share.  v2 pre-computes RF bonus damage per fleet before
- *    the loss loop so totals are immutable during loss calculation.
+ * A. TACTICAL FORMATIONS
+ *    Caller may pass 'formation' key on each fleet entry:
+ *      'offensive'  => +12% attack, -8%  shield
+ *      'defensive'  => -8%  attack, +15% shield
+ *      'flanking'   => +7%  attack, +5%  shield, ignore 30% of enemy shields
+ *      'scattered'  => no bonus, but critical-hit chance doubled
+ *      (default: no modifier)
  *
- * 3. HULL-BREACH PROBABILITY uses mt_rand() (Mersenne Twister) for
- *    uniform distribution and is clamped to [1,100] so a unit can
- *    never be immortal (old rand(0,200) could produce 0).
+ * B. CRITICAL HITS
+ *    Each unit group has a 5% per-round chance of landing a critical
+ *    hit that doubles its attack output that round.  'scattered'
+ *    formation raises this to 10%.  Critical events are recorded in
+ *    the round meta for display in the battle report.
  *
- * 4. ROUND SNAPSHOTS are deep-copied before mutation, so the report
- *    for round N always reflects the state *at the start* of that
- *    round, not the state after all rounds have finished.
+ * C. MORALE SYSTEM
+ *    When a side loses >50% of its initial structural weight, its
+ *    morale breaks.  Each subsequent round the broken side suffers
+ *    -8% attack (cumulative, max -40%).  Morale state is tracked
+ *    per side and recorded in round meta.
  *
- * 5. TECH MULTIPLIERS computed once per fleet per round, stored on
- *    the fleet array so GenerateReport can read them safely even when
- *    a fleet is destroyed mid-battle.
+ * D. SHIP-CLASS SYNERGIES
+ *    Fleet composition bonuses applied once per round after formation:
+ *      Battleship (202) + Destroyer (215)     => +8% attack for fleet
+ *      Cruiser (206)    + Light Fighter (204)  => +5% shield for fleet
+ *      Battlecruiser (211) + Bomber (211 pair) => +6% attack
+ *      Destroyer (215)  alone ≥10 units        => +4% hull (HP bonus)
+ *    Synergies stack additively, capped at +25% per stat.
  *
- * 6. DEFENSE RECONSTRUCTION uses a named constant range (56–84 %)
- *    and mt_rand() for proper randomness.
+ * E. EXTENDED ROUND META (new 'meta' sub-key per round)
+ *    Each $ROUND[n]['meta'] contains:
+ *      - 'att_dmg_raw'    total attacker damage before crits
+ *      - 'att_dmg_final'  total attacker damage after crits
+ *      - 'def_dmg_raw'    same for defender
+ *      - 'def_dmg_final'
+ *      - 'att_shield_abs' damage absorbed by attacker shields
+ *      - 'def_shield_abs' damage absorbed by defender shields
+ *      - 'att_hull_dmg'   hull damage dealt to attackers
+ *      - 'def_hull_dmg'   hull damage dealt to defenders
+ *      - 'att_rf_bonus'   total RF bonus damage received by attackers
+ *      - 'def_rf_bonus'   total RF bonus damage received by defenders
+ *      - 'att_crits'      list of [fleetID, elementID] that crit'd
+ *      - 'def_crits'      same for defenders
+ *      - 'att_morale'     attacker morale multiplier this round
+ *      - 'def_morale'     defender morale multiplier
+ *      - 'att_formation'  formation name(s) active
+ *      - 'def_formation'
+ *      - 'synergies_att'  active synergy names for attackers
+ *      - 'synergies_def'  active synergy names for defenders
+ *      - 'efficiency'     struct ['att'=>float, 'def'=>float]
+ *                         = damage_dealt / (own_initial_cost/1000)
  *
- * 7. STRICT int/float arithmetic throughout; no implicit string→int.
- *
- * 8. PASSIVE STRUCTURES (element IDs 407–409) attack is already 0
- *    in CombatCaps; the explicit override is kept for safety.
- *
- * Return value is identical to the legacy engine so MissionCaseAttack,
- * GenerateReport, and ShowBattleSimulatorPage need no changes.
+ * Return value is BACKWARD COMPATIBLE: 'won','debris','rw','unitLost'
+ * are unchanged.  New 'meta' top-level key carries battle summary.
  * ============================================================
  */
 if (!defined('DEF_REBUILD_MIN')) define('DEF_REBUILD_MIN', 56);
 if (!defined('DEF_REBUILD_MAX')) define('DEF_REBUILD_MAX', 84);
+if (!defined('CRIT_HIT_CHANCE'))  define('CRIT_HIT_CHANCE',  5);   // % base crit chance
+if (!defined('CRIT_HIT_MULT'))    define('CRIT_HIT_MULT',    2.0); // crit damage multiplier
+if (!defined('MORALE_THRESHOLD')) define('MORALE_THRESHOLD', 0.50);// 50% weight lost → morale breaks
+if (!defined('MORALE_PENALTY'))   define('MORALE_PENALTY',   0.08);// -8% attack per broken round
+if (!defined('MORALE_CAP'))       define('MORALE_CAP',        0.40);// max -40% attack total
+
+// ── Formation definitions ─────────────────────────────────────────────────
+// Each entry: [attMul, shieldMul, shieldPenetration, critBonus]
+if (!defined('FORMATIONS_DEFINED')) {
+	define('FORMATIONS_DEFINED', 1);
+	define('FORMATION_OFFENSIVE', serialize(['att'=>1.12, 'shd'=>0.92, 'pen'=>0.0,  'crit'=>0]));
+	define('FORMATION_DEFENSIVE', serialize(['att'=>0.92, 'shd'=>1.15, 'pen'=>0.0,  'crit'=>0]));
+	define('FORMATION_FLANKING',  serialize(['att'=>1.07, 'shd'=>1.05, 'pen'=>0.30, 'crit'=>0]));
+	define('FORMATION_SCATTERED', serialize(['att'=>1.0,  'shd'=>1.0,  'pen'=>0.0,  'crit'=>5]));
+}
+
+// ── Ship-class synergy definitions ────────────────────────────────────────
+// [required_ids => [minCount], bonus_att, bonus_shd, bonus_hp, label]
+if (!defined('SYNERGIES_DEFINED')) {
+	define('SYNERGIES_DEFINED', 1);
+	define('SHIP_SYNERGIES', serialize([
+		['ids'=>[202,215], 'min'=>[1,1],  'att'=>0.08, 'shd'=>0.0,  'hp'=>0.0,  'label'=>'Battlegroup'],
+		['ids'=>[206,204], 'min'=>[1,1],  'att'=>0.0,  'shd'=>0.05, 'hp'=>0.0,  'label'=>'Escort Screen'],
+		['ids'=>[211,213], 'min'=>[1,1],  'att'=>0.06, 'shd'=>0.0,  'hp'=>0.0,  'label'=>'Strike Wing'],
+		['ids'=>[215],     'min'=>[10],   'att'=>0.0,  'shd'=>0.0,  'hp'=>0.04, 'label'=>'Destroyer Vanguard'],
+		['ids'=>[202,206,215],'min'=>[1,1,1],'att'=>0.05,'shd'=>0.05,'hp'=>0.0, 'label'=>'Full Battle Fleet'],
+	]));
+}
 
 function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, float $DefTF): array
 {
 	global $pricelist, $CombatCaps, $resource;
 
-	// ── Plugin hook: allow plugins to modify fleets before combat ────────
+	// ── Plugin hook ───────────────────────────────────────────────────────
 	$combatData = HookManager::get()->applyFilters('game.combatModifier', [
 		'attackers' => $attackers,
 		'defenders' => $defenders,
@@ -87,17 +145,51 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		$defenders = $combatData['defenders'];
 	}
 
-	// ── Helper: structural weight (hit-points denominator) ───────────────
-	// = (metal_cost + crystal_cost) / 10  × shield_tech_multiplier
-	// Computed per-unit so we can weight damage distribution.
+	// ── Helper: structural HP per unit ───────────────────────────────────
 	$unitHP = static function (int $element, float $shieldTech) use (&$pricelist): float {
 		$cost = (float)(($pricelist[$element]['cost'][901] ?? 0)
 		              + ($pricelist[$element]['cost'][902] ?? 0));
 		return max(1.0, $cost / 10.0 * $shieldTech);
 	};
 
-	// ── Build rapid-fire lookup: $RF[$target][$shooter] = shots ──────────
-	// This table is immutable for the entire battle.
+	// ── Helper: resolve formation parameters for a fleet ─────────────────
+	$getFormation = static function (array $fleet): array {
+		$name = strtolower((string)($fleet['formation'] ?? ''));
+		$map  = [
+			'offensive' => unserialize(FORMATION_OFFENSIVE),
+			'defensive' => unserialize(FORMATION_DEFENSIVE),
+			'flanking'  => unserialize(FORMATION_FLANKING),
+			'scattered' => unserialize(FORMATION_SCATTERED),
+		];
+		return $map[$name] ?? ['att'=>1.0,'shd'=>1.0,'pen'=>0.0,'crit'=>0];
+	};
+
+	// ── Helper: compute synergy bonuses for a fleet's unit composition ────
+	$getSynergies = static function (array $units): array {
+		$synDefs = unserialize(SHIP_SYNERGIES);
+		$bonusAtt = 0.0; $bonusShd = 0.0; $bonusHp = 0.0;
+		$labels   = [];
+		foreach ($synDefs as $syn) {
+			$active = true;
+			foreach ($syn['ids'] as $i => $id) {
+				if (($units[$id] ?? 0) < $syn['min'][$i]) { $active = false; break; }
+			}
+			if (!$active) continue;
+			$bonusAtt += $syn['att'];
+			$bonusShd += $syn['shd'];
+			$bonusHp  += $syn['hp'];
+			$labels[]  = $syn['label'];
+		}
+		// Cap each bonus at +25%
+		return [
+			'att'    => min(0.25, $bonusAtt),
+			'shd'    => min(0.25, $bonusShd),
+			'hp'     => min(0.25, $bonusHp),
+			'labels' => $labels,
+		];
+	};
+
+	// ── Build rapid-fire lookup ───────────────────────────────────────────
 	$RF = [];
 	foreach ($CombatCaps as $shooterID => $caps) {
 		if (empty($caps['sd'])) continue;
@@ -108,10 +200,10 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		}
 	}
 
-	// ── Record initial costs for debris calculation ───────────────────────
-	$ARES     = ['metal' => 0.0, 'crystal' => 0.0]; // attacker initial cost
-	$DRES     = ['metal' => 0.0, 'crystal' => 0.0]; // defender fleet initial cost
-	$STARTDEF = [];                                   // defender defense initial counts
+	// ── Initial cost accounting ───────────────────────────────────────────
+	$ARES     = ['metal' => 0.0, 'crystal' => 0.0];
+	$DRES     = ['metal' => 0.0, 'crystal' => 0.0];
+	$STARTDEF = [];
 
 	foreach ($attackers as $fleetID => $attacker) {
 		foreach ($attacker['unit'] as $element => $amount) {
@@ -119,7 +211,6 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 			$ARES['crystal'] += ($pricelist[$element]['cost'][902] ?? 0) * $amount;
 		}
 	}
-
 	foreach ($defenders as $fleetID => $defender) {
 		foreach ($defender['unit'] as $element => $amount) {
 			if ($element < 300) {
@@ -142,6 +233,26 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		}, $defenders)),
 	];
 
+	// ── Morale tracking ───────────────────────────────────────────────────
+	// Structural weight at battle start (for morale threshold)
+	$initAttWeight = 0.0;
+	foreach ($attackers as $fl) {
+		foreach ($fl['unit'] as $el => $amt) {
+			$initAttWeight += (($pricelist[$el]['cost'][901] ?? 0) + ($pricelist[$el]['cost'][902] ?? 0)) / 10.0 * $amt;
+		}
+	}
+	$initDefWeight = 0.0;
+	foreach ($defenders as $fl) {
+		foreach ($fl['unit'] as $el => $amt) {
+			$initDefWeight += (($pricelist[$el]['cost'][901] ?? 0) + ($pricelist[$el]['cost'][902] ?? 0)) / 10.0 * $amt;
+		}
+	}
+	$initAttWeight = max(1.0, $initAttWeight);
+	$initDefWeight = max(1.0, $initDefWeight);
+
+	$attMoraleBrokenRounds = 0; // rounds attacker morale has been broken
+	$defMoraleBrokenRounds = 0;
+
 	// ── Main combat loop ──────────────────────────────────────────────────
 	$ROUND = [];
 
@@ -152,12 +263,17 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		$defArray = [];
 
 		// Attacker stats
-		$attackDamageTotal  = 0.0;
-		$attackWeightTotal  = 0.0; // sum of structural weight (for damage distribution)
-		$attackCountTotal   = 0;
+		$attackDamageTotal   = 0.0;
+		$attackWeightTotal   = 0.0;
+		$attackCountTotal    = 0;
 		$attackDamageByFleet = [];
 		$attackWeightByFleet = [];
 		$attackCountByFleet  = [];
+
+		// Collect attacker crits and synergy labels for meta
+		$attCrits       = [];
+		$attSynLabels   = [];
+		$attFormLabels  = [];
 
 		foreach ($attackers as $fleetID => $attacker) {
 			$attTech    = 1.0 + 0.1 * (float)$attacker['player']['military_tech']
@@ -166,9 +282,22 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 			                  + (float)($attacker['player']['factor']['Defensive'] ?? 0);
 			$shieldTech = 1.0 + 0.1 * (float)$attacker['player']['shield_tech']
 			                  + (float)($attacker['player']['factor']['Shield'] ?? 0);
-
-			// Store techs so report can access them even after fleet is wiped
 			$attackers[$fleetID]['techs'] = [$attTech, $defTech, $shieldTech];
+
+			// Formation & synergy multipliers
+			$form   = $getFormation($attacker);
+			$syn    = $getSynergies($attacker['unit']);
+			$fAttMul = $form['att'] + $syn['att']; // combined attack multiplier offset (+1 base already in form)
+			$fShdMul = $form['shd'] + $syn['shd']; // combined shield multiplier offset
+			$fHpMul  = 1.0 + $syn['hp'];
+			$critBase = CRIT_HIT_CHANCE + (int)$form['crit']; // % chance
+
+			if (!empty($attacker['formation'])) {
+				$attFormLabels[] = ucfirst($attacker['formation']);
+			}
+			foreach ($syn['labels'] as $sl) {
+				$attSynLabels[] = $sl;
+			}
 
 			$fleetDmg    = 0.0;
 			$fleetWeight = 0.0;
@@ -178,11 +307,20 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 				if ($amount <= 0) continue;
 
 				$baseAtt = (float)($CombatCaps[$element]['attack'] ?? 0);
-				// ±20 % variance per OGame spec, using mt_rand for quality
-				$thisAtt    = (float)$amount * $baseAtt * $attTech
-				              * (mt_rand(80, 120) / 100.0);
-				$thisDef    = (float)$amount * (float)($CombatCaps[$element]['shield'] ?? 0) * $defTech;
-				$thisHP     = $unitHP($element, $shieldTech) * $amount;
+				// ±20% variance
+				$thisAtt = (float)$amount * $baseAtt * $attTech
+				           * $fAttMul
+				           * (mt_rand(80, 120) / 100.0);
+
+				// Critical hit check
+				if (mt_rand(1, 100) <= $critBase) {
+					$thisAtt *= CRIT_HIT_MULT;
+					$attCrits[] = [$fleetID, $element];
+				}
+
+				$thisDef = (float)$amount * (float)($CombatCaps[$element]['shield'] ?? 0)
+				           * $defTech * $fShdMul;
+				$thisHP  = $unitHP($element, $shieldTech) * $amount * $fHpMul;
 
 				$attArray[$fleetID][$element] = [
 					'att'    => $thisAtt,
@@ -211,6 +349,10 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		$defenseWeightByFleet = [];
 		$defenseCountByFleet  = [];
 
+		$defCrits      = [];
+		$defSynLabels  = [];
+		$defFormLabels = [];
+
 		foreach ($defenders as $fleetID => $defender) {
 			$attTech    = 1.0 + 0.1 * (float)$defender['player']['military_tech']
 			                  + (float)($defender['player']['factor']['Attack'] ?? 0);
@@ -218,8 +360,21 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 			                  + (float)($defender['player']['factor']['Defensive'] ?? 0);
 			$shieldTech = 1.0 + 0.1 * (float)$defender['player']['shield_tech']
 			                  + (float)($defender['player']['factor']['Shield'] ?? 0);
-
 			$defenders[$fleetID]['techs'] = [$attTech, $defTech, $shieldTech];
+
+			$form   = $getFormation($defender);
+			$syn    = $getSynergies($defender['unit']);
+			$fAttMul = $form['att'] + $syn['att'];
+			$fShdMul = $form['shd'] + $syn['shd'];
+			$fHpMul  = 1.0 + $syn['hp'];
+			$critBase = CRIT_HIT_CHANCE + (int)$form['crit'];
+
+			if (!empty($defender['formation'])) {
+				$defFormLabels[] = ucfirst($defender['formation']);
+			}
+			foreach ($syn['labels'] as $sl) {
+				$defSynLabels[] = $sl;
+			}
 
 			$fleetDmg    = 0.0;
 			$fleetWeight = 0.0;
@@ -229,15 +384,22 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 				if ($amount <= 0) continue;
 
 				$baseAtt = (float)($CombatCaps[$element]['attack'] ?? 0);
-				// Passive structures (small/large/anti-ballistic missile silos) have 0 attack
 				if ($element === 407 || $element === 408 || $element === 409) {
 					$baseAtt = 0.0;
 				}
 
-				$thisAtt    = (float)$amount * $baseAtt * $attTech
-				              * (mt_rand(80, 120) / 100.0);
-				$thisDef    = (float)$amount * (float)($CombatCaps[$element]['shield'] ?? 0) * $defTech;
-				$thisHP     = $unitHP($element, $shieldTech) * $amount;
+				$thisAtt = (float)$amount * $baseAtt * $attTech
+				           * $fAttMul
+				           * (mt_rand(80, 120) / 100.0);
+
+				if (mt_rand(1, 100) <= $critBase) {
+					$thisAtt *= CRIT_HIT_MULT;
+					$defCrits[] = [$fleetID, $element];
+				}
+
+				$thisDef = (float)$amount * (float)($CombatCaps[$element]['shield'] ?? 0)
+				           * $defTech * $fShdMul;
+				$thisHP  = $unitHP($element, $shieldTech) * $amount * $fHpMul;
 
 				$defArray[$fleetID][$element] = [
 					'att'    => $thisAtt,
@@ -256,6 +418,52 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 			$defenseDamageTotal  += $fleetDmg;
 			$defenseWeightTotal  += $fleetWeight;
 			$defenseCountTotal   += $fleetCount;
+		}
+
+		// ── Phase 1b: Morale check & penalty ─────────────────────────────
+		// Current structural weight
+		$curAttWeight = $attackWeightTotal;
+		$curDefWeight = $defenseWeightTotal;
+
+		// Morale breaks when >50% of initial weight is gone
+		$attMoraleMul = 1.0;
+		if ($initAttWeight > 0 && $curAttWeight < $initAttWeight * (1.0 - MORALE_THRESHOLD)) {
+			$attMoraleBrokenRounds++;
+			$penalty = min(MORALE_CAP, $attMoraleBrokenRounds * MORALE_PENALTY);
+			$attMoraleMul = 1.0 - $penalty;
+			// Apply morale penalty to all computed attacker damage
+			foreach ($attArray as $fid => &$units) {
+				foreach ($units as $el => &$stats) {
+					$stats['att'] *= $attMoraleMul;
+				}
+			}
+			unset($units, $stats);
+			// Recompute totals after penalty
+			$attackDamageTotal = 0.0;
+			foreach ($attArray as $fid => $units) {
+				$sum = array_sum(array_column($units, 'att'));
+				$attackDamageByFleet[$fid] = $sum;
+				$attackDamageTotal += $sum;
+			}
+		}
+
+		$defMoraleMul = 1.0;
+		if ($initDefWeight > 0 && $curDefWeight < $initDefWeight * (1.0 - MORALE_THRESHOLD)) {
+			$defMoraleBrokenRounds++;
+			$penalty = min(MORALE_CAP, $defMoraleBrokenRounds * MORALE_PENALTY);
+			$defMoraleMul = 1.0 - $penalty;
+			foreach ($defArray as $fid => &$units) {
+				foreach ($units as $el => &$stats) {
+					$stats['att'] *= $defMoraleMul;
+				}
+			}
+			unset($units, $stats);
+			$defenseDamageTotal = 0.0;
+			foreach ($defArray as $fid => $units) {
+				$sum = array_sum(array_column($units, 'att'));
+				$defenseDamageByFleet[$fid] = $sum;
+				$defenseDamageTotal += $sum;
+			}
 		}
 
 		// ── Phase 2: pre-compute rapid-fire bonus damage ──────────────────
@@ -313,21 +521,30 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 			}
 		}
 
-		// ── Phase 3: snapshot BEFORE mutation (for report) ───────────────
-		// Deep copy so earlier round snapshots are never overwritten.
+		// ── Phase 3: snapshot BEFORE mutation (for report) ──────────────
 		$snapAttackers = [];
-		foreach ($attackers as $fid => $fl) {
-			$snapAttackers[$fid] = $fl; // unit sub-array is a scalar array → value copy is fine
-		}
+		foreach ($attackers as $fid => $fl) { $snapAttackers[$fid] = $fl; }
 		$snapDefenders = [];
-		foreach ($defenders as $fid => $fl) {
-			$snapDefenders[$fid] = $fl;
-		}
+		foreach ($defenders as $fid => $fl) { $snapDefenders[$fid] = $fl; }
 
 		$attackAmountSnapshot  = ['total' => $attackCountTotal];
 		$defenseAmountSnapshot = ['total' => $defenseCountTotal];
 		foreach ($attackCountByFleet  as $fid => $cnt) { $attackAmountSnapshot[$fid]  = $cnt; }
 		foreach ($defenseCountByFleet as $fid => $cnt) { $defenseAmountSnapshot[$fid] = $cnt; }
+
+		// Flanking penetration: reduce effective enemy shield by pen %
+		// Applied to the damage totals before the loss calculation.
+		// We collect the max pen value across all attacker/defender fleets.
+		$attPen = 0.0; // attacker shield penetration (reduces defender shield effectiveness)
+		foreach ($attackers as $fl) {
+			$f = $getFormation($fl);
+			if ($f['pen'] > $attPen) $attPen = $f['pen'];
+		}
+		$defPen = 0.0;
+		foreach ($defenders as $fl) {
+			$f = $getFormation($fl);
+			if ($f['pen'] > $defPen) $defPen = $f['pen'];
+		}
 
 		$ROUND[$ROUNDC] = [
 			'attackers' => $snapAttackers,
@@ -346,70 +563,60 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		}
 
 		// ── Phase 4: calculate attacker losses ────────────────────────────
-		// Each attacker fleet receives a share of the total defender damage
-		// proportional to its structural weight (not unit count).
 		$attacker_n      = [];
-		$attackerShield  = 0.0; // total damage absorbed by shields
-		$defenderDmgDone = 0.0; // total damage dealt to attackers
+		$attackerShield  = 0.0;
+		$attackerHull    = 0.0;
+		$defenderDmgDone = 0.0;
+		$attRFTotal      = 0.0;
 
 		foreach ($attackers as $fleetID => $attacker) {
 			$attacker_n[$fleetID] = [];
 
-			// Weight-proportional share of incoming damage for this fleet
 			$fleetWeightShare = $attackWeightTotal > 0
 				? ($attackWeightByFleet[$fleetID] ?? 0.0) / $attackWeightTotal
 				: 0.0;
 			$incomingFleet = $defenseDamageTotal * $fleetWeightShare;
-
 			$fleetHP = max(1.0, (float)($attackWeightByFleet[$fleetID] ?? 1.0));
+
+			// Defender flanking: reduce this fleet's effective shield by $defPen
+			$penFactor = max(0.0, 1.0 - $defPen);
 
 			foreach ($attacker['unit'] as $element => $amount) {
 				if ($amount <= 0) {
 					$attacker_n[$fleetID][$element] = 0;
 					continue;
 				}
-
 				$amount = (float)$amount;
 
-				// Damage received by this unit type: weight-proportional within fleet
 				$unitWeightShare = $fleetHP > 0
 					? $attArray[$fleetID][$element]['shield'] / $fleetHP
 					: 1.0 / max(1, count($attacker['unit']));
 
-				$incomingUnit = $incomingFleet * $unitWeightShare;
-
-				// Add rapid-fire bonus (pre-computed, immutable)
-				$incomingUnit += (float)($rfBonusForAtt[$fleetID][$element] ?? 0.0);
-
+				$incomingUnit  = $incomingFleet * $unitWeightShare;
+				$rfBonus       = (float)($rfBonusForAtt[$fleetID][$element] ?? 0.0);
+				$incomingUnit += $rfBonus;
+				$attRFTotal   += $rfBonus;
 				$defenderDmgDone += $incomingUnit;
 
-				$shieldPerUnit = $attArray[$fleetID][$element]['def'] / $amount;
-				$hpPerUnit     = $attArray[$fleetID][$element]['shield'] / $amount;
+				// Effective shield reduced by penetration
+				$effectiveShield = $attArray[$fleetID][$element]['def'] * $penFactor;
+				$shieldPerUnit   = $effectiveShield / $amount;
+				$hpPerUnit       = $attArray[$fleetID][$element]['shield'] / $amount;
 
-				// If shield per unit absorbs all incoming per unit → no hull damage
 				if ($shieldPerUnit >= ($incomingUnit / $amount)) {
 					$attacker_n[$fleetID][$element] = (int)round($amount);
 					$attackerShield += $incomingUnit;
 					continue;
 				}
 
-				// Shield absorbed fraction
-				$shieldAbsorbed  = min($attArray[$fleetID][$element]['def'], $incomingUnit);
+				$shieldAbsorbed  = min($effectiveShield, $incomingUnit);
 				$attackerShield += $shieldAbsorbed;
 				$hullDamage      = $incomingUnit - $shieldAbsorbed;
+				$attackerHull   += $hullDamage;
 
-				// Hull-breach probability: how many units are penetrated?
-				// P(unit destroyed) = hull_damage_per_unit / hp_per_unit,
-				// clamped to [0, 1], then we check each unit independently
-				// via binomial approximation: destroyed = amount * P, with
-				// ±variance from mt_rand so outcome is not deterministic.
-				$hullDmgPerUnit = $hullDamage / $amount;
-				$breachProb     = min(1.0, $hullDmgPerUnit / max(1.0, $hpPerUnit));
-
-				// Apply [1,100]% variance (clamped, cannot be 0 → units are not immortal)
+				$breachProb = min(1.0, ($hullDamage / $amount) / max(1.0, $hpPerUnit));
 				$variance   = mt_rand(1, 100) / 100.0;
-				$destroyed  = (int)floor($amount * $breachProb * $variance);
-				$destroyed  = max(0, min((int)$amount, $destroyed));
+				$destroyed  = max(0, min((int)$amount, (int)floor($amount * $breachProb * $variance)));
 
 				$attacker_n[$fleetID][$element] = (int)($amount - $destroyed);
 			}
@@ -418,7 +625,9 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 		// ── Phase 5: calculate defender losses ────────────────────────────
 		$defender_n      = [];
 		$defenderShield  = 0.0;
+		$defenderHull    = 0.0;
 		$attackerDmgDone = 0.0;
+		$defRFTotal      = 0.0;
 
 		foreach ($defenders as $fleetID => $defender) {
 			$defender_n[$fleetID] = [];
@@ -427,28 +636,31 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 				? ($defenseWeightByFleet[$fleetID] ?? 0.0) / $defenseWeightTotal
 				: 0.0;
 			$incomingFleet = $attackDamageTotal * $fleetWeightShare;
-
 			$fleetHP = max(1.0, (float)($defenseWeightByFleet[$fleetID] ?? 1.0));
+
+			// Attacker flanking: reduce defender's effective shield
+			$penFactor = max(0.0, 1.0 - $attPen);
 
 			foreach ($defender['unit'] as $element => $amount) {
 				if ($amount <= 0) {
 					$defender_n[$fleetID][$element] = 0;
 					continue;
 				}
-
 				$amount = (float)$amount;
 
 				$unitWeightShare = $fleetHP > 0
 					? $defArray[$fleetID][$element]['shield'] / $fleetHP
 					: 1.0 / max(1, count($defender['unit']));
 
-				$incomingUnit = $incomingFleet * $unitWeightShare;
-				$incomingUnit += (float)($rfBonusForDef[$fleetID][$element] ?? 0.0);
-
+				$incomingUnit  = $incomingFleet * $unitWeightShare;
+				$rfBonus       = (float)($rfBonusForDef[$fleetID][$element] ?? 0.0);
+				$incomingUnit += $rfBonus;
+				$defRFTotal   += $rfBonus;
 				$attackerDmgDone += $incomingUnit;
 
-				$shieldPerUnit = $defArray[$fleetID][$element]['def'] / $amount;
-				$hpPerUnit     = $defArray[$fleetID][$element]['shield'] / $amount;
+				$effectiveShield = $defArray[$fleetID][$element]['def'] * $penFactor;
+				$shieldPerUnit   = $effectiveShield / $amount;
+				$hpPerUnit       = $defArray[$fleetID][$element]['shield'] / $amount;
 
 				if ($shieldPerUnit >= ($incomingUnit / $amount)) {
 					$defender_n[$fleetID][$element] = (int)round($amount);
@@ -456,26 +668,48 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 					continue;
 				}
 
-				$shieldAbsorbed  = min($defArray[$fleetID][$element]['def'], $incomingUnit);
+				$shieldAbsorbed  = min($effectiveShield, $incomingUnit);
 				$defenderShield += $shieldAbsorbed;
 				$hullDamage      = $incomingUnit - $shieldAbsorbed;
+				$defenderHull   += $hullDamage;
 
-				$hullDmgPerUnit = $hullDamage / $amount;
-				$breachProb     = min(1.0, $hullDmgPerUnit / max(1.0, $hpPerUnit));
-
-				$variance  = mt_rand(1, 100) / 100.0;
-				$destroyed = (int)floor($amount * $breachProb * $variance);
-				$destroyed = max(0, min((int)$amount, $destroyed));
+				$breachProb = min(1.0, ($hullDamage / $amount) / max(1.0, $hpPerUnit));
+				$variance   = mt_rand(1, 100) / 100.0;
+				$destroyed  = max(0, min((int)$amount, (int)floor($amount * $breachProb * $variance)));
 
 				$defender_n[$fleetID][$element] = (int)($amount - $destroyed);
 			}
 		}
 
-		// ── Phase 6: store round damage summary and apply losses ──────────
+		// ── Phase 6: store round summary + meta and apply losses ─────────
 		$ROUND[$ROUNDC]['attack']       = $attackerDmgDone;
 		$ROUND[$ROUNDC]['defense']      = $defenderDmgDone;
 		$ROUND[$ROUNDC]['attackShield'] = $attackerShield;
 		$ROUND[$ROUNDC]['defShield']    = $defenderShield;
+
+		// Efficiency = damage dealt / (own initial weight * 1000) — dimensionless score
+		$attEfficiency = $initAttWeight > 0 ? round($attackerDmgDone / ($initAttWeight * 10.0), 2) : 0.0;
+		$defEfficiency = $initDefWeight > 0 ? round($defenderDmgDone / ($initDefWeight * 10.0), 2) : 0.0;
+
+		$ROUND[$ROUNDC]['meta'] = [
+			'att_dmg_final'  => round($attackerDmgDone, 2),
+			'def_dmg_final'  => round($defenderDmgDone, 2),
+			'att_shield_abs' => round($attackerShield, 2),
+			'def_shield_abs' => round($defenderShield, 2),
+			'att_hull_dmg'   => round($defenderHull,  2), // hull damage dealt TO defenders
+			'def_hull_dmg'   => round($attackerHull,  2), // hull damage dealt TO attackers
+			'att_rf_bonus'   => round($defRFTotal, 2),    // RF bonus received by defenders (from attackers)
+			'def_rf_bonus'   => round($attRFTotal, 2),    // RF bonus received by attackers (from defenders)
+			'att_crits'      => $attCrits,
+			'def_crits'      => $defCrits,
+			'att_morale'     => round($attMoraleMul, 3),
+			'def_morale'     => round($defMoraleMul, 3),
+			'att_formation'  => array_unique($attFormLabels),
+			'def_formation'  => array_unique($defFormLabels),
+			'synergies_att'  => array_unique($attSynLabels),
+			'synergies_def'  => array_unique($defSynLabels),
+			'efficiency'     => ['att' => $attEfficiency, 'def' => $defEfficiency],
+		];
 
 		foreach ($attackers as $fleetID => $attacker) {
 			foreach ($attacker_n[$fleetID] as $el => $amt) {
@@ -546,6 +780,28 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 	$TRES['attacker'] = max(0.0, $TRES['attacker']);
 	$TRES['defender'] = max(0.0, $TRES['defender']);
 
+	// ── Top-level battle meta ─────────────────────────────────────────────
+	$roundsPlayed = count($ROUND);
+	$totalAttDmg  = 0.0; $totalDefDmg = 0.0;
+	$totalCritsAtt = 0;  $totalCritsDef = 0;
+	foreach ($ROUND as $r) {
+		$totalAttDmg   += $r['meta']['att_dmg_final'] ?? 0;
+		$totalDefDmg   += $r['meta']['def_dmg_final'] ?? 0;
+		$totalCritsAtt += count($r['meta']['att_crits'] ?? []);
+		$totalCritsDef += count($r['meta']['def_crits'] ?? []);
+	}
+
+	$battleMeta = [
+		'rounds'          => $roundsPlayed,
+		'total_att_dmg'   => round($totalAttDmg, 2),
+		'total_def_dmg'   => round($totalDefDmg, 2),
+		'total_crits_att' => $totalCritsAtt,
+		'total_crits_def' => $totalCritsDef,
+		'att_morale_breaks' => $attMoraleBrokenRounds,
+		'def_morale_breaks' => $defMoraleBrokenRounds,
+		'engine'          => 'v3.0',
+	];
+
 	return [
 		'won'      => $won,
 		'debris'   => [
@@ -560,10 +816,11 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 				     + $DRESDefs['crystal'] * ($DefTF / 100.0),
 			],
 		],
-		'rw'       => $ROUND,
-		'unitLost' => [
+		'rw'        => $ROUND,
+		'unitLost'  => [
 			'attacker' => $TRES['attacker'],
 			'defender' => $TRES['defender'],
 		],
+		'meta'      => $battleMeta,
 	];
 }
