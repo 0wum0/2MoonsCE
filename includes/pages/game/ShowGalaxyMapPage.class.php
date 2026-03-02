@@ -55,6 +55,12 @@ class ShowGalaxyMapPage extends AbstractGamePage
         if (in_array($mode, ['fleets', 'galaxy', 'card', 'search'], true)) {
             // JSON API modes: skip eco resource calc, go directly to ajax window
             $this->setWindow('ajax');
+            // Close session NOW so Session->save() shutdown handler is already done
+            // before the large SELECT queries run – prevents PDO "unbuffered query" error
+            // on LiteSpeed where session_write_close() fires after exit otherwise.
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
         } else {
             parent::__construct();
         }
