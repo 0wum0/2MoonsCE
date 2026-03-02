@@ -1291,7 +1291,7 @@ textarea#rawLog { resize:none; font-size:11px; white-space:pre-wrap; font-family
   .charts-grid{grid-template-columns:1fr;}
   .flipcards-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
 }
-@media (max-width:768px){
+@media (max-width:1100px){
   .admin-sidebar{transform:translateX(-100%);pointer-events:none;}
   .admin-sidebar.open{transform:translateX(0);pointer-events:all;}
   .sidebar-overlay.active{display:block !important;pointer-events:all;}

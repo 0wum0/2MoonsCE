@@ -36,7 +36,7 @@
   // Close sidebar on link click (mobile)
   document.querySelectorAll('.sidebar-link').forEach(function (link) {
     link.addEventListener('click', function () {
-      if (window.innerWidth <= 768) closeSidebar();
+      if (window.innerWidth <= 1100) closeSidebar();
     });
   });
 
