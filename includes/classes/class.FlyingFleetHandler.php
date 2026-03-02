@@ -69,12 +69,13 @@ class FlyingFleetHandler
 		foreach($fleetResult as $fleetRow)
 		{
 			if(!isset(self::$missionObjPattern[$fleetRow['fleet_mission']])) {
-				$sql = 'DELETE FROM %%FLEETS%% WHERE fleet_id = :fleetId;';
-
-				$db->delete($sql, array(
-					':fleetId'	=> $fleetRow['fleet_id']
-			  	));
-
+				$db->delete(
+					'DELETE %%FLEETS%%, %%FLEETS_EVENT%%
+					 FROM %%FLEETS%%
+					 INNER JOIN %%FLEETS_EVENT%% ON fleetID = fleet_id
+					 WHERE fleet_id = :fleetId;',
+					array(':fleetId' => $fleetRow['fleet_id'])
+				);
 				continue;
 			}
 			
@@ -99,11 +100,25 @@ class FlyingFleetHandler
 					break;
 				}
 			} catch (\Throwable $e) {
-				// Log error but continue processing remaining fleets
-				// so one broken fleet doesn't jam the entire queue
-				$db->update("UPDATE %%FLEETS_EVENT%% SET `lock` = NULL WHERE fleetID = :fleetId;", array(
-					':fleetId' => $fleetRow['fleet_id']
-				));
+				// Log the error, then hard-delete the fleet so it doesn't
+				// retry on every subsequent FleetHandler call (infinite loop).
+				error_log('[FlyingFleetHandler] mission ' . $fleetRow['fleet_mission']
+					. ' fleet_id=' . $fleetRow['fleet_id']
+					. ' threw: ' . $e->getMessage()
+					. ' in ' . $e->getFile() . ':' . $e->getLine());
+				try {
+					$db->delete(
+						'DELETE %%FLEETS%%, %%FLEETS_EVENT%%
+						 FROM %%FLEETS%%
+						 INNER JOIN %%FLEETS_EVENT%% ON fleetID = fleet_id
+						 WHERE fleet_id = :fleetId;',
+						array(':fleetId' => $fleetRow['fleet_id'])
+					);
+				} catch (\Throwable $ignored) {
+					// Last-resort: at least unlock so it doesn't stay locked
+					$db->update("UPDATE %%FLEETS_EVENT%% SET `lock` = NULL WHERE fleetID = :fleetId;",
+						array(':fleetId' => $fleetRow['fleet_id']));
+				}
 			}
 		}
 	}

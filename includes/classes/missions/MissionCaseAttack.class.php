@@ -252,7 +252,16 @@ HTML;
 			}
 			else
 			{
-				throw new OutOfRangeException("Negative Fleet amount ....");
+				// Negative amount = floating point underflow → treat as destroyed
+				if($this->_fleet['fleet_id'] == $fleetID)
+				{
+					$this->KillFleet();
+				}
+				else
+				{
+					$db->delete('DELETE %%FLEETS%%, %%FLEETS_EVENT%% FROM %%FLEETS%% INNER JOIN %%FLEETS_EVENT%% ON fleetID = fleet_id WHERE fleet_id = :fleetId;', [':fleetId' => $fleetID]);
+				}
+				unset($fleetAttack[$fleetID]);
 			}
 		}
 		
@@ -272,7 +281,7 @@ HTML;
 					$totalCount += $amount;
 				}
 				
-				if($totalCount == 0)
+				if($totalCount <= 0)
 				{
 					$sql	= 'DELETE %%FLEETS%%, %%FLEETS_EVENT%%
 					FROM %%FLEETS%%
@@ -291,7 +300,7 @@ HTML;
 
 					unset($fleetAttack[$fleetID]);
 				}
-				elseif($totalCount > 0)
+				else
 				{
 					$sql = "UPDATE %%FLEETS%% fleet, %%LOG_FLEETS%% log SET
 					fleet.fleet_array	= :fleetData,
@@ -301,14 +310,10 @@ HTML;
 					WHERE fleet.fleet_id = :fleetId AND log.fleet_id = :fleetId;";
 
 					$db->update($sql, array(
-	   					':fleetData'	=> substr($fleetArray, 0, -1),
+						':fleetData'	=> substr($fleetArray, 0, -1),
 						':fleetCount'	=> $totalCount,
 						':fleetId'		=> $fleetID
 					));
-				}
-				else
-				{
-					throw new OutOfRangeException("Negative Fleet amount ....");
 				}
 			}
 			else
