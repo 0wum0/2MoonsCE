@@ -119,6 +119,9 @@ class Database
             die("Database connection failed: " . $e->getMessage());
         }
 
+        // LiteSpeed workaround: set buffered query mode after connect as well
+        $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+
         $this->dbHandle = $db;
 
         // Tabellen laden
@@ -190,9 +193,9 @@ class Database
         if ($type === "insert") {
             $this->lastInsertId = $this->dbHandle->lastInsertId();
         }
-        $this->rowCount = $stmt->rowCount();
-
+        // rowCount() on SELECT is undefined in MySQL PDO and may hold cursor open
         if ($type !== 'select') {
+            $this->rowCount = $stmt->rowCount();
             $stmt->closeCursor();
             $stmt = null;
         }
