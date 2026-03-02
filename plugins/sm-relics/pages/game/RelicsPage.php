@@ -293,10 +293,42 @@ class RelicsPage extends AbstractGamePage
             'log_delta', 'log_reason', 'log_time',
             'your_points', 'nav_label',
         ];
+
+        // Load directly from JSON file for reliability
+        $langData = $this->loadLangFile();
+
         $result = [];
         foreach ($keys as $k) {
-            $result[$k] = PluginManager::lang('sm-relics', $k);
+            $result[$k] = $langData[$k] ?? PluginManager::lang('sm-relics', $k);
         }
         return $result;
+    }
+
+    /**
+     * Load the plugin language file directly, independent of PluginManager cache.
+     * @return array<string,string>
+     */
+    private function loadLangFile(): array
+    {
+        $pluginDir = defined('ROOT_PATH') ? ROOT_PATH . 'plugins/sm-relics/lang/' : __DIR__ . '/../../lang/';
+
+        // Determine user language
+        $lang = 'en';
+        if (isset($GLOBALS['LNG']) && is_object($GLOBALS['LNG']) && method_exists($GLOBALS['LNG'], 'getLanguage')) {
+            $raw = $GLOBALS['LNG']->getLanguage();
+            $map = ['german' => 'de', 'english' => 'en', 'french' => 'fr', 'spanish' => 'es'];
+            $lang = $map[$raw] ?? (strlen((string)$raw) === 2 ? $raw : 'en');
+        }
+
+        foreach ([$lang, 'en'] as $try) {
+            $file = $pluginDir . $try . '.json';
+            if (file_exists($file)) {
+                $data = json_decode((string)file_get_contents($file), true);
+                if (is_array($data)) {
+                    return $data;
+                }
+            }
+        }
+        return [];
     }
 }

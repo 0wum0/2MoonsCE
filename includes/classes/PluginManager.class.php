@@ -1019,7 +1019,7 @@ class PluginManager
         ];
         $isoLang  = $langMap[$userLang] ?? $userLang;
 
-        $dir      = $this->pluginDir($id) . 'lang/';
+        $dir      = $this->dirForId($id) . 'lang/';
         $langFile = $dir . $isoLang . '.json';
 
         // Fallback: try original name, then 'en'
