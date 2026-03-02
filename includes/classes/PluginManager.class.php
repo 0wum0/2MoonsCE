@@ -509,7 +509,7 @@ class PluginManager
      */
     public function getAssetUrl(string $pluginId, string $relativePath = ''): string
     {
-        $base = 'plugins/' . $pluginId . '/assets/';
+        $base = './plugins/' . $pluginId . '/assets/';
         return $base . ltrim($relativePath, '/');
     }
 
