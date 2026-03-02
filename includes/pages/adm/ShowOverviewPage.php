@@ -37,6 +37,11 @@ function ShowOverviewPage(): void
     $db     = Database::get();
     $config = Config::get(ROOT_UNI);
 
+    if ($db === null) {
+        echo '<div style="color:#f87171;padding:20px;">Datenbankverbindung nicht verfügbar.</div>';
+        return;
+    }
+
     $period  = HTTP::_GP('period', 'day'); // day, week, month, year
     $endTime = TIMESTAMP;
 
