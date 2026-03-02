@@ -65,7 +65,7 @@
 <body class="admin-dashboard" id="{{ GET.page|default('overview')|e }}">
 {{ hook('admin.header.after') }}
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" style="display:none;pointer-events:none;"></div>
 
 {% if authlevel is defined and authlevel == constant('AUTH_ADM') %}
 {% if safeModeLocked is defined and safeModeLocked %}

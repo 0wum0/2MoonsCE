@@ -20,13 +20,13 @@
 
   function openSidebar() {
     if (sidebar) sidebar.classList.add('open');
-    if (overlay) overlay.classList.add('active');
+    if (overlay) { overlay.style.display = 'block'; overlay.style.pointerEvents = 'all'; }
     document.body.style.overflow = 'hidden';
   }
 
   function closeSidebar() {
     if (sidebar) sidebar.classList.remove('open');
-    if (overlay) overlay.classList.remove('active');
+    if (overlay) { overlay.style.display = 'none'; overlay.style.pointerEvents = 'none'; }
     document.body.style.overflow = '';
   }
 
