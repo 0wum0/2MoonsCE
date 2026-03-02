@@ -313,7 +313,32 @@ class PluginManager
                 [':now' => time(), ':id' => $id]
             );
         } catch (Throwable $e) {
-            error_log('[PluginManager] activate error for ' . $id . ': ' . $e->getMessage());
+            error_log('[PluginManager] activate DB error for ' . $id . ': ' . $e->getMessage());
+        }
+
+        // Bootstrap the plugin in an isolated scope so registerCronjob() (and
+        // any other self-registering calls) run and create their DB rows.
+        $this->bootstrapForActivation($id);
+    }
+
+    /**
+     * Load plugin.php in a clean variable scope so it can call registerCronjob()
+     * etc. without polluting the surrounding request state.
+     * Called only during activate() – not during the normal page request cycle.
+     */
+    private function bootstrapForActivation(string $id): void
+    {
+        $dir        = $this->dirForId($id);
+        $bootstrap  = $dir . 'plugin.php';
+        if (!file_exists($bootstrap)) {
+            return;
+        }
+        try {
+            (static function (string $_file, PluginManager $_pm): void {
+                require $_file;
+            })($bootstrap, $this);
+        } catch (Throwable $e) {
+            error_log('[PluginManager] bootstrapForActivation error for "' . $id . '": ' . $e->getMessage());
         }
     }
 
@@ -325,6 +350,15 @@ class PluginManager
                 'UPDATE %%PLUGINS%% SET is_active = 0, updated_at = :now WHERE id = :id;',
                 [':now' => time(), ':id' => $id]
             );
+
+            // Disable only the cronjob rows registered by this specific plugin.
+            // isActive=0 rather than DELETE so re-activation just sets isActive=1 again.
+            foreach (($this->pluginCronjobs[$id] ?? []) as $className) {
+                $db->update(
+                    'UPDATE %%CRONJOBS%% SET isActive = 0 WHERE `class` = :cls;',
+                    [':cls' => $className]
+                );
+            }
         } catch (Throwable $e) {
             error_log('[PluginManager] deactivate error for ' . $id . ': ' . $e->getMessage());
         }
@@ -486,6 +520,12 @@ class PluginManager
     private array $cronjobPaths = [];
 
     /**
+     * plugin id → list of cronjob class names registered by that plugin
+     * @var array<string, string[]>
+     */
+    private array $pluginCronjobs = [];
+
+    /**
      * Register a plugin cronjob class file AND ensure the DB row exists.
      * Called from plugin.php:
      *   PluginManager::get()->registerCronjob('sm-relics', 'RelicsTick',
@@ -504,14 +544,15 @@ class PluginManager
     ): void {
         $absFile = $this->pluginDir($pluginId) . ltrim($relativeFile, '/');
         $this->cronjobPaths[$className] = $absFile;
+        $this->pluginCronjobs[$pluginId][] = $className;
 
-        // Auto-insert the cronjob row if it doesn't exist yet (INSERT IGNORE = idempotent).
+        // Auto-insert or re-enable the cronjob row. Idempotent.
         // Only run when DB is available (not during INSTALL mode).
         if (!defined('MODE') || MODE === 'INSTALL') {
             return;
         }
         try {
-            $db  = Database::get();
+            $db    = Database::get();
             $min   = $schedule['min']   ?? '*/5';
             $hours = $schedule['hours'] ?? '*';
             $dom   = $schedule['dom']   ?? '*';
@@ -525,6 +566,7 @@ class PluginManager
                 'cronjobID'
             );
             if (empty($existing)) {
+                // Row does not exist yet – insert it as active.
                 $db->insert(
                     "INSERT INTO %%CRONJOBS%% (`name`,`isActive`,`min`,`hours`,`dom`,`month`,`dow`,`class`,`nextTime`)"
                     . " VALUES (:name,1,:min,:hours,:dom,:month,:dow,:class,0);",
@@ -538,9 +580,15 @@ class PluginManager
                         ':class' => $className,
                     ]
                 );
+            } else {
+                // Row already exists (was disabled on deactivate) – re-enable it.
+                $db->update(
+                    "UPDATE %%CRONJOBS%% SET isActive = 1 WHERE `class` = :cls;",
+                    [':cls' => $className]
+                );
             }
         } catch (Throwable $e) {
-            error_log('[PluginManager] registerCronjob DB insert failed for ' . $className . ': ' . $e->getMessage());
+            error_log('[PluginManager] registerCronjob DB error for ' . $className . ': ' . $e->getMessage());
         }
     }
 
