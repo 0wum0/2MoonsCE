@@ -24,7 +24,7 @@ class LiveFleetCronjob implements CronjobTask
             }
 
             $db  = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return;
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
@@ -280,31 +280,48 @@ class LiveFleetCronjob implements CronjobTask
     private function applyInterceptLosses($db, array $fleet, array $survivingUnits, int $now): void
     {
         try {
-            $survivingUnits = array_filter($survivingUnits, static fn($v) => $v > 0);
+            $fid = (int)$fleet['fleet_id'];
+            $survivingUnits = array_filter($survivingUnits, static fn($v) => (int)$v > 0);
 
             if (empty($survivingUnits)) {
-                // All ships destroyed – delete the fleet
+                // All ships destroyed – delete fleet + event row atomically
                 $db->delete(
-                    'DELETE FROM %%FLEETS%% WHERE fleet_id = :fid;',
-                    [':fid' => $fleet['fleet_id']]
+                    'DELETE %%FLEETS%%, %%FLEETS_EVENT%%
+                     FROM %%FLEETS%%
+                     INNER JOIN %%FLEETS_EVENT%% ON fleetID = fleet_id
+                     WHERE fleet_id = :fid;',
+                    [':fid' => $fid]
                 );
+                // Mark in log as destroyed
+                try {
+                    $db->update(
+                        'UPDATE %%LOG_FLEETS%% SET fleet_state = 2 WHERE fleet_id = :fid;',
+                        [':fid' => $fid]
+                    );
+                } catch (Throwable $ignored) {}
                 return;
             }
 
-            // Rebuild fleet_array
-            $newArray = '';
-            $total    = 0;
+            // Rebuild fleet_array – no trailing semicolon (matches MissionCaseAttack format)
+            $parts = [];
+            $total = 0;
             foreach ($survivingUnits as $elementId => $amount) {
-                $newArray .= $elementId . ',' . $amount . ';';
-                $total    += $amount;
+                $amt = function_exists('floatToString') ? floatToString((float)$amount) : (string)(int)$amount;
+                $parts[] = $elementId . ',' . $amt;
+                $total  += (int)$amount;
             }
+            $newArray = implode(';', $parts);
 
             $db->update(
-                'UPDATE %%FLEETS%% SET fleet_array = :arr, fleet_amount = :amt WHERE fleet_id = :fid;',
-                [':arr' => $newArray, ':amt' => $total, ':fid' => $fleet['fleet_id']]
+                'UPDATE %%FLEETS%% fleet, %%LOG_FLEETS%% log
+                 SET fleet.fleet_array = :arr, fleet.fleet_amount = :amt,
+                     log.fleet_array   = :arr2, log.fleet_amount  = :amt2
+                 WHERE fleet.fleet_id = :fid AND log.fleet_id = :fid2;',
+                [':arr' => $newArray, ':amt' => $total, ':arr2' => $newArray, ':amt2' => $total,
+                 ':fid' => $fid, ':fid2' => $fid]
             );
         } catch (Throwable $e) {
-            error_log('[LiveFleetCronjob] applyInterceptLosses() fleet_id=' . $fleet['fleet_id'] . ': ' . $e->getMessage());
+            error_log('[LiveFleetCronjob] applyInterceptLosses() fleet_id=' . ($fleet['fleet_id'] ?? '?') . ': ' . $e->getMessage());
         }
     }
 
