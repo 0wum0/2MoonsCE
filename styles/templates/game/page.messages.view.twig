@@ -65,12 +65,12 @@
             </div>
 
             <div class="mcc-card-meta">
-                <div class="mcc-card-subject">{{ Msg.subject|striptags|e }}</div>
                 <div class="mcc-card-from-row">
                     {% if Msg.unread %}<span class="mcc-unread-pip"></span>{% endif %}
                     <span class="mcc-card-from">{{ Msg.from|striptags|e }}</span>
                     <span class="mcc-card-time">{{ Msg.time }}</span>
                 </div>
+                <div class="mcc-card-subject">{{ Msg.subject|striptags|e }}</div>
             </div>
 
             <div class="mcc-card-right">

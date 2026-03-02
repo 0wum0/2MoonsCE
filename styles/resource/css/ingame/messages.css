@@ -390,19 +390,26 @@
 }
 
 .mcc-card-meta { flex: 1; min-width: 0; }
-.mcc-card-subject {
-    font-size: 12px; font-weight: 600; color: var(--mc-text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+
+/* Top row: sender name + time — like an email inbox */
 .mcc-card-from-row {
-    display: flex; align-items: center; gap: 6px; margin-top: 2px;
+    display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
 }
 .mcc-card-from {
-    font-size: 10px; color: var(--mc-muted);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
-    font-family: var(--mc-font-mono);
+    font-size: 12px; font-weight: 600; color: var(--mc-white);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
 }
-.mcc-card-time { font-size: 9px; color: #1e3a50; white-space: nowrap; font-family: var(--mc-font-mono); }
+.mcc-card-time {
+    margin-left: auto; font-size: 10px; color: var(--mc-muted);
+    white-space: nowrap; font-family: var(--mc-font-mono); flex-shrink: 0;
+}
+
+/* Subject row below sender */
+.mcc-card-subject {
+    font-size: 11px; font-weight: 400; color: #7a9ab8;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mcc-card.is-unread .mcc-card-subject { color: var(--mc-text); }
 .mcc-unread-pip {
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: var(--mc-accent);
@@ -444,8 +451,8 @@
 .mcc-card.is-open .mcc-card-body { display: block; }
 
 .mcc-card-text {
-    padding: 14px 14px 10px;
-    font-size: 12px; line-height: 1.75; color: #8aabcc;
+    padding: 14px 16px 12px;
+    font-size: 13px; line-height: 1.8; color: #b0c8e0;
     border-bottom: 1px solid var(--mc-border);
 }
 .mcc-card-text a { color: var(--mc-accent); }
@@ -455,13 +462,22 @@
 .mcc-card-text .raportMessage table { border-collapse: collapse; width: 100%; }
 .mcc-card-text .raportMessage td { padding: 3px 6px; font-size: 11px; color: var(--mc-text); }
 .mcc-card-text .raportMessage a {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: 600;
-    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 7px; font-size: 12px; font-weight: 700;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.25);
     color: var(--mc-accent); text-decoration: none; transition: var(--mc-transition);
+    font-family: var(--mc-font-hud); letter-spacing: 0.06em; text-transform: uppercase;
+    box-shadow: 0 0 12px rgba(0,212,255,0.08);
+}
+.mcc-card-text .raportMessage a::before {
+    content: '';
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--mc-accent); box-shadow: 0 0 6px rgba(0,212,255,0.6);
 }
 .mcc-card-text .raportMessage a:hover {
     background: rgba(0,212,255,0.16); color: var(--mc-white);
+    border-color: var(--mc-accent); box-shadow: 0 0 20px rgba(0,212,255,0.2);
+    text-decoration: none;
 }
 
 .mcc-card-actions {
@@ -508,7 +524,7 @@
     font-family: var(--mc-font-hud); font-size: 13px; font-weight: 700;
     color: var(--mc-muted); letter-spacing: 0.1em; text-transform: uppercase;
 }
-.mcc-empty-sub { font-size: 11px; color: #1a2a3a; font-family: var(--mc-font-mono); }
+.mcc-empty-sub { font-size: 11px; color: var(--mc-muted); font-family: var(--mc-font-mono); opacity: 0.5; }
 
 /* ── PAGINATION ───────────────────────────────────────── */
 .mcc-pager {
