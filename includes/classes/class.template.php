@@ -26,6 +26,10 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
+if (!file_exists('vendor/autoload.php')) {
+    http_response_code(503);
+    die('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Setup Required</title><style>body{background:#0a0e17;color:#e2e8f0;font-family:monospace;padding:3em;text-align:center}h1{color:#f87171}code{background:#1e293b;padding:2px 8px;border-radius:4px}</style></head><body><h1>&#9888; Composer dependencies missing</h1><p>Please run <code>composer install</code> in the project root before using 2MoonsCE.</p><p>Or upload the <code>vendor/</code> folder to the server.</p></body></html>');
+}
 require_once('vendor/autoload.php');
 
 use Twig\Environment;
