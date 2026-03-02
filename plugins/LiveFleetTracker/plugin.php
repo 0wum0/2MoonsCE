@@ -38,8 +38,10 @@ $pm->registerCronjob(
     'LiveFleetTracker',
     'LiveFleetCronjob',
     'cron/LiveFleetCronjob.php',
-    '*/5 * * * *'
+    ['min' => '*/5', 'hours' => '*', 'dom' => '*', 'month' => '*', 'dow' => '*']
 );
 
 // ── 6. Game Module ────────────────────────────────────────────────────────────
-$pm->registerModule(new LiveFleetModule());
+if (class_exists('ModuleManager') && interface_exists('GameModuleInterface')) {
+    ModuleManager::get()->register(new LiveFleetModule(), 100);
+}
