@@ -95,17 +95,7 @@ class LiveFleetModule implements GameModuleInterface
                 $ldb->markWarpNotified($userId);
             }
 
-            // Pass to Twig for in-page alert rendering
-            if (isset($GLOBALS['tplObj'])
-                && is_object($GLOBALS['tplObj'])
-                && method_exists($GLOBALS['tplObj'], 'assign_vars')
-            ) {
-                $GLOBALS['tplObj']->assign_vars([
-                    'lft_npc_attacks' => $npcAttacks,
-                    'lft_warp_events' => $warpEvents,
-                    'lft_enabled'     => true,
-                ], true);
-            }
+            // Alerts are delivered client-side via the /lft_intercept?action=alerts polling endpoint.
         } catch (Throwable $e) {
             error_log('[LiveFleetModule] beforeRequest() error: ' . $e->getMessage());
         }
