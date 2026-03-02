@@ -38,6 +38,15 @@ class ShowForumPage extends AbstractGamePage
             require_once ROOT_PATH . 'includes/classes/Forum.class.php';
         }
         $this->forum = new Forum();
+        try {
+            Database::get()->nativeQuery('SELECT 1 FROM %%FORUM_CATEGORIES%% LIMIT 1');
+        } catch (Throwable $e) {
+            ShowErrorPage::printError(
+                'Forum-Tabellen fehlen oder sind nicht erreichbar. Bitte führe das Datenbank-Upgrade unter ' .
+                '<a href="install/index.php?mode=upgrade">install/index.php?mode=upgrade</a> aus.' .
+                '<br><br>Fehler: ' . htmlspecialchars($e->getMessage())
+            );
+        }
     }
 
     // ── Permission helpers ────────────────────────────────────────────────────
