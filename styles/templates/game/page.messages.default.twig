@@ -26,231 +26,31 @@
 {% block title %}{{ LNG.lm_messages }}{% endblock %}
 
 {% block content %}
-<style>
-/* ═══════════════════════════════════════════════════════════
-   MESSAGES — COMMUNICATION CENTER  v3.0
-   ═══════════════════════════════════════════════════════════ */
-.mcc-root {
-    --mcc-bg:       #07090f;
-    --mcc-surface:  #0d1220;
-    --mcc-surface2: #111827;
-    --mcc-border:   #1a2840;
-    --mcc-accent:   #38bdf8;
-    --mcc-accent2:  #0284c7;
-    --mcc-gold:     #f0b429;
-    --mcc-red:      #ef4444;
-    --mcc-green:    #22c55e;
-    --mcc-text:     #c8d4e8;
-    --mcc-muted:    #4a5a72;
-    --mcc-unread:   #1e3a5f;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    height: calc(100vh - 120px);
-    min-height: 500px;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 13px;
-    color: var(--mcc-text);
-}
-
-/* ── TOP BAR ──────────────────────────────────────────────── */
-.mcc-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 20px;
-    background: linear-gradient(90deg, #080d18 0%, #0d1525 100%);
-    border-bottom: 1px solid var(--mcc-border);
-    flex-shrink: 0;
-    gap: 12px;
-}
-.mcc-topbar-left {
-    display: flex; align-items: center; gap: 14px;
-}
-.mcc-topbar-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: linear-gradient(135deg, #0284c7, #0f172a);
-    border: 1px solid rgba(56,189,248,0.3);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--mcc-accent); font-size: 16px;
-    box-shadow: 0 0 16px rgba(56,189,248,0.15);
-    flex-shrink: 0;
-}
-.mcc-topbar-title {
-    font-size: 17px; font-weight: 700; color: #fff;
-    letter-spacing: 0.02em;
-}
-.mcc-topbar-sub {
-    font-size: 11px; color: var(--mcc-muted); margin-top: 1px;
-}
-.mcc-topbar-right {
-    display: flex; align-items: center; gap: 8px;
-}
-.mcc-btn-compose {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
-    background: linear-gradient(135deg, #0284c7, #0369a1);
-    border: 1px solid rgba(56,189,248,0.35);
-    color: #fff; cursor: pointer; text-decoration: none;
-    transition: all 0.18s;
-    box-shadow: 0 2px 12px rgba(2,132,199,0.3);
-}
-.mcc-btn-compose:hover {
-    background: linear-gradient(135deg, #38bdf8, #0284c7);
-    box-shadow: 0 4px 20px rgba(56,189,248,0.4);
-    color: #fff; text-decoration: none;
-}
-.mcc-btn-compose svg { width: 14px; height: 14px; }
-.mcc-btn-icon {
-    width: 34px; height: 34px; border-radius: 7px;
-    background: rgba(255,255,255,0.04); border: 1px solid var(--mcc-border);
-    color: var(--mcc-muted); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.15s; font-size: 13px;
-}
-.mcc-btn-icon:hover { color: var(--mcc-accent); border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.07); }
-#mcc-loading { color: var(--mcc-accent); font-size: 13px; display: none; align-items: center; gap: 6px; }
-
-/* ── BODY: sidebar + content ──────────────────────────────── */
-.mcc-body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    min-height: 0;
-}
-
-/* ── SIDEBAR ──────────────────────────────────────────────── */
-.mcc-sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    background: var(--mcc-surface);
-    border-right: 1px solid var(--mcc-border);
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #1e3a5f var(--mcc-surface);
-}
-.mcc-sidebar::-webkit-scrollbar { width: 4px; }
-.mcc-sidebar::-webkit-scrollbar-track { background: var(--mcc-surface); }
-.mcc-sidebar::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
-
-.mcc-sidebar-section {
-    padding: 12px 14px 4px;
-    font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
-    color: var(--mcc-muted); font-weight: 700;
-}
-.mcc-cat-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 14px; cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: all 0.15s; position: relative;
-    text-decoration: none; color: var(--mcc-text);
-}
-.mcc-cat-item:hover {
-    background: rgba(56,189,248,0.06);
-    color: #fff; text-decoration: none;
-}
-.mcc-cat-item.active {
-    background: rgba(56,189,248,0.1);
-    border-left-color: var(--mcc-accent);
-    color: #fff;
-}
-.mcc-cat-icon {
-    width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-}
-.mcc-cat-label { flex: 1; font-size: 12px; font-weight: 500; }
-.mcc-cat-badge {
-    font-size: 10px; font-weight: 700; padding: 1px 6px;
-    border-radius: 10px; background: var(--mcc-accent2); color: #fff;
-    min-width: 18px; text-align: center;
-}
-.mcc-cat-badge.unread {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    box-shadow: 0 0 8px rgba(239,68,68,0.4);
-    animation: mcc-pulse 2s ease-in-out infinite;
-}
-@keyframes mcc-pulse {
-    0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.4); }
-    50%       { box-shadow: 0 0 16px rgba(239,68,68,0.7); }
-}
-.mcc-cat-total { font-size: 10px; color: var(--mcc-muted); }
-
-/* ── MAIN CONTENT ─────────────────────────────────────────── */
-.mcc-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background: var(--mcc-bg);
-    scrollbar-width: thin;
-    scrollbar-color: #1e3a5f var(--mcc-bg);
-}
-.mcc-content::-webkit-scrollbar { width: 6px; }
-.mcc-content::-webkit-scrollbar-track { background: var(--mcc-bg); }
-.mcc-content::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
-.mcc-content::-webkit-scrollbar-thumb:hover { background: #2a5a8f; }
-
-/* search bar inside content top */
-.mcc-search-bar {
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--mcc-border);
-    background: var(--mcc-surface);
-    display: flex; gap: 8px; align-items: center;
-    flex-shrink: 0; position: sticky; top: 0; z-index: 2;
-}
-.mcc-search-input {
-    flex: 1; background: rgba(255,255,255,0.04);
-    border: 1px solid var(--mcc-border); border-radius: 7px;
-    padding: 7px 12px; color: var(--mcc-text); font-size: 12px;
-    outline: none; transition: border-color 0.15s;
-}
-.mcc-search-input::placeholder { color: var(--mcc-muted); }
-.mcc-search-input:focus { border-color: rgba(56,189,248,0.45); }
-
-/* mobile */
-@media (max-width: 700px) {
-    .mcc-root { height: auto; }
-    .mcc-body { flex-direction: column; }
-    .mcc-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--mcc-border); max-height: 180px; }
-    .mcc-sidebar-cats { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; }
-    .mcc-cat-item { border-left: none; border-bottom: 2px solid transparent; border-radius: 6px; flex: 0 0 auto; padding: 6px 10px; }
-    .mcc-cat-item.active { border-bottom-color: var(--mcc-accent); }
-    .mcc-topbar { flex-wrap: wrap; }
-}
-</style>
-
 <div class="mcc-root">
 
     {# ── TOP BAR ── #}
     <div class="mcc-topbar">
         <div class="mcc-topbar-left">
             <div class="mcc-topbar-icon">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                </svg>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
             </div>
             <div>
                 <div class="mcc-topbar-title">{{ LNG.lm_messages }}</div>
-                <div class="mcc-topbar-sub">Kommunikationszentrale</div>
+                <div class="mcc-topbar-sub">// COMMUNICATION_CENTER</div>
             </div>
         </div>
         <div class="mcc-topbar-right">
-            <div id="mcc-loading" style="display:none;align-items:center;gap:6px;font-size:12px;color:#38bdf8;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:mcc-spin 0.8s linear infinite">
-                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                </svg>
-                Laden…
+            <div id="mcc-loading">
+                <span class="mcc-loader-dot"></span>
+                <span class="mcc-loader-dot"></span>
+                <span class="mcc-loader-dot"></span>
+                <span>SYNC</span>
             </div>
-            <style>@keyframes mcc-spin { to { transform: rotate(360deg); } }</style>
             <div class="mcc-btn-icon" onclick="Message.getMessages(Message.MessID, Message.Page);" title="Aktualisieren">
-                <i class="fas fa-sync-alt"></i>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
             </div>
             <a href="#" class="mcc-btn-compose" onclick="return Message.openCompose();">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
-                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
-                </svg>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/></svg>
                 {{ LNG.mg_send_new }}
             </a>
         </div>
@@ -259,38 +59,38 @@
     {# ── BODY ── #}
     <div class="mcc-body">
 
-        {# SIDEBAR #}
+        {# ── SIDEBAR ── #}
         <div class="mcc-sidebar">
-            <div class="mcc-sidebar-section">Kategorien</div>
-            <div class="mcc-sidebar-cats">
+            <div class="mcc-sidebar-label">// KATEGORIEN</div>
+            <div class="mcc-sidebar-cats-inner">
 
-            {% set catIcons = {
-                0:   {icon: 'fa-globe',        color: '#f0b429', bg: 'rgba(240,180,41,0.12)'},
-                1:   {icon: 'fa-user',          color: '#38bdf8', bg: 'rgba(56,189,248,0.12)'},
-                2:   {icon: 'fa-bomb',          color: '#ef4444', bg: 'rgba(239,68,68,0.12)'},
-                3:   {icon: 'fa-satellite',     color: '#f97316', bg: 'rgba(249,115,22,0.12)'},
-                4:   {icon: 'fa-chess-rook',    color: '#a78bfa', bg: 'rgba(167,139,250,0.12)'},
-                5:   {icon: 'fa-shield-alt',    color: '#22c55e', bg: 'rgba(34,197,94,0.12)'},
-                15:  {icon: 'fa-handshake',     color: '#6495ed', bg: 'rgba(100,149,237,0.12)'},
-                50:  {icon: 'fa-server',        color: '#666600', bg: 'rgba(102,102,0,0.18)'},
-                99:  {icon: 'fa-cog',           color: '#007070', bg: 'rgba(0,112,112,0.18)'},
-                100: {icon: 'fa-inbox',         color: '#ababab', bg: 'rgba(171,171,171,0.1)'},
-                999: {icon: 'fa-paper-plane',   color: '#a78bfa', bg: 'rgba(167,139,250,0.12)'}
+            {% set catData = {
+                0:   {icon: 'fa-globe',       color: '#f0b429', bg: 'rgba(240,180,41,0.12)',  badge: 'gold'},
+                1:   {icon: 'fa-user',         color: '#00d4ff', bg: 'rgba(0,212,255,0.1)',    badge: 'cyan'},
+                2:   {icon: 'fa-crosshairs',   color: '#ff3d57', bg: 'rgba(255,61,87,0.1)',    badge: 'red'},
+                3:   {icon: 'fa-satellite',    color: '#f97316', bg: 'rgba(249,115,22,0.1)',   badge: 'orange'},
+                4:   {icon: 'fa-chess-rook',   color: '#b47cff', bg: 'rgba(180,124,255,0.1)', badge: 'purple'},
+                5:   {icon: 'fa-shield-alt',   color: '#00e676', bg: 'rgba(0,230,118,0.1)',   badge: 'green'},
+                15:  {icon: 'fa-handshake',    color: '#6495ed', bg: 'rgba(100,149,237,0.1)', badge: 'cyan'},
+                50:  {icon: 'fa-server',       color: '#a0a020', bg: 'rgba(160,160,32,0.12)', badge: 'gold'},
+                99:  {icon: 'fa-cog',          color: '#20a0a0', bg: 'rgba(32,160,160,0.12)', badge: 'cyan'},
+                100: {icon: 'fa-inbox',        color: '#8090a0', bg: 'rgba(128,144,160,0.1)', badge: 'muted'},
+                999: {icon: 'fa-paper-plane',  color: '#b47cff', bg: 'rgba(180,124,255,0.1)', badge: 'purple'}
             } %}
 
             {% for CategoryID, CategoryRow in CategoryList %}
             {% if CategoryRow.total > 0 or CategoryID == 100 or CategoryID == 999 %}
-            {% set ico = catIcons[CategoryID] ?? {icon:'fa-envelope', color:'#38bdf8', bg:'rgba(56,189,248,0.1)'} %}
+            {% set cd = catData[CategoryID] ?? {icon:'fa-envelope', color:'#00d4ff', bg:'rgba(0,212,255,0.1)', badge:'cyan'} %}
             <div class="mcc-cat-item {% if category == CategoryID %}active{% endif %}"
-                 onclick="Message.getMessages({{ CategoryID }}, 1); document.querySelectorAll('.mcc-cat-item').forEach(function(el){el.classList.remove('active');}); this.classList.add('active');">
-                <div class="mcc-cat-icon" style="background:{{ ico.bg }};color:{{ ico.color }}">
-                    <i class="fas {{ ico.icon }}"></i>
+                 onclick="(function(el,id){Message.getMessages(id,1);document.querySelectorAll('.mcc-cat-item').forEach(function(x){x.classList.remove('active');});el.classList.add('active');})(this,{{ CategoryID }})">
+                <div class="mcc-cat-icon-wrap" style="background:{{ cd.bg }};color:{{ cd.color }}">
+                    <i class="fas {{ cd.icon }}"></i>
                 </div>
                 <span class="mcc-cat-label">{{ LNG.mg_type[CategoryID] }}</span>
                 {% if CategoryRow.unread > 0 %}
-                <span class="mcc-cat-badge unread">{{ CategoryRow.unread }}</span>
+                    <span class="mcc-cat-badge is-unread">{{ CategoryRow.unread }}</span>
                 {% elseif CategoryRow.total > 0 %}
-                <span class="mcc-cat-total">{{ CategoryRow.total }}</span>
+                    <span class="mcc-cat-badge is-count">{{ CategoryRow.total }}</span>
                 {% endif %}
             </div>
             {% endif %}
@@ -299,22 +99,21 @@
             </div>
         </div>
 
-        {# CONTENT AREA #}
+        {# ── CONTENT ── #}
         <div class="mcc-content">
-            <div class="mcc-search-bar">
-                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#4a5a72" stroke-width="2" style="flex-shrink:0">
-                    <circle cx="8" cy="8" r="6"/><path d="M14 14l4 4"/>
-                </svg>
-                <input type="text" id="message-search" class="mcc-search-input" placeholder="Nachrichten durchsuchen…">
+            <div class="mcc-toolbar-row">
+                <div class="mcc-search-wrap">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="8" cy="8" r="5"/><path d="M14 14l3.5 3.5" stroke-linecap="round"/></svg>
+                    <input type="text" id="message-search" class="mcc-search-input" placeholder="Nachrichten durchsuchen…">
+                </div>
                 <input type="hidden" id="message-category-select" value="{{ category|default(100) }}">
                 <input type="hidden" id="message-current-page" value="{{ side|default(1) }}">
             </div>
-            <div id="messages-view">
-                {# loaded via AJAX #}
+            <div class="mcc-messages-scroll">
+                <div id="messages-view"></div>
             </div>
         </div>
 
-    </div>{# /.mcc-body #}
-</div>{# /.mcc-root #}
-
+    </div>
+</div>
 {% endblock %}

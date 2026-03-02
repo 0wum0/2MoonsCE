@@ -23,233 +23,74 @@
 #}
 {% extends "layout.ajax.twig" %}
 {% block content %}
-<style>
-/* ── MESSAGE FEED CARDS ─────────────────────────────────────
-   These styles are injected into the AJAX response and
-   scoped under .mcc-feed so they don't bleed globally.
-   ─────────────────────────────────────────────────────────── */
-.mcc-feed {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-/* ── TOOLBAR (bulk actions) ─────────────────────────────── */
-.mcc-feed-toolbar {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 4px; margin-bottom: 4px;
-}
-.mcc-toolbar-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 600;
-    cursor: pointer; border: 1px solid #1a2840; background: rgba(255,255,255,0.04);
-    color: #7a8ca0; transition: all 0.15s;
-}
-.mcc-toolbar-btn:hover { color: #ef4444; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
-.mcc-toolbar-check {
-    width: 16px; height: 16px; border-radius: 4px;
-    border: 1.5px solid #1a2840; background: transparent;
-    cursor: pointer; accent-color: #38bdf8;
-}
-
-/* ── SINGLE MESSAGE CARD ──────────────────────────────────── */
-.mcc-msg-card {
-    background: #0d1220;
-    border: 1px solid #1a2840;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: border-color 0.18s, box-shadow 0.18s;
-}
-.mcc-msg-card:hover {
-    border-color: rgba(56,189,248,0.25);
-    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
-}
-.mcc-msg-card.is-unread {
-    border-left: 3px solid #38bdf8;
-    background: #0d1527;
-}
-.mcc-msg-card.is-unread .mcc-msg-subject { color: #fff; }
-
-/* ── CARD HEADER (always visible, clickable) ──────────────── */
-.mcc-msg-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px; cursor: pointer;
-    user-select: none;
-}
-.mcc-msg-header:hover { background: rgba(255,255,255,0.02); }
-
-.mcc-msg-avatar {
-    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg, #0284c7, #0f172a);
-    border: 1px solid rgba(56,189,248,0.25);
-}
-.mcc-msg-avatar.sys {
-    background: linear-gradient(135deg, #374151, #1f2937);
-    border-color: rgba(107,114,128,0.4);
-    font-size: 14px;
-}
-
-.mcc-msg-meta { flex: 1; min-width: 0; }
-.mcc-msg-subject {
-    font-size: 13px; font-weight: 600; color: #c8d4e8;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.mcc-msg-from-row {
-    display: flex; align-items: center; gap: 8px; margin-top: 2px;
-}
-.mcc-msg-from {
-    font-size: 11px; color: #4a5a72;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 200px;
-}
-.mcc-msg-time { font-size: 10px; color: #374151; white-space: nowrap; }
-.mcc-unread-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #38bdf8; flex-shrink: 0;
-    box-shadow: 0 0 6px rgba(56,189,248,0.6);
-}
-
-.mcc-msg-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.mcc-msg-chevron {
-    color: #374151; font-size: 11px; transition: transform 0.2s;
-}
-.mcc-msg-card.is-open .mcc-msg-chevron { transform: rotate(180deg); }
-
-/* ── CARD BODY (hidden until expanded) ───────────────────── */
-.mcc-msg-body {
-    display: none;
-    border-top: 1px solid #1a2840;
-}
-.mcc-msg-card.is-open .mcc-msg-body { display: block; }
-
-.mcc-msg-text {
-    padding: 14px 16px;
-    font-size: 12px; line-height: 1.7; color: #a0b0c8;
-    border-bottom: 1px solid #1a2840;
-}
-.mcc-msg-text a { color: #38bdf8; }
-.mcc-msg-text .raportMessage { margin: 0; }
-.mcc-msg-text table { border-collapse: collapse; width: 100%; }
-.mcc-msg-text td { padding: 3px 6px; font-size: 11px; }
-
-.mcc-msg-actions {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    background: rgba(0,0,0,0.15);
-}
-.mcc-act-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
-    cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
-    background: transparent;
-}
-.mcc-act-btn.reply {
-    color: #38bdf8; border-color: rgba(56,189,248,0.3);
-    background: rgba(56,189,248,0.06);
-}
-.mcc-act-btn.reply:hover { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.5); }
-.mcc-act-btn.delete {
-    color: #6b7280; border-color: rgba(107,114,128,0.2);
-}
-.mcc-act-btn.delete:hover { color: #ef4444; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
-.mcc-act-btn svg { width: 12px; height: 12px; }
-
-/* ── EMPTY STATE ──────────────────────────────────────────── */
-.mcc-empty {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 60px 20px; gap: 12px; color: #374151;
-}
-.mcc-empty svg { width: 48px; height: 48px; opacity: 0.3; }
-.mcc-empty-title { font-size: 14px; font-weight: 600; color: #4a5a72; }
-.mcc-empty-sub { font-size: 12px; color: #374151; }
-
-/* ── PAGINATION ───────────────────────────────────────────── */
-.mcc-pagination {
-    display: flex; align-items: center; justify-content: center;
-    gap: 4px; padding: 16px;
-}
-.mcc-page-btn {
-    min-width: 32px; height: 32px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    border: 1px solid #1a2840; background: rgba(255,255,255,0.03);
-    color: #4a5a72; text-decoration: none; transition: all 0.15s;
-    padding: 0 8px;
-}
-.mcc-page-btn:hover { color: #38bdf8; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.07); text-decoration: none; }
-.mcc-page-btn.active { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.5); color: #38bdf8; }
-</style>
 
 <div class="mcc-feed">
 
 {% if MessageList is not empty %}
 
-    {# ── BULK TOOLBAR ── #}
+    {# ── BULK BAR ── #}
     {% if MessID != 999 %}
-    <div class="mcc-feed-toolbar">
-        <input type="checkbox" class="mcc-toolbar-check" id="mcc-check-all"
+    <div class="mcc-bulk-bar">
+        <input type="checkbox" class="mcc-bulk-check" id="mcc-all"
                onchange="document.querySelectorAll('.mcc-row-check').forEach(function(c){c.checked=this.checked;},this)">
-        <label for="mcc-check-all" style="font-size:11px;color:#4a5a72;cursor:pointer">Alle</label>
-        <button class="mcc-toolbar-btn" onclick="mccDeleteChecked({{ MessID }}, {{ page }})">
-            <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M6 2a1 1 0 00-1 1H2v1h12V3h-3a1 1 0 00-1-1H6zM3 5l1 9h8l1-9H3zm3 2h1v5H6V7zm3 0h1v5H9V7z"/></svg>
+        <label for="mcc-all" class="mcc-bulk-label">Alle</label>
+        <button class="mcc-bulk-del" onclick="mccDeleteChecked({{ MessID }}, {{ page }})">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M6 2a1 1 0 00-1 1H2v1h12V3h-3a1 1 0 00-1-1H6zM3 5l1 9h8l1-9H3z"/></svg>
             Markierte löschen
         </button>
-        <span style="flex:1"></span>
-        <span style="font-size:10px;color:#374151">{{ MessageList|length }} Nachrichten</span>
+        <span class="mcc-bulk-count">{{ MessageList|length }} Nachrichten</span>
     </div>
     {% endif %}
 
-    {# ── MESSAGE CARDS ── #}
+    {# ── CARDS ── #}
     {% for Msg in MessageList %}
-    {% set senderInitial = Msg.from|striptags|slice(0,1)|upper %}
-    {% set isSystem = Msg.sender <= 0 %}
-    <div class="mcc-msg-card {% if Msg.unread %}is-unread{% endif %} msg-item" id="mcc-msg-{{ Msg.id }}">
+    {% set initial = Msg.from|striptags|slice(0,1)|upper %}
+    {% set isSystem = Msg.sender is not defined or Msg.sender <= 0 %}
+    {% set isAttack = MessID == 2 %}
+    <div class="mcc-card {% if Msg.unread %}is-unread{% endif %} msg-item" id="mcc-card-{{ Msg.id }}">
 
-        <div class="mcc-msg-header" onclick="mccToggle({{ Msg.id }})">
-
+        <div class="mcc-card-head" onclick="mccToggle({{ Msg.id }})">
             {% if MessID != 999 %}
-            <input type="checkbox" class="mcc-toolbar-check mcc-row-check" value="{{ Msg.id }}"
-                   onclick="event.stopPropagation()" style="margin-right:2px">
+            <input type="checkbox" class="mcc-row-check" value="{{ Msg.id }}" onclick="event.stopPropagation()">
             {% endif %}
 
-            <div class="mcc-msg-avatar {% if isSystem %}sys{% endif %}">
+            <div class="mcc-avatar {% if isSystem %}system{% elseif isAttack %}attack{% else %}player{% endif %}">
                 {% if isSystem %}
-                    <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-5h1.5v5zm0-6.5h-1.5V3.5h1.5V5z"/></svg>
+                {% elseif isAttack %}
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M9.5 2.672a.5.5 0 001 0V.843a.5.5 0 00-.859-.349L7.14 3a.5.5 0 00.859.349l1.5-1.5v.823zM6 3a.5.5 0 000 1h1.5v1.5A3.5 3.5 0 014 9H2.5a.5.5 0 000 1H4a4.5 4.5 0 004.5-4.5V4h1.5a.5.5 0 000-1H6zm4 3.5a.5.5 0 01.5.5v5.5a.5.5 0 01-1 0V7a.5.5 0 01.5-.5z"/></svg>
                 {% else %}
-                    {{ senderInitial }}
+                    {{ initial }}
                 {% endif %}
             </div>
 
-            <div class="mcc-msg-meta">
-                <div class="mcc-msg-subject">{{ Msg.subject|striptags|e }}</div>
-                <div class="mcc-msg-from-row">
-                    {% if Msg.unread %}<div class="mcc-unread-dot"></div>{% endif %}
-                    <span class="mcc-msg-from">{{ Msg.from|striptags|e }}</span>
-                    <span class="mcc-msg-time">{{ Msg.time }}</span>
+            <div class="mcc-card-meta">
+                <div class="mcc-card-subject">{{ Msg.subject|striptags|e }}</div>
+                <div class="mcc-card-from-row">
+                    {% if Msg.unread %}<span class="mcc-unread-pip"></span>{% endif %}
+                    <span class="mcc-card-from">{{ Msg.from|striptags|e }}</span>
+                    <span class="mcc-card-time">{{ Msg.time }}</span>
                 </div>
             </div>
 
-            <div class="mcc-msg-right">
-                <i class="fas fa-chevron-down mcc-msg-chevron"></i>
+            <div class="mcc-card-right">
+                <svg class="mcc-chevron" viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M1.646 4.646a.5.5 0 01.708 0L8 10.293l5.646-5.647a.5.5 0 01.708.708l-6 6a.5.5 0 01-.708 0l-6-6a.5.5 0 010-.708z"/></svg>
             </div>
         </div>
 
-        <div class="mcc-msg-body">
-            <div class="mcc-msg-text">{{ Msg.text|raw }}</div>
-            <div class="mcc-msg-actions">
-                {% if MessID != 999 and Msg.sender > 0 %}
-                <button class="mcc-act-btn reply"
+        <div class="mcc-card-body">
+            <div class="mcc-card-text">{{ Msg.text|raw }}</div>
+            <div class="mcc-card-actions">
+                {% if MessID != 999 and Msg.sender is defined and Msg.sender > 0 %}
+                <button class="mcc-act reply"
                         onclick="Dialog.PM({{ Msg.sender }}, 'RE: {{ Msg.subject|striptags|e('js') }}')">
-                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.5 2L2 7l5.5 5V9.5C10 9.5 13 11 13 14c0-5-3-6.5-5.5-6.5V2z"/></svg>
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M7.5 2L2 7l5.5 5V9.5C10.5 9.5 13.5 11.5 13.5 14.5c0-5.5-3-7-6-7V2z"/></svg>
                     Antworten
                 </button>
                 {% endif %}
-                <button class="mcc-act-btn delete"
+                <button class="mcc-act delete"
                         onclick="Message.deleteMessage({{ Msg.id }}, {{ MessID }}, {{ page }})">
-                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 2a1 1 0 00-1 1H2v1h12V3h-3a1 1 0 00-1-1H6zM3 5l1 9h8l1-9H3z"/></svg>
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M6 2a1 1 0 00-1 1H2v1h12V3h-3a1 1 0 00-1-1H6zM3 5l1 9h8l1-9H3z"/></svg>
                     Löschen
                 </button>
             </div>
@@ -260,30 +101,32 @@
 
 {% else %}
     <div class="mcc-empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-        </svg>
+        <div class="mcc-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+            </svg>
+        </div>
         <div class="mcc-empty-title">Keine Nachrichten</div>
-        <div class="mcc-empty-sub">Dein Postfach ist leer.</div>
+        <div class="mcc-empty-sub">// MAILBOX_EMPTY</div>
     </div>
 {% endif %}
 
-</div>{# /.mcc-feed #}
+</div>
 
 {% if maxPage > 1 %}
-<div class="mcc-pagination">
+<div class="mcc-pager">
     {% if page > 1 %}
-    <a href="#" class="mcc-page-btn" onclick="Message.getMessages({{ MessID }}, {{ page - 1 }}); return false;">
-        <i class="fas fa-chevron-left"></i>
+    <a href="#" class="mcc-pager-btn" onclick="Message.getMessages({{ MessID }}, {{ page - 1 }}); return false;">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M11.354 1.646a.5.5 0 010 .708L5.707 8l5.647 5.646a.5.5 0 01-.708.708l-6-6a.5.5 0 010-.708l6-6a.5.5 0 01.708 0z"/></svg>
     </a>
     {% endif %}
     {% for site in range([1, page - 2]|max, [maxPage, page + 2]|min) %}
-    <a href="#" class="mcc-page-btn {% if site == page %}active{% endif %}"
+    <a href="#" class="mcc-pager-btn {% if site == page %}active{% endif %}"
        onclick="Message.getMessages({{ MessID }}, {{ site }}); return false;">{{ site }}</a>
     {% endfor %}
     {% if page < maxPage %}
-    <a href="#" class="mcc-page-btn" onclick="Message.getMessages({{ MessID }}, {{ page + 1 }}); return false;">
-        <i class="fas fa-chevron-right"></i>
+    <a href="#" class="mcc-pager-btn" onclick="Message.getMessages({{ MessID }}, {{ page + 1 }}); return false;">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M4.646 1.646a.5.5 0 000 .708L10.293 8 4.646 13.646a.5.5 0 00.708.708l6-6a.5.5 0 000-.708l-6-6a.5.5 0 00-.708 0z"/></svg>
     </a>
     {% endif %}
 </div>
@@ -291,11 +134,11 @@
 
 <script>
 function mccToggle(id) {
-    var card = document.getElementById('mcc-msg-' + id);
+    var card = document.getElementById('mcc-card-' + id);
     if (!card) return;
     card.classList.toggle('is-open');
 }
-function mccDeleteChecked(messCat, page) {
+function mccDeleteChecked(messCat, pg) {
     var ids = [];
     document.querySelectorAll('.mcc-row-check:checked').forEach(function(c){ ids.push(c.value); });
     if (!ids.length) return;
@@ -304,7 +147,7 @@ function mccDeleteChecked(messCat, page) {
         var payload = {};
         ids.forEach(function(id, i){ payload['messageID[' + i + ']'] = id; });
         SmAjax.post('game.php?page=messages&mode=delete', payload, { noRefresh: true })
-            .done(function(){ Message.getMessages(messCat, page); });
+            .done(function(){ Message.getMessages(messCat, pg); });
     }
 }
 </script>

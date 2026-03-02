@@ -25,131 +25,6 @@
 
 {% block title %}{{ LNG.write_message }}{% endblock %}
 {% block content %}
-<style>
-/* ── COMPOSE FORM ─────────────────────────────────────────── */
-.mcc-compose {
-    --c-bg:      #07090f;
-    --c-surface: #0d1220;
-    --c-border:  #1a2840;
-    --c-accent:  #38bdf8;
-    --c-text:    #c8d4e8;
-    --c-muted:   #4a5a72;
-    display: flex; flex-direction: column;
-    height: 100%; min-height: 480px;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 13px; color: var(--c-text);
-    background: var(--c-bg);
-}
-
-/* header */
-.mcc-compose-head {
-    display: flex; align-items: center; gap: 12px;
-    padding: 16px 20px;
-    background: linear-gradient(90deg, #080d18 0%, #0d1525 100%);
-    border-bottom: 1px solid var(--c-border);
-    flex-shrink: 0;
-}
-.mcc-compose-head-icon {
-    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
-    background: linear-gradient(135deg, #0284c7, #0f172a);
-    border: 1px solid rgba(56,189,248,0.3);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--c-accent); font-size: 15px;
-}
-.mcc-compose-head-title {
-    font-size: 15px; font-weight: 700; color: #fff;
-}
-.mcc-compose-head-sub {
-    font-size: 10px; color: var(--c-muted); margin-top: 1px;
-}
-
-/* form body */
-.mcc-compose-body {
-    flex: 1; padding: 16px 20px;
-    display: flex; flex-direction: column; gap: 12px;
-    overflow-y: auto;
-    scrollbar-width: thin; scrollbar-color: #1e3a5f var(--c-bg);
-}
-.mcc-compose-body::-webkit-scrollbar { width: 5px; }
-.mcc-compose-body::-webkit-scrollbar-track { background: var(--c-bg); }
-.mcc-compose-body::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
-
-/* field group */
-.mcc-field { display: flex; flex-direction: column; gap: 5px; }
-.mcc-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
-    color: var(--c-muted); font-weight: 700;
-}
-.mcc-input {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--c-border); border-radius: 7px;
-    padding: 9px 13px; color: var(--c-text); font-size: 13px;
-    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
-    font-family: inherit; width: 100%; box-sizing: border-box;
-}
-.mcc-input:focus {
-    border-color: rgba(56,189,248,0.5);
-    box-shadow: 0 0 0 3px rgba(56,189,248,0.08);
-}
-.mcc-input[readonly] { color: var(--c-muted); cursor: default; }
-.mcc-input::placeholder { color: #2a3a50; }
-
-/* BB toolbar */
-.mcc-bb-toolbar {
-    display: flex; flex-wrap: wrap; gap: 4px;
-    padding: 8px; border-radius: 7px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--c-border);
-}
-.mcc-bb-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 30px; height: 26px; padding: 0 7px;
-    border-radius: 5px; font-size: 11px; font-weight: 600;
-    background: rgba(255,255,255,0.04); border: 1px solid #1a2840;
-    color: var(--c-muted); cursor: pointer; transition: all 0.15s;
-    white-space: nowrap;
-}
-.mcc-bb-btn:hover { background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.35); color: var(--c-accent); }
-
-/* textarea */
-.mcc-textarea {
-    resize: vertical; min-height: 160px;
-    line-height: 1.6;
-}
-
-/* char counter */
-.mcc-char-counter {
-    font-size: 10px; color: var(--c-muted); text-align: right;
-}
-.mcc-char-counter.warn { color: #f97316; }
-.mcc-char-counter.over { color: #ef4444; }
-
-/* footer */
-.mcc-compose-footer {
-    padding: 12px 20px;
-    border-top: 1px solid var(--c-border);
-    background: rgba(0,0,0,0.2);
-    display: flex; align-items: center; gap: 10px;
-    flex-shrink: 0;
-}
-.mcc-send-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 22px; border-radius: 8px; font-size: 13px; font-weight: 700;
-    background: linear-gradient(135deg, #0284c7, #0369a1);
-    border: 1px solid rgba(56,189,248,0.4);
-    color: #fff; cursor: pointer; transition: all 0.18s;
-    box-shadow: 0 2px 14px rgba(2,132,199,0.3);
-}
-.mcc-send-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #38bdf8, #0284c7);
-    box-shadow: 0 4px 22px rgba(56,189,248,0.4);
-}
-.mcc-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.mcc-send-status {
-    font-size: 11px; color: var(--c-muted); flex: 1;
-}
-</style>
-
 <div class="mcc-compose">
 
     <div class="mcc-compose-head">
@@ -171,24 +46,24 @@
         <div class="mcc-compose-body">
 
             <div class="mcc-field">
-                <label class="mcc-label">{{ LNG.mg_send_to }}</label>
+                <label class="mcc-flabel">{{ LNG.mg_send_to }}</label>
                 {% if allowFreeRecipient %}
-                <input type="text" name="to" id="to" class="mcc-input" value="{{ OwnerRecord.username|default('') }}" placeholder="Spielername eingeben…">
+                <input type="text" name="to" id="to" class="mcc-finput" value="{{ OwnerRecord.username|default('') }}" placeholder="Spielername eingeben…">
                 {% else %}
-                <input type="text" name="to" id="to" class="mcc-input" readonly
+                <input type="text" name="to" id="to" class="mcc-finput" readonly
                     value="{{ OwnerRecord.username }} [{{ OwnerRecord.galaxy }}:{{ OwnerRecord.system }}:{{ OwnerRecord.planet }}]">
                 {% endif %}
             </div>
 
             <div class="mcc-field">
-                <label class="mcc-label">{{ LNG.mg_subject }}</label>
-                <input type="text" name="subject" id="subject" class="mcc-input" maxlength="40"
+                <label class="mcc-flabel">{{ LNG.mg_subject }}</label>
+                <input type="text" name="subject" id="subject" class="mcc-finput" maxlength="40"
                     value="{% if subject %}{{ subject }}{% else %}{{ LNG.mg_no_subject }}{% endif %}">
             </div>
 
             <div class="mcc-field">
-                <label class="mcc-label">{{ LNG.mg_message }}</label>
-                <div class="mcc-bb-toolbar">
+                <label class="mcc-flabel">{{ LNG.mg_message }}</label>
+                <div class="mcc-bb-bar">
                     <button type="button" class="mcc-bb-btn" onclick="msgBB('b')"><b>B</b></button>
                     <button type="button" class="mcc-bb-btn" onclick="msgBB('i')"><i>I</i></button>
                     <button type="button" class="mcc-bb-btn" onclick="msgBB('u')"><u>U</u></button>
@@ -204,9 +79,9 @@
                     <button type="button" class="mcc-bb-btn" onclick="msgBB('color=red')">🎨</button>
                     <button type="button" class="mcc-bb-btn" onclick="msgBB('size=16')">Aa</button>
                 </div>
-                <textarea name="text" id="text" class="mcc-input mcc-textarea"
+                <textarea name="text" id="text" class="mcc-finput mcc-ftextarea"
                     oninput="mccUpdateCounter(this)">{{ message|default('') }}</textarea>
-                <div class="mcc-char-counter" id="mcc-counter">0 / 5.000</div>
+                <div class="mcc-char-row"><span class="mcc-char-count" id="mcc-counter">0 / 5.000</span></div>
             </div>
 
         </div>
