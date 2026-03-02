@@ -1,0 +1,55 @@
+{
+    "id":          "LiveFleetTracker",
+    "name":        "Live Fleet Tracker",
+    "version":     "1.0.0",
+    "description": "Echtzeit-Flotten auf der Galaxy Map mit Interception, NPC-Piraten-Angriffen und Warp-Risiko.",
+    "author":      "0wum0",
+    "requires":    ["GalaxyMarkerAPI"],
+    "settings": [
+        {
+            "key":     "enabled",
+            "type":    "bool",
+            "label":   "Plugin aktiv",
+            "default": true
+        },
+        {
+            "key":     "npc_enabled",
+            "type":    "bool",
+            "label":   "NPC-Piraten aktiv",
+            "default": true
+        },
+        {
+            "key":     "npc_chance_percent",
+            "type":    "int",
+            "label":   "NPC-Angriffs-Wahrscheinlichkeit (%)",
+            "default": 5,
+            "hint":    "Wahrscheinlichkeit pro Flotte pro Cron-Lauf, dass ein NPC-Pirat angreift (1-50)."
+        },
+        {
+            "key":     "warp_risk_enabled",
+            "type":    "bool",
+            "label":   "Warp-Risiko aktiv",
+            "default": true
+        },
+        {
+            "key":     "warp_risk_percent",
+            "type":    "int",
+            "label":   "Warp-Risiko (%)",
+            "default": 3,
+            "hint":    "Wahrscheinlichkeit pro Interstellar-Flug, dass die Flotte um X% verzögert wird (1-20)."
+        },
+        {
+            "key":     "interception_enabled",
+            "type":    "bool",
+            "label":   "Interception aktiv",
+            "default": true
+        },
+        {
+            "key":     "poll_interval_ms",
+            "type":    "int",
+            "label":   "Galaxy Map Poll-Intervall (ms)",
+            "default": 3000,
+            "hint":    "Wie oft die Galaxy Map Flotten-Daten vom Server abruft (min. 1000ms)."
+        }
+    ]
+}

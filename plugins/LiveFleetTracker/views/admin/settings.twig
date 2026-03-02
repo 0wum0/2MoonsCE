@@ -1,0 +1,98 @@
+<div class="admin-content-area">
+    <h2><i class="fas fa-satellite"></i> Live Fleet Tracker – Einstellungen</h2>
+
+    {% if lft_errors %}
+        <div class="alert alert-danger">
+            {% for e in lft_errors %}<div>{{ e }}</div>{% endfor %}
+        </div>
+    {% endif %}
+    {% if lft_success %}
+        <div class="alert alert-success">Einstellungen gespeichert.</div>
+    {% endif %}
+
+    <form method="post">
+        <div class="admin-card">
+            <h3>Allgemein</h3>
+            <div class="form-row">
+                <label><input type="checkbox" name="enabled" value="1" {% if lft_settings.enabled %}checked{% endif %}> Plugin aktiv</label>
+            </div>
+            <div class="form-row">
+                <label>Poll-Intervall Galaxy Map (ms)</label>
+                <input type="number" name="poll_interval_ms" value="{{ lft_settings.poll_interval_ms|default(3000) }}" min="1000" max="60000">
+                <small>Wie oft die Galaxy Map Flotten-Positionen aktualisiert (mind. 1000 ms).</small>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-skull-crossbones"></i> NPC-Piraten</h3>
+            <div class="form-row">
+                <label><input type="checkbox" name="npc_enabled" value="1" {% if lft_settings.npc_enabled %}checked{% endif %}> NPC-Piraten-Angriffe aktiv</label>
+            </div>
+            <div class="form-row">
+                <label>Angriffs-Wahrscheinlichkeit pro Flotte (%)</label>
+                <input type="number" name="npc_chance_percent" value="{{ lft_settings.npc_chance_percent|default(5) }}" min="1" max="50">
+                <small>1–50%. Pro Cron-Lauf (5 min) wird jede Flotte einmal gewürfelt.</small>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-random"></i> Warp-Risiko</h3>
+            <div class="form-row">
+                <label><input type="checkbox" name="warp_risk_enabled" value="1" {% if lft_settings.warp_risk_enabled %}checked{% endif %}> Warp-Verzögerungen aktiv</label>
+            </div>
+            <div class="form-row">
+                <label>Warp-Risiko (%)</label>
+                <input type="number" name="warp_risk_percent" value="{{ lft_settings.warp_risk_percent|default(3) }}" min="1" max="20">
+                <small>1–20%. Verzögert die Flotte um 5–20% der verbleibenden Flugzeit.</small>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-crosshairs"></i> Interception</h3>
+            <div class="form-row">
+                <label><input type="checkbox" name="interception_enabled" value="1" {% if lft_settings.interception_enabled %}checked{% endif %}> Interception aktiv</label>
+            </div>
+            <small>Spieler können feindliche Flotten auf der Galaxy Map anklicken und abfangen.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Speichern</button>
+    </form>
+
+    {% if lft_recent_npc %}
+    <div class="admin-card" style="margin-top:2rem;">
+        <h3><i class="fas fa-skull-crossbones"></i> Letzte NPC-Angriffe</h3>
+        <table class="admin-table">
+            <thead><tr><th>Zeit</th><th>Spieler</th><th>Flotte</th><th>Verlust</th></tr></thead>
+            <tbody>
+            {% for a in lft_recent_npc %}
+            <tr>
+                <td>{{ a.created_at|date('d.m.Y H:i') }}</td>
+                <td>{{ a.username|default('?') }}</td>
+                <td>#{{ a.fleet_id }} [{{ a.galaxy }}:{{ a.system }}:{{ a.planet }}]</td>
+                <td style="color:#f87171;">-{{ a.loss_percent }}%</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if lft_recent_warp %}
+    <div class="admin-card" style="margin-top:1rem;">
+        <h3><i class="fas fa-random"></i> Letzte Warp-Ereignisse</h3>
+        <table class="admin-table">
+            <thead><tr><th>Zeit</th><th>Spieler</th><th>Flotte</th><th>Verzögerung</th></tr></thead>
+            <tbody>
+            {% for w in lft_recent_warp %}
+            <tr>
+                <td>{{ w.created_at|date('d.m.Y H:i') }}</td>
+                <td>{{ w.username|default('?') }}</td>
+                <td>#{{ w.fleet_id }}</td>
+                <td style="color:#fbbf24;">+{{ w.delay_seconds }}s</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
