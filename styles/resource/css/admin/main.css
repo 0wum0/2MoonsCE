@@ -131,7 +131,7 @@ body.admin-dashboard a:hover { color:var(--cyan2); }
   position:fixed; top:0; left:0;
   width:var(--adm-sidebar-width);
   height:100vh;
-  background:var(--panel2);
+  background:rgba(4,9,24,0.99);
   border-right:1px solid var(--border);
   z-index:1000;
   display:flex; flex-direction:column;
@@ -139,8 +139,6 @@ body.admin-dashboard a:hover { color:var(--cyan2); }
   overflow-y:auto; overflow-x:hidden;
   scrollbar-width:thin;
   scrollbar-color:var(--border) transparent;
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
 }
 .admin-sidebar::before {
   content:''; display:block; width:100%; height:2px; flex-shrink:0;
@@ -1295,8 +1293,8 @@ textarea#rawLog { resize:none; font-size:11px; white-space:pre-wrap; font-family
   .flipcards-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
 }
 @media (max-width:768px){
-  .admin-sidebar{transform:translateX(-100%);pointer-events:none;backdrop-filter:none;-webkit-backdrop-filter:none;}
-  .admin-sidebar.open{transform:translateX(0);pointer-events:all;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+  .admin-sidebar{transform:translateX(-100%);pointer-events:none;}
+  .admin-sidebar.open{transform:translateX(0);pointer-events:all;}
   .sidebar-overlay.active{display:block;pointer-events:all;}
   .admin-topbar{left:0;}
   .topbar-hamburger{display:flex;}
