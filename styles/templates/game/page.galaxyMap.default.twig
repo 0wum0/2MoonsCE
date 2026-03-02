@@ -866,38 +866,122 @@ function toWorld(g, s, p, _pi, _tot) {
   return new THREE.Vector3(c.x + Math.cos(angle) * r, 0, c.z + Math.sin(angle) * r);
 }
 
-// ── Sun glow texture (large soft halo + bright core) ──────
-const sunTexCache = {};
-function sunTex(hex) {
-  if (sunTexCache[hex]) return sunTexCache[hex];
-  const S = 256, c = document.createElement('canvas');
-  c.width = c.height = S;
-  const ctx = c.getContext('2d'), cx = S / 2, r = S / 2 - 1;
-  // outer glow
-  const g1 = ctx.createRadialGradient(cx, cx, 0, cx, cx, r);
-  g1.addColorStop(0,    '#ffffff');
-  g1.addColorStop(0.08, hex);
-  g1.addColorStop(0.30, hex + 'cc');
-  g1.addColorStop(0.60, hex + '44');
-  g1.addColorStop(1,    hex + '00');
-  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI * 2);
-  ctx.fillStyle = g1; ctx.fill();
-  // bright inner disc
-  const g2 = ctx.createRadialGradient(cx - r * .1, cx - r * .1, 0, cx, cx, r * .18);
-  g2.addColorStop(0, '#ffffff');
-  g2.addColorStop(1, hex + '00');
-  ctx.beginPath(); ctx.arc(cx, cx, r * .22, 0, Math.PI * 2);
-  ctx.fillStyle = g2; ctx.fill();
-  sunTexCache[hex] = new THREE.CanvasTexture(c);
-  return sunTexCache[hex];
+// ── Star type definitions ─────────────────────────────────
+// 5 spectral classes, each with unique colour, size scale,
+// corona radius, pulse speed and point-light intensity.
+const STAR_TYPES = [
+  // Blue-white dwarf (class B)
+  { id:'B', core:'#c8e8ff', mid:'#99ccff', halo:'#4488ff',
+    spriteScale: 18, coreR: 3.2,  coronaScale: 1.6,
+    lightInt: 0.8,  pulseAmp: 0.03, pulseSpeed: 1.8 },
+  // White main sequence (class A)
+  { id:'A', core:'#ffffff', mid:'#eef5ff', halo:'#aaccff',
+    spriteScale: 22, coreR: 4.2,  coronaScale: 1.5,
+    lightInt: 1.0,  pulseAmp: 0.04, pulseSpeed: 1.4 },
+  // Yellow main sequence (class G – Sun-like)
+  { id:'G', core:'#fffde0', mid:'#ffdd88', halo:'#ffaa33',
+    spriteScale: 28, coreR: 5.0,  coronaScale: 1.8,
+    lightInt: 1.2,  pulseAmp: 0.05, pulseSpeed: 1.1 },
+  // Orange giant (class K)
+  { id:'K', core:'#fff0cc', mid:'#ffaa44', halo:'#ff6600',
+    spriteScale: 36, coreR: 6.5,  coronaScale: 2.1,
+    lightInt: 1.5,  pulseAmp: 0.07, pulseSpeed: 0.8 },
+  // Red supergiant (class M)
+  { id:'M', core:'#ffe8cc', mid:'#ff6644', halo:'#cc2200',
+    spriteScale: 48, coreR: 8.5,  coronaScale: 2.6,
+    lightInt: 1.8,  pulseAmp: 0.10, pulseSpeed: 0.55 },
+];
+// Weighted distribution: G most common, M rarest
+const STAR_TYPE_WEIGHTS = [1, 2, 5, 3, 1]; // B A G K M
+const _starWeightSum = STAR_TYPE_WEIGHTS.reduce((a,b)=>a+b,0);
+
+function starType(g, s) {
+  // Deterministic pseudo-random pick weighted by rarity
+  const n = ((g - 1) * SYSTEMS_PER_GALAXY + (s - 1)) * 2654435761 >>> 0;
+  let pick = (n % _starWeightSum);
+  for (let i = 0; i < STAR_TYPES.length; i++) {
+    pick -= STAR_TYPE_WEIGHTS[i];
+    if (pick < 0) return STAR_TYPES[i];
+  }
+  return STAR_TYPES[2]; // fallback G
 }
 
-// Pick a sun colour deterministically from galaxy+system index
-const SUN_COLORS = ['#ffdd88','#ffaa44','#ff8866','#aaddff','#ffffff','#ffcc22','#ff6644'];
-function sunColor(g, s) {
-  const n = (g - 1) * SYSTEMS_PER_GALAXY + (s - 1);
-  return SUN_COLORS[n % SUN_COLORS.length];
+// ── Sun glow texture – per star type ──────────────────────
+const sunTexCache = {};
+function sunTex(st) {
+  if (sunTexCache[st.id]) return sunTexCache[st.id];
+  const S = 512, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d'), cx = S / 2, r = S / 2 - 1;
+
+  // 1. Wide diffuse halo
+  const g1 = ctx.createRadialGradient(cx, cx, 0, cx, cx, r);
+  g1.addColorStop(0,    '#ffffff');
+  g1.addColorStop(0.06, st.core);
+  g1.addColorStop(0.20, st.mid + 'dd');
+  g1.addColorStop(0.50, st.halo + '66');
+  g1.addColorStop(0.80, st.halo + '22');
+  g1.addColorStop(1,    st.halo + '00');
+  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI * 2);
+  ctx.fillStyle = g1; ctx.fill();
+
+  // 2. Mid corona ring
+  const g2 = ctx.createRadialGradient(cx, cx, r * 0.10, cx, cx, r * 0.38);
+  g2.addColorStop(0,   st.mid + 'aa');
+  g2.addColorStop(0.5, st.mid + '33');
+  g2.addColorStop(1,   st.mid + '00');
+  ctx.beginPath(); ctx.arc(cx, cx, r * 0.38, 0, Math.PI * 2);
+  ctx.fillStyle = g2; ctx.fill();
+
+  // 3. Bright core highlight (off-center for 3D feel)
+  const g3 = ctx.createRadialGradient(cx - r*.08, cx - r*.08, 0, cx, cx, r * .14);
+  g3.addColorStop(0, '#ffffff');
+  g3.addColorStop(0.6, st.core + 'bb');
+  g3.addColorStop(1,   st.core + '00');
+  ctx.beginPath(); ctx.arc(cx, cx, r * .16, 0, Math.PI * 2);
+  ctx.fillStyle = g3; ctx.fill();
+
+  sunTexCache[st.id] = new THREE.CanvasTexture(c);
+  return sunTexCache[st.id];
 }
+
+// Corona / spike texture for large stars (K, M)
+const coronaTexCache = {};
+function coronaTex(st) {
+  if (coronaTexCache[st.id]) return coronaTexCache[st.id];
+  const S = 256, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d'), cx = S / 2;
+  // 4 diagonal spike lines
+  const spikes = 6;
+  for (let i = 0; i < spikes; i++) {
+    const a = (i / spikes) * Math.PI;
+    const len = cx * 0.92;
+    const grd = ctx.createLinearGradient(
+      cx + Math.cos(a) * len, cx + Math.sin(a) * len,
+      cx - Math.cos(a) * len, cx - Math.sin(a) * len
+    );
+    grd.addColorStop(0,    st.halo + '00');
+    grd.addColorStop(0.45, st.mid  + '55');
+    grd.addColorStop(0.5,  '#ffffff88');
+    grd.addColorStop(0.55, st.mid  + '55');
+    grd.addColorStop(1,    st.halo + '00');
+    ctx.save();
+    ctx.strokeStyle = grd;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.55;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * len, cx + Math.sin(a) * len);
+    ctx.lineTo(cx - Math.cos(a) * len, cx - Math.sin(a) * len);
+    ctx.stroke();
+    ctx.restore();
+  }
+  coronaTexCache[st.id] = new THREE.CanvasTexture(c);
+  return coronaTexCache[st.id];
+}
+
+// Compatibility shim: old callers used sunColor(g,s) → hex string
+function sunColor(g, s) { return starType(g, s).mid; }
 
 // ── Solar system builder ───────────────────────────────────
 // Each system: spiral-positioned sun + 10 orbital slots (real or empty).
@@ -937,34 +1021,54 @@ function buildPlanets(planets) {
   sysList.forEach((sys, sysIdx) => {
     const { sunX, sunZ, g, s } = sys;
     const sunPos = new THREE.Vector3(sunX, 0, sunZ);
-    const col = sunColor(g, s);
-    const colNum = parseInt(col.replace('#',''), 16);
+    // ── Star type for this system ──────────────────────────
+    const st = starType(g, s);
+    const colNum = parseInt(st.mid.replace('#',''), 16);
+    const coreNum = parseInt(st.core.replace('#',''), 16);
 
-    // Sun sprite (large glow)
+    // 1. Wide glow sprite
     const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: sunTex(col), transparent: true, depthWrite: false,
+      map: sunTex(st), transparent: true, depthWrite: false,
       sizeAttenuation: true, blending: THREE.AdditiveBlending
     }));
     sunSprite.position.copy(sunPos);
-    sunSprite.scale.setScalar(28);
-    sunSprite.userData = { isSun: true, baseSunScale: 28, galaxy: g, system: s };
+    sunSprite.scale.setScalar(st.spriteScale);
+    sunSprite.userData = { isSun: true, baseSunScale: st.spriteScale,
+      pulseAmp: st.pulseAmp, pulseSpeed: st.pulseSpeed,
+      pulseOffset: (g * 7.3 + s * 3.1) % (Math.PI * 2),
+      galaxy: g, system: s };
     sunGroup.add(sunSprite);
 
-    // Sun core sphere (always visible, emissive)
+    // 2. Corona / spike overlay (K and M only – large stars)
+    if (st.id === 'K' || st.id === 'M') {
+      const coronaSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: coronaTex(st), transparent: true, depthWrite: false,
+        sizeAttenuation: true, blending: THREE.AdditiveBlending
+      }));
+      coronaSprite.position.copy(sunPos);
+      const cs = st.spriteScale * st.coronaScale;
+      coronaSprite.scale.setScalar(cs);
+      coronaSprite.userData = { isCorona: true, baseCoronaScale: cs,
+        pulseAmp: st.pulseAmp * 1.4, pulseSpeed: st.pulseSpeed * 0.7,
+        pulseOffset: (g * 5.1 + s * 2.7) % (Math.PI * 2) };
+      sunGroup.add(coronaSprite);
+    }
+
+    // 3. Emissive core sphere
     const coreMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(5, 10, 10),
+      new THREE.SphereGeometry(st.coreR, 12, 12),
       new THREE.MeshStandardMaterial({
-        color: colNum, emissive: colNum, emissiveIntensity: 2.2,
-        transparent: true, opacity: 0.95
+        color: coreNum, emissive: coreNum, emissiveIntensity: 2.8,
+        transparent: true, opacity: 0.97
       })
     );
     coreMesh.position.copy(sunPos);
     coreMesh.userData = { isSunCore: true };
     sunGroup.add(coreMesh);
 
-    // PointLight only for nearest MAX_LIGHTS systems (perf)
+    // 4. PointLight only for nearest MAX_LIGHTS systems (perf)
     if (sysIdx < MAX_LIGHTS) {
-      const ptLight = new THREE.PointLight(colNum, 1.2, 260);
+      const ptLight = new THREE.PointLight(colNum, st.lightInt, 300 + st.spriteScale * 5);
       ptLight.position.copy(sunPos);
       sunGroup.add(ptLight);
     }
@@ -2085,11 +2189,25 @@ function animate(now = 0){
     if (sp.userData.baseScale) sp.scale.setScalar(sp.userData.baseScale * pulse);
   });
 
-  // Sun sprite subtle pulse
+  // Sun + corona pulse – each star type has its own amplitude, speed & phase offset
+  const tSec = now * 0.001; // time in seconds
   sunGroup.children.forEach(obj => {
-    if (obj.isSprite && obj.userData.isSun) {
-      const base = obj.userData.baseSunScale || 28;
-      const sp = Math.sin(frame * 0.018) * 0.08 + 1.0;
+    if (!obj.isSprite) return;
+    if (obj.userData.isSun) {
+      const base   = obj.userData.baseSunScale || 28;
+      const amp    = obj.userData.pulseAmp    || 0.05;
+      const speed  = obj.userData.pulseSpeed  || 1.0;
+      const offset = obj.userData.pulseOffset || 0;
+      const sp = 1.0 + Math.sin(tSec * speed + offset) * amp;
+      obj.scale.setScalar(base * sp);
+    } else if (obj.userData.isCorona) {
+      const base   = obj.userData.baseCoronaScale || 60;
+      const amp    = obj.userData.pulseAmp    || 0.07;
+      const speed  = obj.userData.pulseSpeed  || 0.6;
+      const offset = obj.userData.pulseOffset || 0;
+      // Corona rotates slowly + pulses
+      obj.material.rotation = (obj.material.rotation || 0) + 0.0003 * speed;
+      const sp = 1.0 + Math.sin(tSec * speed + offset) * amp;
       obj.scale.setScalar(base * sp);
     }
   });
