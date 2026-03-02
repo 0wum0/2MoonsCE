@@ -68,18 +68,22 @@ if (is_file($enableInstallToolFile) && (time() - filemtime($enableInstallToolFil
 		unlink($enableInstallToolFile);
 	}
 }
-if (!is_file($enableInstallToolFile)) {
+$isExistingInstall = file_exists('includes/config.php') && filesize('includes/config.php') !== 0;
 
-    switch ($mode) {
-        case 'upgrade':
-            $message = $LNG->getTemplate('locked_upgrade');
-        break;
-        default:
-            $message = $LNG->getTemplate('locked_install');
-        break;
+if (!is_file($enableInstallToolFile)) {
+    // Upgrade mode is always allowed on existing installations (config.php present)
+    // to allow admins to apply DB migrations without SSH access.
+    if ($mode === 'upgrade' || $mode === 'doupgrade') {
+        if (!$isExistingInstall) {
+            $template->message($LNG->getTemplate('locked_upgrade'), false, 0, true);
+            exit;
+        }
+        // Fall through — allow upgrade/doupgrade without tool file
+    } else {
+        $message = $LNG->getTemplate('locked_install');
+        $template->message($message, false, 0, true);
+        exit;
     }
-    $template->message($message, false, 0, true);
-	exit;
 }
 $language = HTTP::_GP('lang', '');
 
