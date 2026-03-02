@@ -112,6 +112,8 @@ class Cronjob
             : ROOT_PATH . 'includes/classes/cronjob/'.$cronjobClassName.'.class.php';
 
         // 3. Job ausführen
+        // Ensure CronjobTask interface is loaded before any plugin cronjob file
+        require_once ROOT_PATH . 'includes/classes/cronjob/CronjobTask.interface.php';
         if (file_exists($cronjobPath)) {
             try {
                 require_once($cronjobPath);
