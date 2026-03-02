@@ -104,6 +104,12 @@ try {
 if (class_exists('PluginManager')) {
     try {
         PluginManager::get()->loadActivePlugins();
+        // Debug: log which plugin cronjob paths were registered
+        $dbgPath = PluginManager::get()->resolveCronjobPath('LiveFleetCronjob');
+        @file_put_contents(ROOT_PATH . 'cache/cron_debug.log',
+            '[' . date('Y-m-d H:i:s') . '] DEBUG: LiveFleetCronjob path=' . ($dbgPath ?? 'NULL') . PHP_EOL,
+            FILE_APPEND | LOCK_EX
+        );
     } catch (Throwable $e) {
         @file_put_contents(ROOT_PATH . 'cache/cron_debug.log',
             '[' . date('Y-m-d H:i:s') . '] WARNING: loadActivePlugins() failed: ' . $e->getMessage() . PHP_EOL,
