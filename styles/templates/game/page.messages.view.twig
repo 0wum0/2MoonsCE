@@ -120,7 +120,7 @@
         <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M11.354 1.646a.5.5 0 010 .708L5.707 8l5.647 5.646a.5.5 0 01-.708.708l-6-6a.5.5 0 010-.708l6-6a.5.5 0 01.708 0z"/></svg>
     </a>
     {% endif %}
-    {% for site in range([1, page - 2]|max, [maxPage, page + 2]|min) %}
+    {% for site in range(max(1, page - 2), min(maxPage, page + 2)) %}
     <a href="#" class="mcc-pager-btn {% if site == page %}active{% endif %}"
        onclick="Message.getMessages({{ MessID }}, {{ site }}); return false;">{{ site }}</a>
     {% endfor %}
