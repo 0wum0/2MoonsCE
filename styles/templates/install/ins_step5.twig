@@ -23,9 +23,245 @@
 #}
 {% include "ins_header.twig" %}
 
-<h2>{{ LNG.step3_head }}</h2>
-<div class="ins-info" style="margin:12px 0 20px"><i class="fas fa-info-circle"></i> {{ LNG.step3_desc }}</div>
+<style>
+.ins-loader-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 20px;
+    gap: 0;
+}
+.ins-loader-icon {
+    font-size: 52px;
+    color: #4f8ef7;
+    margin-bottom: 18px;
+    animation: ins-spin-pulse 2.5s ease-in-out infinite;
+}
+@keyframes ins-spin-pulse {
+    0%   { transform: rotate(0deg) scale(1);   color: #4f8ef7; }
+    25%  { transform: rotate(90deg) scale(1.1); color: #7ec8f7; }
+    50%  { transform: rotate(180deg) scale(1);  color: #4f8ef7; }
+    75%  { transform: rotate(270deg) scale(1.1);color: #a78bfa; }
+    100% { transform: rotate(360deg) scale(1);  color: #4f8ef7; }
+}
+.ins-loader-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 6px;
+    letter-spacing: .5px;
+}
+.ins-loader-subtitle {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 28px;
+}
+.ins-win-progress-wrap {
+    width: 100%;
+    max-width: 480px;
+    background: #1e293b;
+    border-radius: 4px;
+    border: 1px solid #334155;
+    height: 22px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    position: relative;
+}
+.ins-win-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #1d4ed8 0%, #4f8ef7 50%, #7ec8f7 100%);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+.ins-win-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    animation: ins-shimmer 1.2s linear infinite;
+}
+@keyframes ins-shimmer {
+    0%   { left: -60%; }
+    100% { left: 160%; }
+}
+.ins-win-progress-pct {
+    font-size: 11px;
+    color: #64748b;
+    text-align: right;
+    margin-bottom: 22px;
+    width: 100%;
+    max-width: 480px;
+}
+.ins-loader-comment {
+    font-size: 13px;
+    color: #7ec8f7;
+    min-height: 22px;
+    text-align: center;
+    font-style: italic;
+    transition: opacity 0.5s ease;
+    margin-bottom: 28px;
+}
+.ins-loader-steps {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.ins-ldr-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #475569;
+    transition: color 0.4s;
+}
+.ins-ldr-step.active  { color: #e2e8f0; }
+.ins-ldr-step.done    { color: #4ade80; }
+.ins-ldr-step-icon {
+    width: 16px;
+    text-align: center;
+    font-size: 11px;
+}
+.ins-ldr-step.active .ins-ldr-step-icon { color: #4f8ef7; }
+.ins-ldr-step.done   .ins-ldr-step-icon { color: #4ade80; }
+</style>
 
-<a href="index.php?mode=install&step=6"><button><i class="fas fa-arrow-right"></i> {{ LNG.continue }}</button></a>
+<div class="ins-loader-wrap">
+    <div class="ins-loader-icon"><i class="fas fa-satellite-dish"></i></div>
+    <div class="ins-loader-title">Installing 2MoonsCE&hellip;</div>
+    <div class="ins-loader-subtitle">Setting up your universe &mdash; please wait</div>
+
+    <div class="ins-win-progress-wrap">
+        <div class="ins-win-progress-bar" id="ins-pbar"></div>
+    </div>
+    <div class="ins-win-progress-pct" id="ins-pct">0%</div>
+
+    <div class="ins-loader-comment" id="ins-comment">Initializing installation engine&hellip;</div>
+
+    <div class="ins-loader-steps">
+        <div class="ins-ldr-step" id="ldr-s1">
+            <span class="ins-ldr-step-icon"><i class="fas fa-circle"></i></span>
+            <span>Checking system requirements</span>
+        </div>
+        <div class="ins-ldr-step" id="ldr-s2">
+            <span class="ins-ldr-step-icon"><i class="fas fa-circle"></i></span>
+            <span>Connecting to database</span>
+        </div>
+        <div class="ins-ldr-step" id="ldr-s3">
+            <span class="ins-ldr-step-icon"><i class="fas fa-circle"></i></span>
+            <span>Creating game tables</span>
+        </div>
+        <div class="ins-ldr-step" id="ldr-s4">
+            <span class="ins-ldr-step-icon"><i class="fas fa-circle"></i></span>
+            <span>Importing default game data</span>
+        </div>
+        <div class="ins-ldr-step" id="ldr-s5">
+            <span class="ins-ldr-step-icon"><i class="fas fa-circle"></i></span>
+            <span>Configuring universe settings</span>
+        </div>
+        <div class="ins-ldr-step" id="ldr-s6">
+            <span class="ins-ldr-step-icon"><i class="fas fa-circle"></i></span>
+            <span>Finalizing installation</span>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    var comments = [
+        "Initializing installation engine\u2026",
+        "Verifying database connection\u2026",
+        "Creating game universe tables\u2026",
+        "Setting up galaxy coordinates\u2026",
+        "Importing planet configurations\u2026",
+        "Loading ship technology trees\u2026",
+        "Configuring research laboratories\u2026",
+        "Placing asteroid fields\u2026",
+        "Calibrating solar collectors\u2026",
+        "Deploying deuterium synthesizers\u2026",
+        "Initializing fleet command systems\u2026",
+        "Establishing alliance protocols\u2026",
+        "Synchronizing server timers\u2026",
+        "Seeding galaxy with dark matter\u2026",
+        "Almost there \u2014 polishing the stars\u2026",
+        "Preparing admin command center\u2026"
+    ];
+
+    var steps = [
+        { id: 'ldr-s1', from: 0,  to: 12  },
+        { id: 'ldr-s2', from: 12, to: 25  },
+        { id: 'ldr-s3', from: 25, to: 45  },
+        { id: 'ldr-s4', from: 45, to: 65  },
+        { id: 'ldr-s5', from: 65, to: 82  },
+        { id: 'ldr-s6', from: 82, to: 100 }
+    ];
+
+    var pbar    = document.getElementById('ins-pbar');
+    var pct     = document.getElementById('ins-pct');
+    var comment = document.getElementById('ins-comment');
+    var current = 0;
+    var ci      = 0;
+    var redirectUrl = 'index.php?mode=install&step=6';
+
+    function setStep(el, state) {
+        el.classList.remove('active','done');
+        if(state) el.classList.add(state);
+        var icon = el.querySelector('.ins-ldr-step-icon');
+        if(state === 'done')   icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        else if(state === 'active') icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        else icon.innerHTML = '<i class="fas fa-circle"></i>';
+    }
+
+    function updateComment() {
+        comment.style.opacity = 0;
+        setTimeout(function(){
+            comment.textContent = comments[ci % comments.length];
+            ci++;
+            comment.style.opacity = 1;
+        }, 250);
+    }
+
+    updateComment();
+    var commentTimer = setInterval(updateComment, 2200);
+
+    function tick() {
+        if(current >= 100) {
+            clearInterval(commentTimer);
+            comment.style.opacity = 0;
+            setTimeout(function(){
+                comment.textContent = '\u2713 Installation complete \u2014 redirecting\u2026';
+                comment.style.opacity = 1;
+                comment.style.color = '#4ade80';
+            }, 250);
+            setTimeout(function(){ window.location.href = redirectUrl; }, 900);
+            return;
+        }
+
+        var speed = current < 30 ? 1.4 : current < 70 ? 0.9 : current < 90 ? 0.5 : 0.25;
+        current = Math.min(100, current + speed);
+
+        pbar.style.width = current.toFixed(1) + '%';
+        pct.textContent  = Math.floor(current) + '%';
+
+        steps.forEach(function(s){
+            var el = document.getElementById(s.id);
+            if(current >= s.to)        setStep(el, 'done');
+            else if(current >= s.from) setStep(el, 'active');
+            else                       setStep(el, '');
+        });
+
+        var delay = current < 60 ? 40 : current < 85 ? 60 : 90;
+        setTimeout(tick, delay);
+    }
+
+    setTimeout(tick, 400);
+})();
+</script>
 
 {% include "ins_footer.twig" %}
