@@ -223,9 +223,7 @@ body.admin-dashboard a:hover { color:var(--cyan2); }
   position:fixed; top:0;
   left:var(--adm-sidebar-width); right:0;
   height:var(--adm-topbar-height);
-  background:rgba(3,6,15,0.97);
-  backdrop-filter:blur(28px) saturate(180%);
-  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  background:rgba(3,6,15,0.99);
   border-bottom:1px solid var(--border);
   box-shadow:0 4px 28px rgba(0,0,0,0.75),0 0 0 1px rgba(0,212,255,0.04);
   display:flex; align-items:center;
@@ -513,11 +511,12 @@ body.admin-dashboard .button:hover,
    MOBILE OVERLAY
    ════════════════════════════════════════════════════════════ */
 .sidebar-overlay {
-  display:none; position:fixed; inset:0;
+  display:none !important; position:fixed; inset:0;
   background:rgba(0,0,0,0.55);
   z-index:999;
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
+}
+.sidebar-overlay.active {
+  display:block !important;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1295,7 +1294,7 @@ textarea#rawLog { resize:none; font-size:11px; white-space:pre-wrap; font-family
 @media (max-width:768px){
   .admin-sidebar{transform:translateX(-100%);pointer-events:none;}
   .admin-sidebar.open{transform:translateX(0);pointer-events:all;}
-  .sidebar-overlay.active{display:block;pointer-events:all;}
+  .sidebar-overlay.active{display:block !important;pointer-events:all;}
   .admin-topbar{left:0;}
   .topbar-hamburger{display:flex;}
   .admin-content{margin-left:0;width:100%;padding:14px;}
