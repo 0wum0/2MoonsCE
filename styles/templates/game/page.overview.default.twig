@@ -137,21 +137,35 @@ window.OVERVIEW_DATA = {
     <div class="ov-col-left">
 
       <!-- COLONIES -->
-      {% if AllPlanets is defined and AllPlanets|length > 0 %}
       <div class="ov-card">
         <div class="ov-card-header"><i class="fas fa-globe"></i> {{ LNG.ov_colonies|default('Kolonien') }} <span class="ov-badge">{{ AllPlanets|length }}</span></div>
         <div class="ov-planet-list">
           {% for p in AllPlanets %}
-          <a href="game.php?page=overview&cp={{ p.id }}" class="ov-planet-row">
+          <a href="game.php?page=overview&cp={{ p.id }}" class="ov-planet-row{% if p.is_current %} ov-planet-row-active{% endif %}">
             <img src="styles/theme/gow/planeten/{{ p.image }}.jpg" onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'" class="ov-planet-thumb" alt="">
             <div class="ov-planet-row-info">
-              <span class="ov-planet-row-name">{{ p.name }}</span>
+              <span class="ov-planet-row-name">{{ p.name }}{% if p.is_current %} <i class="fas fa-map-marker-alt" style="color:var(--cyan);font-size:9px;"></i>{% endif %}</span>
               <span class="ov-planet-row-build {% if p.build == LNG.ov_free %}ov-free{% else %}ov-building{% endif %}">
                 {% if p.build == LNG.ov_free %}<i class="fas fa-check-circle"></i>{% else %}<i class="fas fa-hammer"></i>{% endif %}
                 {{ p.build|raw }}
               </span>
             </div>
           </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- EVENTS -->
+      {% if events is defined and events|length > 0 %}
+      <div class="ov-card">
+        <div class="ov-card-header"><i class="fas fa-calendar-alt"></i> Events <span class="ov-badge">{{ events|length }}</span></div>
+        <div class="ov-event-list">
+          {% for ev in events %}
+          <div class="ov-event-item{% if ev.active %} ov-event-active{% endif %}">
+            <div class="ov-event-title">{% if ev.active %}<span class="ov-event-live">LIVE</span> {% endif %}{{ ev.title }}</div>
+            <div class="ov-event-time"><i class="fas fa-clock"></i> {{ ev.start }} &ndash; {{ ev.end }}</div>
+            {% if ev.text %}<div class="ov-event-text">{{ ev.text|raw }}</div>{% endif %}
+          </div>
           {% endfor %}
         </div>
       </div>
@@ -325,35 +339,41 @@ window.OVERVIEW_DATA = {
     <!-- ══════════ RIGHT: Reflink compact + Colonies ══════════ -->
     <div class="ov-col-right">
 
-      <!-- REFLINK COMPACT -->
-      {% if ref_active %}
+      <!-- REFLINK -->
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-share-alt"></i> {{ LNG.ov_reflink }}</div>
+        <div class="ov-card-header"><i class="fas fa-share-alt"></i> {{ LNG.ov_reflink|default('Empfehlungslink') }}</div>
         <div class="ov-card-body">
-          {% if isModuleAvailable(constant('MODULE_BANNER')) %}
-          <img src="userpic.php?id={{ userid }}" alt="Banner" style="max-width:100%;border-radius:6px;margin-bottom:10px;">
-          <div class="ov-ref-code-block">
-            <div class="ov-ref-label">HTML</div>
-            <input type="text" value='<a href="{{ path }}index.php?ref={{ userid }}"><img src="{{ path }}userpic.php?id={{ userid }}"></a>' readonly class="ov-ref-input" onclick="this.select()">
-          </div>
-          <div class="ov-ref-code-block" style="margin-top:6px;">
-            <div class="ov-ref-label">BBCode</div>
-            <input type="text" value="[url={{ path }}index.php?ref={{ userid }}][img]{{ path }}userpic.php?id={{ userid }}[/img][/url]" readonly class="ov-ref-input" onclick="this.select()">
-          </div>
-          {% endif %}
-          {% if RefLinks is defined and RefLinks|length > 0 %}
-          <div class="ov-ref-list">
-            {% for RefID, RefLink in RefLinks %}
-            <div class="ov-ref-row">
-              <a href="#" onclick="return Dialog.Playercard({{ RefID }}, '{{ RefLink.username }}');">{{ RefLink.username }}</a>
-              <span class="ov-ref-pts {% if RefLink.points >= ref_minpoints %}ov-ref-done{% endif %}">{{ RefLink.points|number_format }}/{{ ref_minpoints|number_format }}</span>
+          {% if ref_active %}
+            {% if isModuleAvailable(constant('MODULE_BANNER')) %}
+            <img src="userpic.php?id={{ userid }}" alt="Banner" style="max-width:100%;border-radius:6px;margin-bottom:10px;">
+            {% endif %}
+            <div class="ov-ref-code-block">
+              <div class="ov-ref-label">Link</div>
+              <input type="text" value="{{ path }}index.php?ref={{ userid }}" readonly class="ov-ref-input" onclick="this.select()">
             </div>
-            {% endfor %}
-          </div>
+            {% if isModuleAvailable(constant('MODULE_BANNER')) %}
+            <div class="ov-ref-code-block" style="margin-top:6px;">
+              <div class="ov-ref-label">BBCode</div>
+              <input type="text" value="[url={{ path }}index.php?ref={{ userid }}][img]{{ path }}userpic.php?id={{ userid }}[/img][/url]" readonly class="ov-ref-input" onclick="this.select()">
+            </div>
+            {% endif %}
+            {% if RefLinks is defined and RefLinks|length > 0 %}
+            <div class="ov-ref-list">
+              {% for RefID, RefLink in RefLinks %}
+              <div class="ov-ref-row">
+                <a href="#" onclick="return Dialog.Playercard({{ RefID }}, '{{ RefLink.username }}');">{{ RefLink.username }}</a>
+                <span class="ov-ref-pts {% if RefLink.points >= ref_minpoints %}ov-ref-done{% endif %}">{{ RefLink.points|number_format }}/{{ ref_minpoints|number_format }}</span>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div style="color:var(--dim);font-size:11px;margin-top:8px;"><i class="fas fa-info-circle"></i> Noch keine geworbenen Spieler.</div>
+            {% endif %}
+          {% else %}
+          <div style="color:var(--dim);font-size:11px;"><i class="fas fa-lock"></i> Empfehlungsprogramm ist deaktiviert.</div>
           {% endif %}
         </div>
       </div>
-      {% endif %}
 
       <!-- TEAMSPEAK -->
       {% if teamspeakData is defined and teamspeakData and not teamspeakData.error %}
@@ -538,12 +558,24 @@ window.OVERVIEW_DATA = {
 .ov-planet-row { display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.04); transition:.15s; text-decoration:none; }
 .ov-planet-row:last-child { border-bottom:none; }
 .ov-planet-row:hover { background:rgba(0,212,255,0.05); }
+.ov-planet-row-active { background:rgba(0,212,255,0.07); border-left:2px solid var(--cyan); }
+.ov-planet-row-active:hover { background:rgba(0,212,255,0.12); }
 .ov-planet-thumb { width:32px; height:32px; border-radius:50%; object-fit:cover; flex-shrink:0; }
 .ov-planet-row-info { display:flex; flex-direction:column; gap:2px; min-width:0; }
 .ov-planet-row-name { font-size:12px; color:var(--white); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ov-planet-row-build { font-size:10px; color:var(--dim); }
 .ov-planet-row-build.ov-free i { color:var(--green); }
 .ov-planet-row-build.ov-building i { color:var(--gold); }
+
+/* ── EVENTS ── */
+.ov-event-list { padding:4px 0; }
+.ov-event-item { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; gap:4px; }
+.ov-event-item:last-child { border-bottom:none; }
+.ov-event-active { border-left:2px solid var(--green); background:rgba(0,255,136,0.03); }
+.ov-event-title { font-size:12px; color:var(--white); font-weight:600; display:flex; align-items:center; gap:6px; }
+.ov-event-live { background:var(--green); color:#000; font-family:var(--font-hud); font-size:8px; padding:1px 5px; border-radius:3px; letter-spacing:1px; }
+.ov-event-time { font-size:10px; color:var(--dim); display:flex; align-items:center; gap:4px; }
+.ov-event-text { font-size:11px; color:var(--text); line-height:1.5; margin-top:2px; }
 
 /* ── DEBRIS ── */
 .ov-debris-row { display:flex; justify-content:space-between; padding:5px 0; font-size:12px; border-bottom:1px solid rgba(255,255,255,0.04); }

@@ -150,21 +150,22 @@ class ShowOverviewPage extends AbstractGamePage
 		
 		foreach($USER['PLANETS'] as $ID => $CPLANET)
 		{		
-			if ($ID == $PLANET['id'] || $CPLANET['planet_type'] == 3)
+			if ($CPLANET['planet_type'] == 3)
 				continue;
 
 			if (!empty($CPLANET['b_building']) && $CPLANET['b_building'] > TIMESTAMP) {
 				$Queue				= unserialize($CPLANET['b_building_id']);
-				$BuildPlanet		= $LNG['tech'][$Queue[0][0]]." (".$Queue[0][1].")<br><span style=\"color:#7F7F7F;\">(".pretty_time($Queue[0][3] - TIMESTAMP).")</span>";
+				$BuildPlanet		= $LNG['tech'][$Queue[0][0]]." (".$Queue[0][1].")";
 			} else {
 				$BuildPlanet     = $LNG['ov_free'];
 			}
 			
 			$AllPlanets[] = array(
-				'id'	=> $CPLANET['id'],
-				'name'	=> $CPLANET['name'],
-				'image'	=> $CPLANET['image'],
-				'build'	=> $BuildPlanet,
+				'id'		=> $CPLANET['id'],
+				'name'		=> $CPLANET['name'],
+				'image'		=> $CPLANET['image'],
+				'build'		=> $BuildPlanet,
+				'is_current'	=> ($CPLANET['id'] == $PLANET['id']),
 			);
 		}
 		
@@ -248,14 +249,32 @@ class ShowOverviewPage extends AbstractGamePage
 
 		$config	= Config::get();
 
-        if($config->ref_active)
-		{
-			foreach ($RefLinksRAW as $RefRow) {
-				$RefLinks[$RefRow['id']]	= array(
-					'username'	=> $RefRow['username'],
-					'points'	=> min($RefRow['total_points'], $config->ref_minpoints)
+        foreach ($RefLinksRAW as $RefRow) {
+			$RefLinks[$RefRow['id']]	= array(
+				'username'	=> $RefRow['username'],
+				'points'	=> min($RefRow['total_points'], (int)$config->ref_minpoints)
+			);
+		}
+
+		// Events
+		$events = array();
+		try {
+			$eventRows = $db->select(
+				"SELECT id, title, text, start_time, end_time FROM %%EVENTS%% WHERE end_time > :now ORDER BY start_time ASC LIMIT 5;",
+				array(':now' => TIMESTAMP)
+			);
+			foreach ($eventRows as $ev) {
+				$events[] = array(
+					'id'		=> $ev['id'],
+					'title'		=> $ev['title'],
+					'text'		=> makebr($ev['text']),
+					'start'		=> date('d.m.Y H:i', $ev['start_time']),
+					'end'		=> date('d.m.Y H:i', $ev['end_time']),
+					'active'	=> ($ev['start_time'] <= TIMESTAMP),
 				);
 			}
+		} catch (\Throwable $e) {
+			// events table may not exist
 		}
 
 		$sql	= 'SELECT total_points, total_rank
@@ -322,6 +341,7 @@ class ShowOverviewPage extends AbstractGamePage
 			'planet_field_max' 			=> CalculateMaxPlanetFields($PLANET),
 			'planet_temp_min' 			=> $PLANET['temp_min'],
 			'planet_temp_max' 			=> $PLANET['temp_max'],
+			'events'					=> $events,
 			'ref_active'				=> $config->ref_active,
 			'ref_minpoints'				=> $config->ref_minpoints,
 			'RefLinks'					=> $RefLinks,
