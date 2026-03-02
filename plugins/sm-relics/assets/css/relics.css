@@ -113,6 +113,18 @@
     border-radius: 6px;
     background: #131929;
 }
+.smr-building-svg-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    background: #131929;
+    border: 1px solid #1e2d4a;
+    font-size: 1.6rem;
+    color: #a78bfa;
+}
 .smr-building-name  { font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
 .smr-building-level { font-size: .85rem; color: #94a3b8; }
 .smr-building-level strong { color: #a78bfa; }

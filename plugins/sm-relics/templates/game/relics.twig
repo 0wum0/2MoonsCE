@@ -64,8 +64,11 @@
             {% for id, level in building_levels %}
             <div class="smr-building-card">
                 <div class="smr-building-icon">
-                    <img src="{{ plugin_asset_url }}img/{{ id }}.gif" alt="{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}"
-                         onerror="this.style.display='none'">
+                    {% if building_has_image[id] is defined and building_has_image[id] %}
+                        <img src="{{ plugin_asset_url }}img/{{ id }}.gif" alt="{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}">
+                    {% else %}
+                        <i class="fas fa-{{ building_icons[id]|default('cube') }} smr-building-svg-icon"></i>
+                    {% endif %}
                 </div>
                 <div class="smr-building-info">
                     <div class="smr-building-name">{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}</div>

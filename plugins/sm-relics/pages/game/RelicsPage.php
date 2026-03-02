@@ -112,6 +112,20 @@ class RelicsPage extends AbstractGamePage
         // ── Lang strings ──────────────────────────────────────────────────────
         $lngRelics = $this->getLangStrings();
 
+        // ── Building image availability & SVG fallback icons ─────────────────
+        $assetDir  = defined('ROOT_PATH') ? ROOT_PATH . 'plugins/sm-relics/assets/img/' : '';
+        $hasImage  = [];
+        $svgIcons  = [
+            910 => 'archive',
+            911 => 'bolt',
+            912 => 'flask',
+            913 => 'shield-alt',
+            914 => 'industry',
+        ];
+        foreach (array_keys($buildingLevels) as $bid) {
+            $hasImage[$bid] = $assetDir !== '' && file_exists($assetDir . $bid . '.gif');
+        }
+
         $this->assign([
             'relic_points'      => (int) ($userData['relic_points'] ?? 0),
             'active_doctrine'   => $userData['doctrine'] ?? null,
@@ -125,6 +139,8 @@ class RelicsPage extends AbstractGamePage
             'error'             => $error,
             'LNG_relics'        => $lngRelics,
             'plugin_asset_url'  => PluginManager::get()->getAssetUrl('sm-relics'),
+            'building_has_image' => $hasImage,
+            'building_icons'     => $svgIcons,
         ]);
 
         $this->display('@sm-relics/game/relics.twig');
