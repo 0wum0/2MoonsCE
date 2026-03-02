@@ -25,9 +25,25 @@
 
     <!-- ── DESKTOP COLLAPSE TOGGLE ── -->
     <button class="sidebar-collapse-btn" id="sidebar-collapse-btn"
-            aria-label="Sidebar einklappen" title="Sidebar einklappen / ausklappen">
+            aria-label="Sidebar einklappen" title="Sidebar einklappen / ausklappen"
+            onclick="(function(){
+                var s=document.getElementById('leftmenu');
+                var ic=document.getElementById('sidebar-collapse-icon');
+                var collapsed=s.classList.toggle('sidebar-icon-only');
+                ic.className=collapsed?'fas fa-chevron-right':'fas fa-chevron-left';
+                localStorage.setItem('sm_sidebar_collapsed',collapsed?'1':'0');
+            })();">
         <i class="fas fa-chevron-left" id="sidebar-collapse-icon"></i>
     </button>
+    <script>(function(){
+        var v=localStorage.getItem('sm_sidebar_collapsed');
+        if(v==='1'){
+            var s=document.getElementById('leftmenu');
+            var ic=document.getElementById('sidebar-collapse-icon');
+            if(s){s.classList.add('sidebar-icon-only');}
+            if(ic){ic.className='fas fa-chevron-right';}
+        }
+    })();</script>
 
     <div class="sidebar-nav">
 {{ hook('ingame.sidebar.top') }}
@@ -209,17 +225,7 @@
 {{ hook('ingame.sidebar.bottom') }}
     <!-- ── SIDEBAR FOOTER ── -->
     <div class="sidebar-footer">
-        <a href="game.php?page=settings" class="nav-link" title="{{ LNG.lm_settings|default('Einstellungen') }}">
-            <i class="fas fa-cog"></i><span class="nav-link-text">{{ LNG.lm_settings|default('Einstellungen') }}</span>
-        </a>
-        {% if authlevel > 0 %}
-        <a href="./admin.php" class="nav-link" title="{{ LNG.lm_administration|default('Admin') }}" style="color:var(--sm-orange);">
-            <i class="fas fa-user-shield"></i><span class="nav-link-text">{{ LNG.lm_administration|default('Admin') }}</span>
-        </a>
-        {% endif %}
-        <a href="game.php?page=logout" class="nav-link danger" title="{{ LNG.lm_logout|default('Logout') }}" style="color:var(--sm-red);">
-            <i class="fas fa-power-off"></i><span class="nav-link-text">{{ LNG.lm_logout|default('Logout') }}</span>
-        </a>
+        <div class="version-info">v{{ version|default('3.1') }}</div>
     </div>
 	{{ hook('sidebar_end') }}
 </div>
