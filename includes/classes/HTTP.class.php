@@ -30,6 +30,8 @@ class HTTP {
 	
 	static public function redirectTo(string $URL, bool $external = false): never
 	{
+		while (ob_get_level() > 0) { ob_end_clean(); }
+		http_response_code(302);
 		if($external)
 		{
 			self::sendHeader('Location', $URL);
@@ -38,7 +40,6 @@ class HTTP {
 		{
 			self::sendHeader('Location', HTTP_PATH.$URL);
 		}
-		while (ob_get_level() > 0) { ob_end_clean(); }
 		exit;
 	}
 
