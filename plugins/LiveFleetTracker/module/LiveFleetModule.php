@@ -15,7 +15,7 @@ class LiveFleetModule implements GameModuleInterface
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return false;
             }
             $settings = LiveFleetDb::get()->getSettings();

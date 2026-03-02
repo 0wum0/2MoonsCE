@@ -50,7 +50,7 @@ class RewardPoolModule implements GameModuleInterface
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return false;
             }
             $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';

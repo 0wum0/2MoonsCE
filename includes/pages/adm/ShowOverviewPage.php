@@ -37,7 +37,7 @@ function ShowOverviewPage(): void
     $db     = Database::get();
     $config = Config::get(ROOT_UNI);
 
-    if ($db === null) {
+    if (!$db->isConnected()) {
         echo '<div style="color:#f87171;padding:20px;">Datenbankverbindung nicht verfügbar.</div>';
         return;
     }

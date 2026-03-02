@@ -33,7 +33,7 @@ class LiveFleetDb
     public function ensureTables(): void
     {
         $db = Database::get();
-        if ($db === null) {
+        if (!$db->isConnected()) {
             return;
         }
         $ts = $this->tblSettings;
@@ -108,7 +108,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return [];
             }
             $row = $db->selectSingle("SELECT * FROM `{$this->tblSettings}` WHERE `id` = 1;");
@@ -123,7 +123,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return;
             }
             $db->update(
@@ -157,7 +157,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return 0;
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
@@ -187,7 +187,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return [];
             }
             return $db->select(
@@ -203,7 +203,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return;
             }
             $db->update(
@@ -221,7 +221,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return 0;
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
@@ -242,7 +242,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return [];
             }
             return $db->select(
@@ -258,7 +258,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return;
             }
             $db->update(
@@ -276,7 +276,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return 0;
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
@@ -306,7 +306,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return [];
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
@@ -333,7 +333,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return;
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
@@ -351,7 +351,7 @@ class LiveFleetDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return false;
             }
             $since = (defined('TIMESTAMP') ? TIMESTAMP : time()) - $windowSecs;

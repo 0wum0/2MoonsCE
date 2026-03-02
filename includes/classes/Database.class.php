@@ -169,6 +169,11 @@ class Database
         return $this->dbHandle;
     }
 
+    public function isConnected(): bool
+    {
+        return $this->dbHandle !== null;
+    }
+
     public function lastInsertId(): string|false
     {
         return $this->lastInsertId;
@@ -189,6 +194,10 @@ class Database
         $this->rowCount     = false;
 
         $qry = str_replace($this->dbTableNames['keys'], $this->dbTableNames['names'], $qry);
+
+        if ($this->dbHandle === null) {
+            throw new RuntimeException('Database::_query() called but dbHandle is null (not connected).');
+        }
 
         $stmt = $this->dbHandle->prepare($qry);
 

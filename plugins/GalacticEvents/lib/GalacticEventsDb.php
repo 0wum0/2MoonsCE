@@ -102,7 +102,7 @@ class GalacticEventsDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return [];
             }
             $row = $db->selectSingle(
@@ -168,7 +168,7 @@ class GalacticEventsDb
     {
         try {
             $db = Database::get();
-            if ($db === null) {
+            if (!$db->isConnected()) {
                 return null;
             }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
