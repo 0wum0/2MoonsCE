@@ -38,6 +38,7 @@ class HTTP {
 		{
 			self::sendHeader('Location', HTTP_PATH.$URL);
 		}
+		while (ob_get_level() > 0) { ob_end_clean(); }
 		exit;
 	}
 
