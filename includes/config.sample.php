@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 $databaseConfig = [
     'host'     => '%s',         // Datenbank-Host
-    'port'     => 3306,                // Port (Standard 3306)
+    'port'     => %d,                  // Port (Standard 3306)
     'user'     => '%s',  // Dein DB-Benutzer
     'password' => '%s',      // Dein DB-Passwort
     'dbname'   => '%s',  // Name der Datenbank
