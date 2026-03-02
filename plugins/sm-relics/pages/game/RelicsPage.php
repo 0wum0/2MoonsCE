@@ -113,17 +113,18 @@ class RelicsPage extends AbstractGamePage
         $lngRelics = $this->getLangStrings();
 
         $this->assign([
-            'relic_points'    => (int) ($userData['relic_points'] ?? 0),
-            'active_doctrine' => $userData['doctrine'] ?? null,
-            'doctrine_avail'  => $doctrineAvail,
-            'cooldown_left'   => $cooldownLeft,
-            'building_levels' => $buildingLevels,
-            'max_levels'      => $maxLevels,
-            'points_log'      => $pointsLog,
-            'settings'        => $settings,
-            'message'         => $message,
-            'error'           => $error,
-            'LNG_relics'      => $lngRelics,
+            'relic_points'      => (int) ($userData['relic_points'] ?? 0),
+            'active_doctrine'   => $userData['doctrine'] ?? null,
+            'doctrine_avail'    => $doctrineAvail,
+            'cooldown_left'     => $cooldownLeft,
+            'building_levels'   => $buildingLevels,
+            'max_levels'        => $maxLevels,
+            'points_log'        => $pointsLog,
+            'settings'          => $settings,
+            'message'           => $message,
+            'error'             => $error,
+            'LNG_relics'        => $lngRelics,
+            'plugin_asset_url'  => PluginManager::get()->getAssetUrl('sm-relics'),
         ]);
 
         $this->display('@sm-relics/game/relics.twig');

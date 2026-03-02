@@ -64,7 +64,7 @@
             {% for id, level in building_levels %}
             <div class="smr-building-card">
                 <div class="smr-building-icon">
-                    <img src="{{ dpath }}gebaeude/{{ id }}.gif" alt="{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}"
+                    <img src="{{ plugin_asset_url }}img/{{ id }}.gif" alt="{{ LNG.tech[id]|default(LNG_relics['building_' ~ id]) }}"
                          onerror="this.style.display='none'">
                 </div>
                 <div class="smr-building-info">

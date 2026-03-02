@@ -503,6 +503,17 @@ class PluginManager
     }
 
     /**
+     * Return the web-accessible URL to a plugin's assets directory (or a file within it).
+     * Example: PluginManager::get()->getAssetUrl('sm-relics', 'img/910.gif')
+     *          → 'plugins/sm-relics/assets/img/910.gif'
+     */
+    public function getAssetUrl(string $pluginId, string $relativePath = ''): string
+    {
+        $base = 'plugins/' . $pluginId . '/assets/';
+        return $base . ltrim($relativePath, '/');
+    }
+
+    /**
      * Return all registered Twig namespaces: pluginId → absDir
      * @return array<string, string>
      */
