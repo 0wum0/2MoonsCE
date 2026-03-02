@@ -22,105 +22,604 @@
 	@visit http://makeit.uno/
 #}
 {% block content %}
-<div class="aerospace-battle-log">
-    
-    <div class="battle-result {% if Raport.result == "a" %}win{% elseif Raport.result == "r" %}lose{% else %}draw{% endif %}">
-        <div class="result-title">
-            {% if Raport.result == "a" %}{{ LNG.sys_attacker_won }}
-            {% elseif Raport.result == "r" %}{{ LNG.sys_defender_won }}
-            {% else %}{{ LNG.sys_both_won }}{% endif %}
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   BATTLE REPORT — AEROSPACE COMBAT LOG  v3.0
+   Self-contained styles, no dependency on game theme variables
+   ═══════════════════════════════════════════════════════════════ */
+.br-root {
+    --br-bg:        #07090f;
+    --br-surface:   #0d1220;
+    --br-border:    #1e2d4a;
+    --br-att:       #e8622a;
+    --br-att-dim:   #7a2e0e;
+    --br-def:       #2a7ae8;
+    --br-def-dim:   #0e3a7a;
+    --br-gold:      #f0b429;
+    --br-green:     #22c55e;
+    --br-red:       #ef4444;
+    --br-text:      #c8d4e8;
+    --br-muted:     #5a6a80;
+    --br-glow-att:  0 0 18px rgba(232,98,42,0.35);
+    --br-glow-def:  0 0 18px rgba(42,122,232,0.35);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--br-text);
+    background: var(--br-bg);
+    line-height: 1.5;
+    padding: 0;
+    margin: 0;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.br-header {
+    position: relative;
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--br-border);
+    background: linear-gradient(180deg, #0a0f1c 0%, var(--br-bg) 100%);
+    overflow: hidden;
+}
+.br-header-stars {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 42% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 6%  65%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 80%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 33% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 75%, rgba(255,255,255,0.4) 0%, transparent 100%);
+}
+.br-result-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 6px 16px; border-radius: 4px; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.br-result-badge.win  { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: var(--br-green); }
+.br-result-badge.lose { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.4);  color: var(--br-red); }
+.br-result-badge.draw { background: rgba(240,180,41,0.15); border: 1px solid rgba(240,180,41,0.4); color: var(--br-gold); }
+.br-result-badge svg  { width:14px; height:14px; flex-shrink:0; }
+
+.br-header-grid {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; gap: 16px;
+}
+.br-combatant { min-width: 0; }
+.br-combatant.att { text-align: left; }
+.br-combatant.def { text-align: right; }
+.br-player-name {
+    font-size: 16px; font-weight: 700; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.br-player-coords {
+    font-size: 11px; color: var(--br-muted); margin-top: 2px;
+}
+.br-tech-row {
+    display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;
+}
+.br-combatant.def .br-tech-row { justify-content: flex-end; }
+.br-tech-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;
+}
+.br-tech-pill.weap { background: rgba(232,98,42,0.15);  border: 1px solid rgba(232,98,42,0.3);  color: #f4894a; }
+.br-tech-pill.shld { background: rgba(42,122,232,0.15); border: 1px solid rgba(42,122,232,0.3); color: #5aa0f0; }
+.br-tech-pill.armr { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); color: #c084fc; }
+
+.br-vs-divider {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.br-vs-circle {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--br-border);
+    background: var(--br-surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: var(--br-muted);
+    letter-spacing: 0.05em;
+}
+.br-timestamp {
+    font-size: 10px; color: var(--br-muted); text-align: center;
+    margin-top: 4px;
+}
+
+/* ── BATTLE OVERVIEW BAR ────────────────────────────────────── */
+.br-overview {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--br-border);
+    display: flex; gap: 12px; align-items: center;
+}
+.br-losses-att, .br-losses-def {
+    flex: 1; display: flex; flex-direction: column; gap: 4px;
+}
+.br-losses-def { align-items: flex-end; }
+.br-loss-label { font-size: 10px; color: var(--br-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.br-loss-value { font-size: 18px; font-weight: 700; color: var(--br-red); }
+.br-loss-value.zero { color: var(--br-green); }
+.br-overview-center { flex: 0 0 auto; text-align: center; }
+.br-round-count { font-size: 11px; color: var(--br-muted); }
+.br-round-num   { font-size: 22px; font-weight: 800; color: #fff; display: block; line-height: 1; }
+
+/* ── ROUND TABS ─────────────────────────────────────────────── */
+.br-tabs {
+    display: flex; gap: 2px; padding: 12px 28px 0;
+    border-bottom: 1px solid var(--br-border);
+    overflow-x: auto;
+}
+.br-tab {
+    padding: 6px 14px; border-radius: 4px 4px 0 0; font-size: 11px;
+    font-weight: 600; cursor: pointer; color: var(--br-muted);
+    border: 1px solid transparent; border-bottom: none;
+    white-space: nowrap; background: transparent;
+    transition: all 0.15s;
+}
+.br-tab:hover { color: var(--br-text); background: rgba(255,255,255,0.04); }
+.br-tab.active {
+    color: #fff; background: var(--br-surface);
+    border-color: var(--br-border); border-bottom-color: var(--br-surface);
+}
+
+/* ── ROUND PANELS ───────────────────────────────────────────── */
+.br-panels { padding: 0; }
+.br-panel { display: none; }
+.br-panel.active { display: block; }
+
+.br-round-grid {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    gap: 0; min-height: 120px;
+}
+.br-fleet-col {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--br-border);
+}
+.br-fleet-col.att { border-right: 1px solid var(--br-border); }
+.br-fleet-col.def { border-left:  1px solid var(--br-border); }
+.br-fleet-col-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+    font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.br-fleet-col.att .br-fleet-col-label { color: var(--br-att); }
+.br-fleet-col.def .br-fleet-col-label { color: var(--br-def); }
+.br-fleet-col-label::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.br-fleet-col.att .br-fleet-col-label::before { background: var(--br-att); box-shadow: var(--br-glow-att); }
+.br-fleet-col.def .br-fleet-col-label::before { background: var(--br-def); box-shadow: var(--br-glow-def); }
+
+.br-vs-col {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--br-muted);
+    border-bottom: 1px solid var(--br-border);
+    position: relative;
+}
+.br-vs-col::before, .br-vs-col::after {
+    content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+    width: 1px; background: var(--br-border);
+}
+.br-vs-col::before { top: 0; height: calc(50% - 14px); }
+.br-vs-col::after  { bottom: 0; height: calc(50% - 14px); }
+
+/* ── SHIP ROW ───────────────────────────────────────────────── */
+.br-ship-row {
+    display: grid; grid-template-columns: 1fr 60px 60px 60px;
+    gap: 4px; align-items: center; padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.br-ship-row:last-child { border-bottom: none; }
+.br-ship-name { font-size: 12px; color: var(--br-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.br-ship-amount { font-size: 12px; font-weight: 700; color: #fff; text-align: right; }
+.br-ship-stat {
+    font-size: 10px; text-align: right; padding: 2px 4px;
+    border-radius: 3px; font-weight: 500;
+}
+.br-ship-stat.att { color: #f4894a; background: rgba(232,98,42,0.1); }
+.br-ship-stat.shd { color: #5aa0f0; background: rgba(42,122,232,0.1); }
+.br-ship-stat.hp  { color: #c084fc; background: rgba(168,85,247,0.1); }
+
+.br-destroyed-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--br-red); font-size: 12px; font-weight: 600; padding: 6px 0;
+}
+.br-destroyed-badge svg { width: 14px; height: 14px; }
+
+/* ── ROUND INFO BAR ─────────────────────────────────────────── */
+.br-round-info {
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--br-border);
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+}
+.br-info-stat { text-align: center; }
+.br-info-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--br-muted); margin-bottom: 2px; }
+.br-info-value { font-size: 13px; font-weight: 700; }
+.br-info-value.att-color { color: var(--br-att); }
+.br-info-value.def-color { color: var(--br-def); }
+
+/* ── DAMAGE BAR ─────────────────────────────────────────────── */
+.br-dmg-bar-wrap {
+    padding: 10px 20px 14px;
+    border-bottom: 1px solid var(--br-border);
+}
+.br-dmg-bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--br-muted); margin-bottom: 5px;
+}
+.br-dmg-bar-track {
+    height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06);
+    overflow: hidden; display: flex;
+}
+.br-dmg-bar-att { background: linear-gradient(90deg, var(--br-att-dim), var(--br-att)); border-radius: 3px 0 0 3px; transition: width 0.5s ease; }
+.br-dmg-bar-def { background: linear-gradient(90deg, var(--br-def), var(--br-def-dim)); border-radius: 0 3px 3px 0; flex: 1; }
+
+/* ── FOOTER (loot / debris / summary) ──────────────────────── */
+.br-footer {
+    padding: 20px 28px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+.br-footer-card {
+    background: var(--br-surface);
+    border: 1px solid var(--br-border);
+    border-radius: 8px; padding: 14px;
+}
+.br-footer-card-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--br-muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+}
+.br-footer-card-title svg { width: 12px; height: 12px; }
+.br-res-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; font-size: 12px;
+}
+.br-res-row img { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
+.br-res-name  { color: var(--br-muted); flex: 1; }
+.br-res-value { font-weight: 700; color: #fff; }
+.br-res-value.gold { color: var(--br-gold); }
+
+/* SVG orbit ring decoration */
+.br-orbit-svg {
+    position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+    opacity: 0.08; pointer-events: none; width: 120px; height: 120px;
+}
+
+/* ── MOBILE ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .br-header-grid { grid-template-columns: 1fr; }
+    .br-vs-divider  { display: none; }
+    .br-combatant.def { text-align: left; }
+    .br-combatant.def .br-tech-row { justify-content: flex-start; }
+    .br-round-grid  { grid-template-columns: 1fr; }
+    .br-vs-col      { display: none; }
+    .br-fleet-col.def { border-left: none; border-top: 1px solid var(--br-border); }
+    .br-footer      { grid-template-columns: 1fr; }
+    .br-overview    { flex-direction: column; align-items: flex-start; }
+    .br-losses-def  { align-items: flex-start; }
+    .br-round-info  { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+{% set resultClass = Raport.result == "a" ? "win" : (Raport.result == "r" ? "lose" : "draw") %}
+{% set attLost = Raport.units[0] %}
+{% set defLost = Raport.units[1] %}
+{% set roundCount = Raport.rounds|length %}
+
+<div class="br-root">
+
+    {# ── HEADER ── #}
+    <div class="br-header">
+        <div class="br-header-stars"></div>
+
+        {# Result badge #}
+        <div class="br-result-badge {{ resultClass }}">
+            {% if Raport.result == "a" %}
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 5h5l-4 3 1.5 5L8 11l-4.5 3L5 9 1 6h5z"/></svg>
+            {{ LNG.sys_attacker_won }}
+            {% elseif Raport.result == "r" %}
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12zM7 5h2v4H7V5zm0 5h2v2H7v-2z"/></svg>
+            {{ LNG.sys_defender_won }}
+            {% else %}
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 5h5l-4 3 1.5 5L8 11l-4.5 3L5 9 1 6h5z"/></svg>
+            {{ LNG.sys_both_won }}
+            {% endif %}
         </div>
-        <div class="result-time">{{ Raport.time }}</div>
-    </div>
 
-    {% for Round, RoundInfo in Raport.rounds %}
-    <div class="battle-round">
-        <div class="round-header">Runde {{ Round }}</div>
-        
-        <div class="fleet-block attacker">
-            {% for Player in RoundInfo.attacker %}
-            {% set PlayerInfo = Raport.players[Player.userID] %}
-            <div class="player-fleet">
-                <div class="player-name">{{ PlayerInfo.name }} <span class="coords">[{{ PlayerInfo.koords[0] }}:{{ PlayerInfo.koords[1] }}:{{ PlayerInfo.koords[2] }}]</span></div>
-                <div class="player-tech">Weap: {{ PlayerInfo.tech[0] }}% | Shld: {{ PlayerInfo.tech[1] }}% | Armr: {{ PlayerInfo.tech[2] }}%</div>
-                
-                {% if Player.ships %}
-                <table class="fleet-table">
-                    <tr><th>Typ</th><th>Anzahl</th><th>Waffen</th><th>Schild</th><th>Hülle</th></tr>
-                    {% for ShipID, ShipData in Player.ships %}
-                    <tr>
-                        <td>{{ LNG.shortNames[ShipID] }}</td>
-                        <td>{{ ShipData[0]|number_format }}</td>
-                        <td>{{ ShipData[1]|number_format }}</td>
-                        <td>{{ ShipData[2]|number_format }}</td>
-                        <td>{{ ShipData[3]|number_format }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-                {% else %}
-                <div class="destroyed">{{ LNG.sys_destroyed }}</div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="vs-divider">VS</div>
-
-        <div class="fleet-block defender">
-            {% for Player in RoundInfo.defender %}
-            {% set PlayerInfo = Raport.players[Player.userID] %}
-            <div class="player-fleet">
-                <div class="player-name">{{ PlayerInfo.name }} <span class="coords">[{{ PlayerInfo.koords[0] }}:{{ PlayerInfo.koords[1] }}:{{ PlayerInfo.koords[2] }}]</span></div>
-                <div class="player-tech">Weap: {{ PlayerInfo.tech[0] }}% | Shld: {{ PlayerInfo.tech[1] }}% | Armr: {{ PlayerInfo.tech[2] }}%</div>
-                
-                {% if Player.ships %}
-                <table class="fleet-table">
-                    <tr><th>Typ</th><th>Anzahl</th><th>Waffen</th><th>Schild</th><th>Hülle</th></tr>
-                    {% for ShipID, ShipData in Player.ships %}
-                    <tr>
-                        <td>{{ LNG.shortNames[ShipID] }}</td>
-                        <td>{{ ShipData[0]|number_format }}</td>
-                        <td>{{ ShipData[1]|number_format }}</td>
-                        <td>{{ ShipData[2]|number_format }}</td>
-                        <td>{{ ShipData[3]|number_format }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-                {% else %}
-                <div class="destroyed">{{ LNG.sys_destroyed }}</div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endfor %}
-
-    <div class="battle-footer content-box">
-        {% if Raport.result == "a" %}
-        <div class="loot-section">
-            <h4>{{ LNG.sys_stealed_ressources }}</h4>
-            <div class="res-list">
-                {% for elementID, amount in Raport.steal %}
-                <span class="res-loot"><img src="{{ dpath }}images/{{ elementID }}.gif" width="20"> {{ amount|number_format }}</span>
+        <div class="br-header-grid">
+            {# Attackers side #}
+            <div class="br-combatant att">
+                {% for Player in Raport.rounds[0].attacker %}
+                {% set P = Raport.players[Player.userID] %}
+                <div class="br-player-name">{{ P.name }}</div>
+                <div class="br-player-coords">[{{ P.koords[0] }}:{{ P.koords[1] }}:{{ P.koords[2] }}]</div>
+                <div class="br-tech-row">
+                    <span class="br-tech-pill weap">
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M1 5L9 1v3H5v2h4v3z"/></svg>
+                        {{ P.tech[0]|number_format(0) }}%
+                    </span>
+                    <span class="br-tech-pill shld">
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M5 1L1 3v3c0 2.2 1.7 3.8 4 4 2.3-.2 4-1.8 4-4V3z"/></svg>
+                        {{ P.tech[1]|number_format(0) }}%
+                    </span>
+                    <span class="br-tech-pill armr">
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
+                        {{ P.tech[2]|number_format(0) }}%
+                    </span>
+                </div>
                 {% endfor %}
+            </div>
+
+            {# VS center #}
+            <div class="br-vs-divider">
+                <div class="br-vs-circle">VS</div>
+                <div class="br-timestamp">{{ Raport.time }}</div>
+            </div>
+
+            {# Defenders side #}
+            <div class="br-combatant def">
+                {% for Player in Raport.rounds[0].defender %}
+                {% set P = Raport.players[Player.userID] %}
+                <div class="br-player-name">{{ P.name }}</div>
+                <div class="br-player-coords">[{{ P.koords[0] }}:{{ P.koords[1] }}:{{ P.koords[2] }}]</div>
+                <div class="br-tech-row">
+                    <span class="br-tech-pill weap">
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M1 5L9 1v3H5v2h4v3z"/></svg>
+                        {{ P.tech[0]|number_format(0) }}%
+                    </span>
+                    <span class="br-tech-pill shld">
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M5 1L1 3v3c0 2.2 1.7 3.8 4 4 2.3-.2 4-1.8 4-4V3z"/></svg>
+                        {{ P.tech[1]|number_format(0) }}%
+                    </span>
+                    <span class="br-tech-pill armr">
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
+                        {{ P.tech[2]|number_format(0) }}%
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# SVG orbit decoration #}
+        <svg class="br-orbit-svg" viewBox="0 0 120 120" fill="none">
+            <circle cx="60" cy="60" r="55" stroke="white" stroke-width="0.5"/>
+            <circle cx="60" cy="60" r="40" stroke="white" stroke-width="0.3"/>
+            <circle cx="60" cy="60" r="25" stroke="white" stroke-width="0.3"/>
+            <circle cx="60" cy="60" r="5"  fill="white" opacity="0.4"/>
+            <circle cx="115" cy="60" r="3" fill="white" opacity="0.5"/>
+            <circle cx="60"  cy="5"  r="2" fill="white" opacity="0.4"/>
+            <circle cx="20"  cy="90" r="2" fill="white" opacity="0.3"/>
+        </svg>
+    </div>
+
+    {# ── OVERVIEW BAR ── #}
+    <div class="br-overview">
+        <div class="br-losses-att">
+            <div class="br-loss-label">{{ LNG.sys_attacker_lostunits }}</div>
+            <div class="br-loss-value {% if attLost == 0 %}zero{% endif %}">{{ attLost|number_format(0, ',', '.') }}</div>
+        </div>
+        <div class="br-overview-center">
+            <div class="br-round-count">Kampfrunden</div>
+            <span class="br-round-num">{{ roundCount }}</span>
+        </div>
+        <div class="br-losses-def">
+            <div class="br-loss-label">{{ LNG.sys_defender_lostunits }}</div>
+            <div class="br-loss-value {% if defLost == 0 %}zero{% endif %}">{{ defLost|number_format(0, ',', '.') }}</div>
+        </div>
+    </div>
+
+    {# ── ROUND TABS ── #}
+    {% if roundCount > 1 %}
+    <div class="br-tabs" id="br-tabs">
+        {% for Round, RoundInfo in Raport.rounds %}
+        <div class="br-tab {% if loop.first %}active{% endif %}"
+             data-panel="br-panel-{{ Round }}"
+             onclick="brSelectTab(this,'br-panel-{{ Round }}')">
+            Runde {{ Round + 1 }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── ROUND PANELS ── #}
+    <div class="br-panels">
+    {% for Round, RoundInfo in Raport.rounds %}
+    <div class="br-panel {% if loop.first %}active{% endif %}" id="br-panel-{{ Round }}">
+
+        {# Damage bar (if round info available) #}
+        {% if RoundInfo.info[0] is not null %}
+        {% set attDmg = RoundInfo.info[0] %}
+        {% set defDmg = RoundInfo.info[2] %}
+        {% set totalDmg = attDmg + defDmg %}
+        {% set attPct = totalDmg > 0 ? (attDmg / totalDmg * 100)|round : 50 %}
+        <div class="br-dmg-bar-wrap">
+            <div class="br-dmg-bar-label">
+                <span style="color:var(--br-att)">⚔ {{ attDmg|number_format(0, ',', '.') }}</span>
+                <span style="font-size:9px;color:var(--br-muted)">SCHADEN</span>
+                <span style="color:var(--br-def)">{{ defDmg|number_format(0, ',', '.') }} ⚔</span>
+            </div>
+            <div class="br-dmg-bar-track">
+                <div class="br-dmg-bar-att" style="width:{{ attPct }}%"></div>
+                <div class="br-dmg-bar-def"></div>
+            </div>
+        </div>
+
+        {# Round stats row #}
+        <div class="br-round-info">
+            <div class="br-info-stat">
+                <div class="br-info-label">Angriff (Att)</div>
+                <div class="br-info-value att-color">{{ attDmg|number_format(0, ',', '.') }}</div>
+            </div>
+            <div class="br-info-stat">
+                <div class="br-info-label">Schild (Att)</div>
+                <div class="br-info-value def-color">{{ RoundInfo.info[1]|number_format(0, ',', '.') }}</div>
+            </div>
+            <div class="br-info-stat">
+                <div class="br-info-label">Angriff (Def)</div>
+                <div class="br-info-value def-color">{{ defDmg|number_format(0, ',', '.') }}</div>
+            </div>
+            <div class="br-info-stat">
+                <div class="br-info-label">Schild (Def)</div>
+                <div class="br-info-value att-color">{{ RoundInfo.info[3]|number_format(0, ',', '.') }}</div>
             </div>
         </div>
         {% endif %}
 
-        <div class="debris-section">
-            <h4>{{ LNG.debree_field_1 }}</h4>
-            <div class="res-list">
-                {% for elementID, amount in Raport.debris %}
-                <span class="res-loot"><img src="{{ dpath }}images/{{ elementID }}.gif" width="20"> {{ amount|number_format }}</span>
+        {# Ships grid #}
+        <div class="br-round-grid">
+
+            {# ATTACKER FLEETS #}
+            <div class="br-fleet-col att">
+                <div class="br-fleet-col-label">Angreifer</div>
+                {% for Player in RoundInfo.attacker %}
+                {% set P = Raport.players[Player.userID] %}
+                {% if not loop.first %}
+                <div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0;padding-top:8px;font-size:10px;color:var(--br-muted)">{{ P.name }}</div>
+                {% endif %}
+                {% if Player.ships %}
+                    {% for ShipID, ShipData in Player.ships %}
+                    <div class="br-ship-row">
+                        <div class="br-ship-name">{{ LNG.shortNames[ShipID] ?? ('Ship #' ~ ShipID) }}</div>
+                        <div class="br-ship-amount">{{ ShipData[0]|number_format(0, ',', '.') }}</div>
+                        <div class="br-ship-stat att">{{ ShipData[1]|number_format(0, ',', '.') }}</div>
+                        <div class="br-ship-stat shd">{{ ShipData[2]|number_format(0, ',', '.') }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="br-destroyed-badge">
+                        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
+                        {{ LNG.sys_destroyed }}
+                    </div>
+                {% endif %}
                 {% endfor %}
             </div>
-        </div>
-        
-        <div class="losses-section">
-            <div>{{ LNG.sys_attacker_lostunits }}: <span class="red">{{ Raport['units'][0]|number_format }}</span></div>
-            <div>{{ LNG.sys_defender_lostunits }}: <span class="red">{{ Raport['units'][1]|number_format }}</span></div>
-        </div>
-    </div>
 
-</div>
+            {# VS separator #}
+            <div class="br-vs-col">VS</div>
+
+            {# DEFENDER FLEETS #}
+            <div class="br-fleet-col def">
+                <div class="br-fleet-col-label">Verteidiger</div>
+                {% for Player in RoundInfo.defender %}
+                {% set P = Raport.players[Player.userID] %}
+                {% if not loop.first %}
+                <div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0;padding-top:8px;font-size:10px;color:var(--br-muted)">{{ P.name }}</div>
+                {% endif %}
+                {% if Player.ships %}
+                    {% for ShipID, ShipData in Player.ships %}
+                    <div class="br-ship-row">
+                        <div class="br-ship-name">{{ LNG.shortNames[ShipID] ?? ('Ship #' ~ ShipID) }}</div>
+                        <div class="br-ship-amount">{{ ShipData[0]|number_format(0, ',', '.') }}</div>
+                        <div class="br-ship-stat att">{{ ShipData[1]|number_format(0, ',', '.') }}</div>
+                        <div class="br-ship-stat shd">{{ ShipData[2]|number_format(0, ',', '.') }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="br-destroyed-badge">
+                        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
+                        {{ LNG.sys_destroyed }}
+                    </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+        </div>{# /.br-round-grid #}
+    </div>{# /.br-panel #}
+    {% endfor %}
+    </div>{# /.br-panels #}
+
+    {# ── FOOTER: loot / debris / losses ── #}
+    <div class="br-footer">
+
+        {# Stolen resources #}
+        {% if Raport.result == "a" and Raport.steal is not empty %}
+        <div class="br-footer-card">
+            <div class="br-footer-card-title" style="color:var(--br-gold)">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm1 8H7v1.5h2V10zm0-5.5h-2v4h2v-4z"/></svg>
+                {{ LNG.sys_stealed_ressources }}
+            </div>
+            {% set resNames = {901: 'Metall', 902: 'Kristall', 903: 'Deuterium'} %}
+            {% for elementID, amount in Raport.steal %}
+            <div class="br-res-row">
+                <img src="{{ dpath }}images/{{ elementID }}.gif" alt="">
+                <span class="br-res-name">{{ resNames[elementID] ?? elementID }}</span>
+                <span class="br-res-value gold">{{ amount|number_format(0, ',', '.') }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {# Debris field #}
+        {% if Raport.debris is not empty %}
+        <div class="br-footer-card">
+            <div class="br-footer-card-title">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 3l10 4-6 2-2 6z"/></svg>
+                {{ LNG.debree_field_1 }}
+            </div>
+            {% set resNames = {901: 'Metall', 902: 'Kristall'} %}
+            {% for elementID, amount in Raport.debris %}
+            <div class="br-res-row">
+                <img src="{{ dpath }}images/{{ elementID }}.gif" alt="">
+                <span class="br-res-name">{{ resNames[elementID] ?? elementID }}</span>
+                <span class="br-res-value">{{ amount|number_format(0, ',', '.') }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {# Unit losses summary #}
+        <div class="br-footer-card">
+            <div class="br-footer-card-title">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
+                Verluste
+            </div>
+            <div class="br-res-row">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--br-att);display:inline-block;flex-shrink:0"></span>
+                <span class="br-res-name">{{ LNG.sys_attacker_lostunits }}</span>
+                <span class="br-res-value" style="color:{% if attLost > 0 %}var(--br-red){% else %}var(--br-green){% endif %}">{{ attLost|number_format(0, ',', '.') }}</span>
+            </div>
+            <div class="br-res-row">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--br-def);display:inline-block;flex-shrink:0"></span>
+                <span class="br-res-name">{{ LNG.sys_defender_lostunits }}</span>
+                <span class="br-res-value" style="color:{% if defLost > 0 %}var(--br-red){% else %}var(--br-green){% endif %}">{{ defLost|number_format(0, ',', '.') }}</span>
+            </div>
+        </div>
+
+        {# Moon info #}
+        {% if Raport.moon.moonChance is defined and Raport.moon.moonChance > 0 %}
+        <div class="br-footer-card">
+            <div class="br-footer-card-title" style="color:#a78bfa">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6 6 6 0 0 0 6 6 6 6 0 0 0 0-12z"/></svg>
+                Mondchance
+            </div>
+            <div class="br-res-row">
+                <span class="br-res-name">Chance</span>
+                <span class="br-res-value">{{ Raport.moon.moonChance }}%</span>
+            </div>
+            {% if Raport.moon.moonDestroySuccess is defined %}
+            <div class="br-res-row">
+                <span class="br-res-name">{{ Raport.moon.moonName }}</span>
+                <span class="br-res-value" style="color:{% if Raport.moon.moonDestroySuccess %}var(--br-red){% else %}var(--br-green){% endif %}">
+                    {% if Raport.moon.moonDestroySuccess %}Zerstört{% else %}Intakt{% endif %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>{# /.br-footer #}
+
+</div>{# /.br-root #}
+
+<script>
+function brSelectTab(el, panelId) {
+    var tabs   = el.closest('#br-tabs').querySelectorAll('.br-tab');
+    var panels = document.querySelectorAll('.br-panel');
+    tabs.forEach(function(t){ t.classList.remove('active'); });
+    panels.forEach(function(p){ p.classList.remove('active'); });
+    el.classList.add('active');
+    var panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('active');
+}
+</script>
 {% endblock %}
