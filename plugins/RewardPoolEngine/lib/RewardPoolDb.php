@@ -81,17 +81,11 @@ class RewardPoolDb
     public function getPool(string $name): ?array
     {
         $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';
-        $name   = Database::get()->sql_escape($name);
 
-        $result = Database::get()->query(
-            "SELECT * FROM `{$prefix}reward_pools` WHERE `name` = '{$name}' AND `active` = 1 LIMIT 1"
+        $row = Database::get()->selectSingle(
+            "SELECT * FROM `{$prefix}reward_pools` WHERE `name` = :name AND `active` = 1 LIMIT 1",
+            [':name' => $name]
         );
-
-        if (!$result) {
-            return null;
-        }
-
-        $row = Database::get()->fetch_array($result);
         return is_array($row) ? $row : null;
     }
 
@@ -103,19 +97,10 @@ class RewardPoolDb
     {
         $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';
 
-        $result = Database::get()->query(
-            "SELECT * FROM `{$prefix}reward_entries` WHERE `pool_id` = {$poolId}"
-        );
-
-        if (!$result) {
-            return [];
-        }
-
-        $entries = [];
-        while ($row = Database::get()->fetch_array($result)) {
-            $entries[] = $row;
-        }
-        return $entries;
+        return Database::get()->select(
+            "SELECT * FROM `{$prefix}reward_entries` WHERE `pool_id` = :pool_id",
+            [':pool_id' => $poolId]
+        ) ?: [];
     }
 
     // ── Core reward logic ─────────────────────────────────────────────────────

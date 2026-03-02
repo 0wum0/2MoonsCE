@@ -351,7 +351,7 @@ class GalacticEventsModule implements GameModuleInterface
                 ? PluginManager::get()->getTwigNamespaces()
                 : [];
 
-            if (!empty($ns['galactic_events']) && is_dir($ns['galactic_events'])
+            if (!empty($ns['GalacticEvents']) && is_dir($ns['GalacticEvents'])
                 && class_exists(\Twig\Environment::class)
             ) {
                 $cacheDir = defined('ROOT_PATH') ? ROOT_PATH . 'cache/twig_plugins' : false;
@@ -359,7 +359,7 @@ class GalacticEventsModule implements GameModuleInterface
                     @mkdir($cacheDir, 0775, true);
                 }
 
-                $loader = new \Twig\Loader\FilesystemLoader($ns['galactic_events']);
+                $loader = new \Twig\Loader\FilesystemLoader($ns['GalacticEvents']);
                 $twig   = new \Twig\Environment($loader, [
                     'cache'       => $cacheDir ?: false,
                     'auto_reload' => true,

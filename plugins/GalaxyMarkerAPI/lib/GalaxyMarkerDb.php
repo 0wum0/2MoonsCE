@@ -74,27 +74,34 @@ class GalaxyMarkerDb
         $db     = Database::get();
         $now    = defined('TIMESTAMP') ? TIMESTAMP : time();
 
-        $galaxy     = (int)($data['galaxy']     ?? 1);
-        $system     = (int)($data['system']     ?? 1);
-        $position   = (int)($data['position']   ?? 1);
-        $type       = $db->sql_escape((string)($data['type']    ?? 'info'));
-        $icon       = $db->sql_escape((string)($data['icon']    ?? 'fa-map-marker-alt'));
-        $color      = $db->sql_escape((string)($data['color']   ?? '#38bdf8'));
-        $tooltip    = $db->sql_escape((string)($data['tooltip'] ?? ''));
-        $expires_at = (int)($data['expires_at'] ?? 0);
-
-        $db->query("
-            INSERT INTO `{$prefix}galaxy_markers`
+        $db->insert(
+            "INSERT INTO `{$prefix}galaxy_markers`
                 (`galaxy`, `system`, `position`, `type`, `icon`, `color`, `tooltip`, `expires_at`, `created_at`)
-            VALUES
-                ({$galaxy}, {$system}, {$position}, '{$type}', '{$icon}', '{$color}', '{$tooltip}', {$expires_at}, {$now})
-            ON DUPLICATE KEY UPDATE
-                `type`       = '{$type}',
-                `icon`       = '{$icon}',
-                `color`      = '{$color}',
-                `tooltip`    = '{$tooltip}',
-                `expires_at` = {$expires_at}
-        ");
+             VALUES
+                (:galaxy, :system, :position, :type, :icon, :color, :tooltip, :expires_at, :created_at)
+             ON DUPLICATE KEY UPDATE
+                `type`       = :type2,
+                `icon`       = :icon2,
+                `color`      = :color2,
+                `tooltip`    = :tooltip2,
+                `expires_at` = :expires_at2",
+            [
+                ':galaxy'      => (int)($data['galaxy']     ?? 1),
+                ':system'      => (int)($data['system']     ?? 1),
+                ':position'    => (int)($data['position']   ?? 1),
+                ':type'        => (string)($data['type']    ?? 'info'),
+                ':icon'        => (string)($data['icon']    ?? 'fa-map-marker-alt'),
+                ':color'       => (string)($data['color']   ?? '#38bdf8'),
+                ':tooltip'     => (string)($data['tooltip'] ?? ''),
+                ':expires_at'  => (int)($data['expires_at'] ?? 0),
+                ':created_at'  => $now,
+                ':type2'       => (string)($data['type']    ?? 'info'),
+                ':icon2'       => (string)($data['icon']    ?? 'fa-map-marker-alt'),
+                ':color2'      => (string)($data['color']   ?? '#38bdf8'),
+                ':tooltip2'    => (string)($data['tooltip'] ?? ''),
+                ':expires_at2' => (int)($data['expires_at'] ?? 0),
+            ]
+        );
 
         return true;
     }
@@ -108,21 +115,12 @@ class GalaxyMarkerDb
         $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';
         $now    = defined('TIMESTAMP') ? TIMESTAMP : time();
 
-        $result = Database::get()->query(
+        return Database::get()->select(
             "SELECT * FROM `{$prefix}galaxy_markers`
-             WHERE `expires_at` = 0 OR `expires_at` > {$now}
-             ORDER BY `galaxy`, `system`, `position`"
-        );
-
-        if (!$result) {
-            return [];
-        }
-
-        $rows = [];
-        while ($row = Database::get()->fetch_array($result)) {
-            $rows[] = $row;
-        }
-        return $rows;
+             WHERE `expires_at` = 0 OR `expires_at` > :now
+             ORDER BY `galaxy`, `system`, `position`",
+            [':now' => $now]
+        ) ?: [];
     }
 
     /**
@@ -133,8 +131,9 @@ class GalaxyMarkerDb
         $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';
         $now    = defined('TIMESTAMP') ? TIMESTAMP : time();
 
-        Database::get()->query(
-            "DELETE FROM `{$prefix}galaxy_markers` WHERE `expires_at` > 0 AND `expires_at` <= {$now}"
+        Database::get()->delete(
+            "DELETE FROM `{$prefix}galaxy_markers` WHERE `expires_at` > 0 AND `expires_at` <= :now",
+            [':now' => $now]
         );
     }
 }
