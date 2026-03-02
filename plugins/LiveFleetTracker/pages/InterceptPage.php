@@ -94,8 +94,10 @@ class InterceptPage
             echo json_encode(['ok' => false, 'error' => 'cannot_intercept_own_fleet']);
             return;
         }
-        if (!in_array((int)$fleet['fleet_mission'], [1, 2, 9], true)) {
-            echo json_encode(['ok' => false, 'error' => 'fleet_not_hostile']);
+        // Allow intercepting any non-own fleet (attack, transport, spy, etc.)
+        // Mission 10 (MIP/missiles) cannot be intercepted
+        if ((int)$fleet['fleet_mission'] === 10) {
+            echo json_encode(['ok' => false, 'error' => 'fleet_not_interceptable']);
             return;
         }
 

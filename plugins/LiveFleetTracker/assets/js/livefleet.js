@@ -138,8 +138,8 @@
             ${fleet.is_warp_delayed ? `<div class="lft-tt-row"><span class="lft-tt-label" style="color:#fbbf24">${SVG.warning} Warp-Störung</span><span class="lft-tt-val" style="color:#fbbf24">Verzögert</span></div>` : ''}
             ${fleet.npc_attack ? `<div class="lft-tt-row"><span class="lft-tt-label" style="color:#f87171">${SVG.skull} Piraten-Angriff</span><span class="lft-tt-val" style="color:#f87171">-${fleet.npc_attack.loss_percent}%</span></div>` : ''}`;
 
-        // Show intercept button only for hostile non-NPC fleets
-        if (CFG.interceptionEnabled && fleet.is_hostile && !fleet.is_own && !fleet.is_npc) {
+        // Show intercept button for all non-own, non-NPC, non-ally foreign fleets
+        if (CFG.interceptionEnabled && !fleet.is_own && !fleet.is_npc && !fleet.is_ally) {
             btn.style.display = 'flex';
             btn.onclick = () => openInterceptModal(fleet);
         } else {

@@ -179,10 +179,12 @@ function getFleetData(): array
 
     $result = [];
     foreach ($fleets as $f) {
-        $isOwn = ((int)$f['fleet_owner'] === (int)$USER['id']);
+        $isOwn   = ((int)$f['fleet_owner'] === (int)$USER['id']);
+        $isAlly  = (!$isOwn && (int)$f['ally_id'] > 0 && (int)$f['ally_id'] === (int)$USER['ally_id']);
         $isHostile = (!$isOwn && in_array((int)$f['fleet_mission'], [1,2,6,9,10]));
         $color = $missionColors[(int)$f['fleet_mission']] ?? '#ffffff';
         if ($isHostile) $color = '#ff0000';
+        if ($isAlly)    $color = '#ffaa00';
         if ($isOwn)     $color = '#00ff88';
 
         // Progress 0..1
@@ -197,7 +199,8 @@ function getFleetData(): array
             'amount'   => (int)$f['fleet_amount'],
             'owner'    => $f['owner_name'],
             'ally_tag' => $f['ally_tag'] ?? '',
-            'is_own'   => $isOwn,
+            'is_own'     => $isOwn,
+            'is_ally'    => $isAlly,
             'is_hostile' => $isHostile,
             'color'    => $color,
             'start' => [
