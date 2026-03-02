@@ -30,6 +30,8 @@ define('MODE', 'LOGIN');
 define('ROOT_PATH', str_replace('\\', '/',dirname(__FILE__)).'/');
 set_include_path(ROOT_PATH);
 
+ob_start();
+
 require_once 'includes/pages/login/AbstractLoginPage.class.php';
 require_once 'includes/pages/login/ShowErrorPage.class.php';
 require_once 'includes/common.php';

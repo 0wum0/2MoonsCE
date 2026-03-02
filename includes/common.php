@@ -51,7 +51,7 @@ error_reporting(E_ALL & ~E_STRICT);
 // If date.timezone is invalid
 date_default_timezone_set(@date_default_timezone_get());
 
-ini_set('display_errors', '1');
+ini_set('display_errors', '0');
 if (!defined('MODE') || (MODE !== 'CRON' && PHP_SAPI !== 'cli')) {
     header('Content-Type: text/html; charset=UTF-8');
 }
