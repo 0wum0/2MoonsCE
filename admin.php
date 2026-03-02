@@ -63,6 +63,7 @@ if (PluginManager::get()->dispatchAdminRoute($page)) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
+HookManager::get()->doAction('beforeController', ['page' => $page, 'mode' => 'show', 'context' => 'admin']);
 switch($page)
 {
 	case 'logout':
@@ -243,3 +244,4 @@ switch($page)
 		ShowIndexPage();
 	break;
 }
+HookManager::get()->doAction('afterController', ['page' => $page, 'mode' => 'show', 'context' => 'admin']);

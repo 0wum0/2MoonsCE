@@ -88,4 +88,6 @@ if(!is_callable(array($pageObj, $mode))) {
 	$mode	= $pageProps['defaultController'];
 }
 
+HookManager::get()->doAction('beforeController', ['page' => $page, 'mode' => $mode, 'pageObj' => $pageObj]);
 $pageObj->{$mode}();
+HookManager::get()->doAction('afterController', ['page' => $page, 'mode' => $mode, 'pageObj' => $pageObj]);
