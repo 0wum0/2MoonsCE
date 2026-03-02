@@ -71,6 +71,7 @@
                     <span class="mcc-card-time">{{ Msg.time }}</span>
                 </div>
                 <div class="mcc-card-subject">{{ Msg.subject|striptags|e }}</div>
+                <div class="mcc-card-preview">{{ Msg.text|striptags|slice(0,120)|e }}</div>
             </div>
 
             <div class="mcc-card-right">

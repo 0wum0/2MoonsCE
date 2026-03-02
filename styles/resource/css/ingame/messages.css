@@ -406,10 +406,19 @@
 
 /* Subject row below sender */
 .mcc-card-subject {
-    font-size: 11px; font-weight: 400; color: #7a9ab8;
+    font-size: 11px; font-weight: 500; color: #7a9ab8;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 2px;
 }
 .mcc-card.is-unread .mcc-card-subject { color: var(--mc-text); }
+
+/* Text preview — always visible, hidden when expanded */
+.mcc-card-preview {
+    font-size: 11px; color: #3a5a72;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    line-height: 1.4;
+}
+.mcc-card.is-open .mcc-card-preview { display: none; }
 .mcc-unread-pip {
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: var(--mc-accent);
