@@ -31,6 +31,7 @@ class Session
 	static private ?Session $obj = null;
 	static private bool $iniSet = false;
 	private ?array $data = null;
+	private bool $saved = false;
 
 	/**
 	 * Set PHP session settings
@@ -208,6 +209,12 @@ class Session
 
 	public function save()
 	{
+		// Prevent double execution: once explicitly, once via shutdown handler
+		if ($this->saved) {
+			return;
+		}
+		$this->saved = true;
+
 		$sessionId = session_id();
 		if (empty($sessionId)) {
 			return;
@@ -255,6 +262,12 @@ class Session
 		$_SESSION['obj'] = serialize($this);
 
 		@session_write_close();
+
+		// Disconnect PDO so no open cursor/statement remains in the PHP shutdown sequence.
+		// On LiteSpeed, the shutdown handler fires while PDO still holds internal MySQL
+		// protocol state, which causes "Cannot execute queries while other unbuffered
+		// queries are active" (error 2014) on the next query.
+		$db->disconnect();
 	}
 
 	public function delete()
