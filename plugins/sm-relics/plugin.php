@@ -228,20 +228,20 @@ HookManager::get()->addAction('admin.sidebar.modules', function (): void {
     echo '</a>';
 }, 10);
 
-// ── 9. Navigation sidebar link (via sidebar_end hook) ─────────────────────────
-HookManager::get()->addAction('sidebar_end', function (): void {
-    $page    = \HTTP::_GP('page', '');
-    $active  = ($page === 'relics') ? ' active' : '';
-    $label   = \PluginManager::lang('sm-relics', 'nav_label');
+// ── 9. Navigation sidebar link (ingame.sidebar.bottom = inside .sidebar-nav) ──
+HookManager::get()->addAction('ingame.sidebar.bottom', function (): string {
+    $page  = \HTTP::_GP('page', '');
+    $active = ($page === 'relics') ? ' active' : '';
+    $label  = \PluginManager::lang('sm-relics', 'nav_label');
     if ($label === 'nav_label') {
         $label = 'Relikte';
     }
-    echo '<div class="nav-section">';
-    echo '<div class="nav-section-title"><span>' . htmlspecialchars($label) . '</span></div>';
-    echo '<a href="game.php?page=relics" class="sidebar-link' . $active . '" data-label="' . htmlspecialchars($label) . '">';
-    echo '<i class="fas fa-gem"></i><span>' . htmlspecialchars($label) . '</span>';
-    echo '</a>';
-    echo '</div>';
+    return '<div class="nav-section">'
+        . '<div class="nav-section-label">' . htmlspecialchars($label) . '</div>'
+        . '<a href="game.php?page=relics" class="nav-link' . $active . '">'
+        . '<i class="fas fa-gem"></i><span class="nav-link-text">' . htmlspecialchars($label) . '</span>'
+        . '</a>'
+        . '</div>';
 }, 10);
 
 unset($_pm);
