@@ -560,11 +560,11 @@ class PluginManager
             $dow   = $schedule['dow']   ?? '*';
             $name  = $schedule['name']  ?? $className;
 
-            $existing = $db->selectSingle(
+            $existingRow = $db->selectSingle(
                 "SELECT cronjobID FROM %%CRONJOBS%% WHERE `class` = :cls LIMIT 1;",
-                [':cls' => $className],
-                'cronjobID'
+                [':cls' => $className]
             );
+            $existing = is_array($existingRow) ? ($existingRow['cronjobID'] ?? null) : null;
             if (empty($existing)) {
                 // Row does not exist yet – insert it as active.
                 $db->insert(

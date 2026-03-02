@@ -296,7 +296,7 @@ function ShowAccountEditorPage()
 					$SQL .= "`id` = '".HTTP::_GP('id', 0)."' AND `universe` = '".Universe::getEmulated()."';";
 					$GLOBALS['DATABASE']->query($SQL);
 				}
-				elseif ($_POST['delete'])
+				elseif (!empty($_POST['delete']))
 				{
 					$Fields	= 0;
 					$QryUpdate	= array();
