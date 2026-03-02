@@ -107,10 +107,9 @@ ModuleManager::get()->register(new QueueModule(), 10);
 HTTP::sendHeader('P3P', 'CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 define('AJAX_REQUEST', HTTP::_GP('ajax', 0));
 
-$THEME		= new Theme();
-
 if (MODE === 'INSTALL')
 {
+	$THEME = new Theme();
 	return;
 }
 
@@ -118,6 +117,8 @@ if(!file_exists('includes/config.php') || filesize('includes/config.php') === 0)
 	if (MODE !== 'CRON') HTTP::redirectTo('install/index.php');
 	else exit('Missing config.php');
 }
+
+$THEME		= new Theme();
 
 try {
     $sql	= "SELECT dbVersion FROM %%SYSTEM%%;";
