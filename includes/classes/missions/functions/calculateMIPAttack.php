@@ -26,45 +26,62 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-function calculateMIPAttack($TargetDefTech, $OwnerAttTech, $missiles, $targetDefensive, $firstTarget, $defenseMissles)
-{
+function calculateMIPAttack(
+	int $TargetDefTech,
+	int $OwnerAttTech,
+	int $missiles,
+	array $targetDefensive,
+	int $firstTarget,
+	int $defenseMissles
+): array {
 	global $pricelist, $CombatCaps;
-	
-	$destroyShips		= array();
-	$countMissles 		= $missiles - $defenseMissles;
-	
-	if($countMissles == 0)
-	{
+
+	$destroyShips = [];
+	$countMissles = $missiles - $defenseMissles;
+
+	if ($countMissles <= 0) {
 		return $destroyShips;
 	}
 
-	$totalAttack 		= $countMissles * $CombatCaps[503]['attack'] * (1 +  0.1 * $OwnerAttTech);
-	
-	// Select primary target, if exists
-	if(isset($targetDefensive[$firstTarget]))
-	{
-		$firstTargetData	= array($firstTarget => $targetDefensive[$firstTarget]);
+	// Both tech values are raw levels; convert to multipliers matching the main engine
+	$attMultiplier = 1.0 + 0.1 * $OwnerAttTech;
+	$defMultiplier = 1.0 + 0.1 * $TargetDefTech;
+
+	$missileAttack = (float)($CombatCaps[503]['attack'] ?? 0);
+	$totalAttack   = $countMissles * $missileAttack * $attMultiplier;
+
+	// Bring the primary target to the front of the queue
+	if (isset($targetDefensive[$firstTarget])) {
+		$firstTargetData = [$firstTarget => $targetDefensive[$firstTarget]];
 		unset($targetDefensive[$firstTarget]);
-		$targetDefensive	= $firstTargetData + $targetDefensive;
+		$targetDefensive = $firstTargetData + $targetDefensive;
 	}
-	
-	foreach($targetDefensive as $element => $count)
-	{
-		if($element == 0)
-		{
-			throw new Exception("Unknown error. Please report this error on tracker.2moons.cc. Debuginforations:<br><br>".serialize(array($TargetDefTech, $OwnerAttTech, $missiles, $targetDefensive, $firstTarget, $defenseMissles)));
+
+	foreach ($targetDefensive as $element => $count) {
+		if (!isset($pricelist[$element])) {
+			continue;
 		}
-		$elementStructurePoints = ($pricelist[$element]['cost'][901] + $pricelist[$element]['cost'][902]) * (1 + 0.1 * $TargetDefTech) / 10;
-		$destroyCount           = floor($totalAttack / $elementStructurePoints);
-		$destroyCount           = min($destroyCount, $count);
-		$totalAttack  	       -= $destroyCount * $elementStructurePoints;
-		
-		$destroyShips[$element]	= $destroyCount;
-		if($totalAttack <= 0)
-		{
+
+		// Structure points per unit scaled by defender shield tech multiplier
+		$structPerUnit = ((float)($pricelist[$element]['cost'][901] ?? 0)
+		               + (float)($pricelist[$element]['cost'][902] ?? 0))
+		               * $defMultiplier / 10.0;
+
+		if ($structPerUnit <= 0.0) {
+			continue;
+		}
+
+		$destroyCount = (int)min(floor($totalAttack / $structPerUnit), $count);
+		$totalAttack -= $destroyCount * $structPerUnit;
+
+		if ($destroyCount > 0) {
+			$destroyShips[$element] = $destroyCount;
+		}
+
+		if ($totalAttack <= 0.0) {
 			return $destroyShips;
 		}
 	}
-		
+
 	return $destroyShips;
 }
