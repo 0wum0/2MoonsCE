@@ -249,9 +249,12 @@ body.popup-window::-webkit-scrollbar-thumb:hover {
 .mm-popup-body {
     min-height: 100vh;
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background: #05070f;
     /* Themed scrollbar — Webkit */
     scrollbar-width: thin;
-    scrollbar-color: #1e3a5f #07090f;
+    scrollbar-color: rgba(0,212,255,0.2) transparent;
 }
 
 .mm-popup-body::-webkit-scrollbar {
