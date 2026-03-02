@@ -1295,8 +1295,8 @@ textarea#rawLog { resize:none; font-size:11px; white-space:pre-wrap; font-family
   .flipcards-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
 }
 @media (max-width:768px){
-  .admin-sidebar{transform:translateX(-100%);}
-  .admin-sidebar.open{transform:translateX(0);}
+  .admin-sidebar{transform:translateX(-100%);pointer-events:none;backdrop-filter:none;-webkit-backdrop-filter:none;}
+  .admin-sidebar.open{transform:translateX(0);pointer-events:all;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
   .sidebar-overlay.active{display:block;pointer-events:all;}
   .admin-topbar{left:0;}
   .topbar-hamburger{display:flex;}
