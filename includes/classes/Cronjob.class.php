@@ -86,8 +86,27 @@ class Cronjob
 
         self::cronLog("execute() lock acquired: cronjobID=$cronjobID class=$cronjobClassName token=$lockToken");
 
-        // Check plugin-registered cronjob paths first, then fall back to core path
-        $pluginPath  = class_exists('PluginManager') ? PluginManager::get()->resolveCronjobPath($cronjobClassName) : null;
+        // Check plugin-registered cronjob paths first, then fall back to core path.
+        // We scan plugin cron/ directories directly so this works even when
+        // loadActivePlugins() has not been called (e.g. pure CRON context).
+        $pluginPath = null;
+        if (class_exists('PluginManager')) {
+            $pluginPath = PluginManager::get()->resolveCronjobPath($cronjobClassName);
+        }
+        if ($pluginPath === null || !file_exists($pluginPath)) {
+            // Direct filesystem scan: plugins/<id>/cron/<ClassName>.php
+            $pluginsDir = ROOT_PATH . 'plugins/';
+            if (is_dir($pluginsDir)) {
+                foreach (scandir($pluginsDir) as $entry) {
+                    if ($entry === '.' || $entry === '..') continue;
+                    $candidate = $pluginsDir . $entry . '/cron/' . $cronjobClassName . '.php';
+                    if (file_exists($candidate)) {
+                        $pluginPath = $candidate;
+                        break;
+                    }
+                }
+            }
+        }
         $cronjobPath = ($pluginPath !== null && file_exists($pluginPath))
             ? $pluginPath
             : ROOT_PATH . 'includes/classes/cronjob/'.$cronjobClassName.'.class.php';
