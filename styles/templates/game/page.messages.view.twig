@@ -71,7 +71,6 @@
                     <span class="mcc-card-time">{{ Msg.time }}</span>
                 </div>
                 <div class="mcc-card-subject">{{ Msg.subject|striptags|e }}</div>
-                <div class="mcc-card-preview">{{ Msg.text|striptags|slice(0,120)|e }}</div>
             </div>
 
             <div class="mcc-card-right">
@@ -137,7 +136,26 @@
 function mccToggle(id) {
     var card = document.getElementById('mcc-card-' + id);
     if (!card) return;
-    card.classList.toggle('is-open');
+    var body = card.querySelector('.mcc-card-body');
+    var isOpen = card.classList.contains('is-open');
+    if (isOpen) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        requestAnimationFrame(function() {
+            body.style.maxHeight = '0';
+            body.style.opacity = '0';
+        });
+        card.classList.remove('is-open');
+    } else {
+        card.classList.add('is-open');
+        body.style.maxHeight = '0';
+        body.style.opacity = '0';
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                body.style.maxHeight = body.scrollHeight + 'px';
+                body.style.opacity = '1';
+            });
+        });
+    }
 }
 function mccDeleteChecked(messCat, pg) {
     var ids = [];

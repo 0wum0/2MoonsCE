@@ -406,19 +406,10 @@
 
 /* Subject row below sender */
 .mcc-card-subject {
-    font-size: 11px; font-weight: 500; color: #7a9ab8;
+    font-size: 11px; font-weight: 400; color: #506880;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-bottom: 2px;
 }
-.mcc-card.is-unread .mcc-card-subject { color: var(--mc-text); }
-
-/* Text preview — always visible, hidden when expanded */
-.mcc-card-preview {
-    font-size: 11px; color: #3a5a72;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    line-height: 1.4;
-}
-.mcc-card.is-open .mcc-card-preview { display: none; }
+.mcc-card.is-unread .mcc-card-subject { color: #7a9ab8; }
 .mcc-unread-pip {
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: var(--mc-accent);
@@ -447,17 +438,20 @@
     opacity: 0.75;
 }
 
-/* card body — collapsed by default */
+/* card body — animated with max-height */
 .mcc-card-body {
-    display: none;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    border-top: 0px solid var(--mc-border);
+    transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1),
+                opacity 0.25s ease,
+                border-top-width 0.3s ease;
+}
+.mcc-card.is-open .mcc-card-body {
     border-top: 1px solid var(--mc-border);
-    animation: mcc-expand 0.2s ease;
+    /* max-height and opacity driven by JS */
 }
-@keyframes mcc-expand {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-.mcc-card.is-open .mcc-card-body { display: block; }
 
 .mcc-card-text {
     padding: 14px 16px 12px;
