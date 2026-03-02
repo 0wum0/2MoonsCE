@@ -101,7 +101,10 @@ class GalacticEventsDb
     public function getSettings(): array
     {
         try {
-            $db  = Database::get();
+            $db = Database::get();
+            if ($db === null) {
+                return [];
+            }
             $row = $db->selectSingle(
                 'SELECT * FROM `' . $this->tblSettings . '` WHERE `id` = 1;'
             );
@@ -164,7 +167,10 @@ class GalacticEventsDb
     public function getActiveEvent(): ?array
     {
         try {
-            $db  = Database::get();
+            $db = Database::get();
+            if ($db === null) {
+                return null;
+            }
             $now = defined('TIMESTAMP') ? TIMESTAMP : time();
             $row = $db->selectSingle(
                 'SELECT * FROM `' . $this->tblEvents . '`

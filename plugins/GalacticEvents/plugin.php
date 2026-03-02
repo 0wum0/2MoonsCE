@@ -40,14 +40,14 @@ try {
 $pm = PluginManager::get();
 
 // ── 0b. Read plugin config (stored via Plugin Settings UI) ────────────────────
-define('GE_CFG_INTERVAL_MIN',   (int)    $pm->getConfig('GalacticEvents', 'event_interval_min',   60));
-define('GE_CFG_INTERVAL_MAX',   (int)    $pm->getConfig('GalacticEvents', 'event_interval_max',  240));
-define('GE_CFG_DURATION_MIN',   (int)    $pm->getConfig('GalacticEvents', 'event_duration_min',   30));
-define('GE_CFG_DURATION_MAX',   (int)    $pm->getConfig('GalacticEvents', 'event_duration_max',  120));
-define('GE_CFG_MAX_BONUS',      (int)    $pm->getConfig('GalacticEvents', 'max_bonus_percent',    50));
-define('GE_CFG_ALLOW_MALUS',    (bool)   $pm->getConfig('GalacticEvents', 'allow_malus',         true));
-define('GE_CFG_NOTIFY',         (bool)   $pm->getConfig('GalacticEvents', 'notify_players',      true));
-define('GE_CFG_EVENT_TYPE',     (string) $pm->getConfig('GalacticEvents', 'event_type',         'all'));
+defined('GE_CFG_INTERVAL_MIN') || define('GE_CFG_INTERVAL_MIN', (int)    $pm->getConfig('GalacticEvents', 'event_interval_min',   60));
+defined('GE_CFG_INTERVAL_MAX') || define('GE_CFG_INTERVAL_MAX', (int)    $pm->getConfig('GalacticEvents', 'event_interval_max',  240));
+defined('GE_CFG_DURATION_MIN') || define('GE_CFG_DURATION_MIN', (int)    $pm->getConfig('GalacticEvents', 'event_duration_min',   30));
+defined('GE_CFG_DURATION_MAX') || define('GE_CFG_DURATION_MAX', (int)    $pm->getConfig('GalacticEvents', 'event_duration_max',  120));
+defined('GE_CFG_MAX_BONUS')    || define('GE_CFG_MAX_BONUS',    (int)    $pm->getConfig('GalacticEvents', 'max_bonus_percent',    50));
+defined('GE_CFG_ALLOW_MALUS')  || define('GE_CFG_ALLOW_MALUS',  (bool)   $pm->getConfig('GalacticEvents', 'allow_malus',         true));
+defined('GE_CFG_NOTIFY')       || define('GE_CFG_NOTIFY',       (bool)   $pm->getConfig('GalacticEvents', 'notify_players',      true));
+defined('GE_CFG_EVENT_TYPE')   || define('GE_CFG_EVENT_TYPE',   (string) $pm->getConfig('GalacticEvents', 'event_type',         'all'));
 
 // ── 1. Twig namespace ─────────────────────────────────────────────────────────
 $pm->registerTwigNamespace('GalacticEvents', 'views');

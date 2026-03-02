@@ -45,8 +45,12 @@ class GalaxyMarkerModule implements GameModuleInterface
     public function isEnabled(): bool
     {
         try {
+            $db = Database::get();
+            if ($db === null) {
+                return false;
+            }
             $prefix = defined('DB_PREFIX') ? DB_PREFIX : 'uni1_';
-            $cnt = Database::get()->selectSingle(
+            $cnt = $db->selectSingle(
                 "SELECT COUNT(*) AS cnt FROM information_schema.TABLES
                  WHERE TABLE_SCHEMA = DATABASE()
                    AND TABLE_NAME = :tname",
