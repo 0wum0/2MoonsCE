@@ -1198,46 +1198,6 @@ class PluginManager
 
     // ── SQL runner ───────────────────────────────────────────────────────────
 
-    // ── Plugin Config ────────────────────────────────────────────────────────
-
-    /**
-     * Read a plugin config value from %%PLUGINS_CONFIG%% table.
-     * Returns $default if the key is not found or the table does not exist.
-     */
-    public function getConfig(string $pluginId, string $key, mixed $default = null): mixed
-    {
-        try {
-            $db  = Database::get();
-            $row = $db->selectSingle(
-                'SELECT `value` FROM %%PLUGINS_CONFIG%% WHERE `plugin_id` = :pid AND `key` = :key LIMIT 1;',
-                [':pid' => $pluginId, ':key' => $key]
-            );
-            if (is_array($row) && array_key_exists('value', $row)) {
-                return $row['value'];
-            }
-        } catch (Throwable $e) {
-            // Table may not exist yet — return default silently
-        }
-        return $default;
-    }
-
-    /**
-     * Save a plugin config value to %%PLUGINS_CONFIG%% table.
-     */
-    public function setConfig(string $pluginId, string $key, mixed $value): void
-    {
-        try {
-            $db = Database::get();
-            $db->query(
-                'INSERT INTO %%PLUGINS_CONFIG%% (`plugin_id`,`key`,`value`) VALUES (:pid,:key,:val)
-                 ON DUPLICATE KEY UPDATE `value` = :val2;',
-                [':pid' => $pluginId, ':key' => $key, ':val' => (string)$value, ':val2' => (string)$value]
-            );
-        } catch (Throwable $e) {
-            error_log('[PluginManager] setConfig error for ' . $pluginId . '.' . $key . ': ' . $e->getMessage());
-        }
-    }
-
     private function runSqlFile(string $path): void
     {
         $sql = file_get_contents($path);
