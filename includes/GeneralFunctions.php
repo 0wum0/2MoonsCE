@@ -594,12 +594,13 @@ function exceptionHandler(\Throwable $exception): void
 			$config		= Config::get();
 			$gameName	= $config->game_name;
 			$VERSION	= $config->VERSION;
-		} catch(ErrorException $e) {
+		} catch(\Throwable $e) {
 		}
 	}
 	
 	
 	$DIR		= MODE == 'INSTALL' ? '..' : '.';
+	while (ob_get_level() > 0) { ob_end_clean(); }
 	ob_start();
 	echo '<!DOCTYPE html>
 <!--[if lt IE 7 ]> <html lang="de" class="no-js ie6"> <![endif]-->
