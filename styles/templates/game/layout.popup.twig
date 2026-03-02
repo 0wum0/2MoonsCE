@@ -72,16 +72,8 @@
 </script>
 {% endautoescape %}
 
-<div class="aerospace-modal-wrapper">
-
-    <div class="modal-close-btn" onclick="window._closeParentModal();">
-        <i class="fas fa-times"></i>
-    </div>
-
-    <div class="modal-content custom-scroll">
-        {% block content %}{% endblock %}
-    </div>
-
+<div class="mm-popup-body">
+    {% block content %}{% endblock %}
 </div>
 
 <script type="text/javascript">
@@ -95,4 +87,3 @@ var LoginConfig = {
 {% block script %}{% endblock %}
 </body>
 </html>
-

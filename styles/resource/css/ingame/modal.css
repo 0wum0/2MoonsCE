@@ -222,27 +222,50 @@ body.mm-locked {
 
 /* ---------- Popup-window body (inside iframe) ---------- */
 body.popup-window {
-    background: #0a0e1a !important;
+    background: #07090f !important;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-}
-
-body.popup-window .aerospace-modal-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 0;
-}
-
-body.popup-window .modal-close-btn {
-    display: none !important;
-}
-
-body.popup-window .modal-content {
-    flex: 1;
     overflow-y: auto;
-    padding: 0;
+    /* Themed scrollbar — Webkit */
+    scrollbar-width: thin;
+    scrollbar-color: #1e3a5f #07090f;
+}
+
+body.popup-window::-webkit-scrollbar {
+    width: 6px;
+}
+body.popup-window::-webkit-scrollbar-track {
+    background: #07090f;
+}
+body.popup-window::-webkit-scrollbar-thumb {
+    background: #1e3a5f;
+    border-radius: 3px;
+}
+body.popup-window::-webkit-scrollbar-thumb:hover {
+    background: #2a5a8f;
+}
+
+.mm-popup-body {
+    min-height: 100vh;
+    box-sizing: border-box;
+    /* Themed scrollbar — Webkit */
+    scrollbar-width: thin;
+    scrollbar-color: #1e3a5f #07090f;
+}
+
+.mm-popup-body::-webkit-scrollbar {
+    width: 6px;
+}
+.mm-popup-body::-webkit-scrollbar-track {
+    background: #07090f;
+}
+.mm-popup-body::-webkit-scrollbar-thumb {
+    background: #1e3a5f;
+    border-radius: 3px;
+}
+.mm-popup-body::-webkit-scrollbar-thumb:hover {
+    background: #2a5a8f;
 }
 
 /* BBCode Toolbar — shared by Forum and Alliance pages */
