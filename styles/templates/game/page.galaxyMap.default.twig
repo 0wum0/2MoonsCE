@@ -647,32 +647,371 @@ function disposeGroup(g) {
   }
 }
 
-// ── Sprite texture factory ─────────────────────────────────
-// Off-screen canvas → perfekter Kreis → CanvasTexture
-// THREE.Sprite dreht sich immer zur Kamera → immer rund!
+// ── Realistic planet texture system ───────────────────────
+// 10 planet types rendered entirely on canvas – no external images.
+// Each type has a deterministic seeded renderer producing sphere-like
+// appearance with terrain noise, atmosphere glow, and optional ring.
+
+// Simple seeded pseudo-random (mulberry32)
+function mkRng(seed) {
+  let s = seed >>> 0;
+  return () => { s += 0x6D2B79F5; let t=s; t=(t^t>>>15)*((t|1)+0x94D049BB); t^=t+((t^t>>>7)*(t|0x9E3779B9)); return ((t^t>>>14)>>>0)/4294967295; };
+}
+
+// ── Planet type catalogue ──────────────────────────────────
+const PLANET_TYPES = [
+  // 0 – Terrestrial (Earth-like): blue ocean, green continents, white clouds
+  { id:'terr', draw(ctx,S,rng){ drawTerrestrial(ctx,S,rng); } },
+  // 1 – Desert / Mars: ochre, red-brown dunes
+  { id:'desert', draw(ctx,S,rng){ drawDesert(ctx,S,rng); } },
+  // 2 – Ice world: white-blue glaciers, cracks
+  { id:'ice', draw(ctx,S,rng){ drawIce(ctx,S,rng); } },
+  // 3 – Lava: dark rock, glowing fissures, red-orange
+  { id:'lava', draw(ctx,S,rng){ drawLava(ctx,S,rng); } },
+  // 4 – Gas giant (Jupiter-like): brown/tan horizontal bands
+  { id:'gas', draw(ctx,S,rng){ drawGasGiant(ctx,S,rng); } },
+  // 5 – Rocky / Moon: grey craters, no atmosphere
+  { id:'rock', draw(ctx,S,rng){ drawRocky(ctx,S,rng); } },
+  // 6 – Ocean world: deep blue, no land, glinting
+  { id:'ocean', draw(ctx,S,rng){ drawOcean(ctx,S,rng); } },
+  // 7 – Jungle: dark green, dense, with mist bands
+  { id:'jungle', draw(ctx,S,rng){ drawJungle(ctx,S,rng); } },
+  // 8 – Gas giant with rings (Saturn-like)
+  { id:'saturn', draw(ctx,S,rng){ drawSaturn(ctx,S,rng); } },
+  // 9 – Toxic / Venus: yellow-green thick clouds
+  { id:'toxic', draw(ctx,S,rng){ drawToxic(ctx,S,rng); } },
+];
+
+// Assign type deterministically from galaxy+system+slot
+function planetType(g, s, slot) {
+  const n = ((g * 499 + s) * 17 + slot) * 2246822519 >>> 0;
+  return PLANET_TYPES[n % PLANET_TYPES.length];
+}
+
+// ── Shared helpers ─────────────────────────────────────────
+function clipCircle(ctx, cx, r) {
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI*2); ctx.clip();
+}
+function sphereShading(ctx, cx, r) {
+  // Terminator shadow (right side dark)
+  const sh = ctx.createRadialGradient(cx+r*.35, cx-r*.35, r*.1, cx, cx, r);
+  sh.addColorStop(0, 'rgba(255,255,255,0.18)');
+  sh.addColorStop(0.55, 'rgba(0,0,0,0)');
+  sh.addColorStop(1, 'rgba(0,0,0,0.72)');
+  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI*2);
+  ctx.fillStyle = sh; ctx.fill();
+}
+function atmosphereGlow(ctx, cx, r, col) {
+  ctx.restore(); // outside clip
+  const ag = ctx.createRadialGradient(cx, cx, r*.92, cx, cx, r*1.18);
+  ag.addColorStop(0, col);
+  ag.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(cx, cx, r*1.18, 0, Math.PI*2);
+  ctx.fillStyle = ag; ctx.fill();
+}
+// Noise-like band/patch via small arcs
+function noisePatch(ctx, rng, cx, r, col, count, minSz, maxSz) {
+  ctx.fillStyle = col;
+  for (let i = 0; i < count; i++) {
+    const px = cx + (rng()-.5)*r*1.6, py = cx + (rng()-.5)*r*1.6;
+    const sz = minSz + rng()*(maxSz-minSz);
+    ctx.beginPath(); ctx.ellipse(px, py, sz, sz*(.4+rng()*.6), rng()*Math.PI, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+// ── Planet renderers ───────────────────────────────────────
+function drawTerrestrial(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  // Ocean base
+  const base = ctx.createLinearGradient(0,0,S,S);
+  base.addColorStop(0,'#1a4a8a'); base.addColorStop(1,'#0d2d5e');
+  ctx.fillRect(0,0,S,S);
+  ctx.fillStyle = base; ctx.fillRect(0,0,S,S);
+  // Continents
+  ctx.globalAlpha = 0.85;
+  noisePatch(ctx,rng,cx,r,'#4a7a3a',7,r*.1,r*.3);
+  noisePatch(ctx,rng,cx,r,'#5a8a48',5,r*.05,r*.18);
+  noisePatch(ctx,rng,cx,r,'#c8a86a',3,r*.04,r*.12); // desert patches
+  ctx.globalAlpha = 1;
+  // Ice caps
+  const iceCap1 = ctx.createRadialGradient(cx,cx-r*.82,0,cx,cx-r*.78,r*.28);
+  iceCap1.addColorStop(0,'rgba(240,248,255,0.95)'); iceCap1.addColorStop(1,'rgba(220,235,255,0)');
+  ctx.fillStyle=iceCap1; ctx.fillRect(0,0,S,S);
+  // Cloud bands
+  ctx.globalAlpha = 0.55;
+  noisePatch(ctx,rng,cx,r,'rgba(255,255,255,0.7)',10,r*.08,r*.22);
+  ctx.globalAlpha = 1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(80,140,255,0.45)');
+}
+
+function drawDesert(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  const base = ctx.createLinearGradient(0,0,S,S);
+  base.addColorStop(0,'#c87a30'); base.addColorStop(0.5,'#a85a1a'); base.addColorStop(1,'#7a3a0a');
+  ctx.fillStyle = base; ctx.fillRect(0,0,S,S);
+  // Dune patterns
+  ctx.globalAlpha = 0.5;
+  for (let i = 0; i < 8; i++) {
+    const y = cx + (rng()-.5)*r*1.4;
+    ctx.strokeStyle = `rgba(${180+Math.floor(rng()*40)},${100+Math.floor(rng()*30)},${30+Math.floor(rng()*20)},0.6)`;
+    ctx.lineWidth = 1.5+rng()*3;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.bezierCurveTo(S*.3,y+(rng()-.5)*12,S*.7,y+(rng()-.5)*12,S,y+(rng()-.5)*8); ctx.stroke();
+  }
+  ctx.globalAlpha = 0.4;
+  noisePatch(ctx,rng,cx,r,'#8a4a18',4,r*.06,r*.15);
+  ctx.globalAlpha = 1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(200,120,60,0.35)');
+}
+
+function drawIce(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  const base = ctx.createRadialGradient(cx-r*.2,cx-r*.2,0,cx,cx,r);
+  base.addColorStop(0,'#e8f4ff'); base.addColorStop(0.5,'#b8d8f0'); base.addColorStop(1,'#7aaad4');
+  ctx.fillStyle = base; ctx.fillRect(0,0,S,S);
+  // Cracks / fault lines
+  ctx.globalAlpha = 0.55;
+  for (let i = 0; i < 12; i++) {
+    ctx.strokeStyle = `rgba(100,160,220,${0.3+rng()*.4})`;
+    ctx.lineWidth = 0.5+rng()*1.5;
+    const sx=cx+(rng()-.5)*r*1.8, sy=cx+(rng()-.5)*r*1.8;
+    ctx.beginPath(); ctx.moveTo(sx,sy);
+    for(let j=0;j<4;j++) ctx.lineTo(sx+(rng()-.5)*r*.8,sy+(rng()-.5)*r*.8);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 0.3;
+  noisePatch(ctx,rng,cx,r,'rgba(160,200,240,0.6)',6,r*.05,r*.14);
+  ctx.globalAlpha = 1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(160,220,255,0.5)');
+}
+
+function drawLava(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  // Dark rock base
+  const base = ctx.createRadialGradient(cx,cx,0,cx,cx,r);
+  base.addColorStop(0,'#3a1a08'); base.addColorStop(1,'#1a0a04');
+  ctx.fillStyle = base; ctx.fillRect(0,0,S,S);
+  // Glowing lava fissures
+  ctx.globalAlpha = 0.9;
+  for(let i=0;i<14;i++){
+    const sx=cx+(rng()-.5)*r*1.6, sy=cx+(rng()-.5)*r*1.6;
+    const lava=ctx.createLinearGradient(sx,sy,sx+rng()*r*.6,sy+rng()*r*.6);
+    lava.addColorStop(0,'rgba(255,60,0,0.9)');
+    lava.addColorStop(0.5,'rgba(255,140,0,0.7)');
+    lava.addColorStop(1,'rgba(180,20,0,0)');
+    ctx.strokeStyle=lava; ctx.lineWidth=1+rng()*3;
+    ctx.beginPath();ctx.moveTo(sx,sy);
+    for(let j=0;j<3;j++) ctx.lineTo(sx+(rng()-.5)*r*.5,sy+(rng()-.5)*r*.5);
+    ctx.stroke();
+  }
+  // Lava pools
+  ctx.globalAlpha=0.7;
+  noisePatch(ctx,rng,cx,r,'rgba(255,80,0,0.6)',5,r*.04,r*.12);
+  noisePatch(ctx,rng,cx,r,'rgba(255,160,0,0.4)',4,r*.02,r*.07);
+  ctx.globalAlpha=1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(255,60,0,0.4)');
+}
+
+function drawGasGiant(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  // Base tan/brown
+  ctx.fillStyle='#c8904a'; ctx.fillRect(0,0,S,S);
+  // Horizontal bands
+  const bands=[
+    ['#e8a850',0.08],['#a86830',0.12],['#d4904a',0.07],['#8a5025',0.10],
+    ['#e0a048',0.09],['#b87838',0.13],['#cc8840',0.08],['#9a6030',0.11],
+    ['#d89848',0.07],['#a07028',0.10],
+  ];
+  let y=0;
+  bands.forEach(([col,frac])=>{
+    const bh = S*frac + rng()*S*0.04;
+    ctx.fillStyle=col; ctx.fillRect(0,y,S,bh+2); y+=bh;
+  });
+  // Turbulence swirls
+  ctx.globalAlpha=0.35;
+  for(let i=0;i<6;i++){
+    const py=cx+(rng()-.5)*r*1.2;
+    ctx.fillStyle=`rgba(${200+Math.floor(rng()*40)},${130+Math.floor(rng()*30)},${60+Math.floor(rng()*20)},0.5)`;
+    ctx.beginPath();ctx.ellipse(cx+(rng()-.5)*r*.6,py,r*(.2+rng()*.25),r*(.05+rng()*.06),0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(220,160,80,0.3)');
+}
+
+function drawRocky(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  // Grey base
+  const base=ctx.createRadialGradient(cx-r*.15,cx-r*.15,0,cx,cx,r);
+  base.addColorStop(0,'#c0b8b0'); base.addColorStop(1,'#585450');
+  ctx.fillStyle=base; ctx.fillRect(0,0,S,S);
+  // Craters
+  for(let i=0;i<12;i++){
+    const px=cx+(rng()-.5)*r*1.4, py=cx+(rng()-.5)*r*1.4;
+    const cr=r*(.04+rng()*.12);
+    // Rim highlight
+    ctx.strokeStyle=`rgba(200,195,190,${0.4+rng()*.3})`; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.arc(px,py,cr,0,Math.PI*2); ctx.stroke();
+    // Interior shadow
+    const ci=ctx.createRadialGradient(px+cr*.2,py+cr*.2,0,px,py,cr);
+    ci.addColorStop(0,'rgba(50,45,40,0.7)'); ci.addColorStop(1,'rgba(50,45,40,0)');
+    ctx.fillStyle=ci; ctx.beginPath(); ctx.arc(px,py,cr,0,Math.PI*2); ctx.fill();
+  }
+  sphereShading(ctx,cx,r);
+  ctx.restore(); // no atmosphere for dead rocks
+}
+
+function drawOcean(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  const base=ctx.createRadialGradient(cx-r*.2,cx-r*.1,0,cx,cx,r);
+  base.addColorStop(0,'#1a6aaa'); base.addColorStop(0.5,'#0a3d7a'); base.addColorStop(1,'#051a44');
+  ctx.fillStyle=base; ctx.fillRect(0,0,S,S);
+  // Glint lines (wave reflections)
+  ctx.globalAlpha=0.25;
+  for(let i=0;i<16;i++){
+    const py=cx+(rng()-.5)*r*1.6;
+    ctx.strokeStyle='rgba(160,210,255,0.6)'; ctx.lineWidth=0.6+rng();
+    ctx.beginPath(); ctx.moveTo(cx+(rng()-.5)*r*1.2,py);
+    ctx.lineTo(cx+(rng()-.5)*r*.8,py+(rng()-.5)*4); ctx.stroke();
+  }
+  ctx.globalAlpha=0.2;
+  noisePatch(ctx,rng,cx,r,'rgba(100,180,255,0.5)',8,r*.04,r*.12);
+  ctx.globalAlpha=1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(40,120,220,0.55)');
+}
+
+function drawJungle(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  const base=ctx.createLinearGradient(0,0,S,S);
+  base.addColorStop(0,'#1a3a12'); base.addColorStop(1,'#0d2008');
+  ctx.fillStyle=base; ctx.fillRect(0,0,S,S);
+  // Dense foliage patches
+  ctx.globalAlpha=0.8;
+  noisePatch(ctx,rng,cx,r,'#2a5a18',12,r*.06,r*.22);
+  noisePatch(ctx,rng,cx,r,'#386828',8,r*.04,r*.14);
+  noisePatch(ctx,rng,cx,r,'#4a7a30',6,r*.03,r*.10);
+  // River/water patches
+  ctx.globalAlpha=0.4;
+  noisePatch(ctx,rng,cx,r,'#1a4468',3,r*.02,r*.08);
+  // Mist/cloud bands
+  ctx.globalAlpha=0.3;
+  noisePatch(ctx,rng,cx,r,'rgba(200,220,200,0.5)',8,r*.06,r*.18);
+  ctx.globalAlpha=1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(60,160,60,0.4)');
+}
+
+function drawSaturn(ctx, S, rng) {
+  // Draw rings FIRST (behind planet), then planet on top
+  const cx = S/2, r = S/2 - 2;
+  // Ring system (elliptical, angled)
+  const ringColors=['rgba(200,170,120,0.55)','rgba(180,145,95,0.45)','rgba(220,190,140,0.5)','rgba(160,130,80,0.4)'];
+  for(let ri=0;ri<4;ri++){
+    const ro=(r*1.18)+(ri*r*.15), ri2=ro-r*.12;
+    const rg=ctx.createRadialGradient(cx,cx,ri2,cx,cx,ro);
+    rg.addColorStop(0,'rgba(0,0,0,0)'); rg.addColorStop(0.5,ringColors[ri]); rg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.save();
+    ctx.translate(cx,cx); ctx.scale(1,0.32); ctx.translate(-cx,-cx);
+    ctx.beginPath(); ctx.arc(cx,cx,ro,0,Math.PI*2);
+    ctx.fillStyle=rg; ctx.fill();
+    ctx.restore();
+  }
+  // Now planet (gas giant style but more golden)
+  clipCircle(ctx,cx,r);
+  ctx.fillStyle='#d4aa60'; ctx.fillRect(0,0,S,S);
+  const bands2=[['#e8c070',0.09],['#b88840',0.13],['#dab060',0.08],['#c09848',0.11],['#e0b858',0.10],['#a87830',0.12]];
+  let y2=0;
+  bands2.forEach(([col,frac])=>{ const bh=S*frac+rng()*S*.04; ctx.fillStyle=col; ctx.fillRect(0,y2,S,bh+2); y2+=bh; });
+  ctx.globalAlpha=0.3;
+  for(let i=0;i<4;i++){
+    const py=cx+(rng()-.5)*r*.8;
+    ctx.fillStyle='rgba(240,200,120,0.4)';
+    ctx.beginPath();ctx.ellipse(cx+(rng()-.5)*r*.4,py,r*(.15+rng()*.2),r*.04,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(220,180,100,0.3)');
+}
+
+function drawToxic(ctx, S, rng) {
+  const cx = S/2, r = S/2 - 2;
+  clipCircle(ctx, cx, r);
+  const base=ctx.createRadialGradient(cx,cx,0,cx,cx,r);
+  base.addColorStop(0,'#c8d840'); base.addColorStop(0.5,'#a0b020'); base.addColorStop(1,'#606008');
+  ctx.fillStyle=base; ctx.fillRect(0,0,S,S);
+  // Thick cloud swirls
+  ctx.globalAlpha=0.6;
+  for(let i=0;i<10;i++){
+    const py=cx+(rng()-.5)*r*1.3;
+    ctx.fillStyle=`rgba(${180+Math.floor(rng()*40)},${195+Math.floor(rng()*30)},${30+Math.floor(rng()*40)},0.5)`;
+    ctx.beginPath();ctx.ellipse(cx+(rng()-.5)*r*.8,py,r*(.2+rng()*.3),r*(.06+rng()*.08),rng()*.5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=0.25;
+  noisePatch(ctx,rng,cx,r,'rgba(255,255,120,0.4)',6,r*.04,r*.12);
+  ctx.globalAlpha=1;
+  sphereShading(ctx,cx,r);
+  atmosphereGlow(ctx,cx,r,'rgba(180,220,0,0.5)');
+}
+
+// ── Texture cache: key = planetType.id + seed ─────────────
 const texCache = {};
+const planetTexCache = {};
+
+// Main entry: returns a CanvasTexture for a given planet slot
+// colorHex = ownership tint overlay (own=green, ally=purple, etc.)
+function planetTex(g, s, slot, colorHex) {
+  const ptype = planetType(g, s, slot);
+  const seed  = (g * 499 * 15 + s * 15 + slot) * 1234567;
+  const key   = ptype.id + '_' + (seed >>> 0);
+  if (planetTexCache[key]) return { tex: planetTexCache[key], ptype };
+
+  const S = 192;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d');
+  const rng = mkRng(seed);
+
+  ptype.draw(ctx, S, rng);
+
+  // Ownership tint overlay (subtle, only if colorHex provided and not neutral)
+  if (colorHex && colorHex !== '#00d4ff') {
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = colorHex;
+    ctx.beginPath(); ctx.arc(S/2, S/2, S/2-2, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  planetTexCache[key] = new THREE.CanvasTexture(c);
+  return { tex: planetTexCache[key], ptype };
+}
+
+// Legacy fallback: simple colour circle (used for moons, debris, empty slots)
 function circleTex(hex) {
   if (texCache[hex]) return texCache[hex];
-  const S = 128, c = document.createElement('canvas');
+  const S = 96, c = document.createElement('canvas');
   c.width = c.height = S;
   const ctx = c.getContext('2d'), cx = S/2, r = S/2 - 2;
-
-  // Glow halo
   const g1 = ctx.createRadialGradient(cx, cx, r*.15, cx, cx, r);
-  g1.addColorStop(0,   hex + 'bb');
-  g1.addColorStop(0.6, hex + '55');
-  g1.addColorStop(1,   hex + '00');
-  ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI*2);
-  ctx.fillStyle = g1; ctx.fill();
-
-  // Planet sphere gradient
-  const g2 = ctx.createRadialGradient(cx-r*.2, cx-r*.2, 0, cx, cx, r*.5);
-  g2.addColorStop(0,   '#ffffff');
-  g2.addColorStop(0.2, hex);
-  g2.addColorStop(1,   darken(hex));
-  ctx.beginPath(); ctx.arc(cx, cx, r*.46, 0, Math.PI*2);
-  ctx.fillStyle = g2; ctx.fill();
-
+  g1.addColorStop(0, hex + 'bb'); g1.addColorStop(0.6, hex + '44'); g1.addColorStop(1, hex + '00');
+  ctx.beginPath(); ctx.arc(cx,cx,r,0,Math.PI*2); ctx.fillStyle=g1; ctx.fill();
+  const g2 = ctx.createRadialGradient(cx-r*.2,cx-r*.2,0,cx,cx,r*.5);
+  g2.addColorStop(0,'#ffffff'); g2.addColorStop(0.2,hex); g2.addColorStop(1,darken(hex));
+  ctx.beginPath(); ctx.arc(cx,cx,r*.46,0,Math.PI*2); ctx.fillStyle=g2; ctx.fill();
   texCache[hex] = new THREE.CanvasTexture(c);
   return texCache[hex];
 }
@@ -1126,8 +1465,10 @@ function buildPlanets(planets) {
           ? Math.max(0.6, Math.min(2.0, 300 / Math.max(pl.total_rank, 1))) : 0.9;
         const sz = 4.5 * rankScale;
 
+        // Use realistic planet texture
+        const { tex: plTex } = planetTex(g, s, slot, hex);
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: circleTex(hex), transparent: true, depthWrite: false, sizeAttenuation: true
+          map: plTex, transparent: true, depthWrite: false, sizeAttenuation: true
         }));
         sprite.position.set(initX, heightOff, initZ);
         sprite.scale.setScalar(sz);
