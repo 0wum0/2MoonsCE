@@ -98,63 +98,78 @@
 /* ── HUD top bar ─────────────────────────────────────────────────── */
 #gm-hud {
   position: absolute; top: 0; left: 0; right: 0;
-  min-height: 44px;
-  background: linear-gradient(180deg,rgba(2,5,16,.98) 60%,transparent);
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 10px;
-  padding-top: max(6px, env(safe-area-inset-top));
-  z-index: 100; pointer-events: none;
+  height: 48px;
+  background: linear-gradient(180deg,rgba(2,5,16,.97) 70%,transparent);
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px;
+  padding-top: env(safe-area-inset-top, 0px);
+  z-index: 110; pointer-events: none;
   flex-wrap: nowrap;
+  box-sizing: border-box;
 }
+/* Title: icon + text */
 .hud-title {
   font-family: 'Orbitron', monospace;
   font-size: 11px; font-weight: 900;
   color: var(--cyan); letter-spacing: 3px;
-  text-shadow: 0 0 16px var(--cyan);
-  white-space: nowrap;
-  flex-shrink: 0;
+  text-shadow: 0 0 14px var(--cyan);
+  white-space: nowrap; flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px;
 }
-.hud-sep { width: 1px; height: 16px; background: var(--border); flex-shrink:0; }
+.hud-title i { font-size: 13px; }
+.hud-sep { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+/* Stat pills container */
 .hud-pills {
   display: flex; align-items: center; gap: 5px;
-  overflow: hidden; flex: 1;
+  flex: 1; min-width: 0; overflow: hidden;
 }
 .hud-pill {
-  padding: 2px 7px; border-radius: 20px;
+  padding: 3px 8px; border-radius: 20px;
   font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: .8px;
-  white-space: nowrap; flex-shrink: 0;
+  white-space: nowrap; flex-shrink: 0; line-height: 1.4;
 }
-.hud-pill.c { border:1px solid rgba(0,212,255,.3);  color:var(--cyan);   background:rgba(0,212,255,.07); }
-.hud-pill.g { border:1px solid rgba(0,255,136,.3);  color:var(--green);  background:rgba(0,255,136,.07); }
-.hud-pill.r { border:1px solid rgba(255,48,96,.35); color:var(--red);    background:rgba(255,48,96,.09); }
-
+.hud-pill.c { border:1px solid rgba(0,212,255,.35); color:var(--cyan);  background:rgba(0,212,255,.09); }
+.hud-pill.g { border:1px solid rgba(0,232,122,.35); color:var(--green); background:rgba(0,232,122,.07); }
+.hud-pill.r { border:1px solid rgba(232,48,74,.40); color:var(--red);   background:rgba(232,48,74,.09); }
+/* View toggle in HUD (3D/2D) */
+.hud-view {
+  display: flex; gap: 4px; flex-shrink: 0;
+  margin-left: 4px;
+}
+.hud-vbtn {
+  padding: 3px 8px; border-radius: 5px;
+  font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 1px;
+  background: rgba(0,0,0,.4); border: 1px solid rgba(0,212,255,.15);
+  color: var(--dim); cursor: pointer; transition: all .18s;
+  pointer-events: all; white-space: nowrap;
+}
+.hud-vbtn.on { background: rgba(0,212,255,.16); border-color: var(--cyan); color: var(--cyan); }
+.hud-vbtn:hover:not(.on) { border-color: rgba(0,212,255,.4); color: var(--text); }
 /* Close button */
 #gm-close {
-  margin-left: auto;
-  flex-shrink: 0;
+  flex-shrink: 0; margin-left: 4px;
   pointer-events: all;
-  background: rgba(255,48,96,.1);
-  border: 1px solid rgba(255,48,96,.3);
+  background: rgba(232,48,74,.1);
+  border: 1px solid rgba(232,48,74,.35);
   color: var(--red);
-  padding: 4px 9px; border-radius: 6px;
+  padding: 4px 10px; border-radius: 6px;
   font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px;
   cursor: pointer; transition: all .2s; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
 }
-#gm-close:hover { background: rgba(255,48,96,.25); }
+#gm-close:hover { background: rgba(232,48,74,.22); }
 
 /* ── Side panel – desktop: left sidebar ──────────────────────────── */
 #gm-side {
-  position: absolute; top: 54px; left: 10px;
-  width: 232px;
-  max-height: calc(100vh - 54px - var(--ingameFooterH) - 16px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  position: absolute; top: 56px; left: 10px;
+  width: 238px;
+  max-height: calc(100dvh - 56px - var(--ingameFooterH) - 12px);
+  overflow-y: auto; overflow-x: hidden;
   background: var(--panel); backdrop-filter: blur(18px);
   border: 1px solid var(--border); border-radius: 12px;
   padding: 12px 13px; z-index: 100;
   box-shadow: 0 8px 30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.04);
   pointer-events: all;
-  /* Thin custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: rgba(0,212,255,.2) transparent;
 }
@@ -164,15 +179,16 @@
 /* ── Mobile: FAB + collapsible side panel ────────────────────────── */
 #gm-panel-toggle { display: none; }
 
-/* FAB rendered OUTSIDE #gm-root */
+/* FAB rendered OUTSIDE #gm-root – position updated by JS via --gm-fab-bottom on :root */
 #gm-fab-outer {
   display: none;
   position: fixed;
-  bottom: calc(var(--ingameFooterH, 0px) + 16px);
+  /* JS sets --gm-fab-bottom on :root so FAB sits above mobile dock */
+  bottom: var(--gm-fab-bottom, 80px);
   right: 16px;
   width: 48px; height: 48px;
   border-radius: 50%;
-  background: rgba(2,8,28,.88);
+  background: rgba(2,8,28,.92);
   border: 1.5px solid rgba(0,212,255,.55);
   color: #00d4ff;
   font-size: 18px;
@@ -182,7 +198,7 @@
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 4px 20px rgba(0,0,0,.7), 0 0 14px rgba(0,212,255,.15);
   align-items: center; justify-content: center;
-  transition: background .2s, transform .15s, border-color .2s;
+  transition: background .2s, transform .15s, border-color .2s, bottom .2s;
   pointer-events: all;
 }
 #gm-fab-outer:hover, #gm-fab-outer.active {
@@ -195,57 +211,52 @@
 @media (max-width: 768px) {
   .galaxy-wrapper, #gm-canvas { height: 100dvh !important; }
 
-  /* HUD: single-row, no overflow */
+  /* HUD: compact single row, touch-friendly height */
   #gm-hud {
-    padding: 4px 8px;
-    padding-top: max(4px, env(safe-area-inset-top));
-    gap: 5px;
-    min-height: 40px;
+    height: auto;
+    min-height: 44px;
+    padding: 0 10px;
+    padding-top: env(safe-area-inset-top, 0px);
+    gap: 6px;
   }
   .hud-title { font-size: 9px; letter-spacing: 2px; }
-  .hud-pill  { font-size: 8px; padding: 2px 5px; }
+  .hud-title i { font-size: 11px; }
+  .hud-pill  { font-size: 8px; padding: 2px 6px; }
   .hud-sep   { display: none; }
-  /* On very small screens hide planet/fleet counts, keep hostile + close */
-  @media (max-width: 380px) {
-    #h-planets, #h-fleets { display: none; }
-  }
+  /* View toggle stays visible on mobile (3D enabled on mobile) */
+  .hud-view  { display: flex; }
 
-  /* Side panel: full-width bottom sheet sliding up */
+  /* Side panel: full-width bottom sheet */
   #gm-side {
     position: fixed;
-    top: auto;
-    bottom: 0;
+    top: auto; bottom: 0;
     left: 0; right: 0;
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 60dvh;
+    width: 100% !important; max-width: 100% !important;
+    max-height: 65dvh;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
-    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    padding: 28px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
     transform: translateY(110%);
     transition: transform .3s cubic-bezier(.4,0,.2,1);
     z-index: 8100;
-    /* Drag handle */
-    padding-top: 24px;
   }
+  /* Drag handle pill */
   #gm-side::before {
     content: '';
-    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
-    width: 36px; height: 4px; border-radius: 2px;
-    background: rgba(0,212,255,.25);
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 4px; border-radius: 2px;
+    background: rgba(0,212,255,.28);
   }
   #gm-side.panel-open { transform: translateY(0); }
-
   #gm-panel-toggle { display: none !important; }
   #gm-fab-outer    { display: flex; }
-  #vb-3d           { display: none !important; }
 
-  /* Action panel: full-width above FAB */
+  /* Action panel: full-width, above FAB */
   #gm-action {
     min-width: unset !important;
     width: calc(100% - 20px) !important;
     max-width: calc(100% - 20px) !important;
-    bottom: calc(var(--ingameFooterH) + 74px);
+    bottom: var(--gm-fab-bottom, 80px);
     left: 10px; right: 10px;
     transform: none;
     z-index: 8200;
@@ -253,13 +264,15 @@
   }
   .ap-meta { grid-template-columns: 1fr 1fr; }
 
-  /* Hint: smaller, less intrusive */
+  /* Hint bar: above FAB area */
   #gm-hint {
-    bottom: calc(var(--ingameFooterH) + 70px);
-    font-size: 7px;
-    letter-spacing: .8px;
-    padding: 3px 10px;
+    bottom: calc(var(--gm-fab-bottom, 80px) + 56px);
+    font-size: 7px; letter-spacing: .8px; padding: 3px 10px;
   }
+}
+/* Hide view-row inside side panel on desktop (moved to HUD) */
+@media (min-width: 769px) {
+  #gm-side-view-row { display: none; }
 }
 .sp-h { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:2px; color:var(--dim); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
 .sp-h i { color:var(--cyan); opacity:.7; }
@@ -485,14 +498,18 @@
 
   <!-- HUD -->
   <div id="gm-hud">
-    <span class="hud-title"><i class="fas fa-meteor" style="margin-right:6px"></i>GALAXY MAP</span>
+    <span class="hud-title"><i class="fas fa-meteor"></i>GALAXY MAP</span>
     <div class="hud-sep"></div>
     <div class="hud-pills">
       <span class="hud-pill c" id="h-planets">– PLANETS</span>
       <span class="hud-pill g" id="h-fleets">– FLEETS</span>
       <span class="hud-pill r" id="h-hostile">– HOSTILE</span>
     </div>
-    <button id="gm-close" onclick="window.history.back()"><i class="fas fa-times" style="margin-right:4px"></i>CLOSE</button>
+    <div class="hud-view">
+      <button class="hud-vbtn on" id="hvb-3d" onclick="GM.setView('3d')">3D</button>
+      <button class="hud-vbtn"    id="hvb-2d" onclick="GM.setView('2d')">2D</button>
+    </div>
+    <button id="gm-close" onclick="window.history.back()"><i class="fas fa-times"></i>CLOSE</button>
   </div>
 
   <!-- Mobile FAB (inner stub, hidden on mobile – real FAB is #gm-fab-outer outside #gm-root) -->
@@ -500,14 +517,7 @@
 
   <!-- Side panel -->
   <div id="gm-side" class="galaxy-viewPanel">
-    <div style="margin-bottom:11px">
-      <div class="sp-h"><i class="fas fa-sliders-h" style="margin-right:5px"></i>VIEW MODE</div>
-      <div class="vw-row" id="gm-view-row">
-        <div class="vw-btn on" id="vb-3d" onclick="GM.setView('3d')">3D</div>
-        <div class="vw-btn"   id="vb-2d" onclick="GM.setView('2d')">2D</div>
-      </div>
-    </div>
-    <hr class="sp-sep">
+    <hr class="sp-sep" style="margin-top:0">
     <div style="margin-bottom:11px">
       <div class="sp-h"><i class="fas fa-location-arrow" style="margin-right:5px"></i>NAVIGATION</div>
       <div class="sp-row">
@@ -2151,46 +2161,47 @@ function syncCamera() {
 // ── Footer height measurement (fixes overlap) ───────────────
 function measureFooterHeight() {
   const measure = () => {
-    const root = document.getElementById('gm-root');
+    const root    = document.getElementById('gm-root');
+    const docRoot = document.documentElement;
     if (!root) return;
+
+    let footerH = 0;
 
     // Priority 1: mobile-dock (bottom nav bar on mobile)
     const dock = document.querySelector('nav.mobile-dock, .mobile-dock');
     if (dock) {
       const style = window.getComputedStyle(dock);
-      // Visible if display != none
       if (style.display !== 'none') {
-        const h = dock.getBoundingClientRect().height || dock.offsetHeight || 62;
-        // Add safe-area-inset-bottom for iPhone notch
-        const safeArea = parseInt(getComputedStyle(document.documentElement)
-          .getPropertyValue('--sab') || '0') || 0;
-        root.style.setProperty('--ingameFooterH', (h + safeArea) + 'px');
-        return;
+        const safeArea = parseInt(getComputedStyle(docRoot).getPropertyValue('--sab') || '0') || 0;
+        footerH = (dock.getBoundingClientRect().height || dock.offsetHeight || 62) + safeArea;
       }
     }
 
     // Priority 2: game footer
-    const footer = document.querySelector('.game-footer, footer.game-footer');
-    if (footer) {
-      const style = window.getComputedStyle(footer);
-      const isFixed = style.position === 'fixed' || style.position === 'sticky';
-      if (isFixed) {
-        root.style.setProperty('--ingameFooterH', footer.getBoundingClientRect().height + 'px');
-        return;
+    if (!footerH) {
+      const footer = document.querySelector('.game-footer, footer.game-footer');
+      if (footer) {
+        const style = window.getComputedStyle(footer);
+        if (style.position === 'fixed' || style.position === 'sticky') {
+          footerH = footer.getBoundingClientRect().height;
+        }
       }
     }
 
-    // Fallback: on mobile assume 62px dock
-    if (window.innerWidth <= 768) {
-      root.style.setProperty('--ingameFooterH', '62px');
-    } else {
-      root.style.setProperty('--ingameFooterH', '0px');
-    }
+    // Fallback on mobile
+    if (!footerH && window.innerWidth <= 768) footerH = 62;
+
+    const footerPx = footerH + 'px';
+    root.style.setProperty('--ingameFooterH', footerPx);
+
+    // FAB sits 16px above dock – set on :root so FAB (outside #gm-root) can read it
+    const fabBottom = footerH + 16;
+    docRoot.style.setProperty('--gm-fab-bottom', fabBottom + 'px');
   };
   measure();
   window.addEventListener('resize', measure, { passive: true });
-  // Re-measure after fonts/layout settle
   setTimeout(measure, 300);
+  setTimeout(measure, 800); // second pass after dock layout settles
 }
 
 // ── Mobile panel toggle (FAB) ───────────────────────────────
@@ -2666,10 +2677,12 @@ function flyTo(target, dist) {
 function setView(mode){
   is3D = mode === '3d';
   try { localStorage.setItem('galaxy_view', mode); } catch(e) {}
-  document.getElementById('vb-3d').classList.toggle('on',  is3D);
-  document.getElementById('vb-2d').classList.toggle('on', !is3D);
+  // HUD buttons (new ids)
+  const h3 = document.getElementById('hvb-3d');
+  const h2 = document.getElementById('hvb-2d');
+  if (h3) h3.classList.toggle('on',  is3D);
+  if (h2) h2.classList.toggle('on', !is3D);
   if (!is3D) {
-    // 2D = straight top-down, phi near zero, higher r so full map is visible
     orb.r=4000; orb.phi=0.01; orb.theta=0;
     orb.tx=0; orb.ty=0; orb.tz=0;
     pan.x=0; pan.z=0;
@@ -2678,7 +2691,6 @@ function setView(mode){
     orb.tx=0; orb.ty=0; orb.tz=0;
   }
   syncCamera();
-  // No rebuild needed – orbit meshes stay live; just re-select ring if needed
   if (selectedPlanet) selectPlanet(selectedPlanet);
 }
 function navJump() {
@@ -2936,29 +2948,18 @@ function animate(now = 0){
   renderer.render(scene, camera);
 }
 
-// Boot – restore saved view preference; force 2D on mobile
+// Boot – restore saved view preference (3D allowed on all devices)
 (function() {
-  const isMobile = window.innerWidth <= 768;
-  if (isMobile) {
-    // Mobile: always 2D, ignore saved preference
-    is3D = false;
-    const b3 = document.getElementById('vb-3d');
-    const b2 = document.getElementById('vb-2d');
-    if (b3) { b3.classList.remove('on'); b3.style.display = 'none'; }
-    if (b2) b2.classList.add('on');
-    try { localStorage.setItem('galaxy_view', '2d'); } catch(e) {}
-  } else {
-    try {
-      const saved = localStorage.getItem('galaxy_view');
-      if (saved === '2d') {
-        is3D = false;
-        const b3 = document.getElementById('vb-3d');
-        const b2 = document.getElementById('vb-2d');
-        if (b3) b3.classList.remove('on');
-        if (b2) b2.classList.add('on');
-      }
-    } catch(e) {}
-  }
+  try {
+    const saved = localStorage.getItem('galaxy_view');
+    if (saved === '2d') {
+      is3D = false;
+      const h3 = document.getElementById('hvb-3d');
+      const h2 = document.getElementById('hvb-2d');
+      if (h3) h3.classList.remove('on');
+      if (h2) h2.classList.add('on');
+    }
+  } catch(e) {}
 })();
 init();
 return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
