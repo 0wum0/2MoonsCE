@@ -39,12 +39,15 @@ require_once 'includes/classes/class.BuildFunctions.php';
 require_once 'includes/classes/Cronjob.class.php';
 
 // ── Resolve cronjobID from CLI args or HTTP ──────────────────────────────────
-$cronjobID = 0;
+$cronjobID    = 0;
+$forceExecute = false;
 if (PHP_SAPI === 'cli') {
-    // Accept:  php cronjob.php cronjobID=5   OR   php cronjob.php 5
+    // Accept:  php cronjob.php cronjobID=5   OR   php cronjob.php 5   OR   php cronjob.php 5 --force
     foreach (array_slice($argv ?? [], 1) as $arg) {
         if (str_starts_with($arg, 'cronjobID=')) {
             $cronjobID = (int) substr($arg, 10);
+        } elseif ($arg === '--force') {
+            $forceExecute = true;
         } elseif (is_numeric($arg)) {
             $cronjobID = (int) $arg;
         }
@@ -104,17 +107,24 @@ try {
 if (class_exists('PluginManager')) {
     try {
         PluginManager::get()->loadActivePlugins();
-        // Debug: log which plugin cronjob paths were registered
-        $dbgPath = PluginManager::get()->resolveCronjobPath('LiveFleetCronjob');
-        @file_put_contents(ROOT_PATH . 'cache/cron_debug.log',
-            '[' . date('Y-m-d H:i:s') . '] DEBUG: LiveFleetCronjob path=' . ($dbgPath ?? 'NULL') . PHP_EOL,
-            FILE_APPEND | LOCK_EX
-        );
     } catch (Throwable $e) {
         @file_put_contents(ROOT_PATH . 'cache/cron_debug.log',
             '[' . date('Y-m-d H:i:s') . '] WARNING: loadActivePlugins() failed: ' . $e->getMessage() . PHP_EOL,
             FILE_APPEND | LOCK_EX
         );
+    }
+}
+
+// ── Force mode: clear lock + nextTime so job is always due (CLI only) ────────
+if ($forceExecute && PHP_SAPI === 'cli' && $cronjobID > 0) {
+    try {
+        Database::get()->update(
+            'UPDATE %%CRONJOBS%% SET `lock` = NULL, `lockTime` = NULL, `nextTime` = 0 WHERE cronjobID = :id;',
+            [':id' => $cronjobID]
+        );
+        echo "Force mode: lock+nextTime cleared for cronjobID=$cronjobID\n";
+    } catch (Throwable $e) {
+        fwrite(STDERR, "Force reset failed: " . $e->getMessage() . "\n");
     }
 }
 
