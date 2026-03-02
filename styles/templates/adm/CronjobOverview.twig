@@ -58,7 +58,11 @@
 </tr>
 {% endfor %}
 <tr>
-<td colspan="13"><a href="admin.php?page=cronjob&amp;action=detail">{{ LNG.cronjob_new }}</a></td>
+<td colspan="13">
+    <a href="admin.php?page=cronjob&amp;action=detail">{{ LNG.cronjob_new }}</a>
+    &nbsp;|&nbsp;
+    <a href="admin.php?page=cronjob&amp;action=resetAll" onclick="return confirm('Reset all nextTime values?')">⟳ Reset all nextTimes</a>
+</td>
 </tr>
 </table>
 </div>

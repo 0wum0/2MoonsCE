@@ -87,6 +87,9 @@ function ShowCronjob()
         case 'enable':
 		    ShowCronjobEnable($cronId);
         break;
+        case 'resetAll':
+		    ShowCronjobResetAll();
+        break;
         case 'overview':
         default:
 		    ShowCronjobOverview();
@@ -170,6 +173,13 @@ function ShowCronjobEnable($cronjobId) {
     require_once 'includes/classes/Cronjob.class.php';
     Database::get()->update('UPDATE %%CRONJOBS%% SET `isActive` = :active WHERE cronjobID = :id;', [':active' => HTTP::_GP('enable', 0), ':id' => $cronjobId]);
     Cronjob::reCalculateCronjobs((int)$cronjobId);
+    HTTP::redirectTo('admin.php?page=cronjob');
+}
+
+function ShowCronjobResetAll()
+{
+    require_once 'includes/classes/Cronjob.class.php';
+    Cronjob::reCalculateCronjobs();
     HTTP::redirectTo('admin.php?page=cronjob');
 }
 
