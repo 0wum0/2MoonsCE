@@ -1001,160 +1001,202 @@ function planetTex(g, s, slot, colorHex) {
 }
 
 // ── Ship silhouette textures ───────────────────────────────
-// One canvas texture per (shipType + color) combo, cached forever.
-// All shapes are drawn pointing "up" (nose at top) – THREE.Sprite
-// always faces camera so orientation is always correct.
+// Canvas is 128×128. Ship body occupies centre ~40% of canvas.
+// Nose points UP (−Y). Engine exhaust glow only at the stern (+Y).
+// No surrounding halo – glow is strictly directional from engines.
 const shipTexCache = {};
+
+// Draw a focused engine exhaust cone at stern position (sx,sy), pointing down
+function drawExhaust(ctx, sx, sy, width, length, col) {
+  const eg = ctx.createLinearGradient(sx, sy, sx, sy + length);
+  eg.addColorStop(0,   '#ffffff');
+  eg.addColorStop(0.12, col);
+  eg.addColorStop(0.55, col + '88');
+  eg.addColorStop(1,   col + '00');
+  ctx.fillStyle = eg;
+  ctx.beginPath();
+  ctx.moveTo(sx - width * .5, sy);
+  ctx.lineTo(sx + width * .5, sy);
+  ctx.lineTo(sx + width * .15, sy + length);
+  ctx.lineTo(sx - width * .15, sy + length);
+  ctx.closePath();
+  ctx.fill();
+}
 
 function shipTex(type, col) {
   const key = type + '_' + col;
   if (shipTexCache[key]) return shipTexCache[key];
 
-  const S = 128, c = document.createElement('canvas');
-  c.width = c.height = S;
-  const ctx = c.getContext('2d');
-  const cx = S / 2, cy = S / 2;
+  const S = 128, cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  const ctx = cv.getContext('2d');
+  const cx = S / 2;
 
-  // Outer glow halo
-  const glow = ctx.createRadialGradient(cx, cy, S * .06, cx, cy, S * .5);
-  glow.addColorStop(0,   col + 'cc');
-  glow.addColorStop(0.45, col + '44');
-  glow.addColorStop(1,   col + '00');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, S, S);
+  // Ship body fill: bright nose → mid col → dark stern
+  const fillG = ctx.createLinearGradient(cx, cx - S*.22, cx, cx + S*.22);
+  fillG.addColorStop(0,   '#e8eeff');
+  fillG.addColorStop(0.3, col);
+  fillG.addColorStop(1,   shadeCol(col, 0.28));
 
   ctx.save();
-  ctx.translate(cx, cy);
-
-  // Fill + stroke style
-  const fillGrd = ctx.createLinearGradient(0, -S*.38, 0, S*.38);
-  fillGrd.addColorStop(0,   '#ffffff');
-  fillGrd.addColorStop(0.2, col);
-  fillGrd.addColorStop(1,   shadeCol(col, 0.35));
-  ctx.fillStyle   = fillGrd;
-  ctx.strokeStyle = '#ffffff55';
-  ctx.lineWidth   = 0.8;
+  ctx.translate(cx, cx);
+  ctx.fillStyle   = fillG;
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+  ctx.lineWidth   = 0.9;
 
   if (type === 'fighter') {
-    // ── Sleek attack fighter: narrow delta wing, twin engines ──
+    // ── Delta-wing interceptor: sharp nose, swept wings, twin nozzles ──
     ctx.beginPath();
-    ctx.moveTo(0, -S*.32);          // nose tip
-    ctx.lineTo( S*.18,  S*.12);     // right wing tip
-    ctx.lineTo( S*.10,  S*.22);     // right engine pod
-    ctx.lineTo( S*.04,  S*.32);     // right engine nozzle
-    ctx.lineTo(-S*.04,  S*.32);     // left engine nozzle
-    ctx.lineTo(-S*.10,  S*.22);     // left engine pod
-    ctx.lineTo(-S*.18,  S*.12);     // left wing tip
+    ctx.moveTo(  0,    -S*.21);   // nose
+    ctx.lineTo(  S*.02,-S*.14);
+    ctx.lineTo(  S*.15, S*.04);   // right wing leading edge
+    ctx.lineTo(  S*.15, S*.12);   // right wing tip
+    ctx.lineTo(  S*.06, S*.10);   // wing fold inward
+    ctx.lineTo(  S*.05, S*.18);   // right nozzle outer
+    ctx.lineTo(  S*.02, S*.21);   // right nozzle inner
+    ctx.lineTo( -S*.02, S*.21);
+    ctx.lineTo( -S*.05, S*.18);
+    ctx.lineTo( -S*.06, S*.10);
+    ctx.lineTo( -S*.15, S*.12);
+    ctx.lineTo( -S*.15, S*.04);
+    ctx.lineTo( -S*.02,-S*.14);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    // Cockpit highlight
-    ctx.fillStyle = '#ffffff88';
-    ctx.beginPath(); ctx.ellipse(0, -S*.16, S*.028, S*.055, 0, 0, Math.PI*2); ctx.fill();
-    // Engine glow dots
-    ctx.fillStyle = col + 'ff';
-    ctx.beginPath(); ctx.arc( S*.05, S*.30, S*.022, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(-S*.05, S*.30, S*.022, 0, Math.PI*2); ctx.fill();
+    // Cockpit canopy
+    const cc = ctx.createRadialGradient(-S*.01,-S*.12,0, 0,-S*.10,S*.04);
+    cc.addColorStop(0,'rgba(200,230,255,0.95)'); cc.addColorStop(1,'rgba(100,160,220,0.1)');
+    ctx.fillStyle = cc;
+    ctx.beginPath(); ctx.ellipse(0,-S*.11, S*.025, S*.05, 0, 0, Math.PI*2); ctx.fill();
+    // Twin engine exhausts at stern
+    ctx.restore();
+    drawExhaust(ctx, cx + S*.035, cx + S*.21, S*.06, S*.16, col);
+    drawExhaust(ctx, cx - S*.035, cx + S*.21, S*.06, S*.16, col);
+    return (shipTexCache[key] = new THREE.CanvasTexture(cv));
 
   } else if (type === 'transport') {
-    // ── Cargo transporter: wide boxy hull, side pods ──
+    // ── Cargo freighter: blunt nose, wide rectangular hull, side engine pods ──
     ctx.beginPath();
-    ctx.moveTo(0,       -S*.28);    // nose
-    ctx.lineTo( S*.14,  -S*.18);
-    ctx.lineTo( S*.22,  -S*.05);    // shoulder
-    ctx.lineTo( S*.22,   S*.18);    // right side
-    ctx.lineTo( S*.10,   S*.30);    // right engine
-    ctx.lineTo(-S*.10,   S*.30);    // left engine
-    ctx.lineTo(-S*.22,   S*.18);
-    ctx.lineTo(-S*.22,  -S*.05);
-    ctx.lineTo(-S*.14,  -S*.18);
+    ctx.moveTo(  0,    -S*.20);   // nose tip
+    ctx.lineTo(  S*.05,-S*.18);
+    ctx.lineTo(  S*.13,-S*.10);   // shoulder flare
+    ctx.lineTo(  S*.15, S*.08);   // max width
+    ctx.lineTo(  S*.13, S*.16);
+    ctx.lineTo(  S*.08, S*.22);   // engine pod outer
+    ctx.lineTo(  S*.03, S*.22);
+    ctx.lineTo(  S*.03, S*.17);   // pod inner wall
+    ctx.lineTo( -S*.03, S*.17);
+    ctx.lineTo( -S*.03, S*.22);
+    ctx.lineTo( -S*.08, S*.22);
+    ctx.lineTo( -S*.13, S*.16);
+    ctx.lineTo( -S*.15, S*.08);
+    ctx.lineTo( -S*.13,-S*.10);
+    ctx.lineTo( -S*.05,-S*.18);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    // Cargo bay lines
-    ctx.strokeStyle = '#ffffff33';
+    // Cargo segment lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
     ctx.lineWidth = 0.7;
-    for (let i = -1; i <= 1; i++) {
-      ctx.beginPath(); ctx.moveTo(i * S*.08, -S*.08); ctx.lineTo(i * S*.08, S*.16); ctx.stroke();
-    }
-    // Engine glow
-    ctx.fillStyle = col + 'dd';
-    ctx.beginPath(); ctx.arc( S*.12, S*.28, S*.03, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(-S*.12, S*.28, S*.03, 0, Math.PI*2); ctx.fill();
+    [-S*.07, 0, S*.07].forEach(x => {
+      ctx.beginPath(); ctx.moveTo(x,-S*.12); ctx.lineTo(x, S*.10); ctx.stroke();
+    });
+    ctx.restore();
+    // Dual engine pods
+    drawExhaust(ctx, cx + S*.055, cx + S*.22, S*.055, S*.14, col);
+    drawExhaust(ctx, cx - S*.055, cx + S*.22, S*.055, S*.14, col);
+    return (shipTexCache[key] = new THREE.CanvasTexture(cv));
 
   } else if (type === 'colony') {
-    // ── Colony ship: large & wide, massive habitat ring, 4 engines ──
-    // Main hull
+    // ── Colony ship: elongated hull, habitat drum mid-section, 4 engines ──
+    // Hull
     ctx.beginPath();
-    ctx.moveTo(0,       -S*.35);    // nose
-    ctx.lineTo( S*.12,  -S*.20);
-    ctx.lineTo( S*.28,  -S*.08);    // wide habitat section
-    ctx.lineTo( S*.28,   S*.10);
-    ctx.lineTo( S*.16,   S*.26);
-    ctx.lineTo( S*.08,   S*.36);
-    ctx.lineTo(-S*.08,   S*.36);
-    ctx.lineTo(-S*.16,   S*.26);
-    ctx.lineTo(-S*.28,   S*.10);
-    ctx.lineTo(-S*.28,  -S*.08);
-    ctx.lineTo(-S*.12,  -S*.20);
+    ctx.moveTo(  0,    -S*.24);   // long nose
+    ctx.lineTo(  S*.04,-S*.18);
+    ctx.lineTo(  S*.10,-S*.08);   // widen to drum
+    ctx.lineTo(  S*.18, S*.00);   // drum max width
+    ctx.lineTo(  S*.18, S*.10);
+    ctx.lineTo(  S*.12, S*.18);
+    ctx.lineTo(  S*.08, S*.24);   // engine section
+    ctx.lineTo( -S*.08, S*.24);
+    ctx.lineTo( -S*.12, S*.18);
+    ctx.lineTo( -S*.18, S*.10);
+    ctx.lineTo( -S*.18, S*.00);
+    ctx.lineTo( -S*.10,-S*.08);
+    ctx.lineTo( -S*.04,-S*.18);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    // Habitat ring (equatorial band)
-    ctx.strokeStyle = col + 'aa';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.ellipse(0, S*.04, S*.30, S*.06, 0, 0, Math.PI*2); ctx.stroke();
-    // 4 engine glows
-    ctx.fillStyle = col + 'ff';
-    [[ S*.18, S*.34],[- S*.18, S*.34],[ S*.08, S*.34],[-S*.08, S*.34]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.arc(ex, ey, S*.025, 0, Math.PI*2); ctx.fill();
-    });
+    // Habitat drum ring
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.ellipse(0, S*.05, S*.19, S*.045, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.lineWidth = 0.7;
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath(); ctx.ellipse(0, S*.05, S*.19, S*.045, 0, 0, Math.PI*2); ctx.stroke();
     // Cockpit
-    ctx.fillStyle = '#ffffffaa';
-    ctx.beginPath(); ctx.ellipse(0, -S*.24, S*.025, S*.045, 0, 0, Math.PI*2); ctx.fill();
+    const ccc = ctx.createRadialGradient(0,-S*.19,0, 0,-S*.17,S*.035);
+    ccc.addColorStop(0,'rgba(200,230,255,0.9)'); ccc.addColorStop(1,'rgba(100,160,220,0)');
+    ctx.fillStyle = ccc;
+    ctx.beginPath(); ctx.ellipse(0,-S*.185, S*.028, S*.038, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    // 4 engine exhausts
+    drawExhaust(ctx, cx + S*.07,  cx + S*.24, S*.055, S*.16, col);
+    drawExhaust(ctx, cx - S*.07,  cx + S*.24, S*.055, S*.16, col);
+    drawExhaust(ctx, cx + S*.025, cx + S*.24, S*.04,  S*.12, col);
+    drawExhaust(ctx, cx - S*.025, cx + S*.24, S*.04,  S*.12, col);
+    return (shipTexCache[key] = new THREE.CanvasTexture(cv));
 
   } else if (type === 'spy') {
-    // ── Spy probe: tiny stealth diamond, barely visible ──
-    ctx.globalAlpha = 0.80;
+    // ── Stealth probe: thin arrowhead, near-invisible, single micro-thruster ──
+    ctx.globalAlpha = 0.82;
     ctx.beginPath();
-    ctx.moveTo(0,      -S*.22);     // nose
-    ctx.lineTo( S*.10,  0);
-    ctx.lineTo(0,       S*.24);
-    ctx.lineTo(-S*.10,  0);
+    ctx.moveTo(  0,    -S*.18);   // sharp nose
+    ctx.lineTo(  S*.07, S*.04);
+    ctx.lineTo(  S*.04, S*.16);
+    ctx.lineTo(  S*.01, S*.18);
+    ctx.lineTo( -S*.01, S*.18);
+    ctx.lineTo( -S*.04, S*.16);
+    ctx.lineTo( -S*.07, S*.04);
     ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    // Sensor dish
-    ctx.strokeStyle = '#ffffff55';
-    ctx.lineWidth = 0.8;
-    ctx.beginPath(); ctx.ellipse(0, S*.06, S*.06, S*.025, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.fill();
     ctx.globalAlpha = 1;
+    // Sensor aperture ring on nose
+    ctx.strokeStyle = 'rgba(255,255,255,0.40)';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.ellipse(0,-S*.13, S*.025, S*.012, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+    drawExhaust(ctx, cx, cx + S*.17, S*.03, S*.10, col);
+    return (shipTexCache[key] = new THREE.CanvasTexture(cv));
 
   } else {
-    // ── Recycler / utility: chunky with claw arms ──
+    // ── Recycler: squat tug body, forward collector scoop, wide nozzle ──
+    // Scoop / jaw (front)
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(-S*.12,-S*.18); ctx.lineTo(-S*.16,-S*.10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo( S*.12,-S*.18); ctx.lineTo( S*.16,-S*.10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-S*.16,-S*.10); ctx.lineTo( S*.16,-S*.10); ctx.stroke(); // jaw crossbar
     // Main body
+    ctx.fillStyle   = fillG;
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth   = 0.9;
     ctx.beginPath();
-    ctx.moveTo(0,      -S*.20);
-    ctx.lineTo( S*.14, -S*.10);
-    ctx.lineTo( S*.18,  S*.08);
-    ctx.lineTo( S*.10,  S*.22);
-    ctx.lineTo(-S*.10,  S*.22);
-    ctx.lineTo(-S*.18,  S*.08);
-    ctx.lineTo(-S*.14, -S*.10);
+    ctx.moveTo(  S*.12,-S*.10);   // top right
+    ctx.lineTo(  S*.16, S*.02);
+    ctx.lineTo(  S*.14, S*.14);
+    ctx.lineTo(  S*.07, S*.20);
+    ctx.lineTo( -S*.07, S*.20);
+    ctx.lineTo( -S*.14, S*.14);
+    ctx.lineTo( -S*.16, S*.02);
+    ctx.lineTo( -S*.12,-S*.10);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    // Claw arms
-    ctx.strokeStyle = col + 'bb';
-    ctx.lineWidth = 1.5;
-    // Left arm
-    ctx.beginPath(); ctx.moveTo(-S*.14, -S*.04); ctx.lineTo(-S*.28, -S*.14); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-S*.28, -S*.14); ctx.lineTo(-S*.32, -S*.06); ctx.stroke();
-    // Right arm
-    ctx.beginPath(); ctx.moveTo( S*.14, -S*.04); ctx.lineTo( S*.28, -S*.14); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo( S*.28, -S*.14); ctx.lineTo( S*.32, -S*.06); ctx.stroke();
-    // Engine
-    ctx.fillStyle = col + 'dd';
-    ctx.beginPath(); ctx.arc(0, S*.20, S*.03, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    // Wide single exhaust nozzle
+    drawExhaust(ctx, cx, cx + S*.20, S*.12, S*.15, col);
+    return (shipTexCache[key] = new THREE.CanvasTexture(cv));
   }
 
-  ctx.restore();
-  shipTexCache[key] = new THREE.CanvasTexture(c);
+  ctx.restore(); // fallback safety
+  shipTexCache[key] = new THREE.CanvasTexture(cv);
   return shipTexCache[key];
 }
 
@@ -1854,9 +1896,9 @@ function rebuildFleetMeshes() {
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
 
     const stype   = fleetShipType(f.mission || 0, isHostile, isNeutral);
-    // Colony ships are visibly larger; fighters slightly smaller than transports
-    const sizeMap = { fighter: 0.85, transport: 1.0, colony: 1.55, spy: 0.65, recycler: 1.0 };
-    const shipSz  = dotSize * dotMult * (sizeMap[stype] || 1.0);
+    // Colony ships noticeably bigger; spy probes small; others equal
+    const sizeMap = { fighter: 0.55, transport: 0.60, colony: 0.90, spy: 0.40, recycler: 0.58 };
+    const shipSz  = dotSize * dotMult * (sizeMap[stype] || 0.55);
 
     const ds = new THREE.Sprite(new THREE.SpriteMaterial({
       map: shipTex(stype, dotCol),
