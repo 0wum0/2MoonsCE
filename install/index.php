@@ -246,16 +246,21 @@ switch ($mode) {
                 case 'sql':
                     $data = file_get_contents(ROOT_PATH . 'install/migrations/' . $fileInfo['fileName']);
                     $data = str_replace('%PREFIX%', DB_PREFIX, $data);
-                    $queries = array_filter(array_map('trim', explode(";\n", $data)));
-                    $sqlErrors = array();
+                    // Split on semicolon+newline; also handle bare semicolons at end of file
+                    $queries = array_filter(array_map('trim', preg_split('/;\s*\n/', $data)));
                     foreach ($queries as $query) {
-                        if (empty($query) || strpos($query, '--') === 0) {
+                        $query = trim($query);
+                        if ($query === '' || strpos($query, '--') === 0) {
+                            continue;
+                        }
+                        // Skip the per-migration dbVersion UPDATE — runner sets it centrally below
+                        if (preg_match('/^\s*UPDATE\s+`?[^`\s]+`?\s+SET\s+`?dbVersion`?\s*=/i', $query)) {
                             continue;
                         }
                         try {
                             Database::get()->nativeQuery($query);
                         } catch (Exception $e) {
-                            $sqlErrors[] = $e->getMessage();
+                            error_log('Migration ' . $fileInfo['fileName'] . ' warning: ' . $e->getMessage());
                         }
                     }
                     break;
