@@ -1,4 +1,4 @@
--- Migration 14: Ensure all forum tables exist (idempotent catch-up for existing installs)
+-- Migration 14: Ensure all forum tables exist (catch-up for existing installs)
 
 CREATE TABLE IF NOT EXISTS `%PREFIX%forum_categories` (
   `id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -71,8 +71,7 @@ CREATE TABLE IF NOT EXISTS `%PREFIX%forum_mentions` (
   KEY `post_id` (`post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE `%PREFIX%forum_mentions`
-  ADD COLUMN IF NOT EXISTS `by_user_id` int(11) unsigned NOT NULL DEFAULT 0;
+ALTER TABLE `%PREFIX%forum_mentions` ADD COLUMN `by_user_id` int(11) unsigned NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS `%PREFIX%forum_reports` (
   `id`             int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -109,6 +108,6 @@ CREATE TABLE IF NOT EXISTS `%PREFIX%forum_topic_unreads` (
   KEY `topic_id` (`topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE `%PREFIX%cronjobs` ADD COLUMN IF NOT EXISTS `lockTime` int(11) DEFAULT NULL;
+ALTER TABLE `%PREFIX%cronjobs` ADD COLUMN `lockTime` int(11) DEFAULT NULL;
 
 UPDATE `%PREFIX%system` SET `dbVersion` = 14;
