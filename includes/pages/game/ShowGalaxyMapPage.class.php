@@ -78,7 +78,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
-        ob_end_clean();
+        while (ob_get_level() > 0) { ob_end_clean(); }
         header('Content-Type: application/json; charset=utf-8');
 
         if (empty($USER['id'])) {
@@ -198,7 +198,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
-        ob_end_clean();
+        while (ob_get_level() > 0) { ob_end_clean(); }
         header('Content-Type: application/json; charset=utf-8');
 
         if (empty($USER['id'])) {
@@ -296,7 +296,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
-        ob_end_clean();
+        while (ob_get_level() > 0) { ob_end_clean(); }
         header('Content-Type: application/json; charset=utf-8');
 
         if (empty($USER['id'])) {
@@ -352,7 +352,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     {
         global $USER;
 
-        ob_end_clean();
+        while (ob_get_level() > 0) { ob_end_clean(); }
         header('Content-Type: application/json; charset=utf-8');
 
         if (empty($USER['id'])) {
