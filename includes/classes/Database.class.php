@@ -139,6 +139,22 @@ class Database
         $this->dbHandle = null;
     }
 
+    /**
+     * Drop the current PDO handle and reconnect.
+     * Use before critical queries in shutdown context (e.g. Session::save())
+     * to clear any open statement cursors that LiteSpeed leaves dangling.
+     */
+    public function reconnect(): void
+    {
+        $this->dbHandle = null;
+        self::$instance = null;
+        // Re-run constructor via get() on next call — reset state cleanly
+        $fresh = new self();
+        $this->dbHandle       = $fresh->dbHandle;
+        $this->dbTableNames   = $fresh->dbTableNames;
+        self::$instance       = $this;
+    }
+
     public function getHandle(): ?PDO
     {
         return $this->dbHandle;
@@ -290,12 +306,17 @@ class Database
         $qry = str_replace($this->dbTableNames['keys'], $this->dbTableNames['names'], $qry);
         $stmt = $this->dbHandle->query($qry);
 
-        $this->rowCount = $stmt->rowCount();
+        $isSelect = in_array($this->getQueryType($qry), ['select', 'show']);
+        if ($isSelect) {
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+        } else {
+            $this->rowCount = $stmt->rowCount();
+            $stmt->closeCursor();
+            $result = true;
+        }
         $this->queryCounter++;
-
-        return in_array($this->getQueryType($qry), ['select', 'show'])
-            ? $stmt->fetchAll(PDO::FETCH_ASSOC)
-            : true;
+        return $result;
     }
 
     public function getQueryCounter(): int

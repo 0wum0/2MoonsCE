@@ -235,6 +235,9 @@ class Session
 		userIP		= :userAddress;';
 
 		$db = Database::get();
+		// Force a fresh PDO connection to clear any open statement cursors
+		// that LiteSpeed leaves dangling from previous page queries (error 2014).
+		$db->reconnect();
 
 		$db->replace($sql, array(
 			':sessionId'    => session_id(),
