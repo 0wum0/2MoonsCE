@@ -119,11 +119,14 @@ CREATE TABLE `%PREFIX%buddy_request` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `%PREFIX%chat_bans` (
-  `userID` int(11) NOT NULL,
-  `userName` varchar(64) NOT NULL,
-  `dateTime` datetime NOT NULL,
-  `ip` varbinary(16) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `banned_by` int(10) UNSIGNED NOT NULL,
+  `reason` varchar(255) NOT NULL DEFAULT '',
+  `created_at` int(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `%PREFIX%chat_invitations` (
   `userID` int(11) NOT NULL,
@@ -132,16 +135,17 @@ CREATE TABLE `%PREFIX%chat_invitations` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `%PREFIX%chat_messages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `userID` int(11) NOT NULL,
-  `userName` varchar(64) NOT NULL,
-  `userRole` int(1) NOT NULL,
-  `channel` int(11) NOT NULL,
-  `dateTime` datetime NOT NULL,
-  `ip` varbinary(16) NOT NULL,
-  `text` text CHARACTER SET utf8 COLLATE utf8_bin,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `channel` enum('global','alliance') NOT NULL DEFAULT 'global',
+  `alliance_id` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` int(10) UNSIGNED NOT NULL,
+  `deleted_at` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_channel_alliance` (`channel`,`alliance_id`,`deleted_at`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `%PREFIX%chat_online` (
   `userID` int(11) NOT NULL,
@@ -653,6 +657,168 @@ CREATE TABLE `%PREFIX%system` (
   `dbVersion` int(10) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `%PREFIX%bots` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_owner` int(11) NOT NULL,
+  `bot_type` int(11) NOT NULL DEFAULT 1,
+  `personality` varchar(20) DEFAULT 'balanced',
+  `last_login` int(11) NOT NULL DEFAULT 0,
+  `next_fleet_action` int(11) NOT NULL DEFAULT 0,
+  `ships_array` text DEFAULT NULL,
+  `action_index` int(11) NOT NULL DEFAULT 0,
+  `ress_bonus_time` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `id_owner` (`id_owner`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%bot_activity_log` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `bot_id` int(11) UNSIGNED NOT NULL,
+  `timestamp` int(11) UNSIGNED NOT NULL,
+  `action_type` varchar(50) NOT NULL,
+  `success` tinyint(1) DEFAULT 1,
+  `details` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bot_id` (`bot_id`),
+  KEY `timestamp` (`timestamp`),
+  KEY `action_type` (`action_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%bot_personalities` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `display_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `emoji` varchar(10) DEFAULT NULL,
+  `priority_mines` decimal(3,2) DEFAULT 0.50,
+  `priority_energy` decimal(3,2) DEFAULT 0.30,
+  `priority_storage` decimal(3,2) DEFAULT 0.20,
+  `priority_research` decimal(3,2) DEFAULT 0.30,
+  `priority_fleet` decimal(3,2) DEFAULT 0.30,
+  `priority_defense` decimal(3,2) DEFAULT 0.20,
+  `allow_raids` tinyint(1) DEFAULT 1,
+  `allow_expeditions` tinyint(1) DEFAULT 1,
+  `allow_colonize` tinyint(1) DEFAULT 1,
+  `aggression` decimal(3,2) DEFAULT 0.50,
+  `save_resources` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%bot_setting` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT 'Standard Bot',
+  `ress_value_metal` float NOT NULL DEFAULT 1,
+  `ress_value_crystal` float NOT NULL DEFAULT 2,
+  `ress_value_deuterium` float NOT NULL DEFAULT 4,
+  `first_points_multiplicator` float NOT NULL DEFAULT 0.1,
+  `min_fleet_seconds_in_space` int(11) NOT NULL DEFAULT 1800,
+  `max_fleet_seconds_in_space` int(11) NOT NULL DEFAULT 7200,
+  `min_fleet_seconds_on_planet` int(11) NOT NULL DEFAULT 300,
+  `max_fleet_seconds_on_planet` int(11) NOT NULL DEFAULT 1800,
+  `metal_per_second` double NOT NULL DEFAULT 0,
+  `crystal_per_second` double NOT NULL DEFAULT 0,
+  `deuterium_per_second` double NOT NULL DEFAULT 0,
+  `ress_contingent` double NOT NULL DEFAULT 0,
+  `ress_ships_contingent` double NOT NULL DEFAULT 0,
+  `full_contingent` double NOT NULL DEFAULT 0,
+  `ships_array` mediumtext DEFAULT NULL,
+  `ress_contingent_used` double NOT NULL DEFAULT 0,
+  `ress_ships_contingent_used` double NOT NULL DEFAULT 0,
+  `full_contingent_used` double NOT NULL DEFAULT 0,
+  `number_of_bots` int(11) NOT NULL DEFAULT 0,
+  `last_set` int(11) NOT NULL DEFAULT 0,
+  `minutes_per_day` int(11) NOT NULL DEFAULT 120,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `pve_enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `pvp_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `can_build` tinyint(1) NOT NULL DEFAULT 1,
+  `can_research` tinyint(1) NOT NULL DEFAULT 1,
+  `can_shipyard` tinyint(1) NOT NULL DEFAULT 1,
+  `can_expedition` tinyint(1) NOT NULL DEFAULT 1,
+  `can_recycle` tinyint(1) NOT NULL DEFAULT 1,
+  `can_raid` tinyint(1) NOT NULL DEFAULT 0,
+  `max_actions_per_tick` int(11) NOT NULL DEFAULT 2,
+  `max_build_queue_fill` int(11) NOT NULL DEFAULT 1,
+  `max_research_queue_fill` int(11) NOT NULL DEFAULT 1,
+  `max_shipyard_queue_fill` int(11) NOT NULL DEFAULT 1,
+  `raid_min_cargo_metal` bigint(20) NOT NULL DEFAULT 20000,
+  `raid_min_cargo_crystal` bigint(20) NOT NULL DEFAULT 10000,
+  `raid_min_gain` bigint(20) NOT NULL DEFAULT 50000,
+  `raid_max_flight_seconds` int(11) NOT NULL DEFAULT 14400,
+  `raid_max_rank_diff` int(11) NOT NULL DEFAULT 250,
+  `raid_inactive_only` tinyint(1) NOT NULL DEFAULT 1,
+  `raid_allow_same_ally` tinyint(1) NOT NULL DEFAULT 0,
+  `ai_behavior` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%bot_stats` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `bot_id` int(11) UNSIGNED NOT NULL,
+  `timestamp` int(11) UNSIGNED NOT NULL,
+  `hour` tinyint(2) NOT NULL,
+  `metal_gained` bigint(20) DEFAULT 0,
+  `crystal_gained` bigint(20) DEFAULT 0,
+  `deuterium_gained` bigint(20) DEFAULT 0,
+  `buildings_built` int(11) DEFAULT 0,
+  `research_completed` int(11) DEFAULT 0,
+  `ships_built` int(11) DEFAULT 0,
+  `expeditions_sent` int(11) DEFAULT 0,
+  `expeditions_success` int(11) DEFAULT 0,
+  `raids_sent` int(11) DEFAULT 0,
+  `raids_success` int(11) DEFAULT 0,
+  `recycle_sent` int(11) DEFAULT 0,
+  `recycle_collected` bigint(20) DEFAULT 0,
+  `actions_total` int(11) DEFAULT 0,
+  `ticks_completed` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `bot_id` (`bot_id`),
+  KEY `timestamp` (`timestamp`),
+  KEY `hour` (`hour`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%galactic_events` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `effect_type` varchar(64) NOT NULL DEFAULT '',
+  `effect_value` decimal(8,4) NOT NULL DEFAULT 0.0000,
+  `duration` int(10) UNSIGNED NOT NULL DEFAULT 60,
+  `active_from` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `active_until` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `created_at` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_active_until` (`active_until`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%galactic_events_settings` (
+  `id` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `check_interval` int(10) UNSIGNED NOT NULL DEFAULT 30,
+  `trigger_chance_percent` tinyint(3) UNSIGNED NOT NULL DEFAULT 20,
+  `event_duration` int(10) UNSIGNED NOT NULL DEFAULT 60,
+  `effect_type` varchar(64) NOT NULL DEFAULT 'metal_production',
+  `effect_value` decimal(8,4) NOT NULL DEFAULT 10.0000,
+  `last_check` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%galaxy_markers` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `galaxy` tinyint(4) NOT NULL DEFAULT 1,
+  `system` smallint(6) NOT NULL DEFAULT 1,
+  `position` tinyint(4) NOT NULL DEFAULT 1,
+  `type` varchar(32) NOT NULL DEFAULT 'info',
+  `icon` varchar(64) NOT NULL DEFAULT 'fa-map-marker-alt',
+  `color` varchar(16) NOT NULL DEFAULT '#38bdf8',
+  `tooltip` varchar(255) NOT NULL DEFAULT '',
+  `expires_at` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `created_at` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_coords` (`galaxy`,`system`,`position`),
+  KEY `idx_expires` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `%PREFIX%forum_categories` (
   `id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id`   int(11) unsigned DEFAULT NULL,
@@ -663,6 +829,7 @@ CREATE TABLE IF NOT EXISTS `%PREFIX%forum_categories` (
   `sort_order`  int(11) unsigned NOT NULL DEFAULT 0,
   `is_locked`   tinyint(1) unsigned NOT NULL DEFAULT 0,
   `created_at`  int(11) unsigned NOT NULL DEFAULT 0,
+  `updated_at`  int(11) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `sort_order` (`sort_order`)
@@ -674,12 +841,15 @@ CREATE TABLE IF NOT EXISTS `%PREFIX%forum_topics` (
   `user_id`        int(11) unsigned NOT NULL,
   `title`          varchar(255) NOT NULL DEFAULT '',
   `views`          int(11) unsigned NOT NULL DEFAULT 0,
-  `is_sticky`      tinyint(1) unsigned NOT NULL DEFAULT 0,
-  `is_locked`      tinyint(1) unsigned NOT NULL DEFAULT 0,
-  `is_deleted`     tinyint(1) unsigned NOT NULL DEFAULT 0,
-  `last_post_time` int(11) unsigned NOT NULL DEFAULT 0,
-  `created_at`     int(11) unsigned NOT NULL DEFAULT 0,
-  `updated_at`     int(11) unsigned NOT NULL DEFAULT 0,
+  `is_sticky`            tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `is_locked`            tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `is_announcement`      tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `post_count`           int(11) unsigned NOT NULL DEFAULT 0,
+  `last_post_id`         int(11) unsigned DEFAULT NULL,
+  `last_post_user_id`    int(11) unsigned DEFAULT NULL,
+  `last_post_time`       int(11) unsigned NOT NULL DEFAULT 0,
+  `created_at`           int(11) unsigned NOT NULL DEFAULT 0,
+  `updated_at`           int(11) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`),
   KEY `user_id` (`user_id`),
@@ -691,11 +861,16 @@ CREATE TABLE IF NOT EXISTS `%PREFIX%forum_posts` (
   `id`         int(11) unsigned NOT NULL AUTO_INCREMENT,
   `topic_id`   int(11) unsigned NOT NULL,
   `user_id`    int(11) unsigned NOT NULL,
-  `content`    text NOT NULL,
-  `like_count` int(11) unsigned NOT NULL DEFAULT 0,
-  `is_deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,
-  `created_at` int(11) unsigned NOT NULL DEFAULT 0,
-  `updated_at` int(11) unsigned NOT NULL DEFAULT 0,
+  `content`     text NOT NULL,
+  `is_edited`   tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `edited_by`   int(11) unsigned DEFAULT NULL,
+  `edited_at`   int(11) DEFAULT NULL,
+  `is_deleted`  tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `deleted_by`  int(11) unsigned DEFAULT NULL,
+  `deleted_at`  int(11) DEFAULT NULL,
+  `like_count`  int(11) unsigned NOT NULL DEFAULT 0,
+  `created_at`  int(11) unsigned NOT NULL DEFAULT 0,
+  `updated_at`  int(11) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `topic_id` (`topic_id`),
   KEY `user_id` (`user_id`),
@@ -715,13 +890,49 @@ CREATE TABLE IF NOT EXISTS `%PREFIX%forum_post_likes` (
 
 CREATE TABLE IF NOT EXISTS `%PREFIX%forum_mentions` (
   `id`         int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `post_id`    int(11) unsigned NOT NULL,
-  `user_id`    int(11) unsigned NOT NULL,
-  `is_read`    tinyint(1) unsigned NOT NULL DEFAULT 0,
-  `created_at` int(11) unsigned NOT NULL DEFAULT 0,
+  `post_id`          int(11) unsigned NOT NULL,
+  `mentioned_user_id` int(11) unsigned NOT NULL,
+  `by_user_id`        int(11) unsigned NOT NULL,
+  `is_read`           tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `created_at`        int(11) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
+  KEY `mentioned_user_id` (`mentioned_user_id`),
+  KEY `is_read` (`is_read`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%forum_reports` (
+  `id`         int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `post_id`    int(11) UNSIGNED NOT NULL,
+  `reporter_id` int(11) UNSIGNED NOT NULL,
+  `reason`     varchar(500) NOT NULL DEFAULT '',
+  `status`     enum('open','closed') NOT NULL DEFAULT 'open',
+  `created_at` int(11) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `post_id` (`post_id`),
+  KEY `reporter_id` (`reporter_id`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%forum_subscriptions` (
+  `id`           int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `topic_id`     int(11) UNSIGNED NOT NULL,
+  `user_id`      int(11) UNSIGNED NOT NULL,
+  `notify_email` tinyint(1) DEFAULT 1,
+  `created_at`   int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `topic_user` (`topic_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `%PREFIX%forum_topic_unreads` (
+  `id`           int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `topic_id`     int(11) UNSIGNED NOT NULL,
+  `user_id`      int(11) UNSIGNED NOT NULL,
+  `last_post_id` int(11) UNSIGNED NOT NULL DEFAULT 0,
+  `updated_at`   int(11) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `topic_user` (`topic_id`,`user_id`),
   KEY `user_id` (`user_id`),
-  KEY `post_id` (`post_id`)
+  KEY `topic_id` (`topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `%PREFIX%ticket` (
@@ -998,6 +1209,28 @@ CREATE TABLE `%PREFIX%vars_requriements` (
   KEY `elementID` (`elementID`),
   KEY `requireID` (`requireID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO `%PREFIX%bot_personalities` (`id`, `name`, `display_name`, `description`, `emoji`, `priority_mines`, `priority_energy`, `priority_storage`, `priority_research`, `priority_fleet`, `priority_defense`, `allow_raids`, `allow_expeditions`, `allow_colonize`, `aggression`, `save_resources`) VALUES
+(1, 'balanced', 'Balanced', 'Ausgewogener Spielstil - etwas von allem', '⚖️', 0.50, 0.30, 0.20, 0.40, 0.40, 0.30, 1, 1, 1, 0.50, 0),
+(2, 'farmer', 'Farmer', 'Fokus auf Ressourcen-Produktion und Wirtschaft', '🌾', 0.90, 0.80, 0.60, 0.30, 0.10, 0.20, 0, 1, 1, 0.10, 0),
+(3, 'raider', 'Raider', 'Aggressiv - fokussiert auf Raids und Beute', '⚔️', 0.30, 0.40, 0.10, 0.20, 0.90, 0.10, 1, 0, 0, 0.95, 0),
+(4, 'researcher', 'Researcher', 'Fokus auf Technologie und Forschung', '🔬', 0.40, 0.90, 0.30, 0.95, 0.20, 0.30, 0, 1, 1, 0.20, 0),
+(5, 'miner', 'Miner', 'Maximiert nur Minen - keine Flotten oder Forschung', '⛏️', 1.00, 0.50, 0.40, 0.05, 0.05, 0.10, 0, 0, 1, 0.05, 1),
+(6, 'turtle', 'Turtle', 'Defensiv - fokussiert auf Verteidigung und Sicherheit', '🛡️', 0.60, 0.50, 0.70, 0.40, 0.30, 0.95, 0, 0, 0, 0.05, 1);
+
+INSERT INTO `%PREFIX%bot_setting` (`id`, `name`, `ress_value_metal`, `ress_value_crystal`, `ress_value_deuterium`, `first_points_multiplicator`, `min_fleet_seconds_in_space`, `max_fleet_seconds_in_space`, `min_fleet_seconds_on_planet`, `max_fleet_seconds_on_planet`, `metal_per_second`, `crystal_per_second`, `deuterium_per_second`, `ress_contingent`, `ress_ships_contingent`, `full_contingent`, `ships_array`, `ress_contingent_used`, `ress_ships_contingent_used`, `full_contingent_used`, `number_of_bots`, `last_set`, `minutes_per_day`, `enabled`, `pve_enabled`, `pvp_enabled`, `can_build`, `can_research`, `can_shipyard`, `can_expedition`, `can_recycle`, `can_raid`, `max_actions_per_tick`, `max_build_queue_fill`, `max_research_queue_fill`, `max_shipyard_queue_fill`, `raid_min_cargo_metal`, `raid_min_cargo_crystal`, `raid_min_gain`, `raid_max_flight_seconds`, `raid_max_rank_diff`, `raid_inactive_only`, `raid_allow_same_ally`, `ai_behavior`) VALUES
+(1, 'Default Bot Strategy', 1, 2, 4, 0.1, 1800, 7200, 300, 1800, 0, 0, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 120, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 20000, 10000, 50000, 14400, 250, 1, 0, '{"build_strategy":"balanced","research_strategy":"balanced","shipyard_focus":"mixed_fleet","min_resources_for_upgrade":5000,"expedition_frequency":"when_idle","auto_recycle":"when_worth","fleet_percentage":50,"max_mission_distance":100,"decision_speed":"fast","risk_tolerance":50}');
+
+INSERT INTO `%PREFIX%galactic_events_settings` (`id`, `enabled`, `check_interval`, `trigger_chance_percent`, `event_duration`, `effect_type`, `effect_value`, `last_check`) VALUES
+(1, 1, 30, 20, 60, 'metal_production', 10.0000, 0);
+
+INSERT INTO `%PREFIX%forum_categories` (`id`, `parent_id`, `title`, `description`, `icon`, `color`, `sort_order`, `is_locked`, `created_at`, `updated_at`) VALUES
+(1, NULL, 'Ankündigungen', 'Offizielle Ankündigungen und News', '📢', '#ef4444', 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(2, NULL, 'Allgemein', 'Allgemeine Diskussionen', '💬', '#38bdf8', 1, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(3, NULL, 'Handel', 'Ressourcen tauschen und handeln', '💰', '#10b981', 2, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(4, NULL, 'Allianzen', 'Allianz-Rekrutierung und Diplomatie', '🛡️', '#8b5cf6', 3, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(5, NULL, 'Hilfe & Support', 'Fragen zum Spiel', '❓', '#f59e0b', 4, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(6, NULL, 'Off-Topic', 'Alles andere', '🎮', '#6b7280', 5, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
 
 INSERT INTO `%PREFIX%config` (`uni`, `VERSION`, `uni_name`, `game_name`, `close_reason`, `OverviewNewsText`, `moduls`, `disclamerAddress`, `disclamerPhone`, `disclamerMail`, `disclamerNotice`) VALUES
 (1, '%VERSION%', '', '2Moons', '', '', '', '', '', '', '');

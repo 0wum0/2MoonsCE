@@ -508,30 +508,48 @@ switch ($mode) {
 				}
 
 				$installVersion = implode('.', $installVersion);
-				try {
-					$db->query(str_replace(array(
-						'%PREFIX%',
-						'%VERSION%',
-						'%REVISION%',
-                        '%DB_VERSION%'
-					), array(
-						DB_PREFIX,
-						$installVersion,
-						$installRevision,
-                        DB_VERSION_REQUIRED
-					), $installSQL));
+			try {
+				$installSQL = str_replace(array(
+					'%PREFIX%',
+					'%VERSION%',
+					'%REVISION%',
+					'%DB_VERSION%'
+				), array(
+					DB_PREFIX,
+					$installVersion,
+					$installRevision,
+					DB_VERSION_REQUIRED
+				), $installSQL);
 
-					$config = Config::get(Universe::current());
-					$config->timezone			= @date_default_timezone_get();
-					$config->lang	 			= $LNG->getLanguage();
-					$config->OverviewNewsText	= $LNG['sql_welcome'] . $installVersion;
-					$config->uni_name			= $LNG['fcm_universe'] . ' ' . Universe::current();
-					$config->close_reason		= $LNG['sql_close_reason'];
-					$config->moduls				= implode(';', array_fill(0, MODULE_AMOUNT - 1, 1));
+				$pdo = $db->getHandle();
+				$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
-					unset($installSQL, $installRevision, $installVersion);
+				$installSQL = str_replace("\r\n", "\n", $installSQL);
 
-					$config->save();
+				$statements = array_filter(
+					array_map('trim', explode(";\n", $installSQL)),
+					function($s) { return $s !== ''; }
+				);
+
+				foreach ($statements as $stmt) {
+					try {
+						$pdo->exec($stmt);
+					} catch (PDOException $e) {
+						error_log('Install SQL warning: ' . $e->getMessage() . ' | Query: ' . substr($stmt, 0, 120));
+					}
+				}
+
+				$config = Config::get(Universe::current());
+				$config->timezone         = @date_default_timezone_get();
+				$config->lang             = $LNG->getLanguage();
+				$config->OverviewNewsText = $LNG['sql_welcome'] . $installVersion;
+				$config->uni_name         = $LNG['fcm_universe'] . ' ' . Universe::current();
+				$config->close_reason     = $LNG['sql_close_reason'];
+				$config->moduls           = implode(';', array_fill(0, MODULE_AMOUNT - 1, 1));
+
+				unset($installSQL, $installRevision, $installVersion);
+
+				$config->save();
 
 				HTTP::redirectTo('index.php?mode=install&step=7');
 			}
