@@ -59,18 +59,20 @@ try {
     // no-op
 }
 
-$pm = PluginManager::get();
-$pm->registerTwigNamespace('LiveFleetTracker', 'views');
+PluginManager::get()->registerTwigNamespace('LiveFleetTracker', 'views');
 
-$twig = $GLOBALS['tplObj'] ?? null;
-if ($twig && method_exists($twig, 'assign_vars')) {
-    $twig->assign_vars([
-        'lft_settings'   => $settings,
-        'lft_errors'     => $errors,
-        'lft_success'    => $success,
-        'lft_recent_npc' => $recentNpc,
-        'lft_recent_warp'=> $recentWarp,
+try {
+    $template = new template();
+    $template->assign_vars([
+        'lft_settings'    => $settings,
+        'lft_errors'      => $errors,
+        'lft_success'     => $success,
+        'lft_recent_npc'  => $recentNpc,
+        'lft_recent_warp' => $recentWarp,
     ]);
+    $template->show('@LiveFleetTracker/admin/settings.twig');
+} catch (Throwable $e) {
+    error_log('[LiveFleetTrackerAdmin] render error: ' . $e->getMessage());
+    echo '<div style="color:red;padding:20px;">LiveFleetTracker Admin: Render-Fehler – '
+        . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</div>';
 }
-
-echo $GLOBALS['tplObj']->fetch('@LiveFleetTracker/admin/settings.twig');
