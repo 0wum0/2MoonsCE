@@ -1,5 +1,5 @@
 ﻿{#
-	SmartMoons / 2Moons Community Edition (2MoonsCE)
+	2MoonsCE
 
 	Based on the original 2Moons project:
 
@@ -28,17 +28,17 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 	<title>{% block title %} - {{ uni_name }} - {{ game_name }}{% endblock %}</title>
-	<meta name="generator" content="SmartMoons {{ VERSION }}">
+	<meta name="generator" content="2MoonsCE {{ VERSION }}">
 	<meta name="theme-color" content="#0a0e1a"> 
     {% if goto %}
 	<meta http-equiv="refresh" content="{{ gotoinsec }};URL={{ goto }}">
 	{% endif %}
 
-	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/smartmoons.base.css?v=4.1.0">
-	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/smartmoons.navigation.css?v=4.1.0">
-	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/smartmoons.components.css?v=4.1.0">
-	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/smartmoons.imperium.css?v=4.1.0">
-	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/smartmoons.community.css?v=4.1.0">
+	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/2moonsce.base.css?v=4.1.0">
+	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/2moonsce.navigation.css?v=4.1.0">
+	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/2moonsce.components.css?v=4.1.0">
+	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/2moonsce.imperium.css?v=4.1.0">
+	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/2moonsce.community.css?v=4.1.0">
 	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/modern-layout.css?v=4.1.0">
 	<link rel="stylesheet" type="text/css" href="styles/resource/css/ingame/modal.css?v=4.1.0">
     
@@ -113,11 +113,11 @@
 </head>
 <body id="{{ GET.page|default("overview")|e }}" class="{{ bodyclass }} aerospace-theme">
 {{ hook('ingame.header.after') }}
-<!-- SMARTMOONS LOADING SCREEN -->
+<!-- 2MOONSCE LOADING SCREEN -->
 <div id="sm-loader" style="position:fixed;inset:0;z-index:99999;background:#030610;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
   <canvas id="sm-loader-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
   <div style="position:relative;z-index:1;text-align:center;">
-    <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,28px);font-weight:900;color:#e8f4ff;letter-spacing:6px;margin-bottom:6px;">SMART<span style="color:#00d4ff;">MOONS</span></div>
+    <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,28px);font-weight:900;color:#e8f4ff;letter-spacing:6px;margin-bottom:6px;">2MOONS<span style="color:#00d4ff;">CE</span></div>
     <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:4px;color:rgba(0,212,255,0.5);margin-bottom:32px;">UNIVERSE v3.1</div>
     <div style="position:relative;width:200px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin:0 auto 12px;">
       <div id="sm-loader-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#00d4ff,#b47cff);border-radius:2px;transition:width 0.4s ease;box-shadow:0 0 12px rgba(0,212,255,0.5);"></div>
