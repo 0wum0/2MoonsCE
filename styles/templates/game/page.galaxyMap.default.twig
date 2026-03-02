@@ -1000,6 +1000,181 @@ function planetTex(g, s, slot, colorHex) {
   return { tex: planetTexCache[key], ptype };
 }
 
+// ── Ship silhouette textures ───────────────────────────────
+// One canvas texture per (shipType + color) combo, cached forever.
+// All shapes are drawn pointing "up" (nose at top) – THREE.Sprite
+// always faces camera so orientation is always correct.
+const shipTexCache = {};
+
+function shipTex(type, col) {
+  const key = type + '_' + col;
+  if (shipTexCache[key]) return shipTexCache[key];
+
+  const S = 128, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d');
+  const cx = S / 2, cy = S / 2;
+
+  // Outer glow halo
+  const glow = ctx.createRadialGradient(cx, cy, S * .06, cx, cy, S * .5);
+  glow.addColorStop(0,   col + 'cc');
+  glow.addColorStop(0.45, col + '44');
+  glow.addColorStop(1,   col + '00');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, S, S);
+
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // Fill + stroke style
+  const fillGrd = ctx.createLinearGradient(0, -S*.38, 0, S*.38);
+  fillGrd.addColorStop(0,   '#ffffff');
+  fillGrd.addColorStop(0.2, col);
+  fillGrd.addColorStop(1,   shadeCol(col, 0.35));
+  ctx.fillStyle   = fillGrd;
+  ctx.strokeStyle = '#ffffff55';
+  ctx.lineWidth   = 0.8;
+
+  if (type === 'fighter') {
+    // ── Sleek attack fighter: narrow delta wing, twin engines ──
+    ctx.beginPath();
+    ctx.moveTo(0, -S*.32);          // nose tip
+    ctx.lineTo( S*.18,  S*.12);     // right wing tip
+    ctx.lineTo( S*.10,  S*.22);     // right engine pod
+    ctx.lineTo( S*.04,  S*.32);     // right engine nozzle
+    ctx.lineTo(-S*.04,  S*.32);     // left engine nozzle
+    ctx.lineTo(-S*.10,  S*.22);     // left engine pod
+    ctx.lineTo(-S*.18,  S*.12);     // left wing tip
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Cockpit highlight
+    ctx.fillStyle = '#ffffff88';
+    ctx.beginPath(); ctx.ellipse(0, -S*.16, S*.028, S*.055, 0, 0, Math.PI*2); ctx.fill();
+    // Engine glow dots
+    ctx.fillStyle = col + 'ff';
+    ctx.beginPath(); ctx.arc( S*.05, S*.30, S*.022, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-S*.05, S*.30, S*.022, 0, Math.PI*2); ctx.fill();
+
+  } else if (type === 'transport') {
+    // ── Cargo transporter: wide boxy hull, side pods ──
+    ctx.beginPath();
+    ctx.moveTo(0,       -S*.28);    // nose
+    ctx.lineTo( S*.14,  -S*.18);
+    ctx.lineTo( S*.22,  -S*.05);    // shoulder
+    ctx.lineTo( S*.22,   S*.18);    // right side
+    ctx.lineTo( S*.10,   S*.30);    // right engine
+    ctx.lineTo(-S*.10,   S*.30);    // left engine
+    ctx.lineTo(-S*.22,   S*.18);
+    ctx.lineTo(-S*.22,  -S*.05);
+    ctx.lineTo(-S*.14,  -S*.18);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Cargo bay lines
+    ctx.strokeStyle = '#ffffff33';
+    ctx.lineWidth = 0.7;
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath(); ctx.moveTo(i * S*.08, -S*.08); ctx.lineTo(i * S*.08, S*.16); ctx.stroke();
+    }
+    // Engine glow
+    ctx.fillStyle = col + 'dd';
+    ctx.beginPath(); ctx.arc( S*.12, S*.28, S*.03, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-S*.12, S*.28, S*.03, 0, Math.PI*2); ctx.fill();
+
+  } else if (type === 'colony') {
+    // ── Colony ship: large & wide, massive habitat ring, 4 engines ──
+    // Main hull
+    ctx.beginPath();
+    ctx.moveTo(0,       -S*.35);    // nose
+    ctx.lineTo( S*.12,  -S*.20);
+    ctx.lineTo( S*.28,  -S*.08);    // wide habitat section
+    ctx.lineTo( S*.28,   S*.10);
+    ctx.lineTo( S*.16,   S*.26);
+    ctx.lineTo( S*.08,   S*.36);
+    ctx.lineTo(-S*.08,   S*.36);
+    ctx.lineTo(-S*.16,   S*.26);
+    ctx.lineTo(-S*.28,   S*.10);
+    ctx.lineTo(-S*.28,  -S*.08);
+    ctx.lineTo(-S*.12,  -S*.20);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Habitat ring (equatorial band)
+    ctx.strokeStyle = col + 'aa';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.ellipse(0, S*.04, S*.30, S*.06, 0, 0, Math.PI*2); ctx.stroke();
+    // 4 engine glows
+    ctx.fillStyle = col + 'ff';
+    [[ S*.18, S*.34],[- S*.18, S*.34],[ S*.08, S*.34],[-S*.08, S*.34]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.arc(ex, ey, S*.025, 0, Math.PI*2); ctx.fill();
+    });
+    // Cockpit
+    ctx.fillStyle = '#ffffffaa';
+    ctx.beginPath(); ctx.ellipse(0, -S*.24, S*.025, S*.045, 0, 0, Math.PI*2); ctx.fill();
+
+  } else if (type === 'spy') {
+    // ── Spy probe: tiny stealth diamond, barely visible ──
+    ctx.globalAlpha = 0.80;
+    ctx.beginPath();
+    ctx.moveTo(0,      -S*.22);     // nose
+    ctx.lineTo( S*.10,  0);
+    ctx.lineTo(0,       S*.24);
+    ctx.lineTo(-S*.10,  0);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Sensor dish
+    ctx.strokeStyle = '#ffffff55';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.ellipse(0, S*.06, S*.06, S*.025, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = 1;
+
+  } else {
+    // ── Recycler / utility: chunky with claw arms ──
+    // Main body
+    ctx.beginPath();
+    ctx.moveTo(0,      -S*.20);
+    ctx.lineTo( S*.14, -S*.10);
+    ctx.lineTo( S*.18,  S*.08);
+    ctx.lineTo( S*.10,  S*.22);
+    ctx.lineTo(-S*.10,  S*.22);
+    ctx.lineTo(-S*.18,  S*.08);
+    ctx.lineTo(-S*.14, -S*.10);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Claw arms
+    ctx.strokeStyle = col + 'bb';
+    ctx.lineWidth = 1.5;
+    // Left arm
+    ctx.beginPath(); ctx.moveTo(-S*.14, -S*.04); ctx.lineTo(-S*.28, -S*.14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-S*.28, -S*.14); ctx.lineTo(-S*.32, -S*.06); ctx.stroke();
+    // Right arm
+    ctx.beginPath(); ctx.moveTo( S*.14, -S*.04); ctx.lineTo( S*.28, -S*.14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo( S*.28, -S*.14); ctx.lineTo( S*.32, -S*.06); ctx.stroke();
+    // Engine
+    ctx.fillStyle = col + 'dd';
+    ctx.beginPath(); ctx.arc(0, S*.20, S*.03, 0, Math.PI*2); ctx.fill();
+  }
+
+  ctx.restore();
+  shipTexCache[key] = new THREE.CanvasTexture(c);
+  return shipTexCache[key];
+}
+
+// Darken a hex colour by factor (0=black, 1=original)
+function shadeCol(hex, factor) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(h=>h+h).join('');
+  const d = v => Math.max(0, Math.round(parseInt(v, 16) * factor)).toString(16).padStart(2,'0');
+  return '#' + d(hex.slice(0,2)) + d(hex.slice(2,4)) + d(hex.slice(4,6));
+}
+
+// Map fleet mission → ship type
+function fleetShipType(mission, isHostile, isNeutral) {
+  if (isHostile || mission === 1 || mission === 2) return 'fighter';   // attack / ACS
+  if (mission === 7)                               return 'colony';    // colonise
+  if (mission === 6)                               return 'spy';       // espionage
+  if (mission === 8)                               return 'recycler';  // recycle
+  return 'transport'; // transport, deploy, hold, expedition etc.
+}
+
 // Legacy fallback: simple colour circle (used for moons, debris, empty slots)
 function circleTex(hex) {
   if (texCache[hex]) return texCache[hex];
@@ -1675,14 +1850,32 @@ function rebuildFleetMeshes() {
     trailLine.userData = { fleet: f, isTrail: true };
     fleetGroup.add(trailLine);
 
-    // Fleet dot at current position — large enough to be visible at galaxy scale
+    // Fleet ship sprite at current position
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
+
+    const stype   = fleetShipType(f.mission || 0, isHostile, isNeutral);
+    // Colony ships are visibly larger; fighters slightly smaller than transports
+    const sizeMap = { fighter: 0.85, transport: 1.0, colony: 1.55, spy: 0.65, recycler: 1.0 };
+    const shipSz  = dotSize * dotMult * (sizeMap[stype] || 1.0);
+
     const ds = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: circleTex(dotCol), transparent: true, depthWrite: false,
+      map: shipTex(stype, dotCol),
+      transparent: true, depthWrite: false,
       sizeAttenuation: true, blending: THREE.AdditiveBlending
     }));
-    ds.position.set(curPos.x, curPos.y + 4, curPos.z); // slight Y lift so it's above orbit plane
-    ds.scale.setScalar(dotSize * dotMult); // scale up: orbit radii are 60-260 units, dot must be visible
+    ds.position.set(curPos.x, curPos.y + 4, curPos.z);
+    ds.scale.setScalar(shipSz);
+
+    // Rotate sprite so nose points along travel direction (2D screen rotation)
+    // Get forward direction projected onto XZ plane, convert to sprite rotation angle
+    const prg2    = Math.min(1, prg + 0.01);
+    const ahead   = st.curve.getPoint(prg2);
+    const dx      = ahead.x - curPos.x;
+    const dz      = ahead.z - curPos.z;
+    if (Math.abs(dx) + Math.abs(dz) > 0.001) {
+      ds.material.rotation = Math.atan2(dx, dz); // atan2(x,z) → angle in XZ plane
+    }
+
     ds.userData = { fleet: f, isFleetDot: true };
     fleetGroup.add(ds);
   }
