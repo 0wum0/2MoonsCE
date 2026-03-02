@@ -27,27 +27,9 @@ declare(strict_types=1);
  */
 
 // ── 0. Deploy building image to all theme gebaeude/ folders ──────────────────
-// Copies assets/900.gif into every styles/theme/*/gebaeude/ directory so the
-// standard {dpath}gebaeude/900.gif path resolves correctly in all templates.
-(static function(): void {
-    $src = ROOT_PATH . 'plugins/sm-gameplay-test/assets/900.gif';
-    if (!file_exists($src)) {
-        return;
-    }
-    $themeBase = ROOT_PATH . 'styles/theme/';
-    if (!is_dir($themeBase)) {
-        return;
-    }
-    foreach (scandir($themeBase) as $theme) {
-        if ($theme === '.' || $theme === '..') {
-            continue;
-        }
-        $dest = $themeBase . $theme . '/gebaeude/900.gif';
-        if (!file_exists($dest)) {
-            @copy($src, $dest);
-        }
-    }
-})();
+// Copies assets/img/900.gif into every styles/theme/*/gebaeude/ directory so
+// core templates ({dpath}gebaeude/900.gif) can display this plugin building.
+PluginManager::get()->registerBuildingImage('sm-gameplay-test', 'img/900.gif', '900.gif');
 
 // ── 1. game.resourceMap – map element 900 to its planet column name ───────────
 // VarsBuildCache reads $resource[] from %%VARS%%.name, but the base resource IDs

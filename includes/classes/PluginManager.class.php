@@ -514,6 +514,42 @@ class PluginManager
     }
 
     /**
+     * Copy a plugin asset image into every theme's gebaeude/ directory so that
+     * core templates (which use {dpath}gebaeude/{id}.gif) can display plugin buildings.
+     *
+     * Usage in plugin.php:
+     *   PluginManager::get()->registerBuildingImage('sm-gameplay-test', 'img/900.gif', '900.gif');
+     *
+     * @param string $pluginId     Plugin ID
+     * @param string $assetRelPath Relative path inside the plugin's assets/ dir (e.g. 'img/900.gif')
+     * @param string $destFilename Target filename in gebaeude/ (e.g. '900.gif')
+     */
+    public function registerBuildingImage(string $pluginId, string $assetRelPath, string $destFilename): void
+    {
+        $src = $this->dirForId($pluginId) . 'assets/' . ltrim($assetRelPath, '/');
+        if (!file_exists($src)) {
+            return;
+        }
+        $themeBase = ROOT_PATH . 'styles/theme/';
+        if (!is_dir($themeBase)) {
+            return;
+        }
+        foreach (scandir($themeBase) as $theme) {
+            if ($theme === '.' || $theme === '..') {
+                continue;
+            }
+            $gebDir = $themeBase . $theme . '/gebaeude/';
+            if (!is_dir($gebDir)) {
+                continue;
+            }
+            $dest = $gebDir . $destFilename;
+            if (!file_exists($dest)) {
+                @copy($src, $dest);
+            }
+        }
+    }
+
+    /**
      * Return all registered Twig namespaces: pluginId → absDir
      * @return array<string, string>
      */
