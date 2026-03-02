@@ -25,7 +25,7 @@
 // The cronjob is loaded directly by Cronjob::execute() without plugin.php,
 // so the shared DB helper must be required explicitly here.
 require_once __DIR__ . '/../lib/GalacticEventsDb.php';
-require_once ROOT_PATH . 'includes/classes/cronjob/CronjobTask.interface.php';
+require_once __DIR__ . '/../../../includes/classes/cronjob/CronjobTask.interface.php';
 
 /**
  * GalacticEventsCronjob – Plugin-internal cron task.
