@@ -154,7 +154,7 @@ function ShowGalacticEventsAdminPage(): void
             'effectLabels' => $effectLabels,
             'now'          => $now,
         ]);
-        $template->show('@galactic_events/admin/settings.twig');
+        $template->show('@GalacticEvents/admin/settings.twig');
 
     } catch (Throwable $e) {
         error_log('[GalacticEventsAdmin] render error: ' . $e->getMessage());
