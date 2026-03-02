@@ -540,11 +540,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
       {% set botEvents = report.bot_activity.events|default([]) %}
       {% if botEvents is not empty %}
-        <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;flex-direction:column;gap:10px;overflow-x:auto;">
           {% for e in botEvents %}
-            <div style="display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;">
-              <div style="min-width:140px;color:#94a3b8;font-size:12px;">{{ e.time|default('-') }}</div>
-              <div style="min-width:140px;">
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;min-width:0;">
+              <div style="flex:0 0 auto;color:#94a3b8;font-size:12px;white-space:nowrap;">{{ e.time|default('-') }}</div>
+              <div style="flex:0 0 auto;">
                 <span style="display:inline-flex;align-items:center;gap:8px;">
                   <span style="font-size:12px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;">
                     #{{ e.bot_id|default(0) }}
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function(){
                   <span style="color:#e2e8f0;font-weight:600;">{{ e.bot_name|default('Bot') }}</span>
                 </span>
               </div>
-              <div style="min-width:90px;">
+              <div style="flex:0 0 auto;">
                 {% set st = e.status|default('info') %}
                 {% if st == 'ok' %}
                   <span class="badge ok">OK</span>
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function(){
                   <span class="badge">INFO</span>
                 {% endif %}
               </div>
-              <div style="flex:1;color:#e2e8f0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              <div style="flex:1;min-width:0;color:#e2e8f0;font-size:13px;word-break:break-word;overflow-wrap:break-word;">
                 {{ e.message|default('-') }}
               </div>
             </div>

@@ -278,7 +278,7 @@ function ShowAccountEditorPage()
 				{
 					$before[$ID] = $PlanetData[$resource[$ID]];
 				}
-				if ($_POST['add'])
+				if (!empty($_POST['add']))
 				{
 					$Fields	= 0;
 					$SQL  = "UPDATE ".PLANETS." SET ";
@@ -324,9 +324,9 @@ function ShowAccountEditorPage()
 				$LOG->new = $after;
 				$LOG->save();
 
-				if ($_POST['add']) {
+				if (!empty($_POST['add'])) {
 					$template->message($LNG['ad_add_build_success'], '?page=accounteditor&edit=buildings');
-				} else if ($_POST['delete']) {
+				} elseif (!empty($_POST['delete'])) {
 					$template->message($LNG['ad_delete_build_success'], '?page=accounteditor&edit=buildings');
 				}
 				exit;

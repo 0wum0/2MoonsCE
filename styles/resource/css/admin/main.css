@@ -516,8 +516,10 @@ body.admin-dashboard .button:hover,
    ════════════════════════════════════════════════════════════ */
 .sidebar-overlay {
   display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.7); z-index:999;
-  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.55);
+  z-index:999;
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1121,8 +1123,9 @@ textarea#rawLog { resize:none; font-size:11px; white-space:pre-wrap; font-family
   .col-md-9{width:75%;} .col-md-12{width:100%;}
 }
 @media (min-width:992px){
-  .col-lg-2{width:16.666%;} .col-lg-3{width:25%;} .col-lg-4{width:33.333%;}
-  .col-lg-6{width:50%;} .col-lg-8{width:66.667%;} .col-lg-9{width:75%;}
+  .col-lg-2{width:16.666%;} .col-lg-3{width:25%;}
+  .col-lg-4{width:33.333%;} .col-lg-6{width:50%;}
+  .col-lg-8{width:66.667%;} .col-lg-9{width:75%;}
 }
 @media (min-width:1200px){
   .col-xl-2{width:16.666%;} .col-xl-3{width:25%;}
@@ -1294,7 +1297,7 @@ textarea#rawLog { resize:none; font-size:11px; white-space:pre-wrap; font-family
 @media (max-width:768px){
   .admin-sidebar{transform:translateX(-100%);}
   .admin-sidebar.open{transform:translateX(0);}
-  .sidebar-overlay.active{display:block;}
+  .sidebar-overlay.active{display:block;pointer-events:all;}
   .admin-topbar{left:0;}
   .topbar-hamburger{display:flex;}
   .admin-content{margin-left:0;width:100%;padding:14px;}
