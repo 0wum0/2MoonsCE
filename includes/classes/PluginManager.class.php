@@ -1049,6 +1049,14 @@ class PluginManager
     public static function lang(string $pluginId, string $key): string
     {
         $self = self::get();
+        // On-demand load: if cache is missing for this plugin, try to load now
+        if (!isset($self->langCache[$pluginId])) {
+            try {
+                $self->loadLanguage($pluginId);
+            } catch (Throwable $e) {
+                // ignore
+            }
+        }
         return (string) ($self->langCache[$pluginId][$key] ?? $key);
     }
 
