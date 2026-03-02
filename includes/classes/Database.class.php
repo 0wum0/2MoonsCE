@@ -230,8 +230,10 @@ class Database
 
     public function select(string $qry, array $params = []): array
     {
-        $stmt = $this->_query($qry, $params, "select");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt   = $this->_query($qry, $params, "select");
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function selectSingle(string $qry, array $params = [], string|false $field = false): mixed
