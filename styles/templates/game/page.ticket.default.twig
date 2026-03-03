@@ -65,7 +65,7 @@
             </div>
             <div class="tc-col-answers">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5.414l-2.707 2.707A.5.5 0 012 14.293V2z"/></svg>
-                {{ [0, TicketInfo.answer - 1]|max }}
+                {{ max(0, TicketInfo.answer - 1) }}
             </div>
             <div class="tc-col-date">{{ TicketInfo.time }}</div>
             <div class="tc-col-status">
@@ -106,3 +106,4 @@
 
 </div>
 {% endblock %}
+
