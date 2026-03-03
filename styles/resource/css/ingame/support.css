@@ -37,16 +37,20 @@
     position: relative;
 }
 
-/* subtle scan-grid background */
+/* subtle scan-grid background — absolute so it works inside iframes too */
 .tc-root::before {
-    content: '';
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image:
-        linear-gradient(rgba(0,212,255,0.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,255,0.018) 1px, transparent 1px);
-    background-size: 40px 40px;
+    content: none;
 }
 .tc-root > * { position: relative; z-index: 1; }
+
+/* popup iframe context */
+body.popup-window .tc-root {
+    min-height: 100vh;
+    background: #05070f;
+}
+body.popup-window .tc-topbar {
+    position: sticky; top: 0; z-index: 10;
+}
 
 /* ── TOP BAR ───────────────────────────────────────────────── */
 .tc-topbar {
