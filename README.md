@@ -179,122 +179,112 @@ Login:    der beim Setup gewählte Admin-Account
 
 ## Changelog
 
-### CE-2026 — AJAX-Infrastruktur & Forum _(Feb 2026)_
+> Vollständiger Changelog: [CHANGELOG.md](CHANGELOG.md)
 
-**AJAX-Infrastruktur v2.0** — Alle Formular-Aktionen ohne Seitenreload
+### März 2026 — Support-System, Messages v3, Combat Engine v3, Galaxy Map
 
-- Neues `SmAjax`-Objekt in `scripts/game/ajax.js` als zentraler AJAX-Helper
-- `refreshPageContent(url)` ersetzt überall `window.location.reload()` — lädt nur den Seiteninhalt nach und tauscht `.content_page` in-place aus
-- `applyResources(data)` aktualisiert die Ressourcenleiste direkt aus AJAX-Antworten
-- Ressourcen-Polling alle 10 Sekunden (vorher 60 s)
-- Bauschleife, Forschung, Werft, Offiziere — alle Formulare arbeiten jetzt per AJAX, kein Seitenreload mehr
-- `AbstractGamePage::sendAjaxSuccess()` gibt bei Aktionen immer aktuelle Ressourcenwerte zurück
-- Progressive Enhancement: ohne JavaScript funktioniert alles weiterhin per normalem Form-POST
+**Support-System UI**
+- Komplettes UI-Overhaul: futuristisches Ticket-Center mit SVG-Icons, Status-Badges, Animationen
+- Neues Ticket öffnet als Modal-Popup (ohne Game-Header)
+- Chat-Bubble Thread-Ansicht für Spieler und Admin
+- Admin: Ticket-Liste mit 4 Live-Stat-Karten (Offen/Beantwortet/Geschlossen/Gesamt), Kategorie-Spalte
+- Fix: fehlende `ti_category_*` Sprachkeys; Kategorie-Anzeige in allen Templates
+- Fix: `ShowSupportPage::show()` übergibt `categoryList` ans Template
 
-**Forum** — Vollständige AJAX-Unterstützung
+**Messages System v3.0**
+- Komplettes Messaging-UI: Kommunikationszentrale mit Sidebar, aufklappbaren Karten, Compose-Modal
+- Externe `messages.css`; alle Inline-Styles entfernt
+- Email-Layout: Absender oben, Betreff darunter
+- Fix: Expedition-Kampfberichte öffnen als Modal (`data-fancybox`)
+- Fix: Karten-Animation via `max-height`/`opacity` statt `display:none`
 
-- Antworten erstellen, Thema erstellen, Beitrag bearbeiten, Beitrag löschen, Beitrag melden — alles ohne Reload
-- Neue Beiträge werden direkt in die Thread-Ansicht eingefügt, Textarea wird geleert
-- Neues Thema navigiert per `history.pushState` zur neuen Seite ohne Hard-Redirect
-- Beitrag löschen: `fadeOut` + DOM-Entfernung
+**Combat Engine**
+- v2.0: gewichtsbasierte Schadensverteilung, korrektes Rapid Fire, `mt_rand`, Deep-Snapshots
+- v3.0: taktische Formationen, kritische Treffer, Moral-System, Schiffs-Synergien
+- Battle Report v3.0: Modal-UI mit SVG-Grafiken, Schadensbalken, Runden-Tabs
+- Fix: MIP-Tech-Formel; SQL-Injection im Fleet-Steal behoben
 
-**Modulsystem v2** — Erweiterbare Gameplay-Engine
+**Galaxy Map**
+- 5 Spektral-Sterntypen (B/A/G/K/M) mit Größe, Farbe, Korona und Puls-Animation
+- 10 realistische Planeten-Typen (Terran/Wüste/Eis/Lava/Gas/Fels/Ozean/Dschungel/Saturn/Toxisch)
+- Schiffs-Silhouetten je Missionstyp mit Richtungsrotation
+- Mobile-First: Free-Roaming-Kamera (Pan/Orbit/Pinch-Zoom), 2D-only auf Mobilgeräten
+- Fix: Fleet-Dot-Sichtbarkeit (Größe ×4, AdditiveBlending, Y-Lift über Orbitebene)
+- Fix: Flottenlinie-Opacity 0.20 → 0.45/0.55
 
-- `GameModuleInterface`, `GameContext`, `ModuleManager` als Hook-basiertes Wrapper-System
-- `ProductionModule` und `QueueModule` als Core-Wrapper (Priorität 10)
-- Plugins können eigene Module per `manifest.json` registrieren (Priorität 100)
-- Kein Performance-Overhead wenn keine Module aktiv sind
+**LiteSpeed / PDO-Stabilität**
+- Fix PDO-Fehler 2014 „unbuffered queries" auf LiteSpeed vollständig behoben
+  (`closeCursor`, `rowCount`-Guard, Buffered-Query-Attribut, `session_write_close`, DB-Reconnect)
 
----
+**Plugin-System**
+- `PluginManager::getAssetUrl()` für plugin-relative Asset-URLs
+- `PluginManager::getConfig()` / `setConfig()` hinzugefügt
+- Fix: BOM aus allen Plugin-Dateien entfernt; `.gitattributes` für UTF-8 no-BOM + LF
+- Fix: CamelCase Plugin-IDs, `dirForId()` für Verzeichnis-Auflösung
+- Fix: `Cronjob::execute()` scannt `plugins/*/cron/` direkt
+- Neues Plugin: **LiveFleetTracker** — Echtzeit-Flotten, Interception, NPC-Piraten, Warp-Risiko
 
-### CE-2025 — Header, Flotten & UI-Fixes _(Dez 2025)_
-
-- Planeten-Umbenennung zuverlässig stabilisiert (Frontend-Trigger + Rückgabe-Auswertung)
-- Flottenbewegungen im Header werden wieder korrekt angezeigt (robuste JSON-Übergabe + Fallback)
-- Bauschleifen-/Forschungs-/Hangar-Timer im Header repariert (Race Conditions beseitigt, Queue-Handling nach Kategorie getrennt)
-- Toast-Benachrichtigungen für Aktionen und Status-Rückmeldungen integriert
-- Galaxiekarte (3D): Flottenlinien (eigen=cyan, Ally=lila, feindlich=rot gestrichelt), Planeten-Selektion mit Highlight-Ring, `flyTo()`-Navigation ohne Snap-Back, Sprung-Hint-Anzeige
-
----
-
-### v3.3.x — Twig & Datenbankfixes _(Okt 2025)_
-
-**v3.3.4** — Admin-Panel Datenbankverbindung repariert
-- `Database_BC.class.php` lädt `config.php` jetzt korrekt über `ROOT_PATH`
-- Charset von `utf8` auf `utf8mb4` umgestellt
-- "Access denied for user ''@'localhost'" Fehler behoben
-
-**v3.3.3** — Twig-Vorlagen-Bugfixes
-- Ungültige Twig-Klammersyntax in mehreren Templates korrigiert
-- Fehlende schließende Klammern bei `isModuleAvailable()`-Aufrufen ergänzt
-- PHP-Funktionen durch korrekte Twig-Syntax ersetzt (`isset` → `is defined`, `is_numeric` → `matches`)
-
-**v3.3.2** — Doppelte Block-Definitionen entfernt
-- Doppelte `{% block script %}`-Definitionen in `page.overview.default.twig` entfernt
-
-**v3.3.1** — Ungültiger `|json`-Filter ersetzt
-- Nicht existierender `|json`-Filter durch `|json_encode|raw` ersetzt (12 Vorkommen in 5 Templates)
-
-**v3.3.0 / v3.2.9** — Vollständige Twig-Syntax-Bereinigung
-- Alle ungültigen `}}}`, `} }}`, `} %}`-Muster entfernt (38 Vorkommen in 18 Templates)
-- Smarty-Überreste (`$var`-Referenzen, `{round(...)}`) durch korrektes Twig ersetzt
-- Alle 180 Twig-Templates validiert, null Syntaxfehler verbleibend
-
-**v3.2.7** — Datenbankkonfiguration vereinheitlicht
-- Einheitliche Config-Keys überall: `host`, `user`, `password`, `dbname`, `port`
-- Alle Legacy-Keys (`dbhost`, `dbuser`, `dbpass`, `userpw`, `databasename`) entfernt
-- Modernes DSN-Format mit `utf8mb4` Charset
-
-**v3.2.6** — Ungültiger `|contains`-Filter ersetzt
-- `|contains('yes')` durch `'yes' in variable` ersetzt (12 Vorkommen im Installer)
-
-**v3.2.4** — Datenbankkonfiguration vollständig migriert
-- Alle Komponenten auf einheitliche Keys umgestellt (Database, SQLDumper, Chat, Installer)
-
-**v3.2.2** — HTML-Ausgabe-Escaping korrigiert
-- `|raw`-Filter für system-kontrollierte HTML-Variablen ergänzt (Installerchecks, Fleet-Events, News)
+**Installation & Migration**
+- Fix: UTF-8 BOM aus allen PHP-Dateien entfernt (White Screen / „headers already sent")
+- Fix: `migration_14` idempotent (try/catch pro Statement)
+- Animierter Installer-Ladebildschirm (Schritt 5)
+- Fix: Hostinger-Blank-Page durch explizites Buffer-Flush vor Redirect
 
 ---
 
-### v3.2.0 — Vollständige Twig-Migration _(Okt 2025)_
+### Feb 2026 — AJAX-Infrastruktur, Forum, Admin-Panel, 3D-Galaxiekarte
 
-- 100 % Twig-Syntax-Konformität — alle 180 Templates konvertiert und validiert
-- 198+ `{$var}` Smarty-Muster nach `{{ var }}` konvertiert
-- 55 `{html_options}` durch Twig `{% for %}`-Schleifen ersetzt
-- 31 `smarty.const.*`-Referenzen auf `constant()` umgestellt
-- 47+ Loop-Properties (`@iteration`, `@first`, `@last`) nach `loop.*` konvertiert
-- Null Smarty-Syntax verbleibend
+**AJAX-Infrastruktur v2.0**
+- `SmAjax`-Objekt: `refreshPageContent()`, `applyResources()`, Ressourcen-Polling alle 10 s
+- Bauschleife, Forschung, Werft, Offiziere — alles per AJAX ohne Seitenreload
+- Progressive Enhancement: funktioniert weiterhin ohne JavaScript
+
+**3D-Galaxiekarte**
+- Three.js 3D-Galaxiekarte mit Orbit/Fly-Navigation
+- Flottenlinien: eigen=cyan, Ally=lila, feindlich=rot-gestrichelt
+- Planeten-Selektion mit Highlight-Ring; `flyTo()` ohne Snap-Back
+- `navJump` (g=1..9, s=1..499) und `navHome`
+
+**Forum**
+- Vollständiges Forum mit Kategorien, Threads, Likes, BBCode, Moderation
+- Forum-Benachrichtigungen, Authentifizierung, Playercard-Modal
+- Fix: Fancybox durch Custom-Modal ersetzt
+
+**Plugin-System**
+- Plugin System v1.0 → v1.2 mit `ElementRegistry`
+- Fix: `reslist['allow']` String/Int-Key-Korruption
+- Fix: `hasNewElements()`-Gate blockierte Pricelist-Export für Plugin-Gebäude
+- Fix: `runSqlFile()` bricht nicht mehr bei Per-Statement-Fehlern ab
+- Plugins: GalacticEvents, RewardPoolEngine, GalaxyMarkerAPI, CoreQoLPack, Relics & Doctrines
+
+**Modulsystem v2**
+- `GameModuleInterface`, `GameContext`, `ModuleManager`
+- Core-Module: `ProductionModule`, `QueueModule` (Priorität 10)
+- Safe-Mode: Plugin/Modul bei Crash automatisch deaktivieren
+
+**Admin-Panel**
+- Futuristisches Aerospace-Design mit Orbitron/Exo 2 und Design-Tokens
+- Admin Debug Panel: aktive Plugins/Hooks/Module
+- Fix: Mobile-Navigation (Sidebar-Overlay, Backdrop-Filter, Breakpoint 1100px, Z-Index)
+- Fix: `ShowAccountEditorPage` POST-Key undefined
+
+**UI / Login**
+- SmartMoons v4.0 Redesign — neues CSS-System mit mehreren Dateien
+- Login/Registrierung redesigned: Honeypot-Spam-Schutz, Math-CAPTCHA, Rate-Limiting
+- Dark/Light-Mode-Toggle mit localStorage-Persistenz
+- Element-Tooltip-System (`data-tt-*` Attribute)
+- In-Game Changelog-Seite (rendert `CHANGELOG.md` via Parsedown)
 
 ---
 
-### v3.1.x — PHP 8.3/8.4 Vollkompatibilität _(Okt 2025)_
+### v3.x – v1.x — Legacy (2024–2025)
 
-**v3.1.7–v3.1.4** — Template-Migration (Twig-Engine installiert, alle Install-/Login-/Game-/Admin-Templates migriert)
-
-**v3.1.1–v3.1.0** — PHP 8.3/8.4 Abschluss
-- 100 % `declare(strict_types=1)`-Abdeckung (331 PHP-Dateien + 83 Sprachdateien)
-- Alle `require` auf `require_once` umgestellt
-- Null `mysql_*`-Funktionen, null veraltete Funktionen verbleibend
-- Twig 3 als Template-Engine installiert (`composer require twig/twig`)
-
----
-
-### v3.0.x — PHP 8.3 Modernisierung _(Okt 2025)_
-
-- **v3.0.9** — Alle externen Bibliotheken modernisiert (FTP, tdCron, Facebook SDK, OpenID, PHPMailer, TeamSpeak, Parsedown, Zip)
-- **v3.0.8** — `declare(strict_types=1)` in 235 PHP-Dateien ergänzt; alle Kern-Klassen mit strikten Typen versehen
-- **v3.0.5–v3.0.7** — Strenge Typisierung für `Database.class.php`, `Config.class.php`, `Session.class.php`
-- **v3.0.1–v3.0.4** — Initiale PHP 8.3 Modernisierung (`common.php`, `GeneralFunctions.php`, `constants.php`, Core-Includes)
-
----
-
-### v2.0.0 — Legacy-Versionen
-
-**v2.0.0** _(2023, by Jekill)_ — PHP 8 Kompatibilität; Smarty 4.3.4 Update; fehlende Logik ergänzt
-
-**v2.0.0** _(2018, by Danter14)_ — Redesign mit Bootstrap 4; Bugfixes für Trümmerfelder & Mondsprengung
-
-**v1.x** _(Original 2Moons by slaver7)_ — Ursprüngliche Codebase
+**v3.2.0** — Vollständige Twig-Migration (180 Templates, null Smarty-Syntax verbleibend)  
+**v3.1.x** — PHP 8.3/8.4 Vollkompatibilität, `strict_types` in 331 Dateien  
+**v3.0.x** — PHP 8.3 Modernisierung, PDO-Migration, externe Bibliotheken aktualisiert  
+**v2.0.0** _(Jekill, 2023)_ — PHP 8 Kompatibilität, Smarty 4.3.4  
+**v2.0.0** _(Danter14, 2018)_ — Bootstrap 4 Redesign  
+**v1.x** _(slaver7)_ — Original 2Moons Codebase
 
 ---
 
