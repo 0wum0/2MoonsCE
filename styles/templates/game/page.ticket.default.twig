@@ -25,45 +25,84 @@
 
 {% block title %}{{ LNG.lm_support }}{% endblock %}
 {% block content %}
+<div class="tc-root">
 
-<div class="content_page">
-    <div class="aerospace-wrapper">
-        
-        <div class="content-box header-panel">
-            <h2 class="page-title"><i class="fas fa-headset"></i> {{ LNG.ti_header }}</h2>
-            <a href="game.php?page=ticket&amp;mode=create" class="btn-new-ticket">
-                <i class="fas fa-plus"></i> {{ LNG.ti_new }}
+    <div class="tc-topbar">
+        <div class="tc-topbar-left">
+            <div class="tc-topbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+            </div>
+            <div>
+                <div class="tc-topbar-title">{{ LNG.ti_header }}</div>
+                <div class="tc-topbar-sub">// SUPPORT_CENTER &middot; {{ ticketList|length }} TICKET{% if ticketList|length != 1 %}S{% endif %}</div>
+            </div>
+        </div>
+        <div class="tc-topbar-right">
+            <a href="game.php?page=ticket&mode=create" class="tc-btn-new">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M8 2a.5.5 0 01.5.5v5h5a.5.5 0 010 1h-5v5a.5.5 0 01-1 0v-5h-5a.5.5 0 010-1h5v-5A.5.5 0 018 2z"/></svg>
+                {{ LNG.ti_new }}
             </a>
         </div>
+    </div>
 
-        <div class="content-box ticket-list">
-            <div class="ticket-head-row">
-                <div class="col id">ID</div>
-                <div class="col sub">{{ LNG.ti_subject }}</div>
-                <div class="col ans">{{ LNG.ti_answers }}</div>
-                <div class="col date">{{ LNG.ti_date }}</div>
-                <div class="col stat">{{ LNG.ti_status }}</div>
-            </div>
-
-            {% for TicketID, TicketInfo in ticketList %}    
-            <div class="ticket-row" onclick="window.location.href='game.php?page=ticket&amp;mode=view&amp;id={{ TicketID }}'">
-                <div class="col id">#{{ TicketID }}</div>
-                <div class="col sub">{{ TicketInfo.subject }}</div>
-                <div class="col ans">{{ TicketInfo.answer - 1 }}</div>
-                <div class="col date">{{ TicketInfo.time }}</div>
-                <div class="col stat">
-                    {% if TicketInfo.status == 0 %}
-                        <span class="badge open">{{ LNG.ti_status_open }}</span>
-                    {% elseif TicketInfo.status == 1 %}
-                        <span class="badge answer">{{ LNG.ti_status_answer }}</span>
-                    {% else %}
-                        <span class="badge closed">{{ LNG.ti_status_closed }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
+    <div class="tc-list-body">
+        {% if ticketList is not empty %}
+        <div class="tc-list-header">
+            <div>ID</div>
+            <div>{{ LNG.ti_subject }}</div>
+            <div>{{ LNG.ti_category }}</div>
+            <div>{{ LNG.ti_answers }}</div>
+            <div>{{ LNG.ti_status }}</div>
         </div>
 
+        {% for TicketID, TicketInfo in ticketList %}
+        <a href="game.php?page=ticket&mode=view&id={{ TicketID }}"
+           class="tc-ticket-row {% if TicketInfo.status == 0 %}status-open{% elseif TicketInfo.status == 1 %}status-answered{% else %}status-closed{% endif %}">
+            <div class="tc-col-id">#{{ TicketID }}</div>
+            <div class="tc-col-subject">{{ TicketInfo.subject|e }}</div>
+            <div class="tc-col-cat">
+                <span class="tc-cat-badge cat-{{ TicketInfo.categoryID }}">{{ categoryList[TicketInfo.categoryID]|default('?')|e }}</span>
+            </div>
+            <div class="tc-col-answers">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5.414l-2.707 2.707A.5.5 0 012 14.293V2z"/></svg>
+                {{ [0, TicketInfo.answer - 1]|max }}
+            </div>
+            <div class="tc-col-date">{{ TicketInfo.time }}</div>
+            <div class="tc-col-status">
+                {% if TicketInfo.status == 0 %}
+                <span class="tc-badge open">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="4"/></svg>
+                    {{ LNG.ti_status_open }}
+                </span>
+                {% elseif TicketInfo.status == 1 %}
+                <span class="tc-badge answered">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425-.047-.048z"/></svg>
+                    {{ LNG.ti_status_answer }}
+                </span>
+                {% else %}
+                <span class="tc-badge closed">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+                    {{ LNG.ti_status_closed }}
+                </span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+
+        {% else %}
+        <div class="tc-empty">
+            <div class="tc-empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+            </div>
+            <div class="tc-empty-title">Keine Tickets</div>
+            <div class="tc-empty-sub">// TICKET_QUEUE_EMPTY</div>
+            <a href="game.php?page=ticket&mode=create" class="tc-empty-link">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 2a.5.5 0 01.5.5v5h5a.5.5 0 010 1h-5v5a.5.5 0 01-1 0v-5h-5a.5.5 0 010-1h5v-5A.5.5 0 018 2z"/></svg>
+                Erstes Ticket erstellen
+            </a>
+        </div>
+        {% endif %}
     </div>
+
 </div>
 {% endblock %}
