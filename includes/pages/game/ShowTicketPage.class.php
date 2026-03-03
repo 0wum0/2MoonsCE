@@ -72,6 +72,7 @@ class ShowTicketPage extends AbstractGamePage
 	
 	public function create()
 	{
+		$this->setWindow('popup');
 		$this->assign(array(
 			'categoryList'	=> $this->ticketObj->getCategoryList(),
 		));

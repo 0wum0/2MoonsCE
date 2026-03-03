@@ -38,7 +38,7 @@
             </div>
         </div>
         <div class="tc-topbar-right">
-            <a href="game.php?page=ticket&mode=create" class="tc-btn-new">
+            <a href="game.php?page=ticket&mode=create" data-fancybox class="tc-btn-new">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M8 2a.5.5 0 01.5.5v5h5a.5.5 0 010 1h-5v5a.5.5 0 01-1 0v-5h-5a.5.5 0 010-1h5v-5A.5.5 0 018 2z"/></svg>
                 {{ LNG.ti_new }}
             </a>
@@ -96,7 +96,7 @@
             </div>
             <div class="tc-empty-title">Keine Tickets</div>
             <div class="tc-empty-sub">// TICKET_QUEUE_EMPTY</div>
-            <a href="game.php?page=ticket&mode=create" class="tc-empty-link">
+            <a href="game.php?page=ticket&mode=create" data-fancybox class="tc-empty-link">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 2a.5.5 0 01.5.5v5h5a.5.5 0 010 1h-5v5a.5.5 0 01-1 0v-5h-5a.5.5 0 010-1h5v-5A.5.5 0 018 2z"/></svg>
                 Erstes Ticket erstellen
             </a>
@@ -106,4 +106,5 @@
 
 </div>
 {% endblock %}
+
 
