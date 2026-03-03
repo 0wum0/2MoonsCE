@@ -5,7 +5,105 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 
 ---
 
-## [Unreleased] – 2026
+## [Unreleased] – März 2026
+
+### Support-System UI (März 2026)
+- Complete support system UI overhaul: futuristic ticket center with SVG icons, status badges, animations, thread view — by 0wum0
+- Added `support.css` as dedicated external stylesheet with CSS variables, futuristic design tokens, and responsive layout — by 0wum0
+- Rewrote `page.ticket.default.twig`: modern ticket list with per-status row colours, answer count badges, category pills — by 0wum0
+- Rewrote `page.ticket.create.twig`: new ticket form with styled `<select>` category dropdown, BBCode toolbar, char counter — by 0wum0
+- Rewrote `page.ticket.view.twig`: chat-bubble thread view, reply form with BBCode toolbar, status badge in topbar — by 0wum0
+- New ticket creation now opens as a modal popup (`setWindow('popup')` + `data-fancybox`) without the game header — by 0wum0
+- Fixed `page.ticket.create.twig` to extend `layout.popup.twig` instead of `layout.full.twig` to prevent header bleeding into modal — by 0wum0
+- Added `target="_top"` to ticket create form so post-submit redirect breaks out of the iframe — by 0wum0
+- Fixed `|max` Twig filter → `max()` function call in ticket list (Twig 3 compatibility) — by 0wum0
+- Fixed category display: `ti_category_error/bug/feature/other` LNG keys were missing from all language files — added to `de/INGAME.php`; added `!empty()` fallbacks in `getCategoryList()` — by 0wum0
+- Admin support UI overhaul: futuristic ticket list with 4 live stat cards (open/answered/closed/total), pulsing open-badge, category column — by 0wum0
+- Admin ticket view: chat-bubble design matching game side, Admin/User role badges, status badge + back button in topbar, BBCode toolbar — by 0wum0
+- Fixed `ShowSupportPage::show()`: `categoryList` was not passed to the template → category column was empty — by 0wum0
+- Added category display to admin ticket view topbar subtitle — by 0wum0
+
+### Messages System v3.0 (März 2026)
+- Complete messaging UI overhaul: communication center with sidebar, expandable cards, compose modal, themed scrollbar — by 0wum0
+- Moved all messages CSS to dedicated `messages.css`; stripped all inline styles from Twig templates — by 0wum0
+- Fixed scanline grid artifact appearing in compose modal (removed `position:fixed` from `::before` pseudo-element) — by 0wum0
+- Fixed `mm-popup-body` background and padding in modal iframe context — by 0wum0
+- Email-style card layout: sender + time on top row, subject below; better readability — by 0wum0
+- Fixed expedition combat report links: now open as modal via `data-fancybox` instead of `target="_blank"` — by 0wum0
+- Fixed `|max` / `|min` Twig filter → `max()` / `min()` function calls in message pagination — by 0wum0
+- Fixed card expand animation: use `max-height` + `opacity` transition instead of `display:none` toggle — by 0wum0
+
+### Combat Engine (März 2026)
+- Combat engine v2.0: weight-based damage distribution, correct Rapid Fire application, `mt_rand` for all rolls, deep fleet snapshots — by 0wum0
+- Combat engine v3.0: tactical formations, critical hits, morale system, ship synergies, extended round metadata — by 0wum0
+- Battle report v3.0: professional modal UI with SVG graphics, damage bars, round tabs, space aesthetic — by 0wum0
+- Fixed battle report links: open as modal via `data-fancybox` in battlehall, messages, and destruction reports — by 0wum0
+- Fixed popup layout: remove old wrapper chrome, add themed dark scrollbar, clean modal iframe body — by 0wum0
+- Fixed MIP tech formula in combat engine — by 0wum0
+- Fixed fleet steal SQL injection vulnerability — by 0wum0
+
+### Galaxy Map (März 2026)
+- Added 5 spectral star types (B/A/G/K/M) with per-type size, colour, corona spikes and pulse animation — by 0wum0
+- Added 10 realistic planet types (terran/desert/ice/lava/gas/rock/ocean/jungle/saturn/toxic) with canvas rendering — by 0wum0
+- Added ship silhouettes per mission type (fighter/transport/colony/spy/recycler) with direction rotation — by 0wum0
+- Mobile-first UI redesign with free-roaming camera (pan/orbit/pinch-zoom) — by 0wum0
+- HUD overhaul: 3D/2D toggle in HUD, FAB above dock, desktop panel fixes — by 0wum0
+- Added round star particles, coloured nebula clouds, 2-finger tilt, prevented horizontal scroll — by 0wum0
+- Fixed fleet dot visibility: increased size 3–7 → 12–20 units × 4, AdditiveBlending for glow, Y-lift above orbit plane — by 0wum0
+- Fixed fleet line opacity: path opacity 0.20 → 0.45/0.55, trail opacity corrected — by 0wum0
+- Fixed sun scale: `baseSunScale=28` stored on creation; animate loop uses stored value instead of hardcoded `12` — by 0wum0
+- Mobile 2D-only mode: hides `#vb-3d` on `max-width:768px`, sets `orb.r=4000` with `syncCamera()` on init — by 0wum0
+- Fixed galaxy map JSON APIs: `while(ob_get_level())` clears all output buffers before JSON output — by 0wum0
+- Added window focus event to re-fetch fleets; reduced no-fleet polling interval 15 s → 3 s — by 0wum0
+
+### LiteSpeed / PDO Stability (März 2026)
+- Fixed PDO error 2014 "Cannot execute queries while other unbuffered queries are active" on LiteSpeed — by 0wum0
+  - `Database::closeCursor()` after `fetchAll()` in `select()` — by 0wum0
+  - `rowCount()` guard: only called for non-SELECT statements — by 0wum0
+  - `setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)` after connect — by 0wum0
+  - `session_write_close()` in constructor for JSON API modes — by 0wum0
+  - `Session::save()` idempotent flag + DB disconnect after save — by 0wum0
+  - `Database::reconnect()` + `Session::save()` reconnects before queries — by 0wum0
+  - `reconnect()` uses `SELECT 1` flush instead of `new self()` to avoid `config.php` path issues — by 0wum0
+
+### Plugin System (März 2026)
+- Added `PluginManager::getAssetUrl(pluginId, relativePath)` for plugin-relative web asset URLs — by 0wum0
+- Added `PluginManager::registerBuildingImage()` API replacing manual `@copy` hack — by 0wum0
+- Fixed `PluginManager::lang()`: on-demand loads language file if cache is missing — by 0wum0
+- Fixed `PluginManager::getConfig()` / `setConfig()`: were missing, caused fatal error in GalacticEvents — by 0wum0
+- Fixed duplicate `getConfig()`/`setConfig()` methods after merge — by 0wum0
+- Fixed GalacticEvents plugin ID mismatch (`galactic_events` → `GalacticEvents`) — by 0wum0
+- Fixed `GalacticEventsModule` Twig namespace (`@galactic_events` → `@GalacticEvents`) — by 0wum0
+- Fixed `GalaxyMarkerDb` / `RewardPoolDb`: replaced non-existent `query/fetch_array/sql_escape` calls with correct `select/selectSingle/insert/delete` API — by 0wum0
+- Fixed `RelicsTick.php` parse error (stray quote in comment) — by 0wum0
+- Fixed `RelicsPage` lang loading: reads JSON directly via `dirForId()` instead of relying on PluginManager cache — by 0wum0
+- Fixed `Cronjob::execute()`: wraps `require_once` + `run()` in single `try/catch` so lock is always released on error — by 0wum0
+- Fixed plugin cronjobs: `Cronjob::execute()` scans `plugins/*/cron/` directly, no longer depends on `loadActivePlugins()` for path resolution — by 0wum0
+- Fixed CronjobTask interface: load via `__DIR__` relative path before requiring plugin cronjob file — by 0wum0
+- Fixed `PluginManager::registerCronjob()`: auto-inserts DB row if missing (idempotent) — by 0wum0
+- Fixed `activate()`: bootstraps `plugin.php` so `registerCronjob()` creates DB row; `deactivate()` disables only that plugin's cronjobs — by 0wum0
+- Fixed CamelCase plugin IDs: `dirForId()` resolves directory by manifest scan regardless of folder name casing — by 0wum0
+- Fixed plugin ID sanitizer: preserve CamelCase in admin page (removed `strtolower`) — by 0wum0
+- Added `Database::isConnected()`: check PDO handle validity without relying on `get() !== null` — by 0wum0
+- Fixed `ShowOverviewPage` / `GalacticEventsModule`: `null`-check `Database::get()` before DB queries — by 0wum0
+- Fixed `GE_CFG_*` constants: added `defined()` guards to prevent redefinition error — by 0wum0
+- Removed BOM from all plugin files; added `.gitattributes` to enforce UTF-8 no-BOM + LF line endings — by 0wum0
+- Added Plugin: **LiveFleetTracker** — real-time fleet tracking, interception, NPC pirates, warp risk — by 0wum0
+  - Full combat via `CombatFramework`, resource transfer, fleet losses on intercept — by 0wum0
+  - Fixed `LiveFleetCronjob`: delete `FLEETS`+`FLEETS_EVENT` together, update `LOG_FLEETS`, fix fleet array format — by 0wum0
+
+### Installation & Migration (März 2026)
+- Fixed `runSqlFile()`: per-statement `try/catch` so `ALTER TABLE ADD COLUMN` errors on re-install are non-fatal — by 0wum0
+- Fixed `migration_14`: removed `PREPARE` blocks, use simple `ALTER TABLE` (try/catch handles duplicates) — by 0wum0
+- Added all forum tables + `lockTime` column to `migration_14` for catch-up on existing installs — by 0wum0
+- Fixed graceful error when forum tables are missing: show upgrade link instead of crash — by 0wum0
+- Fixed `allow upgrade/doupgrade` without `ENABLE_INSTALL_TOOL` on existing installs — by 0wum0
+- Added animated Windows-installer-style loader screen (step 5) — by 0wum0
+- Fixed UTF-8 BOM: removed from all PHP files including `common.php` (caused "headers already sent" / white screen) — by 0wum0
+- Added `.editorconfig` to prevent UTF-8 BOM in future commits — by 0wum0
+- Fixed `config.sample.php`: added `%d` placeholder for port in `sprintf` mapping — by 0wum0
+- Fixed `ob_start` in `index.php`: add explicit 302 + flush buffers before redirect to fix blank page on Hostinger — by 0wum0
+- Added `vendor/` to repo for correct dependency bundling on fresh install — by 0wum0
 
 ### Admin Panel – Bugfixes (März 2026)
 - Fixed `ShowAccountEditorPage`: "Undefined array key 'delete'" on line 329 — replaced direct `$_POST['add']`/`$_POST['delete']` access with `!empty()` checks in buildings section — by 0wum0
@@ -15,6 +113,15 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Fixed Admin mobile breakpoint: raised from `768px` to `1100px` so sidebar hides correctly on tablets and larger mobile devices — by 0wum0
 - Fixed Admin sidebar z-index: raised sidebar to `z-index:1001` (overlay `1000`) so nav links are clickable when sidebar is open — by 0wum0
 - Fixed Dashboard Bot-Aktivität box: `white-space:nowrap` without `flex-wrap` caused layout to break mobile view — replaced with `flex-wrap:wrap`, `word-break:break-word`, `overflow-wrap:break-word` — by 0wum0
+- Added cronjob reset-all action with admin UI confirmation dialog — by 0wum0
+- Fixed `registerCronjob` selectSingle false-return crash — by 0wum0
+
+### Overview Page (März 2026)
+- Show all planets including current in overview; always show referral link card — by 0wum0
+- Added GalacticEvents block to overview — by 0wum0
+- Added inline planet rename: click-to-edit UI with live title/selector updates via AJAX — by 0wum0
+- Fixed planet rename endpoint: clears output buffers, returns explicit JSON headers — by 0wum0
+- Added universe filter and duplicate parameter fix to `FlyingFleetsTable` query — by 0wum0
 
 ### Defensive Programming & Stability
 - Added `Database::selectSingleSafe()` — returns `null` instead of `false`, no breaking change — by 0wum0
@@ -23,6 +130,8 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Fixed `ShowBuddyListPage`: guard against null userData for invalid friend ID — by 0wum0
 - Fixed `ShowChangelogPage`: guard against missing file before `file_get_contents()` — by 0wum0
 - Added `class_exists()` guard in `game.php` and `index.php` routers after `require_once` — by 0wum0
+- Added sidebar collapse toggle with `localStorage` persistence — by 0wum0
+- Added Galaxy Map + 2D/3D toggle to sidebar navigation — by 0wum0
 
 ### Login / Registration
 - Added math CAPTCHA `ensureSession()` — calls `Session::init()` before `session_start()` — by 0wum0
@@ -36,7 +145,7 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Scoped `main.css` body/input rules with `:not(.auth-body)` to prevent conflicts with `auth.css` — by 0wum0
 
 ### Changelog Page
-- Added in-game changelog page (`game.php?page=changelog`) — by 0wum0
+- Added in-game changelog page (`game.php?page=changelog`) — renders `CHANGELOG.md` via Parsedown — by 0wum0
 - Added changelog link in game footer next to game name — by 0wum0
 - Added `menu_changelog` language key to all languages (de/en/es/fr) — by 0wum0
 
