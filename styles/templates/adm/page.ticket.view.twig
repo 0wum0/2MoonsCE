@@ -1,153 +1,261 @@
 ﻿{#
 	2MoonsCE
-
-	Based on the original 2Moons project:
-
-	@copyright 2009 Lucky
-	@copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
-	@licence MIT
-	@version 1.8.0
-	@link https://github.com/jkroepke/2Moons
-	 2Moons
-	  by Jan-Otto Kröpke 2009-2016
-
-	Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
-	Refactoring and feature extensions:
 	@copyright 2024-2026 Florian Engelhardt (0wum0)
-	@link https://github.com/0wum0/2MoonsCE
-	@eMail info.browsergame@gmail.com
-
 	Licensed under the MIT License.
-	See LICENSE for details.
-	@visit http://makeit.uno/
 #}
 {% include "overall_header.twig" %}
 <style>
-    .support-view-container { width: 100% !important; padding: 15px; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    .msg-card { background: rgba(22, 27, 34, 0.9); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .msg-header { border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .msg-author { color: #38bdf8; font-weight: 800; font-size: 16px; text-transform: uppercase; }
-    .msg-date { color: #8b949e; font-size: 12px; }
-    .msg-content { color: #d1d5db; line-height: 1.8; font-size: 15px; word-wrap: break-word; }
-    .msg-content ul.bb-list, .msg-content ol.bb-list { margin: 8px 0 8px 24px; padding: 0; }
-    .msg-content ul.bb-list li, .msg-content ol.bb-list li { margin-bottom: 4px; }
-    .msg-content table.bb-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .msg-content table.bb-table th.bb-th, .msg-content table.bb-table td.bb-td { border: 1px solid rgba(56,189,248,0.25); padding: 8px 12px; text-align: left; }
-    .msg-content table.bb-table th.bb-th { background: rgba(56,189,248,0.1); color: #38bdf8; font-weight: 700; }
-    .msg-content hr.bb-hr { border: none; border-top: 1px solid rgba(56,189,248,0.25); margin: 14px 0; }
-    .msg-content .forum-quote { background: rgba(255,255,255,0.04); border-left: 3px solid #38bdf8; padding: 10px 14px; margin: 8px 0; border-radius: 4px; }
-    .msg-content .forum-quote-author { font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 5px; }
-    .msg-content .forum-code { background: rgba(0,0,0,0.5); border: 1px solid rgba(56,189,248,0.2); border-radius: 6px; margin: 8px 0; overflow: auto; }
-    .msg-content .forum-code pre { margin: 0; padding: 12px; font-size: 13px; }
+:root {
+    --ta-bg:      #04060f;
+    --ta-surface: #080c1a;
+    --ta-surface2:#0c1224;
+    --ta-border:  #0e1e36;
+    --ta-accent:  #00d4ff;
+    --ta-green:   #00e676;
+    --ta-yellow:  #fbbf24;
+    --ta-red:     #ff3d57;
+    --ta-purple:  #b47cff;
+    --ta-text:    #b0c8e0;
+    --ta-muted:   #3a5570;
+    --ta-white:   #e8f4ff;
+    --ta-mono:    'JetBrains Mono','Fira Code',monospace;
+    --ta-hud:     'Orbitron','Segoe UI',sans-serif;
+}
+.ta-wrap { padding: 16px 20px; font-family: 'Segoe UI',system-ui,sans-serif; color: var(--ta-text); }
 
-    .reply-box { background: rgba(13, 17, 23, 0.98); border: 1px solid #38bdf8; border-radius: 15px; padding: 25px; margin-top: 30px; }
-    .adm-textarea { width: 100% !important; min-height: 200px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; border-radius: 10px; font-family: inherit; font-size: 15px; resize: vertical; box-sizing: border-box; margin-bottom: 15px; }
+.ta-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; margin-bottom: 16px;
+    background: linear-gradient(90deg,#05080f,#080d1c);
+    border: 1px solid var(--ta-border); border-radius: 12px; gap: 12px; flex-wrap: wrap;
+}
+.ta-topbar-left  { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.ta-topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.ta-topbar-icon {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    display: flex; align-items: center; justify-content: center; color: var(--ta-accent);
+}
+.ta-topbar-title { font-family: var(--ta-hud); font-size: 13px; font-weight: 700; color: var(--ta-white); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+.ta-topbar-sub   { font-family: var(--ta-mono); font-size: 10px; color: var(--ta-muted); margin-top: 2px; }
 
-    .bb-toolbar { display: flex; gap: 5px; margin-bottom: 12px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; flex-wrap: wrap; }
-    .bb-btn { min-width: 30px; height: 30px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; transition: 0.15s; white-space: nowrap; }
-    .bb-btn:hover { background: #38bdf8; color: #000; border-color: #38bdf8; }
+.ta-btn-back {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px; border-radius: 7px; font-size: 11px; font-weight: 600;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--ta-border);
+    color: var(--ta-muted); text-decoration: none; transition: all 0.15s;
+}
+.ta-btn-back:hover { color: var(--ta-accent); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); text-decoration: none; }
 
-    .btn-submit { padding: 12px 30px; background: #38bdf8; color: #000; border: none; border-radius: 8px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
-    .btn-submit:hover { box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+.ta-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 20px; font-size: 9px; font-weight: 700;
+    font-family: var(--ta-hud); letter-spacing: 0.07em; text-transform: uppercase;
+    border: 1px solid currentColor; white-space: nowrap;
+}
+.ta-badge.open     { color: var(--ta-yellow); background: rgba(251,191,36,0.1); animation: ta-pulse-y 2.5s ease-in-out infinite; }
+.ta-badge.answered { color: var(--ta-green);  background: rgba(0,230,118,0.1); }
+.ta-badge.closed   { color: var(--ta-muted);  background: rgba(58,85,112,0.1); border-color: var(--ta-border); }
+@keyframes ta-pulse-y {
+    0%,100% { box-shadow: 0 0 4px rgba(251,191,36,0.15); }
+    50%      { box-shadow: 0 0 12px rgba(251,191,36,0.4); }
+}
+
+/* thread */
+.ta-thread { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+.ta-msg { display: flex; gap: 12px; }
+.ta-msg.is-support { flex-direction: row-reverse; }
+
+.ta-msg-avatar {
+    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--ta-hud); font-size: 13px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg,#0284c7,#0f172a);
+    border: 1px solid rgba(0,212,255,0.2);
+}
+.ta-msg.is-support .ta-msg-avatar {
+    background: linear-gradient(135deg,#7c3aed,#1e1b4b);
+    border-color: rgba(180,124,255,0.3);
+}
+
+.ta-msg-bubble {
+    flex: 1; min-width: 0;
+    background: var(--ta-surface); border: 1px solid var(--ta-border); border-radius: 12px; overflow: hidden;
+}
+.ta-msg.is-support .ta-msg-bubble { background: #0a0e24; border-color: rgba(180,124,255,0.15); }
+
+.ta-msg-head {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+    background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--ta-border);
+}
+.ta-msg-author { font-size: 12px; font-weight: 700; color: var(--ta-white); }
+.ta-msg.is-support .ta-msg-author { color: var(--ta-purple); }
+.ta-msg-role {
+    font-family: var(--ta-hud); font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 4px;
+    color: var(--ta-accent); background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+}
+.ta-msg.is-support .ta-msg-role { color: var(--ta-purple); background: rgba(180,124,255,0.08); border-color: rgba(180,124,255,0.2); }
+.ta-msg-time { margin-left: auto; font-family: var(--ta-mono); font-size: 9px; color: var(--ta-muted); }
+
+.ta-msg-text {
+    padding: 12px 14px; font-size: 13px; line-height: 1.75; color: var(--ta-text);
+    word-wrap: break-word;
+}
+.ta-msg-text a { color: var(--ta-accent); }
+.ta-msg-text a:hover { color: var(--ta-white); }
+.ta-msg-text blockquote { border-left: 3px solid rgba(0,212,255,0.3); margin: 6px 0; padding: 6px 12px; background: rgba(0,212,255,0.04); border-radius: 0 6px 6px 0; color: var(--ta-muted); font-style: italic; }
+.ta-msg-text code { background: rgba(0,0,0,0.3); border: 1px solid var(--ta-border); border-radius: 4px; padding: 1px 5px; font-family: var(--ta-mono); font-size: 11px; color: var(--ta-green); }
+.ta-msg-text pre { background: rgba(0,0,0,0.3); border: 1px solid var(--ta-border); border-radius: 6px; padding: 10px 14px; overflow-x: auto; font-family: var(--ta-mono); font-size: 11px; color: var(--ta-green); }
+.ta-msg-text table { border-collapse: collapse; width: 100%; }
+.ta-msg-text td, .ta-msg-text th { border: 1px solid var(--ta-border); padding: 5px 8px; font-size: 12px; }
+
+/* reply box */
+.ta-reply {
+    background: var(--ta-surface); border: 1px solid var(--ta-border); border-radius: 12px; padding: 18px 20px;
+}
+.ta-reply-title {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--ta-hud); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ta-accent); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--ta-border);
+}
+.ta-bb-bar {
+    display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px; border-radius: 8px;
+    background: rgba(0,0,0,0.2); border: 1px solid var(--ta-border); margin-bottom: 10px;
+}
+.ta-bb-btn {
+    min-width: 28px; height: 26px; padding: 0 7px; border-radius: 5px; font-size: 11px; font-weight: 700;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--ta-border);
+    color: var(--ta-muted); cursor: pointer; transition: all 0.15s; font-family: 'Segoe UI',sans-serif;
+}
+.ta-bb-btn:hover { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.3); color: var(--ta-accent); }
+.ta-textarea {
+    width: 100%; min-height: 160px; resize: vertical;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--ta-border); border-radius: 8px;
+    padding: 10px 14px; color: var(--ta-text); font-size: 13px; font-family: 'Segoe UI',sans-serif;
+    line-height: 1.7; outline: none; transition: border-color 0.15s; box-sizing: border-box;
+    margin-bottom: 12px;
+}
+.ta-textarea:focus { border-color: rgba(0,212,255,0.45); box-shadow: 0 0 0 3px rgba(0,212,255,0.08); }
+.ta-reply-footer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ta-btn-send {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    font-family: var(--ta-hud); letter-spacing: 0.05em;
+    background: linear-gradient(135deg,#00d4ff,#0284c7); border: 1px solid rgba(0,212,255,0.4);
+    color: #000; cursor: pointer; transition: all 0.18s; box-shadow: 0 2px 16px rgba(0,212,255,0.2);
+}
+.ta-btn-send:hover { box-shadow: 0 4px 24px rgba(0,212,255,0.4); transform: translateY(-1px); }
+.ta-status-select {
+    padding: 9px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--ta-border);
+    border-radius: 8px; color: var(--ta-text); font-size: 12px; outline: none; cursor: pointer;
+}
+.ta-status-select option { background: #0c1224; }
 </style>
 
-<div class="support-view-container">
-    <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
-        <div>
-            <a href="admin.php?page=support" style="color: #38bdf8; text-decoration: none; font-weight: 800; font-size: 13px;">← ÜBERSICHT</a>
-            <h2 style="color: #fff; margin: 10px 0 0 0;">{{ answerList|first.subject }}</h2>
+{% set firstMsg = answerList|first %}
+
+<div class="ta-wrap">
+
+    <div class="ta-topbar">
+        <div class="ta-topbar-left">
+            <div class="ta-topbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+            </div>
+            <div>
+                <div class="ta-topbar-title">{{ firstMsg.subject|default('Ticket')|e }}</div>
+                <div class="ta-topbar-sub">// TICKET #{{ ticketID }} &middot; ADMIN_CONSOLE</div>
+            </div>
         </div>
-        <div style="color: #8b949e; font-size: 12px;">Ticket #{{ ticketID }}</div>
+        <div class="ta-topbar-right">
+            {% if status == 0 %}
+            <span class="ta-badge open"><svg viewBox="0 0 8 8" fill="currentColor" width="6" height="6"><circle cx="4" cy="4" r="4"/></svg>{{ LNG.ti_status_open }}</span>
+            {% elseif status == 1 %}
+            <span class="ta-badge answered"><svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><path d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425-.047-.048z"/></svg>{{ LNG.ti_status_answer }}</span>
+            {% else %}
+            <span class="ta-badge closed"><svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>{{ LNG.ti_status_closed }}</span>
+            {% endif %}
+            <a href="admin.php?page=support" class="ta-btn-back">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M15 8a.5.5 0 00-.5-.5H2.707l3.147-3.146a.5.5 0 10-.708-.708l-4 4a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708L2.707 8.5H14.5A.5.5 0 0015 8z"/></svg>
+                Übersicht
+            </a>
+        </div>
     </div>
 
-    {% for row in answerList %}
-    <div class="msg-card">
-        <div class="msg-header">
-            <span class="msg-author">👤 {{ row.ownerName }}</span>
-            <span class="msg-date">📅 {{ row.time }}</span>
+    <div class="ta-thread">
+        {% for answerRow in answerList %}
+        {% set isAdmin = answerRow.ownerID != answerList|first.ownerID %}
+        {% set initial = answerRow.ownerName|slice(0,1)|upper %}
+        <div class="ta-msg {% if isAdmin %}is-support{% endif %}">
+            <div class="ta-msg-avatar">{{ initial }}</div>
+            <div class="ta-msg-bubble">
+                <div class="ta-msg-head">
+                    <span class="ta-msg-author">{{ answerRow.ownerName|e }}</span>
+                    {% if isAdmin %}
+                    <span class="ta-msg-role" style="color:var(--ta-purple);background:rgba(180,124,255,0.08);border-color:rgba(180,124,255,0.2);">Admin</span>
+                    {% else %}
+                    <span class="ta-msg-role">User</span>
+                    {% endif %}
+                    <span class="ta-msg-time">{{ answerRow.time }}</span>
+                </div>
+                <div class="ta-msg-text">{{ answerRow.message|raw }}</div>
+            </div>
         </div>
-        <div class="msg-content">
-            {{ row.message|raw }}
-        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 
-    <div class="reply-box">
-        <h3 style="color: #38bdf8; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">Antwort verfassen</h3>
-
-        <div class="bb-toolbar">
-            <button type="button" class="bb-btn" onclick="tkBB('b')"><b>B</b></button>
-            <button type="button" class="bb-btn" onclick="tkBB('i')"><i>I</i></button>
-            <button type="button" class="bb-btn" onclick="tkBB('u')"><u>U</u></button>
-            <button type="button" class="bb-btn" onclick="tkBB('s')"><s>S</s></button>
-            <button type="button" class="bb-btn" onclick="tkBB('url')">🔗 Link</button>
-            <button type="button" class="bb-btn" onclick="tkBB('img')">🖼 Bild</button>
-            <button type="button" class="bb-btn" onclick="tkBB('quote')">❝ Zitat</button>
-            <button type="button" class="bb-btn" onclick="tkBB('code')">⌨ Code</button>
-            <button type="button" class="bb-btn" onclick="tkBBHr()">— HR</button>
-            <button type="button" class="bb-btn" onclick="tkBBList()">≡ Liste</button>
-            <button type="button" class="bb-btn" onclick="tkBBOList()">1. Liste</button>
-            <button type="button" class="bb-btn" onclick="tkBBTable()">⊞ Tabelle</button>
-            <button type="button" class="bb-btn" onclick="tkBB('color=red')">🎨 Farbe</button>
-            <button type="button" class="bb-btn" onclick="tkBB('size=16')">Aa Größe</button>
+    <div class="ta-reply">
+        <div class="ta-reply-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/></svg>
+            Admin-Antwort verfassen
         </div>
-
+        <div class="ta-bb-bar">
+            <button type="button" class="ta-bb-btn" onclick="tkBB('b')"><b>B</b></button>
+            <button type="button" class="ta-bb-btn" onclick="tkBB('i')"><i>I</i></button>
+            <button type="button" class="ta-bb-btn" onclick="tkBB('u')"><u>U</u></button>
+            <button type="button" class="ta-bb-btn" onclick="tkBB('s')"><s>S</s></button>
+            <button type="button" class="ta-bb-btn" onclick="tkBB('url')">Link</button>
+            <button type="button" class="ta-bb-btn" onclick="tkBB('quote')">Zitat</button>
+            <button type="button" class="ta-bb-btn" onclick="tkBB('code')">Code</button>
+            <button type="button" class="ta-bb-btn" onclick="tkBBList()">Liste</button>
+        </div>
         <form action="admin.php?page=support&mode=send" method="post">
             <input type="hidden" name="id" value="{{ ticketID }}">
-            <textarea name="message" id="message" class="adm-textarea" required placeholder="Nachricht an den Kommandanten..."></textarea>
-
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <button type="submit" class="btn-submit">🚀 Antwort senden</button>
-                <select name="change_status" style="padding: 11px; background: #000; color: #fff; border: 1px solid #333; border-radius: 8px;">
-                    <option value="0">Status nicht ändern</option>
-                    <option value="1">Ticket schließen</option>
+            <textarea name="message" id="message" class="ta-textarea" required placeholder="Antwort an den Spieler..."></textarea>
+            <div class="ta-reply-footer">
+                <button type="submit" class="ta-btn-send">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M15.964.686a.5.5 0 00-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 00-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 00.886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 00-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178z"/></svg>
+                    Antwort senden
+                </button>
+                <select name="change_status" class="ta-status-select">
+                    <option value="0">Status beibehalten</option>
+                    <option value="2">Ticket schließen</option>
                 </select>
             </div>
         </form>
     </div>
+
 </div>
 
 <script>
 function tkBB(tag) {
-    const area = document.getElementById('message');
+    var area = document.getElementById('message');
     if (!area) return;
-    const start = area.selectionStart, end = area.selectionEnd;
-    const sel = area.value.substring(start, end);
-    let open = tag, close = tag;
+    var start = area.selectionStart, end = area.selectionEnd;
+    var sel = area.value.substring(start, end);
+    var open = tag, close = tag;
     if (tag.indexOf('=') !== -1) { close = tag.split('=')[0]; }
     if (tag === 'url') { open = 'url=https://'; close = 'url'; }
-    const insert = '[' + open + ']' + sel + '[/' + close + ']';
+    var insert = '[' + open + ']' + sel + '[/' + close + ']';
     area.value = area.value.substring(0, start) + insert + area.value.substring(end);
     area.selectionStart = area.selectionEnd = start + insert.length;
     area.focus();
 }
-function tkBBHr() {
-    const area = document.getElementById('message');
-    const pos = area.selectionStart;
-    area.value = area.value.substring(0, pos) + '[hr]\n' + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + 5;
-    area.focus();
-}
 function tkBBList() {
-    const area = document.getElementById('message');
-    const pos = area.selectionStart;
-    const tpl = '[list]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
-    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + tpl.length;
-    area.focus();
-}
-function tkBBOList() {
-    const area = document.getElementById('message');
-    const pos = area.selectionStart;
-    const tpl = '[list=1]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
-    area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
-    area.selectionStart = area.selectionEnd = pos + tpl.length;
-    area.focus();
-}
-function tkBBTable() {
-    const area = document.getElementById('message');
-    const pos = area.selectionStart;
-    const tpl = '[table]\n[tr][th]Spalte 1[/th][th]Spalte 2[/th][/tr]\n[tr][td]Zelle 1[/td][td]Zelle 2[/td][/tr]\n[/table]\n';
+    var area = document.getElementById('message');
+    var pos = area.selectionStart;
+    var tpl = '[list]\n[*]Eintrag 1\n[*]Eintrag 2\n[/list]\n';
     area.value = area.value.substring(0, pos) + tpl + area.value.substring(pos);
     area.selectionStart = area.selectionEnd = pos + tpl.length;
     area.focus();

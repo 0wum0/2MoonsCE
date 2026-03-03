@@ -1,172 +1,199 @@
 ﻿{#
 	2MoonsCE
-
-	Based on the original 2Moons project:
-
-	@copyright 2009 Lucky
-	@copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
-	@licence MIT
-	@version 1.8.0
-	@link https://github.com/jkroepke/2Moons
-	 2Moons
-	  by Jan-Otto Kröpke 2009-2016
-
-	Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
-	Refactoring and feature extensions:
 	@copyright 2024-2026 Florian Engelhardt (0wum0)
-	@link https://github.com/0wum0/2MoonsCE
-	@eMail info.browsergame@gmail.com
-
 	Licensed under the MIT License.
-	See LICENSE for details.
-	@visit http://makeit.uno/
 #}
 {% include "overall_header.twig" %}
 <style>
-    /* Galactic Admin Support Style (Ref: 1000248241.png) */
-    :root {
-        --galactic-bg: #0d1117;
-        --galactic-border: rgba(56, 189, 248, 0.25);
-        --galactic-accent: #38bdf8;
-        --galactic-glow: rgba(56, 189, 248, 0.5);
-    }
+:root {
+    --ta-bg:      #04060f;
+    --ta-surface: #080c1a;
+    --ta-surface2:#0c1224;
+    --ta-border:  #0e1e36;
+    --ta-accent:  #00d4ff;
+    --ta-green:   #00e676;
+    --ta-yellow:  #fbbf24;
+    --ta-red:     #ff3d57;
+    --ta-purple:  #b47cff;
+    --ta-text:    #b0c8e0;
+    --ta-muted:   #3a5570;
+    --ta-white:   #e8f4ff;
+    --ta-mono:    'JetBrains Mono','Fira Code',monospace;
+    --ta-hud:     'Orbitron','Segoe UI',sans-serif;
+}
+.ta-wrap { padding: 16px 20px; font-family: 'Segoe UI',system-ui,sans-serif; color: var(--ta-text); }
 
-    .support-admin-container {
-        width: 100% !important;
-        padding: 10px;
-        box-sizing: border-box;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-    }
+/* topbar */
+.ta-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; margin-bottom: 16px;
+    background: linear-gradient(90deg,#05080f,#080d1c);
+    border: 1px solid var(--ta-border); border-radius: 12px;
+    gap: 12px;
+}
+.ta-topbar-left { display: flex; align-items: center; gap: 14px; }
+.ta-topbar-icon {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    display: flex; align-items: center; justify-content: center; color: var(--ta-accent);
+    box-shadow: 0 0 16px rgba(0,212,255,0.1);
+}
+.ta-topbar-title { font-family: var(--ta-hud); font-size: 14px; font-weight: 700; color: var(--ta-white); letter-spacing: 0.08em; text-transform: uppercase; }
+.ta-topbar-sub   { font-family: var(--ta-mono); font-size: 10px; color: var(--ta-muted); margin-top: 2px; }
 
-    .galactic-header {
-        display: flex;
-        align-items: center;
-        background: rgba(13, 17, 23, 0.9);
-        border: 1px solid var(--galactic-border);
-        border-radius: 15px;
-        padding: 20px 30px;
-        margin-bottom: 25px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
+/* stats row */
+.ta-stats { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.ta-stat-card {
+    flex: 1; min-width: 120px;
+    padding: 12px 16px; border-radius: 10px;
+    background: var(--ta-surface); border: 1px solid var(--ta-border);
+    display: flex; flex-direction: column; gap: 4px;
+}
+.ta-stat-label { font-family: var(--ta-hud); font-size: 8px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ta-muted); }
+.ta-stat-value { font-family: var(--ta-mono); font-size: 22px; font-weight: 700; color: var(--ta-white); }
+.ta-stat-card.c-open   .ta-stat-value { color: var(--ta-yellow); }
+.ta-stat-card.c-ans    .ta-stat-value { color: var(--ta-green); }
+.ta-stat-card.c-closed .ta-stat-value { color: var(--ta-muted); }
 
-    .galactic-header-icon {
-        font-size: 40px;
-        color: var(--galactic-accent);
-        margin-right: 20px;
-        filter: drop-shadow(0 0 10px var(--galactic-glow));
-    }
+/* table */
+.ta-card { background: var(--ta-surface); border: 1px solid var(--ta-border); border-radius: 12px; overflow: hidden; }
+.ta-table { width: 100%; border-collapse: collapse; }
+.ta-table th {
+    padding: 10px 16px; text-align: left;
+    font-family: var(--ta-hud); font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ta-muted);
+    background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--ta-border);
+}
+.ta-table td {
+    padding: 12px 16px; border-bottom: 1px solid var(--ta-border);
+    font-size: 13px; color: var(--ta-text); vertical-align: middle;
+}
+.ta-table tr:last-child td { border-bottom: none; }
+.ta-table tbody tr { transition: background 0.15s; }
+.ta-table tbody tr:hover { background: rgba(0,212,255,0.03); }
+.ta-table tbody tr.s-open   { border-left: 3px solid var(--ta-yellow); }
+.ta-table tbody tr.s-answered { border-left: 3px solid var(--ta-green); }
+.ta-table tbody tr.s-closed  { border-left: 3px solid var(--ta-muted); opacity: 0.7; }
 
-    .galactic-title {
-        font-size: 28px;
-        font-weight: 900;
-        color: var(--galactic-accent);
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        margin: 0;
-        text-shadow: 0 0 15px var(--galactic-glow);
-    }
+.ta-col-id      { font-family: var(--ta-mono); font-size: 11px; color: var(--ta-accent); font-weight: 700; width: 56px; }
+.ta-col-user    { font-size: 12px; font-weight: 700; color: var(--ta-white); width: 120px; }
+.ta-col-subject a { color: var(--ta-white); text-decoration: none; font-weight: 600; transition: color 0.15s; }
+.ta-col-subject a:hover { color: var(--ta-accent); }
+.ta-col-ans     { font-family: var(--ta-mono); font-size: 12px; color: var(--ta-accent); font-weight: 700; text-align: center; width: 80px; }
+.ta-col-date    { font-family: var(--ta-mono); font-size: 11px; color: var(--ta-muted); width: 140px; }
+.ta-col-status  { text-align: right; width: 120px; }
 
-    .galactic-card {
-        background: rgba(13, 17, 23, 0.95);
-        border: 1px solid var(--galactic-border);
-        border-radius: 15px;
-        overflow: hidden;
-        width: 100%;
-    }
+/* badges */
+.ta-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 9px; font-weight: 700;
+    font-family: var(--ta-hud); letter-spacing: 0.07em; text-transform: uppercase;
+    border: 1px solid currentColor; white-space: nowrap;
+}
+.ta-badge.open     { color: var(--ta-yellow); background: rgba(251,191,36,0.1); animation: ta-pulse-y 2.5s ease-in-out infinite; }
+.ta-badge.answered { color: var(--ta-green);  background: rgba(0,230,118,0.1); }
+.ta-badge.closed   { color: var(--ta-muted);  background: rgba(58,85,112,0.1); border-color: var(--ta-border); }
+@keyframes ta-pulse-y {
+    0%,100% { box-shadow: 0 0 4px rgba(251,191,36,0.15); }
+    50%      { box-shadow: 0 0 12px rgba(251,191,36,0.4); }
+}
 
-    .galactic-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .galactic-table th {
-        background: rgba(56, 189, 248, 0.08);
-        padding: 15px 20px;
-        text-align: left;
-        color: #8b949e;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        border-bottom: 1px solid var(--galactic-border);
-    }
-
-    .galactic-table td {
-        padding: 18px 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        color: #e2e8f0;
-        font-size: 14px;
-        vertical-align: middle;
-    }
-
-    .galactic-row:hover {
-        background: rgba(56, 189, 248, 0.03);
-    }
-
-    .col-id { color: #8b949e; font-family: monospace; font-size: 13px; width: 60px; }
-    .col-user { color: var(--galactic-accent); font-weight: 600; width: 120px; }
-    .col-subject { font-weight: 700; font-size: 15px; }
-    .col-subject a { color: #fff; text-decoration: none; transition: 0.2s; }
-    .col-subject a:hover { color: var(--galactic-accent); }
-
-    /* Status Badges (Ref Style) */
-    .status-badge {
-        padding: 5px 12px;
-        border-radius: 6px;
-        font-size: 10px;
-        font-weight: 900;
-        text-transform: uppercase;
-        display: inline-block;
-        border: 1px solid transparent;
-        letter-spacing: 0.5px;
-    }
-    .status-open { background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: #22c55e; }
-    .status-answered { background: rgba(234, 179, 8, 0.1); color: #eab308; border-color: #eab308; }
-    .status-closed { background: rgba(248, 113, 113, 0.05); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
-
-    .ans-count { color: var(--galactic-accent); font-weight: 800; }
+/* empty */
+.ta-empty { padding: 60px 20px; text-align: center; color: var(--ta-muted); font-family: var(--ta-mono); font-size: 12px; }
 </style>
 
-<div class="support-admin-container">
-    <div class="galactic-header">
-        <div class="galactic-header-icon">🎧</div>
-        <h1 class="galactic-title">Support-System</h1>
+{% set total = ticketList|length %}
+{% set open_count = 0 %}
+{% set ans_count = 0 %}
+{% set closed_count = 0 %}
+{% for t in ticketList %}
+    {% if t.status == 0 %}{% set open_count = open_count + 1 %}
+    {% elseif t.status == 1 %}{% set ans_count = ans_count + 1 %}
+    {% else %}{% set closed_count = closed_count + 1 %}{% endif %}
+{% endfor %}
+
+<div class="ta-wrap">
+
+    <div class="ta-topbar">
+        <div class="ta-topbar-left">
+            <div class="ta-topbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+            </div>
+            <div>
+                <div class="ta-topbar-title">Support-System</div>
+                <div class="ta-topbar-sub">// ADMIN_CONSOLE &middot; {{ total }} TICKET{% if total != 1 %}S{% endif %} GESAMT</div>
+            </div>
+        </div>
     </div>
 
-    <div class="galactic-card">
-        <table class="galactic-table">
+    <div class="ta-stats">
+        <div class="ta-stat-card c-open">
+            <div class="ta-stat-label">Offen</div>
+            <div class="ta-stat-value">{{ open_count }}</div>
+        </div>
+        <div class="ta-stat-card c-ans">
+            <div class="ta-stat-label">Beantwortet</div>
+            <div class="ta-stat-value">{{ ans_count }}</div>
+        </div>
+        <div class="ta-stat-card c-closed">
+            <div class="ta-stat-label">Geschlossen</div>
+            <div class="ta-stat-value">{{ closed_count }}</div>
+        </div>
+        <div class="ta-stat-card">
+            <div class="ta-stat-label">Gesamt</div>
+            <div class="ta-stat-value">{{ total }}</div>
+        </div>
+    </div>
+
+    <div class="ta-card">
+        <table class="ta-table">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Benutzer</th>
                     <th>Betreff</th>
-                    <th style="text-align: center;">Antworten</th>
+                    <th style="text-align:center;">Antw.</th>
                     <th>Datum</th>
-                    <th style="text-align: right;">Status</th>
+                    <th style="text-align:right;">Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for TicketID, TicketInfo in ticketList %}	
-                <tr class="galactic-row">
-                    <td class="col-id">#{{ TicketID }}</td>
-                    <td class="col-user">{{ TicketInfo.username }}</td>
-                    <td class="col-subject">
-                        <a href="admin.php?page=support&mode=view&id={{ TicketID }}">{{ TicketInfo.subject }}</a>
+            {% if ticketList is not empty %}
+                {% for TicketID, TicketInfo in ticketList %}
+                <tr class="{% if TicketInfo.status == 0 %}s-open{% elseif TicketInfo.status == 1 %}s-answered{% else %}s-closed{% endif %}">
+                    <td class="ta-col-id">#{{ TicketID }}</td>
+                    <td class="ta-col-user">{{ TicketInfo.username|e }}</td>
+                    <td class="ta-col-subject">
+                        <a href="admin.php?page=support&mode=view&id={{ TicketID }}">{{ TicketInfo.subject|e }}</a>
                     </td>
-                    <td style="text-align: center;" class="ans-count">{{ TicketInfo.answer - 1 }}</td>
-                    <td style="color: #8b949e; font-size: 12px;">{{ TicketInfo.time }}</td>
-                    <td style="text-align: right;">
+                    <td class="ta-col-ans">{{ max(0, TicketInfo.answer - 1) }}</td>
+                    <td class="ta-col-date">{{ TicketInfo.time }}</td>
+                    <td class="ta-col-status">
                         {% if TicketInfo.status == 0 %}
-                            <span class="status-badge status-open">{{ LNG.ti_status_open }}</span>
+                        <span class="ta-badge open">
+                            <svg viewBox="0 0 8 8" fill="currentColor" width="6" height="6"><circle cx="4" cy="4" r="4"/></svg>
+                            {{ LNG.ti_status_open }}
+                        </span>
                         {% elseif TicketInfo.status == 1 %}
-                            <span class="status-badge status-answered">{{ LNG.ti_status_answer }}</span>
+                        <span class="ta-badge answered">
+                            <svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><path d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425-.047-.048z"/></svg>
+                            {{ LNG.ti_status_answer }}
+                        </span>
                         {% else %}
-                            <span class="status-badge status-closed">{{ LNG.ti_status_closed }}</span>
+                        <span class="ta-badge closed">
+                            <svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+                            {{ LNG.ti_status_closed }}
+                        </span>
                         {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
+            {% else %}
+                <tr><td colspan="6" class="ta-empty">// NO_TICKETS_FOUND</td></tr>
+            {% endif %}
             </tbody>
         </table>
     </div>
+
 </div>
 {% include "overall_footer.twig" %}
