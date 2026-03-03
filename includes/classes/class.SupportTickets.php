@@ -88,10 +88,10 @@ class SupportTickets
 	{
 		global $LNG;
 		return array(
-			1 => $LNG['ti_category_error'],
-			2 => $LNG['ti_category_bug'],
-			3 => $LNG['ti_category_feature'],
-			4 => $LNG['ti_category_other'],
+			1 => !empty($LNG['ti_category_error'])   ? $LNG['ti_category_error']   : 'Fehler',
+			2 => !empty($LNG['ti_category_bug'])     ? $LNG['ti_category_bug']     : 'Bug',
+			3 => !empty($LNG['ti_category_feature']) ? $LNG['ti_category_feature'] : 'Feature',
+			4 => !empty($LNG['ti_category_other'])   ? $LNG['ti_category_other']   : 'Sonstiges',
 		);
 	}
 }

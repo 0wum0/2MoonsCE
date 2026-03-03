@@ -1121,6 +1121,10 @@ $LNG['ti_create_info']						= '<p>Bitte vergeben Sie beim Erstellen einer neuen 
 <p>Bei accountbezogenen Fragen erleichtert die Angabe des entsprechenden Kundenaccounts die Zuordnung und verkürzt ebenfalls die Bearbeitungsdauer.</p>';
 $LNG['ti_create_head']						= 'Neues Ticket';
 $LNG['ti_category']							= 'Kategorie';
+$LNG['ti_category_error']					= 'Fehler';
+$LNG['ti_category_bug']						= 'Bug';
+$LNG['ti_category_feature']					= 'Feature';
+$LNG['ti_category_other']					= 'Sonstiges';
 $LNG['ti_subject']							= 'Betreff';
 $LNG['ti_message']							= 'Nachricht';
 $LNG['ti_submit']							= 'Absenden';
