@@ -67,7 +67,8 @@ class ShowSupportPage
 		}
 		
 		$this->tplObj->assign_vars(array(	
-			'ticketList' => $ticketList
+			'ticketList'	=> $ticketList,
+			'categoryList'	=> $this->ticketObj->getCategoryList(),
 		));
 			
 		$this->tplObj->show('page.ticket.default.twig');

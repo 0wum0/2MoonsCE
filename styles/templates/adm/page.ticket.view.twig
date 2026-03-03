@@ -165,7 +165,7 @@
             </div>
             <div>
                 <div class="ta-topbar-title">{{ firstMsg.subject|default('Ticket')|e }}</div>
-                <div class="ta-topbar-sub">// TICKET #{{ ticketID }} &middot; ADMIN_CONSOLE</div>
+                <div class="ta-topbar-sub">// TICKET #{{ ticketID }} &middot; {{ categoryList[firstMsg.categoryID]|default('?')|e|upper }} &middot; ADMIN_CONSOLE</div>
             </div>
         </div>
         <div class="ta-topbar-right">

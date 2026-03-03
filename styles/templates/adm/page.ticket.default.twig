@@ -82,6 +82,7 @@
 .ta-col-ans     { font-family: var(--ta-mono); font-size: 12px; color: var(--ta-accent); font-weight: 700; text-align: center; width: 80px; }
 .ta-col-date    { font-family: var(--ta-mono); font-size: 11px; color: var(--ta-muted); width: 140px; }
 .ta-col-status  { text-align: right; width: 120px; }
+.ta-cat-badge { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; font-family: var(--ta-hud); letter-spacing: 0.06em; text-transform: uppercase; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); color: var(--ta-accent); }
 
 /* badges */
 .ta-badge {
@@ -152,6 +153,7 @@
                     <th>ID</th>
                     <th>Benutzer</th>
                     <th>Betreff</th>
+                    <th>Kategorie</th>
                     <th style="text-align:center;">Antw.</th>
                     <th>Datum</th>
                     <th style="text-align:right;">Status</th>
@@ -166,6 +168,7 @@
                     <td class="ta-col-subject">
                         <a href="admin.php?page=support&mode=view&id={{ TicketID }}">{{ TicketInfo.subject|e }}</a>
                     </td>
+                    <td><span class="ta-cat-badge">{{ categoryList[TicketInfo.categoryID]|default('?')|e }}</span></td>
                     <td class="ta-col-ans">{{ max(0, TicketInfo.answer - 1) }}</td>
                     <td class="ta-col-date">{{ TicketInfo.time }}</td>
                     <td class="ta-col-status">
