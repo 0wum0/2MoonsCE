@@ -50,7 +50,7 @@
                  >
 
                 <div class="tech-visual">
-                    <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="tech-img">
+                    <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="tech-img" onerror="this.style.display='none'">
                     {% if Element.level > 0 %}
                     <span class="level-tag">{{ Element.level }}</span>
                     {% endif %}

@@ -196,7 +196,10 @@ class Database
         $qry = str_replace($this->dbTableNames['keys'], $this->dbTableNames['names'], $qry);
 
         if ($this->dbHandle === null) {
-            throw new RuntimeException('Database::_query() called but dbHandle is null (not connected).');
+            // dbHandle was disconnected (e.g. by Session::save() shutdown handler).
+            // Re-establish the connection transparently so that code running after
+            // session close (e.g. Config::save()) still works correctly.
+            $this->__construct();
         }
 
         $stmt = $this->dbHandle->prepare($qry);

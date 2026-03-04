@@ -81,7 +81,7 @@
                      >
                     
                     <div class="ship-img-box" onclick="return Dialog.info({{ ID }})">
-                        <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}">
+                        <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" onerror="this.style.display='none'">
                         <span class="count-tag">{{ Element.available|number_format }}</span>
                     </div>
 

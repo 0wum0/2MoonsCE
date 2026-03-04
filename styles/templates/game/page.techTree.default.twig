@@ -38,7 +38,7 @@
             <div class="tech-node content-box">
                 
                 <div class="node-head" onclick="return Dialog.info({{ elementID }})">
-                    <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" class="node-img">
+                    <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" class="node-img" onerror="this.style.display='none'">
                     <span class="node-title">{{ LNG.tech[elementID] }}</span>
                 </div>
 

@@ -31,7 +31,7 @@
     <div class="info-header content-box">
         <div class="header-visual">
             <div class="glow-ring">
-                <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" alt="" class="tech-img">
+                <img src="{{ dpath }}gebaeude/{{ elementID }}.{% if elementID >=600 and elementID <= 699 %}jpg{% else %}gif{% endif %}" alt="" class="tech-img" onerror="this.style.display='none'">
             </div>
         </div>
         <div class="header-data">

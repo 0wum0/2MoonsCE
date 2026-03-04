@@ -47,7 +47,7 @@
                 
                 <div class="queue-visual">
                     <span class="queue-pos">{{ loop.index }}</span>
-                    <img src="{{ dpath }}gebaeude/{{ List.element }}.gif" alt="{{ LNG.tech[List.element] }}" class="queue-img">
+                    <img src="{{ dpath }}gebaeude/{{ List.element }}.gif" alt="{{ LNG.tech[List.element] }}" class="queue-img" onerror="this.style.display='none'">
                 </div>
 
                 <div class="queue-details">
@@ -103,7 +103,7 @@
              >
             
             <div class="tech-visual">
-                <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="tech-img">
+                <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="tech-img" onerror="this.style.display='none'">
                 {% if Element.level > 0 %}
                 <span class="level-tag">{{ Element.level }}</span>
                 {% endif %}
