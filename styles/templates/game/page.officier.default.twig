@@ -45,17 +45,11 @@
             
             <div class="officer-card">
                 
-                <div class="card-visual">
-                    <div class="visual-bg"></div>
-                    <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="officer-portrait" onerror="this.style.display='none'">
-                    
+                <div class="tech-visual" onclick="return Dialog.info({{ ID }})">
+                    <img src="{{ dpath }}gebaeude/{{ ID }}.{% if ID >= 600 and ID <= 699 %}jpg{% else %}gif{% endif %}" alt="{{ LNG.tech[ID] }}" class="tech-img" onerror="this.style.display='none'">
                     <div class="rank-badge">
                         <span class="rank-label">{{ LNG.of_active }}</span>
                         <span class="rank-val" id="time_{{ ID }}">{% if Element.active %}{{ Element.timeLeft }}s{% else %}-{% endif %}</span>
-                    </div>
-
-                    <div class="info-trigger" onclick="return Dialog.info({{ ID }})">
-                        <i class="fas fa-info"></i>
                     </div>
                 </div>
 
@@ -121,17 +115,11 @@
             
             <div class="officer-card">
                 
-                <div class="card-visual">
-                    <div class="visual-bg"></div>
-                    <img src="{{ dpath }}gebaeude/{{ ID }}.gif" alt="{{ LNG.tech[ID] }}" class="officer-portrait" onerror="this.style.display='none'">
-                    
+                <div class="tech-visual" onclick="return Dialog.info({{ ID }})">
+                    <img src="{{ dpath }}gebaeude/{{ ID }}.{% if ID >= 600 and ID <= 699 %}jpg{% else %}gif{% endif %}" alt="{{ LNG.tech[ID] }}" class="tech-img" onerror="this.style.display='none'">
                     <div class="rank-badge">
                         <span class="rank-label">LVL</span>
                         <span class="rank-val">{{ Element.level }}/{{ Element.maxLevel }}</span>
-                    </div>
-
-                    <div class="info-trigger" onclick="return Dialog.info({{ ID }})">
-                        <i class="fas fa-info"></i>
                     </div>
                 </div>
 
