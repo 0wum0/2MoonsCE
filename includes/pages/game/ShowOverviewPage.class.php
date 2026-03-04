@@ -298,11 +298,11 @@ class ShowOverviewPage extends AbstractGamePage
 		 * Addon user online
 		 * Ajout pour le nombre de joueur connecter
 		**/
-		$onlineUserResult = $db->select("SELECT * FROM %%USERS%% WHERE onlinetime > :timeUser AND authlevel < :auth ;", array(
+		$onlineUserResult = $db->select("SELECT id FROM %%USERS%% WHERE onlinetime > :timeUser AND authlevel < :auth ;", array(
 			':timeUser' => TIMESTAMP - 15*60,
 			':auth' => AUTH_ADM,
 		));
-		$onlineUser = $db->rowCount();
+		$onlineUser = count($onlineUserResult);
 		
 		$newsItems = [];
 		$newsQuery = $db->select("SELECT title, text FROM %%NEWS%% ORDER BY id DESC;");
