@@ -1,5 +1,5 @@
 ﻿# 2Moons CE — Community Edition
-
+[!Discussions](https://github.com/0wum0/2MoonsCE/discussions/16)]
 <div align="center">
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-8892BF.svg?style=for-the-badge&logo=php)](https://www.php.net/)
