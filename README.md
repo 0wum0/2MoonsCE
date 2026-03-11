@@ -1,7 +1,7 @@
 ﻿# 2Moons CE — Community Edition
-
+<p align="center">
 [![Join the Discussion](https://img.shields.io/badge/GitHub-Project%20Discussion-5865F2?style=for-the-badge&logo=github)](https://github.com/0wum0/2MoonsCE/discussions/16)
-
+</p>
 
 <div align="center">
 
