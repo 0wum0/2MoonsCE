@@ -44,13 +44,13 @@
     --sidebar-w: 280px;
 
     /* ── Palette ── */
-    --c-bg:          #04050d;
-    --c-surface:     rgba(8, 13, 30, 0.85);
-    --c-surface-alt: rgba(12, 18, 40, 0.72);
-    --c-border:      rgba(111, 209, 255, 0.10);
-    --c-border-hi:   rgba(111, 209, 255, 0.38);
-    --c-text:        #ddeeff;
-    --c-muted:       rgba(180, 215, 255, 0.55);
+    --c-bg:          #0d1120;
+    --c-surface:     rgba(18, 26, 52, 0.92);
+    --c-surface-alt: rgba(22, 32, 64, 0.85);
+    --c-border:      rgba(111, 209, 255, 0.18);
+    --c-border-hi:   rgba(111, 209, 255, 0.45);
+    --c-text:        #eaf4ff;
+    --c-muted:       rgba(180, 215, 255, 0.72);
     --c-cyan:        #6fd1ff;
     --c-cyan-glow:   rgba(111, 209, 255, 0.22);
     --c-violet:      #9b6dff;

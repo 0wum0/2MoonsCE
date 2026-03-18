@@ -133,7 +133,7 @@
 				<label class="lp-checkbox-wrapper">
 					<input type="checkbox" name="rules" id="rules" value="1" class="lp-checkbox-input">
 					<span class="lp-checkbox-checkmark"></span>
-					<span class="lp-checkbox-label">{{ registerRulesDesc }}</span>
+					<span class="lp-checkbox-label">{{ registerRulesDesc|raw }}</span>
 				</label>
 				{% if error.rules %}<span class="lp-error">{{ LNG.registerRulesError|default('You must accept the rules') }}</span>{% endif %}
 			</div>

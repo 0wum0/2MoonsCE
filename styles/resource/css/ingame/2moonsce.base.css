@@ -35,12 +35,12 @@ img { max-width: 100%; height: auto; }
 
 /* ── Design Tokens ── */
 :root {
-  --bg0:#03060f; --bg1:#070d1f; --bg2:#0b1428; --bg3:#0f1a34;
-  --panel:rgba(7,14,36,0.94); --panel2:rgba(4,9,24,0.97);
-  --border:rgba(0,200,255,0.12); --border2:rgba(0,200,255,0.22); --border3:rgba(0,200,255,0.40);
+  --bg0:#080e1e; --bg1:#0d1628; --bg2:#111d32; --bg3:#16243e;
+  --panel:rgba(13,22,48,0.96); --panel2:rgba(9,16,38,0.98);
+  --border:rgba(0,200,255,0.20); --border2:rgba(0,200,255,0.32); --border3:rgba(0,200,255,0.50);
   --cyan:#00d4ff; --cyan2:#00f5ff; --gold:#f0b429; --green:#00e676;
-  --red:#ff3d57; --purple:#b47cff; --orange:#ff8c00; --dim:#3a5a7a;
-  --text:#a8c8e8; --white:#e8f4ff;
+  --red:#ff3d57; --purple:#b47cff; --orange:#ff8c00; --dim:#5a7a9a;
+  --text:#c8dff0; --white:#eaf4ff;
   --font-hud:'Orbitron',monospace; --font-body:'Exo 2',system-ui,sans-serif;
   --font-mono:'Share Tech Mono',monospace;
   --shadow-sm:0 4px 16px rgba(0,0,0,0.55); --shadow-md:0 8px 32px rgba(0,0,0,0.70);
@@ -50,21 +50,21 @@ img { max-width: 100%; height: auto; }
   --header-h:110px; --sidebar-w:240px; --sidebar-icon-w:64px;
   --transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
   /* Legacy aliases */
-  --sm-bg0:#03060f; --sm-bg1:#070d1f; --sm-bg2:#0b1428; --sm-bg3:#0f1a34;
-  --sm-panel:rgba(7,14,36,0.94); --sm-panel2:rgba(4,9,24,0.97);
-  --sm-border:rgba(0,200,255,0.12); --sm-border2:rgba(0,200,255,0.22);
-  --sm-border3:rgba(0,200,255,0.40);
+  --sm-bg0:#080e1e; --sm-bg1:#0d1628; --sm-bg2:#111d32; --sm-bg3:#16243e;
+  --sm-panel:rgba(13,22,48,0.96); --sm-panel2:rgba(9,16,38,0.98);
+  --sm-border:rgba(0,200,255,0.20); --sm-border2:rgba(0,200,255,0.32);
+  --sm-border3:rgba(0,200,255,0.50);
   --sm-cyan:#00d4ff; --sm-cyan2:#00f5ff; --sm-gold:#f0b429; --sm-green:#00e676;
-  --sm-red:#ff3d57; --sm-purple:#b47cff; --sm-dim:#3a5a7a;
-  --sm-text:#a8c8e8; --sm-white:#e8f4ff;
+  --sm-red:#ff3d57; --sm-purple:#b47cff; --sm-dim:#5a7a9a;
+  --sm-text:#c8dff0; --sm-white:#eaf4ff;
   --sm-font-hud:'Orbitron',monospace; --sm-font-body:'Exo 2',system-ui,sans-serif;
   --sm-font-mono:'Share Tech Mono',monospace;
   --sm-shadow-sm:0 4px 16px rgba(0,0,0,0.55); --sm-shadow-md:0 8px 32px rgba(0,0,0,0.70);
   --sm-shadow-lg:0 16px 56px rgba(0,0,0,0.88);
   --sm-glow-cyan:0 0 20px rgba(0,212,255,0.28); --sm-glow-red:0 0 20px rgba(255,61,87,0.38);
   --sm-transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
-  --color-bg-primary:#03060f; --color-bg-secondary:#070d1f;
-  --color-bg-elevated:#0f1a34; --color-bg-card:#0b1428;
+  --color-bg-primary:#080e1e; --color-bg-secondary:#0d1628;
+  --color-bg-elevated:#16243e; --color-bg-card:#111d32;
   --color-bg-hover:rgba(0,212,255,0.06);
   --color-accent-cyan:#00d4ff; --color-accent-blue:#3b82f6;
   --color-accent-purple:#b47cff; --color-accent-green:#00e676;
@@ -78,8 +78,8 @@ img { max-width: 100%; height: auto; }
   --glow-green:0 0 20px rgba(0,230,118,0.35);
   --primary:#00d4ff; --secondary:#3b82f6; --success:#00e676;
   --danger:#ff3d57; --warning:#f0b429;
-  --text-muted:#3a5a7a; --text-highlight:#00d4ff;
-  --font-heading:'Orbitron','Exo 2',sans-serif; --bg-deep:#03060f;
+  --text-muted:#5a7a9a; --text-highlight:#00d4ff;
+  --font-heading:'Orbitron','Exo 2',sans-serif; --bg-deep:#080e1e;
   --spacing-xs:0.25rem; --spacing-sm:0.5rem; --spacing-md:1rem;
   --spacing-lg:1.5rem; --spacing-xl:2rem; --spacing-2xl:3rem;
   --radius-sm:0.25rem; --radius-md:0.5rem; --radius-lg:0.75rem;
