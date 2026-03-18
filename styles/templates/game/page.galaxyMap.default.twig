@@ -1275,16 +1275,19 @@ function init() {
   camera.position.set(0, 2000, 3000);
   camera.lookAt(0, 0, 0);
 
-  try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  } catch(e) {
-    is3D = false;
+  if (!is3D) {
     canvas.style.display = 'none';
-    const fb = document.getElementById('vb-3d');
-    if (fb) { fb.style.display = 'none'; }
-    const btn2d = document.querySelector('[data-view="2d"]');
-    if (btn2d) btn2d.click();
     renderer = { setSize:()=>{}, setPixelRatio:()=>{}, render:()=>{} };
+  } else {
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    } catch(e) {
+      is3D = false;
+      canvas.style.display = 'none';
+      const fb = document.getElementById('vb-3d');
+      if (fb) { fb.style.display = 'none'; }
+      renderer = { setSize:()=>{}, setPixelRatio:()=>{}, render:()=>{} };
+    }
   }
   renderer.setSize(innerWidth, innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -1301,7 +1304,7 @@ function init() {
   buildNebula();
   bindEvents();
   initMobilePanel();
-  measureFooterHeight();
+  requestAnimationFrame(measureFooterHeight);
 
   // Apply correct initial camera for whichever view mode was set by the boot IIFE
   if (!is3D) {
@@ -3094,6 +3097,21 @@ function animate(now = 0){
       if (h2) h2.classList.add('on');
     }
   } catch(e) {}
+  // Pre-detect WebGL before init() so THREE never logs its internal error
+  if (is3D) {
+    try {
+      const probe = document.createElement('canvas');
+      const ctx = probe.getContext('webgl') || probe.getContext('experimental-webgl');
+      if (!ctx) {
+        is3D = false;
+        const vb3 = document.getElementById('vb-3d');
+        if (vb3) vb3.style.display = 'none';
+      } else {
+        const ext = ctx.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      }
+    } catch(e) { is3D = false; }
+  }
 })();
 init();
 return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
