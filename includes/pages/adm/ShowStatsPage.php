@@ -81,5 +81,5 @@ function ShowStatsPage()
 		'Selector'							=> array(1 => $LNG['cs_yes'], 2 => $LNG['cs_no_view'], 0 => $LNG['cs_no']),
 	));
 		
-	$template->show('StatsPage.tpl');
+	$template->show('StatsPage.twig');
 }

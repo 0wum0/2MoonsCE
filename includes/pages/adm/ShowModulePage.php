@@ -63,5 +63,5 @@ function ShowModulePage()
 		'mod_change_deactive'	=> $LNG['mod_change_deactive'],
 	));
 	
-	$template->show('ModulePage.tpl');
+	$template->show('ModulePage.twig');
 }

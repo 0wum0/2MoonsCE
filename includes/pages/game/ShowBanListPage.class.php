@@ -79,6 +79,6 @@ class ShowBanListPage extends AbstractGamePage
 			'maxPage'	=> $maxPage,
 		));
 
-		$this->display('page.banList.default.tpl');
+		$this->display('page.banList.default.twig');
 	}
 }

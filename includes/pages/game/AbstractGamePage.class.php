@@ -458,7 +458,7 @@ abstract class AbstractGamePage
 			$this->setWindow('popup');
 		}
 
-		$this->display('error.default.tpl');
+		$this->display('error.default.twig');
 	}
 
 	protected function save() {
@@ -513,7 +513,7 @@ abstract class AbstractGamePage
 		while (ob_get_level() > 0) { ob_end_flush(); }
 
 		// Convert .tpl extension to .twig
-		$twigFile = str_replace('.tpl', '.twig', $file);
+		$twigFile = str_replace('.twig', '.twig', $file);
 		
 		// Render the page template directly - Twig will handle the extends directive
 		$this->tplObj->display($twigFile);

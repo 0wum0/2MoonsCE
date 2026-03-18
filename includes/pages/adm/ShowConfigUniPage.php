@@ -480,5 +480,5 @@ function ShowConfigUniPage()
 		'alliance_create_min_points' 	=> $config->alliance_create_min_points
 	));
 	
-	$template->show('ConfigBodyUni.tpl');
+	$template->show('ConfigBodyUni.twig');
 }

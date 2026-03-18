@@ -133,7 +133,7 @@ class ShowRaportPage extends AbstractGamePage
 			'pageTitle'	=> $LNG['lm_topkb']
 		));
 		
-		$this->display('shared.mission.raport.tpl');
+		$this->display('shared.mission.raport.twig');
 	}
 	
 	function show() 
@@ -177,6 +177,6 @@ class ShowRaportPage extends AbstractGamePage
 			'pageTitle'	=> $LNG['sys_mess_attack_report']
 		));
 		
-		$this->display('shared.mission.raport.tpl');
+		$this->display('shared.mission.raport.twig');
 	}
 }

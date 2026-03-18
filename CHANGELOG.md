@@ -109,6 +109,9 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 
 ### Admin Panel – Bugfixes (März 2026)
 - Fixed `ShowAccountEditorPage`: "Undefined array key 'delete'" on line 329 — replaced direct `$_POST['add']`/`$_POST['delete']` access with `!empty()` checks in buildings section — by 0wum0
+- Fixed `ShowAccountEditorPage`: all `$template->show('*.tpl')` calls replaced with `.twig` — white page after saving buildings/ships/defenses/research/personal/officers/planets/alliances — by 0wum0
+- Fixed `ShowAccountEditorPage`: duplicate `break;` after defenses case removed — by 0wum0
+- Fixed all remaining `.tpl` → `.twig` template calls across 55 files in `includes/pages/adm/`, `includes/pages/game/`, and `includes/pages/login/` — white/blank page on any page that had not yet been individually migrated — by 0wum0
 - Fixed `PluginManager::selectSingle()`: "Trying to access array offset on false" when `$res` is `false` and a `$field` is specified — added `is_array()` guard — by 0wum0
 - Fixed Admin mobile navigation: `sidebar-overlay` div lacked CSS definition and was rendered `display:block` by external CSS override — added `style="display:none"` inline on element; JS now controls `display` directly via `overlay.style.display` instead of CSS class toggling — by 0wum0
 - Fixed Admin mobile sidebar: `backdrop-filter:blur()` on `position:fixed` `.admin-sidebar` and `.admin-topbar` created stacking contexts that blocked pointer events on content behind them — removed `backdrop-filter` from both elements — by 0wum0

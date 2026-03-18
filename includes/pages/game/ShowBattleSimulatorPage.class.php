@@ -269,6 +269,6 @@ class ShowBattleSimulatorPage extends AbstractGamePage
 			'defensiveList'	=> $reslist['defense'],
 		));
 		
-		$this->display('page.battleSimulator.default.tpl');   
+		$this->display('page.battleSimulator.default.twig');   
 	}
 }

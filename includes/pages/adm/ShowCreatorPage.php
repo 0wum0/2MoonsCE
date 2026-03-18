@@ -138,7 +138,7 @@ function ShowCreatorPage()
 				'new_title'				=> $LNG['new_title'],
 				'Selector'				=> array('auth' => $AUTH, 'lang' => $LNG->getAllowedLangs(false)),  
 			));
-			$template->show('CreatePageUser.tpl');
+			$template->show('CreatePageUser.twig');
 		break;
 		case 'moon':
 			if ($_POST)
@@ -186,7 +186,7 @@ function ShowCreatorPage()
 				'new_creator_go_back'	=> $LNG['new_creator_go_back'],
 			));
 
-			$template->show('CreatePageMoon.tpl');
+			$template->show('CreatePageMoon.twig');
 		break;
 		case 'planet':
 			if ($_POST) 
@@ -245,7 +245,7 @@ function ShowCreatorPage()
 				'new_creator_go_back'	=> $LNG['new_creator_go_back'],
 			));
 			
-			$template->show('CreatePagePlanet.tpl');
+			$template->show('CreatePagePlanet.twig');
 		break;
 		default:
 			$template->assign_vars(array(	
@@ -255,7 +255,7 @@ function ShowCreatorPage()
 				'new_creator_title'		=> $LNG['new_creator_title'],
 			));
 			
-			$template->show('CreatePage.tpl');
+			$template->show('CreatePage.twig');
 		break;	
 	}
 }

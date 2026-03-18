@@ -58,6 +58,6 @@ class ShowNewsPage extends AbstractLoginPage
 			'newsList'	=> $newsList,
 		));
 		
-		$this->display('page.news.default.tpl');
+		$this->display('page.news.default.twig');
 	}
 }

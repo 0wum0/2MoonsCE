@@ -144,5 +144,5 @@ function ShowMessageListPage()
 		'Selected'		=> $type
 	));
 				
-	$template->show('MessageList.tpl');
+	$template->show('MessageList.twig');
 }

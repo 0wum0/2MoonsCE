@@ -68,5 +68,5 @@ function ShowConfigModsPage()
         'expedition_limit_res_active'				=> $config->expedition_limit_res_active,
     ));
 
-    $template->show('ConfigModsBody.tpl');
+    $template->show('ConfigModsBody.twig');
 }

@@ -414,6 +414,6 @@ class ShowResearchPage extends AbstractGamePage
 			'Queue'			=> $TechQueue,
 		));
 		
-		$this->display('page.research.default.tpl');
+		$this->display('page.research.default.twig');
 	}
 }

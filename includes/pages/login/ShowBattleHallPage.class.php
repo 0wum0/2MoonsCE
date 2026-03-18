@@ -78,6 +78,6 @@ class ShowBattleHallPage extends AbstractLoginPage
 			'universeSelect'	=> $universeSelect,
 			'hallList'			=> $hallList,
 		));
-		$this->display('page.battleHall.default.tpl');
+		$this->display('page.battleHall.default.twig');
 	}
 }

@@ -178,5 +178,5 @@ function ShowConfigBasicPage()
         ),
 	));
 	
-	$template->show('ConfigBasicBody.tpl');
+	$template->show('ConfigBasicBody.twig');
 }

@@ -65,6 +65,6 @@ class ShowScreensPage extends AbstractLoginPage
 			'screenshots' => $screenshots
 		));
 
-		$this->display('page.screens.default.tpl');
+		$this->display('page.screens.default.twig');
 	}
 }

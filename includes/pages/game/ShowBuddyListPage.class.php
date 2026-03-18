@@ -80,7 +80,7 @@ class ShowBuddyListPage extends AbstractGamePage
 			'id'		=> $id,
 		));
 		
-		$this->display('page.buddyList.request.tpl');
+		$this->display('page.buddyList.request.twig');
 	}
 	
 	function send()
@@ -257,6 +257,6 @@ class ShowBuddyListPage extends AbstractGamePage
 			'otherRequestList'	=> $otherRequestList,
 		));
 		
-		$this->display('page.buddyList.default.tpl');
+		$this->display('page.buddyList.default.twig');
 	}
 }

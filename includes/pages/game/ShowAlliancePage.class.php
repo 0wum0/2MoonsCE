@@ -180,7 +180,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'ally_request_min_points_info'  => sprintf($LNG['al_requests_min_points'], pretty_number($this->allianceData['ally_request_min_points']))
 		));
 
-		$this->display('page.alliance.info.tpl');
+		$this->display('page.alliance.info.twig');
 	}
 
 	function show()
@@ -218,12 +218,12 @@ class ShowAlliancePage extends AbstractGamePage
 			'request_text'	=> sprintf($LNG['al_request_wait_message'], $allianceResult['ally_tag']),
 		));
 
-		$this->display('page.alliance.applyWait.tpl');
+		$this->display('page.alliance.applyWait.twig');
 	}
 
 	private function createSelection()
 	{
-		$this->display('page.alliance.createSelection.tpl');
+		$this->display('page.alliance.createSelection.twig');
 	}
 
 	function search()
@@ -268,7 +268,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'searchList'	=> $searchList,
 		));
 
-		$this->display('page.alliance.search.tpl');
+		$this->display('page.alliance.search.twig');
 	}
 
 	function apply()
@@ -328,7 +328,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'al_write_request'	=> sprintf($LNG['al_write_request'], $allianceResult['ally_tag']),
 		));
 
-		$this->display('page.alliance.apply.tpl');
+		$this->display('page.alliance.apply.twig');
 	}
 
 	function cancelApply()
@@ -380,7 +380,7 @@ class ShowAlliancePage extends AbstractGamePage
 			if($action == "send") {
 				$this->createAlliance();
 			} else {
-				$this->display('page.alliance.create.tpl');
+				$this->display('page.alliance.create.twig');
 			}
 		}
 		else
@@ -402,7 +402,7 @@ class ShowAlliancePage extends AbstractGamePage
 		if($action == "send") {
 			$this->createAllianceProcessor();
 		} else {
-			$this->display('page.alliance.create.tpl');
+			$this->display('page.alliance.create.twig');
 		}
 	}
 
@@ -589,7 +589,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'ally_events'				=> $ally_events
 		));
 
-		$this->display('page.alliance.home.tpl');
+		$this->display('page.alliance.home.twig');
 	}
 
 	public function memberList()
@@ -643,7 +643,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'al_users_list'		=> sprintf($LNG['al_users_list'], count($memberList)),
 		));
 
-		$this->display('page.alliance.memberList.tpl');
+		$this->display('page.alliance.memberList.twig');
 	}
 
 	public function close()
@@ -733,7 +733,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'RangeList'						=> $RangeList,
 		));
 
-		$this->display('page.alliance.circular.tpl');
+		$this->display('page.alliance.circular.twig');
 	}
 
 	public function admin()
@@ -911,7 +911,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'available_events'			=> $available_events,
 		));
 
-		$this->display('page.alliance.admin.overview.tpl');
+		$this->display('page.alliance.admin.overview.twig');
 	}
 
 	protected function adminClose()
@@ -1011,7 +1011,7 @@ class ShowAlliancePage extends AbstractGamePage
 				'transferUserList'	=> $transferUserList,
 			));
 
-			$this->display('page.alliance.admin.transfer.tpl');
+			$this->display('page.alliance.admin.transfer.twig');
 		}
 	}
 
@@ -1044,7 +1044,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'applyList'		=> $applyList,
 		));
 
-		$this->display('page.alliance.admin.mangeApply.tpl');
+		$this->display('page.alliance.admin.mangeApply.twig');
 	}
 
 	protected function adminDetailApply()
@@ -1131,7 +1131,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'onlinetime'    => _date($LNG['php_tdformat'], $applyDetail['onlinetime'], $USER['timezone']),
 		));
 
-		$this->display('page.alliance.admin.detailApply.tpl');
+		$this->display('page.alliance.admin.detailApply.twig');
 	}
 
 	protected function adminSendAnswerToApply()
@@ -1228,7 +1228,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'availableRanks'	=> $availableRanks,
 		));
 
-		$this->display('page.alliance.admin.permissions.tpl');
+		$this->display('page.alliance.admin.permissions.twig');
 	}
 
 	protected function adminPermissionsSend()
@@ -1396,7 +1396,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'canKick'		 => $this->rights['KICK'],
 		));
 
-		$this->display('page.alliance.admin.members.tpl');
+		$this->display('page.alliance.admin.members.twig');
 	}
 
     protected function adminRank()
@@ -1548,7 +1548,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'diploList'	=> $diplomaticList,
 		));
 
-		$this->display('page.alliance.admin.diplomacy.default.tpl');
+		$this->display('page.alliance.admin.diplomacy.default.twig');
 	}
 
 	protected function adminDiplomacyAccept()
@@ -1617,7 +1617,7 @@ class ShowAlliancePage extends AbstractGamePage
 			'IdList'	=> $IdList,
 		));
 
-		$this->display('page.alliance.admin.diplomacy.create.tpl');
+		$this->display('page.alliance.admin.diplomacy.create.twig');
 	}
 
 	protected function adminDiplomacyCreateProcessor()

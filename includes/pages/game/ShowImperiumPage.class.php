@@ -120,6 +120,6 @@ class ShowImperiumPage extends AbstractGamePage
 			'planetList'	=> $planetList,
 		));
 
-		$this->display('page.empire.default.tpl');
+		$this->display('page.empire.default.twig');
 	}
 }

@@ -46,7 +46,7 @@ class ShowSettingsPage extends AbstractGamePage
 				'canVacationDisbaled'	=> $USER['urlaubs_until'] < TIMESTAMP,
 			));
 			
-			$this->display('page.settings.vacation.tpl');
+			$this->display('page.settings.vacation.twig');
 		}
 		else
 		{
@@ -90,7 +90,7 @@ class ShowSettingsPage extends AbstractGamePage
 				'SELF_URL'          => PROTOCOL.HTTP_HOST.HTTP_ROOT
 			));
 			
-			$this->display('page.settings.default.tpl');
+			$this->display('page.settings.default.twig');
 		}
 	}
 	

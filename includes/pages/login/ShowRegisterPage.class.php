@@ -112,7 +112,7 @@ class ShowRegisterPage extends AbstractLoginPage
 			'formLoadTime'			=> time(),
 		));
 		
-		$this->display('page.register.default.tpl');
+		$this->display('page.register.default.twig');
 	}
 	
 	function send() 

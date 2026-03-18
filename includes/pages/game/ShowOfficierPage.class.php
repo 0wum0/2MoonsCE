@@ -177,6 +177,6 @@ class ShowOfficierPage extends AbstractGamePage
 			'of_dm_trade'		=> sprintf($LNG['of_dm_trade'], $LNG['tech'][921]),
 		));
 		
-		$this->display('page.officier.default.tpl');
+		$this->display('page.officier.default.twig');
 	}
 }

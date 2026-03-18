@@ -83,7 +83,7 @@ class ShowTraderPage extends AbstractGamePage
 			'charge' 			=> self::$Charge[$resourceID],
 		));
 
-		$this->display('page.trader.trade.tpl');
+		$this->display('page.trader.trade.twig');
 	}
 	
 	function send()

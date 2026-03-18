@@ -44,6 +44,6 @@ class ShowRulesPage extends AbstractLoginPage
 			'rules'		=> $LNG->getTemplate('rules'),
 		));
 		
-		$this->display('page.rules.default.tpl');
+		$this->display('page.rules.default.twig');
 	}
 }

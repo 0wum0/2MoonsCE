@@ -47,6 +47,6 @@ class ShowDisclamerPage extends AbstractLoginPage
 			'disclamerNotice'	=> $config->disclamerNotice,
 		));
 		
-		$this->display('page.disclamer.default.tpl');
+		$this->display('page.disclamer.default.twig');
 	}
 }

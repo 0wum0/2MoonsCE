@@ -123,5 +123,5 @@ function ShowFlyingFleetPage()
 	$template->assign_vars(array(
 		'FleetList'			=> $FleetList,
 	));
-	$template->show('FlyingFleetPage.tpl');
+	$template->show('FlyingFleetPage.twig');
 }

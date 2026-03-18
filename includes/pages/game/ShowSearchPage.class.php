@@ -238,7 +238,7 @@ class ShowSearchPage extends AbstractGamePage
 		
 		$templateSuffix	= ($seachMode === "allyname" || $seachMode === "allytag") ? "ally" : "default";
 		
-		$this->display('page.search.result.'.$templateSuffix.'.tpl');
+		$this->display('page.search.result.'.$templateSuffix.'.twig');
 	}
 	
 	function show()
@@ -254,6 +254,6 @@ class ShowSearchPage extends AbstractGamePage
 			'seachMode'		=> $seachMode,
 		));
 		
-		$this->display('page.search.default.tpl');
+		$this->display('page.search.default.twig');
 	}
 }

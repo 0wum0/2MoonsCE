@@ -54,5 +54,5 @@ function ShowTopnavPage()
 		'UNI'					=> Universe::getEmulated(),
 	));
 	
-	$template->show('ShowTopnavPage.tpl');
+	$template->show('ShowTopnavPage.twig');
 }

@@ -82,7 +82,7 @@ function ShowDumpPage()
 				'dumpData'	=> $dumpData,
 			));
 			
-			$template->show('DumpPage.tpl');
+			$template->show('DumpPage.twig');
 		break;
 	}
 }

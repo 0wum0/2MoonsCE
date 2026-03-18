@@ -45,7 +45,7 @@ class ShowLostPasswordPage extends AbstractLoginPage
 			'universeSelect'	=> $universeSelect
 		));
 		
-		$this->display('page.lostPassword.default.tpl');
+		$this->display('page.lostPassword.default.twig');
 	}
 	
 	function newPassword() 

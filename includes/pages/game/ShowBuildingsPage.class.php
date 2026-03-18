@@ -369,6 +369,6 @@ class ShowBuildingsPage extends AbstractGamePage
 			'HaveMissiles'		=> (bool) $PLANET[$resource[503]] + $PLANET[$resource[502]],
 		));
 			
-		$this->display('page.buildings.default.tpl');
+		$this->display('page.buildings.default.twig');
 	}
 }

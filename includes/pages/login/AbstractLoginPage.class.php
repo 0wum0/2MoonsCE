@@ -147,7 +147,7 @@ abstract class AbstractLoginPage
 			$this->setWindow('popup');
 		}
 		
-		$this->display('error.default.tpl');
+		$this->display('error.default.twig');
 	}
 	
 	protected function save() {
@@ -191,7 +191,7 @@ abstract class AbstractLoginPage
 		), false);
 		
 		// Convert .tpl extension to .twig
-		$twigFile = str_replace('.tpl', '.twig', $file);
+		$twigFile = str_replace('.twig', '.twig', $file);
 		
 		// For Twig, we need to create a wrapper template that extends the layout
 		// and includes the content template
@@ -221,6 +221,6 @@ abstract class AbstractLoginPage
 			'postFields'	=> $postFields,
 		));
 		
-		$this->display('info.redirectPost.tpl');
+		$this->display('info.redirectPost.twig');
 	}
 }

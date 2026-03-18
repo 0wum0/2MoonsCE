@@ -57,5 +57,5 @@ function ShowActivePage()
 		'uni'				=> Universe::getEmulated(),
 	));
 	
-	$template->show('ActivePage.tpl');
+	$template->show('ActivePage.twig');
 }

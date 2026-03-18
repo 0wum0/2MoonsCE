@@ -104,6 +104,6 @@ class ShowFleetDealerPage extends AbstractGamePage
 			'Charge'	=> Config::get()->trade_charge,
 		));
 		
-		$this->display('page.fleetDealer.default.tpl');
+		$this->display('page.fleetDealer.default.twig');
 	}
 }

@@ -60,6 +60,6 @@ function ShowMultiIPPage()
 	$template->assign_vars(array(
 		'multiGroups'	=> $IPs,
 	));
-	$template->show('MultiIPs.tpl');
+	$template->show('MultiIPs.twig');
 }
 
