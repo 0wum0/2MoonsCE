@@ -41,6 +41,8 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Fixed popup layout: remove old wrapper chrome, add themed dark scrollbar, clean modal iframe body — by 0wum0
 - Fixed MIP tech formula in combat engine — by 0wum0
 - Fixed fleet steal SQL injection vulnerability — by 0wum0
+- Fixed v3.0 unit destruction formula: was `floor(amount * breachProb * variance)` with avg variance 0.5 → only half expected ships died per round → fights ended as draws → near-zero debris → moon chance always 0; replaced with `floor(hullDamage / hpPerUnit)` with ±10% HP variance for correct lethality — by 0wum0
+- Fixed v3.0 formation + synergy multipliers: `form['att'] + syn['att']` was additive (wrong) → now `form['att'] * (1.0 + syn['att'])` (multiplicative) — by 0wum0
 
 ### Galaxy Map (März 2026)
 - Added 5 spectral star types (B/A/G/K/M) with per-type size, colour, corona spikes and pulse animation — by 0wum0
@@ -122,6 +124,13 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Added inline planet rename: click-to-edit UI with live title/selector updates via AJAX — by 0wum0
 - Fixed planet rename endpoint: clears output buffers, returns explicit JSON headers — by 0wum0
 - Added universe filter and duplicate parameter fix to `FlyingFleetsTable` query — by 0wum0
+- Fixed online player count: `$db->rowCount()` unreliable after SELECT on PDO → replaced with `count($onlineUserResult)` — by 0wum0
+
+### Localisation (März 2026)
+- Fixed `modul_43` (Bots) and `modul_44` (Forum) names not visible in Admin module list — added missing language keys to `language/de/ADMIN.php` — by 0wum0
+
+### Tech Tree (März 2026)
+- Fixed tech tree page blank/error for all categories: `ShowTechtreePage` called `display('page.techTree.default.tpl')` (Smarty) instead of `.twig` — by 0wum0
 
 ### Defensive Programming & Stability
 - Added `Database::selectSingleSafe()` — returns `null` instead of `false`, no breaking change — by 0wum0

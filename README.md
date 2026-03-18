@@ -208,6 +208,17 @@ Login:    der beim Setup gewählte Admin-Account
 - v3.0: taktische Formationen, kritische Treffer, Moral-System, Schiffs-Synergien
 - Battle Report v3.0: Modal-UI mit SVG-Grafiken, Schadensbalken, Runden-Tabs
 - Fix: MIP-Tech-Formel; SQL-Injection im Fleet-Steal behoben
+- Fix: v3.0 Zerstörungs-Formel — `floor(amount * breachProb * variance)` mit ø-Varianz 0,5 → nur halbe Verluste pro Runde → Unentschieden → kein Trümmerfeld → Mondchance immer 0; korrigiert auf `floor(hullDamage / hpPerUnit)` mit ±10% HP-Varianz
+- Fix: v3.0 Formations-Synergien — Multiplikatoren waren additiv statt multiplikativ
+
+**Lokalisation & Admin**
+- Fix: `modul_43` (Bots) und `modul_44` (Forum) im Admin-Modulbereich nicht sichtbar — fehlende Sprachschlüssel in `language/de/ADMIN.php` ergänzt
+
+**Tech Tree**
+- Fix: Techtree-Seite blank/Fehler — `ShowTechtreePage` rief `.tpl` (Smarty) statt `.twig` auf
+
+**Übersicht**
+- Fix: Online-Spieler-Anzahl: `$db->rowCount()` nach SELECT unzuverlässig → `count()` auf Ergebnis-Array
 
 **Galaxy Map**
 - 5 Spektral-Sterntypen (B/A/G/K/M) mit Größe, Farbe, Korona und Puls-Animation
