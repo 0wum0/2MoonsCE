@@ -284,11 +284,11 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 			                  + (float)($attacker['player']['factor']['Shield'] ?? 0);
 			$attackers[$fleetID]['techs'] = [$attTech, $defTech, $shieldTech];
 
-			// Formation & synergy multipliers
+			// Formation & synergy multipliers (multiplicative, not additive)
 			$form   = $getFormation($attacker);
 			$syn    = $getSynergies($attacker['unit']);
-			$fAttMul = $form['att'] + $syn['att']; // combined attack multiplier offset (+1 base already in form)
-			$fShdMul = $form['shd'] + $syn['shd']; // combined shield multiplier offset
+			$fAttMul = $form['att'] * (1.0 + $syn['att']);
+			$fShdMul = $form['shd'] * (1.0 + $syn['shd']);
 			$fHpMul  = 1.0 + $syn['hp'];
 			$critBase = CRIT_HIT_CHANCE + (int)$form['crit']; // % chance
 
@@ -364,8 +364,8 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 
 			$form   = $getFormation($defender);
 			$syn    = $getSynergies($defender['unit']);
-			$fAttMul = $form['att'] + $syn['att'];
-			$fShdMul = $form['shd'] + $syn['shd'];
+			$fAttMul = $form['att'] * (1.0 + $syn['att']);
+			$fShdMul = $form['shd'] * (1.0 + $syn['shd']);
 			$fHpMul  = 1.0 + $syn['hp'];
 			$critBase = CRIT_HIT_CHANCE + (int)$form['crit'];
 
@@ -614,9 +614,12 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 				$hullDamage      = $incomingUnit - $shieldAbsorbed;
 				$attackerHull   += $hullDamage;
 
-				$breachProb = min(1.0, ($hullDamage / $amount) / max(1.0, $hpPerUnit));
-				$variance   = mt_rand(1, 100) / 100.0;
-				$destroyed  = max(0, min((int)$amount, (int)floor($amount * $breachProb * $variance)));
+				// Destruction: units whose hull is exhausted die.
+				// hullDamage is total hull damage to this unit type.
+				// Each unit has hpPerUnit HP → units killed = floor(hullDamage / hpPerUnit)
+				// Clamped to [0, amount]. ±10% variance on hp threshold for realism.
+				$hpVariance  = $hpPerUnit * (mt_rand(90, 110) / 100.0);
+				$destroyed   = max(0, min((int)$amount, (int)floor($hullDamage / max(1.0, $hpVariance))));
 
 				$attacker_n[$fleetID][$element] = (int)($amount - $destroyed);
 			}
@@ -673,9 +676,8 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 				$hullDamage      = $incomingUnit - $shieldAbsorbed;
 				$defenderHull   += $hullDamage;
 
-				$breachProb = min(1.0, ($hullDamage / $amount) / max(1.0, $hpPerUnit));
-				$variance   = mt_rand(1, 100) / 100.0;
-				$destroyed  = max(0, min((int)$amount, (int)floor($amount * $breachProb * $variance)));
+				$hpVariance  = $hpPerUnit * (mt_rand(90, 110) / 100.0);
+				$destroyed   = max(0, min((int)$amount, (int)floor($hullDamage / max(1.0, $hpVariance))));
 
 				$defender_n[$fleetID][$element] = (int)($amount - $destroyed);
 			}

@@ -1081,6 +1081,8 @@ $LNG['modul_37'] = 'Statistiken Banner';
 $LNG['modul_26'] = 'Suche';
 $LNG['modul_27'] = 'Support Tickets';
 $LNG['modul_28'] = 'Techtree';
+$LNG['modul_43'] = 'Bots';
+$LNG['modul_44'] = 'Forum';
 
 $LNG['mod_module'] = 'Module';
 $LNG['mod_info'] = 'Module im Game<br>Admins können weiterhin die Bereiche betreten!';
