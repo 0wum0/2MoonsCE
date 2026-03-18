@@ -738,7 +738,9 @@ document.addEventListener('DOMContentLoaded', function() {
   var canvas = document.createElement('canvas');
   canvas.id = 'bg-canvas';
   document.body.insertBefore(canvas, document.body.firstChild);
-  var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:false, alpha:true});
+  var renderer;
+  try { renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:false, alpha:true}); }
+  catch(e) { canvas.remove(); return; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setClearColor(0x000000, 0);
   var scene = new THREE.Scene();

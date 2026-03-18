@@ -1276,7 +1276,17 @@ function init() {
   camera.position.set(0, 2000, 3000);
   camera.lookAt(0, 0, 0);
 
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  } catch(e) {
+    is3D = false;
+    canvas.style.display = 'none';
+    const fb = document.getElementById('vb-3d');
+    if (fb) { fb.style.display = 'none'; }
+    const btn2d = document.querySelector('[data-view="2d"]');
+    if (btn2d) btn2d.click();
+    renderer = { setSize:()=>{}, setPixelRatio:()=>{}, render:()=>{} };
+  }
   renderer.setSize(innerWidth, innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
