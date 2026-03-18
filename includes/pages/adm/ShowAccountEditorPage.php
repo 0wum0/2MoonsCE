@@ -267,9 +267,10 @@ function ShowAccountEditorPage()
 			if($_POST)
 			{
 				$PlanetData = $GLOBALS['DATABASE']->getFirstRow("SELECT * FROM ".PLANETS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
-				if(!isset($PlanetData))
+				if(empty($PlanetData))
 				{
 					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=buildings');
+					exit;
 				}
 				$before = array();
 				$after = array();
@@ -280,6 +281,7 @@ function ShowAccountEditorPage()
 				if (!empty($_POST['add']))
 				{
 					$Fields	= 0;
+					$QryUpdate = [];
 					$SQL  = "UPDATE ".PLANETS." SET ";
 					$SQL .= "`eco_hash` = '', ";
 					foreach($reslist['allow'][$PlanetData['planet_type']] as $ID)
