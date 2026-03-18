@@ -735,6 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 (function(){
   if(typeof THREE === 'undefined') return;
+  if(document.getElementById('gm-root')) return;
   var canvas = document.createElement('canvas');
   canvas.id = 'bg-canvas';
   document.body.insertBefore(canvas, document.body.firstChild);
