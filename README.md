@@ -1,4 +1,9 @@
 ﻿# 2Moons CE — Community Edition
+<p align="center">
+  <a href="https://github.com/0wum0/2MoonsCE/discussions/16">
+    <img src="https://img.shields.io/badge/GitHub-Project%20Discussion-5865F2?style=for-the-badge&logo=github">
+  </a>
+</p>
 
 <div align="center">
 
