@@ -220,6 +220,16 @@ Login:    der beim Setup gewählte Admin-Account
 **Übersicht**
 - Fix: Online-Spieler-Anzahl: `$db->rowCount()` nach SELECT unzuverlässig → `count()` auf Ergebnis-Array
 
+**Account-Editor (Admin)**
+- Fix: Alle `.tpl` → `.twig` Template-Aufrufe in `ShowAccountEditorPage` → Weiße Seite nach Speichern behoben
+- Fix: 55 weitere `.tpl` → `.twig` Aufrufe in `adm/`, `game/`, `login/` — Weiße Seiten auf allen noch nicht migrierten Seiten
+- Fix: `AccountEditorPageBuilds.twig` / `AccountEditorPageDefenses.twig`: `<button>` ohne `value`-Attribut → `$_POST['add']` war leerer String → `!empty()` schlug fehl → fataler Fehler (`$after` undefiniert)
+- Fix: `ShowAccountEditorPage` buildings: `!isset($PlanetData)` → `empty()` + fehlendes `exit` ergänzt
+
+**Login & Registrierung**
+- Fix: Regeln-Checkbox zeigte `<a href="...">Regeln</a>` als Klartext statt als Link — `|raw`-Filter in `page.register.default.twig` ergänzt
+- Fix: Login- und Ingame-Design zu dunkel auf manchen Geräten — Hintergrundfarben angehoben (`auth.css`: `--c-bg` `#04050d` → `#0d1120`; `2moonsce.base.css`: `--bg0` `#03060f` → `#080e1e`, Border-Opazität und Texthelligkeit erhöht)
+
 **Galaxy Map**
 - 5 Spektral-Sterntypen (B/A/G/K/M) mit Größe, Farbe, Korona und Puls-Animation
 - 10 realistische Planeten-Typen (Terran/Wüste/Eis/Lava/Gas/Fels/Ozean/Dschungel/Saturn/Toxisch)

@@ -112,6 +112,9 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Fixed `ShowAccountEditorPage`: all `$template->show('*.tpl')` calls replaced with `.twig` — white page after saving buildings/ships/defenses/research/personal/officers/planets/alliances — by 0wum0
 - Fixed `ShowAccountEditorPage`: duplicate `break;` after defenses case removed — by 0wum0
 - Fixed all remaining `.tpl` → `.twig` template calls across 55 files in `includes/pages/adm/`, `includes/pages/game/`, and `includes/pages/login/` — white/blank page on any page that had not yet been individually migrated — by 0wum0
+- Fixed `AccountEditorPageBuilds.twig` and `AccountEditorPageDefenses.twig`: `<button>` submit buttons had no `value` attribute → `$_POST['add']`/`$_POST['delete']` were empty strings → `!empty()` check failed → neither add nor delete branch ran → `$after` undefined → fatal error on `$LOG->new = $after` — added `value="1"` to both buttons in both templates — by 0wum0
+- Fixed `ShowAccountEditorPage` buildings POST handler: `!isset($PlanetData)` never true when `getFirstRow()` returns `false` → replaced with `empty()` check + added missing `exit` so code does not fall through to `foreach()` on invalid planet ID — by 0wum0
+- Fixed `ShowAccountEditorPage` buildings add branch: `$QryUpdate` was used before initialisation inside the `add` block — added `$QryUpdate = []` before the loop — by 0wum0
 - Fixed `PluginManager::selectSingle()`: "Trying to access array offset on false" when `$res` is `false` and a `$field` is specified — added `is_array()` guard — by 0wum0
 - Fixed Admin mobile navigation: `sidebar-overlay` div lacked CSS definition and was rendered `display:block` by external CSS override — added `style="display:none"` inline on element; JS now controls `display` directly via `overlay.style.display` instead of CSS class toggling — by 0wum0
 - Fixed Admin mobile sidebar: `backdrop-filter:blur()` on `position:fixed` `.admin-sidebar` and `.admin-topbar` created stacking contexts that blocked pointer events on content behind them — removed `backdrop-filter` from both elements — by 0wum0
@@ -155,6 +158,9 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Added math CAPTCHA to registration form (server-side, session-based) — by 0wum0
 - Added registration rate limiting per IP (max 3/hour) via `RegistrationRateLimit` — by 0wum0
 - Scoped `main.css` body/input rules with `:not(.auth-body)` to prevent conflicts with `auth.css` — by 0wum0
+- Fixed registration rules checkbox: `{{ registerRulesDesc }}` was Twig-escaped → `<a>` tag rendered as literal text — added `|raw` filter — by 0wum0
+- Lightened login page colours: `--c-bg` `#04050d` → `#0d1120`, surfaces/borders/text raised for better readability on devices that render too dark (`auth.css`) — by 0wum0
+- Lightened ingame dark theme: `--bg0`–`--bg3` raised from near-black to dark navy, border opacities and text brightness increased (`2moonsce.base.css`) — by 0wum0
 
 ### Changelog Page
 - Added in-game changelog page (`game.php?page=changelog`) — renders `CHANGELOG.md` via Parsedown — by 0wum0
