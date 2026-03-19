@@ -26,6 +26,22 @@ function ShowAdminNetworkPage(): void
     $testResult = null;
     $action  = trim((string)($_POST['an_action'] ?? $_GET['an_action'] ?? ''));
 
+    // ── Auto-fix generic instance_name ────────────────────────────────────────
+    if (!empty($cfg['instance_key']) && (strtolower($cfg['instance_name']) === 'mein server' || strtolower($cfg['instance_name']) === 'my server' || $cfg['instance_name'] === '')) {
+        try {
+            $dbInst   = Database::get();
+            $row      = $dbInst->selectSingle('SELECT game_name FROM %%CONFIG%% LIMIT 1;');
+            $gameName = trim((string)($row['game_name'] ?? ''));
+            if ($gameName === '' || strtolower($gameName) === 'mein server' || strtolower($gameName) === 'my server') {
+                $gameName = (string)($_SERVER['HTTP_HOST'] ?? '2MoonsCE');
+            }
+            $pm->setConfig('AdminNetwork', 'instance_name', $gameName);
+            $cfg = AdminNetworkConfig::get(true);
+        } catch (Throwable $e) {
+            error_log('[AdminNetwork] auto-fix instance_name error: ' . $e->getMessage());
+        }
+    }
+
     // ── Save settings ─────────────────────────────────────────────────────────
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'save') {
         $hubUrl      = trim((string)($_POST['hub_url']      ?? ''));
@@ -55,14 +71,13 @@ function ShowAdminNetworkPage(): void
     // ── Send message (AJAX) ───────────────────────────────────────────────────
     if ($action === 'send_ajax' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json');
-        $text       = trim((string)($_POST['text'] ?? ''));
-        $senderName = trim((string)($USER['username'] ?? ''));
+        $text = trim((string)($_POST['text'] ?? ''));
         if ($text === '' || !$cfg['hub_url'] || !$cfg['instance_key']) {
             echo json_encode(['ok' => false, 'error' => 'Konfiguration unvollständig oder Text leer.']);
             exit;
         }
         $client = new HubClient($cfg['hub_url'], $cfg['instance_key']);
-        $result = $client->send($text, $senderName);
+        $result = $client->send($text);
         echo json_encode($result);
         exit;
     }

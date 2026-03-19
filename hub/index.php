@@ -96,7 +96,7 @@ switch ($action) {
         if (mb_strlen($text) > 2000) {
             jsonError(400, 'text too long (max 2000 chars)');
         }
-        $id = $db->insertMessage($instance['id'], $instance['name'], htmlspecialchars($text, ENT_QUOTES, 'UTF-8'), htmlspecialchars($senderName, ENT_QUOTES, 'UTF-8'));
+        $id = $db->insertMessage($instance['id'], $instance['name'], $text, $senderName);
         $db->updatePing($instance['id']);
         jsonOk(['id' => $id]);
         break;

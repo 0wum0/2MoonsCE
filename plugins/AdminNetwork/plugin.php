@@ -37,14 +37,38 @@ $pm->registerAdminRoute(
         $pm  = PluginManager::get();
         $cfg = AdminNetworkConfig::get();
 
+        // ── Auto-fix generic instance_name (e.g. "Mein Server") ─────────────
+        if (!empty($cfg['instance_key']) && (
+            $cfg['instance_name'] === '' ||
+            strtolower($cfg['instance_name']) === 'mein server' ||
+            strtolower($cfg['instance_name']) === 'my server'
+        )) {
+            try {
+                $dbFix    = Database::get();
+                $rowFix   = $dbFix->selectSingle('SELECT game_name FROM %%CONFIG%% LIMIT 1;');
+                $nameFix  = trim((string)($rowFix['game_name'] ?? ''));
+                if ($nameFix === '' || strtolower($nameFix) === 'mein server' || strtolower($nameFix) === 'my server') {
+                    $nameFix = (string)($_SERVER['HTTP_HOST'] ?? '2MoonsCE');
+                }
+                $pm->setConfig('AdminNetwork', 'instance_name', $nameFix);
+                $cfg = AdminNetworkConfig::get(true);
+            } catch (Throwable $e) {
+                error_log('[AdminNetwork] auto-fix name error: ' . $e->getMessage());
+            }
+        }
+
         // ── Auto-register if instance_key is missing ──────────────────────────
         if (empty($cfg['instance_key'])) {
             try {
-                // Read game_name from DB
+                // Read game_name from DB; fall back to HTTP host
                 $db       = Database::get();
                 $row      = $db->selectSingle('SELECT game_name, uni_name FROM %%CONFIG%% LIMIT 1;');
                 $gameName = trim((string)($row['game_name'] ?? $row['uni_name'] ?? ''));
-                if ($gameName === '') $gameName = 'Unknown Server';
+                $host     = (string)($_SERVER['HTTP_HOST'] ?? '');
+                // Use hostname if game_name is empty or still the generic install default
+                if ($gameName === '' || strtolower($gameName) === 'mein server' || strtolower($gameName) === 'my server') {
+                    $gameName = $host ?: '2MoonsCE';
+                }
 
                 $instanceUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
                     . '://' . ($_SERVER['HTTP_HOST'] ?? 'unknown');

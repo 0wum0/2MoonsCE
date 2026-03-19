@@ -371,17 +371,13 @@ var SmartChat = (function(){
         var hh = time.getHours().toString().padStart(2,'0');
         var mm = time.getMinutes().toString().padStart(2,'0');
         var delBtn = isMine ? '<button class="sc-admin-btn" onclick="SmartChat.deleteAdminNet('+m.id+')" title="Löschen"><i class="fas fa-trash"></i></button>' : '';
-        var senderLabel = m.sender_name
-            ? '<span class="sc-msg-user sc-msg-adminnet-sender">'+ escHtml(m.sender_name) +'</span>'
-              + '<span class="sc-msg-adminnet-sep">·</span>'
-              + '<span class="sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>'
-            : '<span class="sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>';
+        var senderLabel = '<span class="sc-msg-user sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>';
         el.innerHTML = '<div class="sc-msg-meta">'
             + senderLabel
             + '<span class="sc-msg-time">'+hh+':'+mm+'</span>'
             + delBtn
             +'</div>'
-            + '<div class="sc-msg-text">'+ escHtml(m.text) +'</div>';
+            + '<div class="sc-msg-text">'+ renderBB(escHtml(m.text)) +'</div>';
         if(prepend === true){ box.insertBefore(el, box.firstChild); }
         else { box.appendChild(el); box.scrollTop = box.scrollHeight; }
     }
