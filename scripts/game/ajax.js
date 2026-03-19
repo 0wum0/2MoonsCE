@@ -417,18 +417,18 @@ var SmAjax = (function ($) {
 
             var $form    = $(this);
             var url      = $form.attr('action') || window.location.href;
-            var payload  = {};
-            $form.serializeArray().forEach(function (f) { payload[f.name] = f.value; });
+            var payload  = $form.serialize();
 
             var $btn     = $form.find('[type="submit"]');
             var origHtml = $btn.html();
             $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
             $.ajax({
-                url:      url,
-                type:     'POST',
-                data:     payload,
-                dataType: 'json',
+                url:         url,
+                type:        'POST',
+                data:        payload,
+                dataType:    'json',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 headers:  { 'X-Requested-With': 'XMLHttpRequest' },
                 success: function (resp) {
                     if (resp && resp.ok === false && resp.error) {

@@ -47,11 +47,11 @@
             </div>
             <div id="bx" class="shipyard-active-timer">--:--:--</div>
             <div class="queue-body">
-                <select name="auftr[]" id="auftr" size="5" multiple class="queue-list">
-                    <option>&nbsp;</option>
-                </select>
                 <form action="game.php?page=shipyard&amp;mode={{ mode }}" method="post" class="cancel-form" data-ajax="1">
                     <input type="hidden" name="action" value="delete">
+                    <select name="auftr[]" id="auftr" size="5" multiple class="queue-list">
+                        <option>&nbsp;</option>
+                    </select>
                     <button type="submit" class="btn-cancel">{{ LNG.bd_cancel_send }}</button>
                 </form>
             </div>
