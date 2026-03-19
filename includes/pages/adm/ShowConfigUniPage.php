@@ -249,7 +249,9 @@ function ShowConfigUniPage()
 
 		foreach($config_after as $key => $value)
 		{
-			$config->$key	= $value;
+			if (isset($config->$key)) {
+				$config->$key = $value;
+			}
 		}
 		$config->save();
 		
