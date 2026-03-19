@@ -26,7 +26,7 @@ function BuildlistShipyard() {
 			if (Shipyard.length == 0) {
 				$("#bx").html(Ready);
 				document.getElementById('auftr').options[0] = new Option(Ready);
-				document.location.href	= document.location.href;
+				if (typeof SmAjax !== 'undefined') { SmAjax.refreshPageContent(); } else { document.location.href = document.location.href; }
 				window.clearInterval(ShipyardInterval);
 				return;
 			}

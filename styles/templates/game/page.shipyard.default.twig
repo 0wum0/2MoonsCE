@@ -134,6 +134,9 @@
 
 {% endblock %}
 {% block script %}
+{% if BuildList %}
+<script src="scripts/game/shipyard.js"></script>
+{% endif %}
 <script type="text/javascript">
 data = {{ BuildList|json_encode|raw }};
 bd_operating = '{{ LNG.bd_operating }}';
