@@ -3101,18 +3101,6 @@ function animate(now = 0){
       if (h2) h2.classList.add('on');
     }
   } catch(e) {}
-  // Detect WebGL without consuming a context: check canvas.getContext on the real map canvas
-  if (is3D) {
-    try {
-      const testCtx = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (!testCtx) {
-        is3D = false;
-        const vb3 = document.getElementById('vb-3d');
-        if (vb3) vb3.style.display = 'none';
-      }
-      // Do NOT call loseContext — we need this context for the real renderer
-    } catch(e) { is3D = false; }
-  }
 })();
 init();
 return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
