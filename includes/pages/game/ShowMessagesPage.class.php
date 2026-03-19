@@ -98,8 +98,13 @@ class ShowMessagesPage extends AbstractGamePage
 
         foreach ($MessageResult as $MessageRow) {
             $MessagesID[] = $MessageRow['message_id'];
-            
-            $parsedText = $bbcode->parse($MessageRow['message_text']);
+
+            // Type 1 = player-written PM → sanitize via BBCode pipeline.
+            // All other types (2=combat, 3=battle report, 4=fleet, 15=expedition, etc.)
+            // contain server-generated HTML that must not be stripped.
+            $parsedText = ($MessageRow['message_type'] == 1)
+                ? $bbcode->parse($MessageRow['message_text'])
+                : $bbcode->parse($MessageRow['message_text'], true);
 
             $MessageList[] = array(
                 'id'		=> $MessageRow['message_id'],
