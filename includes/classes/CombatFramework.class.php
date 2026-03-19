@@ -78,10 +78,10 @@ class CombatFramework
 
         // Edge-case: one side had nothing valid to fight with after normalisation
         if (empty($attackers)) {
-            return self::emptyResult('r'); // defender wins by default
+            return self::emptyResult('r', [], $defenders); // defender wins by default
         }
         if (empty($defenders)) {
-            return self::emptyResult('a'); // attacker wins by default
+            return self::emptyResult('a', $attackers, []); // attacker wins by default
         }
 
         $hook = HookManager::get();
@@ -298,9 +298,54 @@ class CombatFramework
 
     /**
      * Trivial "no-fight" result when one side is empty after normalisation.
+     * Fleet data is embedded in rw[0] so the battle report shows the ships.
      */
-    private static function emptyResult(string $won): array
+    private static function emptyResult(string $won, array $attackers = [], array $defenders = []): array
     {
+        $roundAttackers = [];
+        foreach ($attackers as $fleetID => $fleet) {
+            $roundAttackers[$fleetID] = [
+                'player'      => [
+                    'id'       => $fleet['player']['id']       ?? 0,
+                    'username' => $fleet['player']['username'] ?? '',
+                ],
+                'fleetDetail' => [
+                    'fleet_start_galaxy' => $fleet['fleetDetail']['fleet_start_galaxy'] ?? 0,
+                    'fleet_start_system' => $fleet['fleetDetail']['fleet_start_system']  ?? 0,
+                    'fleet_start_planet' => $fleet['fleetDetail']['fleet_start_planet']  ?? 0,
+                    'fleet_start_type'   => $fleet['fleetDetail']['fleet_start_type']    ?? 1,
+                ],
+                'techs' => [
+                    1.0 + 0.1 * (float)($fleet['player']['military_tech'] ?? 0) + (float)($fleet['player']['factor']['Attack']    ?? 0.0),
+                    1.0 + 0.1 * (float)($fleet['player']['defence_tech']  ?? 0) + (float)($fleet['player']['factor']['Defensive'] ?? 0.0),
+                    1.0 + 0.1 * (float)($fleet['player']['shield_tech']   ?? 0) + (float)($fleet['player']['factor']['Shield']    ?? 0.0),
+                ],
+                'unit' => $fleet['unit'],
+            ];
+        }
+
+        $roundDefenders = [];
+        foreach ($defenders as $fleetID => $fleet) {
+            $roundDefenders[$fleetID] = [
+                'player'      => [
+                    'id'       => $fleet['player']['id']       ?? 0,
+                    'username' => $fleet['player']['username'] ?? '',
+                ],
+                'fleetDetail' => [
+                    'fleet_start_galaxy' => $fleet['fleetDetail']['fleet_start_galaxy'] ?? 0,
+                    'fleet_start_system' => $fleet['fleetDetail']['fleet_start_system']  ?? 0,
+                    'fleet_start_planet' => $fleet['fleetDetail']['fleet_start_planet']  ?? 0,
+                    'fleet_start_type'   => $fleet['fleetDetail']['fleet_start_type']    ?? 1,
+                ],
+                'techs' => [
+                    1.0 + 0.1 * (float)($fleet['player']['military_tech'] ?? 0) + (float)($fleet['player']['factor']['Attack']    ?? 0.0),
+                    1.0 + 0.1 * (float)($fleet['player']['defence_tech']  ?? 0) + (float)($fleet['player']['factor']['Defensive'] ?? 0.0),
+                    1.0 + 0.1 * (float)($fleet['player']['shield_tech']   ?? 0) + (float)($fleet['player']['factor']['Shield']    ?? 0.0),
+                ],
+                'unit' => $fleet['unit'],
+            ];
+        }
+
         return [
             'won'         => $won,
             'debris'      => [
@@ -309,12 +354,12 @@ class CombatFramework
             ],
             'rw'          => [
                 0 => [
-                    'attackers' => [],
-                    'defenders' => [],
+                    'attackers' => $roundAttackers,
+                    'defenders' => $roundDefenders,
                     'infoA'     => [],
                     'infoD'     => [],
-                    'attackA'   => ['total' => 0],
-                    'defenseA'  => ['total' => 0],
+                    'attackA'   => ['total' => array_sum(array_map(fn($f) => array_sum($f['unit']), $attackers))],
+                    'defenseA'  => ['total' => array_sum(array_map(fn($f) => array_sum($f['unit']), $defenders))],
                 ],
             ],
             'unitLost'    => ['attacker' => 0.0, 'defender' => 0.0],
