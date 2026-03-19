@@ -28,6 +28,11 @@
 {% block content %}
 {% autoescape false %}
 <script>
+  // Strip pageIn animation from #page-content immediately — its transform breaks position:fixed on #gm-root
+  (function(){
+    var pc = document.getElementById('page-content');
+    if (pc) { pc.style.animation='none'; pc.style.transform='none'; pc.style.opacity='1'; }
+  })();
   window.SM = {
     userId:  {{ USER.id|default(0) }},
     allyId:  {{ USER.ally_id|default(0) }},
@@ -47,6 +52,13 @@ html:has(#gm-root), body:has(#gm-root) {
   overflow: hidden !important;
   max-width: 100vw !important;
   overscroll-behavior: none;
+}
+
+/* Kill the pageIn animation on #page-content — its transform breaks position:fixed on #gm-root */
+#page-content:has(#gm-root) {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
 }
 
 /* ── Root: covers full viewport over game UI ──────────────────────── */
