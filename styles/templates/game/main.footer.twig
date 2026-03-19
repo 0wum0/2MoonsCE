@@ -377,7 +377,7 @@ var SmartChat = (function(){
             + '<span class="sc-msg-time">'+hh+':'+mm+'</span>'
             + delBtn
             +'</div>'
-            + '<div class="sc-msg-text">'+ renderBB(escHtml(m.text)) +'</div>';
+            + '<div class="sc-msg-text">'+ renderBB(m.text) +'</div>';
         if(prepend === true){ box.insertBefore(el, box.firstChild); }
         else { box.appendChild(el); box.scrollTop = box.scrollHeight; }
     }

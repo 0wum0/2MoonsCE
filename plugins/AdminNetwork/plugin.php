@@ -22,6 +22,14 @@ $pm->registerAdminRoute(
     'ShowAdminNetworkPage'
 );
 
+// ── Ingame AJAX route (send/poll/delete — no admin session needed) ─────────────
+$pm->registerPageRoute(
+    'AdminNetwork',
+    'adminnetajax',
+    'pages/AdminNetworkAjaxPage.php',
+    'AdminNetworkAjaxPage'
+);
+
 // ── Hooks ──────────────────────────────────────────────────────────────────────
 (static function (): void {
     $hm = HookManager::get();
@@ -92,13 +100,13 @@ $pm->registerAdminRoute(
             // Still not configured (hub unreachable?) — show tab with setup hint
             return <<<HTML
 <script>
-window.AdminNetCfg = { hubUrl:'', instanceKey:'', instanceName:'', ajaxUrl:'admin.php?page=plugin_admin_network' };
+window.AdminNetCfg = { hubUrl:'', instanceKey:'', instanceName:'', ajaxUrl:'game.php?page=adminnetajax' };
 (function(){ var t=document.getElementById('scTabAdminNet'); if(t) t.style.display=''; })();
 </script>
 HTML;
         }
 
-        $ajaxUrl      = 'admin.php?page=plugin_admin_network';
+        $ajaxUrl      = 'game.php?page=adminnetajax';
         $instanceName = htmlspecialchars($cfg['instance_name'], ENT_QUOTES, 'UTF-8');
         $hubUrl       = htmlspecialchars($cfg['hub_url'],       ENT_QUOTES, 'UTF-8');
         $instanceKey  = htmlspecialchars($cfg['instance_key'],  ENT_QUOTES, 'UTF-8');
