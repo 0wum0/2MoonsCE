@@ -57,6 +57,10 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 - Mobile 2D-only mode: hides `#vb-3d` on `max-width:768px`, sets `orb.r=4000` with `syncCamera()` on init — by 0wum0
 - Fixed galaxy map JSON APIs: `while(ob_get_level())` clears all output buffers before JSON output — by 0wum0
 - Added window focus event to re-fetch fleets; reduced no-fleet polling interval 15 s → 3 s — by 0wum0
+- Fixed galaxy map blank on PC: `2moonsce.base.css` sets `position:relative; z-index:1; animation:pageIn(transform)` on `#page-content` and `.content-wrapper`, creating stacking contexts that trapped `position:fixed` on `#gm-root`; overridden with `z-index:auto; animation:none; isolation:auto` via inline `<style>` as first child of `#page-content` — by 0wum0
+- Redesigned side panel: moved from left-floating panel to fixed collapsible right rail with slide toggle tab (chevron), localStorage-persisted open/collapsed state; mobile still uses bottom-sheet FAB — by 0wum0
+- Fixed WebGL renderer: was skipped when `is3D=false` (from saved 2D view preference), leaving canvas hidden permanently; renderer is now always created — `is3D` only controls camera angle — by 0wum0
+- Suppressed `THREE.WebGLRenderer: Error creating WebGL context` console error on both galaxy map and overview starfield by temporarily overriding `console.error` around the constructor — by 0wum0
 
 ### LiteSpeed / PDO Stability (März 2026)
 - Fixed PDO error 2014 "Cannot execute queries while other unbuffered queries are active" on LiteSpeed — by 0wum0
