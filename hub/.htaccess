@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Protect data directory
+<FilesMatch "\.sqlite$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>

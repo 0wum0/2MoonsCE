@@ -7,6 +7,16 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 
 ## [Unreleased] – März 2026
 
+### Admin Network Chat Plugin (März 2026)
+- Added Plugin: **AdminNetwork** — cross-instance admin chat connecting all 2MoonsCE game servers via a central hub — by 0wum0
+- Added standalone hub server (`hub/`) in pure PHP + SQLite (no external dependencies): REST JSON API with actions `register`, `send`, `poll`, `ping`, `online`, `status`, `delete` — by 0wum0
+- Hub features: per-IP rate limiting (60 req/min), automatic message pruning (configurable max age + max count), WAL-mode SQLite for concurrent writes — by 0wum0
+- Hub authentication: master key for instance registration, per-instance API keys for all other actions — by 0wum0
+- Plugin features: futuristic admin chat UI, real-time polling (configurable interval, min. 5s), online-instance sidebar, delete own messages — by 0wum0
+- Plugin config: Hub-URL, instance API key, instance display name, poll interval — all editable in Admin → Admin-Netzwerk — by 0wum0
+- JS chat client: auto-scroll, Enter-to-send, instant poll after own message, connection status indicator (green pulse / red) — by 0wum0
+- Hub data directory protected via `.htaccess` (Deny from all) — by 0wum0
+
 ### Build Queue Timers & AJAX-Refresh (März 2026)
 - Fixed build queue timers not updating after AJAX build action on all pages (buildings, research, shipyard) — by 0wum0
 - Root cause: `$.parseHTML(html, document, false)` in `refreshPageContent()` stripped all `<script>` tags from parsed HTML before insertion, so inline timer scripts were never re-executed after AJAX content swap — by 0wum0

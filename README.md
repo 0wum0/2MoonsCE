@@ -188,6 +188,13 @@ Login:    der beim Setup gewählte Admin-Account
 
 ### März 2026 — Build Queue Timers, Support-System, Messages v3, Combat Engine v3, Galaxy Map
 
+**Admin Network Chat Plugin**
+- Neues Plugin: **AdminNetwork** — verbindet alle 2MoonsCE-Instanzen über einen zentralen Hub-Server
+- Hub-Server (`hub/`): eigenständige PHP+SQLite-App, kein Composer nötig — REST-JSON-API für `register`, `send`, `poll`, `ping`, `online`, `delete`
+- Sicherheit: Master-Key für Registrierung, pro-Instanz-API-Keys, IP-Rate-Limiting, automatisches Nachrichten-Pruning
+- Admin-Chat-UI: Echtzeit-Polling, Online-Instanzen-Sidebar, Nachrichten löschen, Verbindungsstatusanzeige
+- Konfiguration in Admin → Admin-Netzwerk: Hub-URL, API-Key, Instanzname, Poll-Intervall
+
 **Build Queue Timers & AJAX-Refresh**
 - Fix: Countdown-Timer in Bauschleife (Gebäude, Forschung, Werft) wurden nach AJAX-Aktion nicht angezeigt — erst nach manuellem Seitenreload
 - Root Cause: `$.parseHTML(html, false)` in `refreshPageContent()` entfernte alle `<script>`-Tags → Timer-Scripts wurden nie neu ausgeführt

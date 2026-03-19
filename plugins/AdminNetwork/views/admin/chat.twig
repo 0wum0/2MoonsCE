@@ -1,0 +1,173 @@
+{% extends "adm/layout.admin.twig" %}
+{% block title %}Admin-Netzwerk Chat{% endblock %}
+
+{% block content %}
+<div class="an-wrapper">
+
+    {# ── Page Header ────────────────────────────────────────────────────────── #}
+    <div class="an-header">
+        <div class="an-header-left">
+            <i class="fas fa-network-wired"></i>
+            <div>
+                <h1>Admin-Netzwerk</h1>
+                <span class="an-subtitle">Verbinde dich mit anderen 2MoonsCE-Instanzen</span>
+            </div>
+        </div>
+        <div class="an-header-right">
+            <div class="an-status-dot" id="an-status-dot" title="Verbindungsstatus"></div>
+            <span class="an-status-text" id="an-status-text">Nicht verbunden</span>
+        </div>
+    </div>
+
+    {# ── Alerts ──────────────────────────────────────────────────────────────── #}
+    {% if errors %}
+    <div class="an-alert an-alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="an-alert an-alert-success">
+        <i class="fas fa-check-circle"></i> Einstellungen gespeichert.
+    </div>
+    {% endif %}
+    {% if testResult is not null %}
+    <div class="an-alert {{ testResult.ok ? 'an-alert-success' : 'an-alert-error' }}">
+        <i class="fas fa-{{ testResult.ok ? 'plug' : 'times-circle' }}"></i>
+        {{ testResult.ok ? 'Verbindung zum Hub erfolgreich!' : ('Fehler: ' ~ (testResult.error ?? 'Unbekannt')) }}
+    </div>
+    {% endif %}
+
+    <div class="an-grid">
+
+        {# ── Left: Settings ──────────────────────────────────────────────────── #}
+        <div class="an-settings-col">
+
+            <div class="an-card">
+                <div class="an-card-header">
+                    <i class="fas fa-cog"></i> Konfiguration
+                </div>
+                <div class="an-card-body">
+                    <form method="post" action="admin.php?page=plugin_admin_network">
+                        <input type="hidden" name="an_action" value="save">
+
+                        <div class="an-field">
+                            <label>Hub-Server URL</label>
+                            <input type="url" name="hub_url" value="{{ cfg.hub_url }}"
+                                   placeholder="https://hub.deine-domain.de/" class="an-input">
+                            <span class="an-hint">URL des zentralen Hub-Servers</span>
+                        </div>
+
+                        <div class="an-field">
+                            <label>Instanz-API-Key</label>
+                            <input type="text" name="instance_key" value="{{ cfg.instance_key }}"
+                                   placeholder="abc123..." class="an-input an-mono">
+                            <span class="an-hint">Nach der Registrierung am Hub erhalten</span>
+                        </div>
+
+                        <div class="an-field">
+                            <label>Instanz-Name</label>
+                            <input type="text" name="instance_name" value="{{ cfg.instance_name }}"
+                                   placeholder="Universum Alpha" class="an-input">
+                            <span class="an-hint">Anzeigename im Chat</span>
+                        </div>
+
+                        <div class="an-field">
+                            <label>Poll-Intervall (Sek.)</label>
+                            <input type="number" name="poll_interval" value="{{ cfg.poll_interval }}"
+                                   min="5" max="60" class="an-input an-input-sm">
+                        </div>
+
+                        <div class="an-field-row">
+                            <button type="submit" class="an-btn an-btn-primary">
+                                <i class="fas fa-save"></i> Speichern
+                            </button>
+                            <a href="admin.php?page=plugin_admin_network&an_action=test" class="an-btn an-btn-secondary">
+                                <i class="fas fa-plug"></i> Verbindung testen
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {# ── Hub-Registrierung ────────────────────────────────────────────── #}
+            <div class="an-card an-card-info">
+                <div class="an-card-header">
+                    <i class="fas fa-info-circle"></i> Erstregistrierung
+                </div>
+                <div class="an-card-body an-setup-info">
+                    <p>Um eine neue Instanz zu registrieren, führe diesen cURL-Befehl einmalig aus:</p>
+                    <pre class="an-code">curl -X POST https://dein-hub.de/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "register",
+    "api_key": "MASTER_KEY",
+    "instance_name": "Mein Server",
+    "instance_url": "https://meineinstanz.de"
+  }'</pre>
+                    <p>Den zurückgegebenen <code>instance_key</code> oben eintragen.</p>
+                </div>
+            </div>
+
+            {# ── Online-Instanzen ─────────────────────────────────────────────── #}
+            {% if isConfigured %}
+            <div class="an-card">
+                <div class="an-card-header">
+                    <i class="fas fa-circle" style="color:#22c55e;font-size:.6rem"></i> Online-Instanzen
+                    <button class="an-btn-icon" id="an-refresh-online" title="Aktualisieren">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="an-card-body">
+                    <ul class="an-online-list" id="an-online-list">
+                        <li class="an-online-loading"><i class="fas fa-spinner fa-spin"></i> Lädt…</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        {# ── Right: Chat ──────────────────────────────────────────────────────── #}
+        <div class="an-chat-col">
+            {% if isConfigured %}
+            <div class="an-card an-chat-card">
+                <div class="an-card-header">
+                    <i class="fas fa-comments"></i> Netzwerk-Chat
+                    <span class="an-badge" id="an-msg-count">0</span>
+                </div>
+
+                <div class="an-messages" id="an-messages">
+                    <div class="an-messages-placeholder">
+                        <i class="fas fa-satellite-dish"></i>
+                        <span>Verbinde mit Hub…</span>
+                    </div>
+                </div>
+
+                <div class="an-compose">
+                    <input type="text" id="an-input" class="an-input an-chat-input"
+                           placeholder="Nachricht eingeben… (Enter zum Senden)"
+                           maxlength="2000" autocomplete="off">
+                    <button class="an-btn an-btn-send" id="an-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div class="an-card an-card-empty">
+                <div class="an-card-body an-not-configured">
+                    <i class="fas fa-network-wired an-empty-icon"></i>
+                    <h3>Noch nicht konfiguriert</h3>
+                    <p>Trage links die Hub-URL und den Instanz-API-Key ein, um den Chat zu aktivieren.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>{# /an-grid #}
+</div>{# /an-wrapper #}
+
+<script>
+var AN_AJAX_URL = 'admin.php?page=plugin_admin_network';
+</script>
+{% endblock %}

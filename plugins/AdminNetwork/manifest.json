@@ -1,0 +1,38 @@
+{
+    "id":          "AdminNetwork",
+    "name":        "Admin Network Chat",
+    "version":     "1.0.0",
+    "type":        "admin",
+    "description": "Verbindet alle 2MoonsCE-Instanzen über einen zentralen Hub-Server. Admins können in Echtzeit miteinander chatten.",
+    "author":      "0wum0",
+    "settings": [
+        {
+            "key":     "hub_url",
+            "type":    "text",
+            "label":   "Hub-Server URL",
+            "default": "",
+            "hint":    "URL des Hub-Servers, z.B. https://deine-domain.de/hub/"
+        },
+        {
+            "key":     "instance_key",
+            "type":    "text",
+            "label":   "Instanz-API-Key",
+            "default": "",
+            "hint":    "Der API-Key dieser Instanz, erhalten nach der Registrierung am Hub."
+        },
+        {
+            "key":     "instance_name",
+            "type":    "text",
+            "label":   "Instanz-Name",
+            "default": "",
+            "hint":    "Anzeigename dieser Instanz im Chat (z.B. 'Universum Alpha')."
+        },
+        {
+            "key":     "poll_interval",
+            "type":    "int",
+            "label":   "Poll-Intervall (Sekunden)",
+            "default": 10,
+            "hint":    "Wie oft neue Nachrichten vom Hub abgerufen werden (min. 5 Sekunden)."
+        }
+    ]
+}
