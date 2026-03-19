@@ -186,7 +186,20 @@ Login:    der beim Setup gewählte Admin-Account
 
 > Vollständiger Changelog: [CHANGELOG.md](CHANGELOG.md)
 
-### März 2026 — Support-System, Messages v3, Combat Engine v3, Galaxy Map
+### März 2026 — Build Queue Timers, Support-System, Messages v3, Combat Engine v3, Galaxy Map
+
+**Build Queue Timers & AJAX-Refresh**
+- Fix: Countdown-Timer in Bauschleife (Gebäude, Forschung, Werft) wurden nach AJAX-Aktion nicht angezeigt — erst nach manuellem Seitenreload
+- Root Cause: `$.parseHTML(html, false)` in `refreshPageContent()` entfernte alle `<script>`-Tags → Timer-Scripts wurden nie neu ausgeführt
+- Fix `ajax.js`: Inline-Script-Inhalte werden jetzt per Regex **vor** dem DOM-Parsen aus dem HTML-String extrahiert und nach `replaceWith()` per `eval()` ausgeführt (DOM existiert dann bereits)
+- Fix Werft: Timer-Script aus `<head>` (`{% block script %}`) in `{% block content %}` verschoben → wird bei AJAX-Refresh mitgetauscht
+- Fix Werft: `DecimalNumber` (nie geladene bcmath.js-Abhängigkeit) durch `parseInt` ersetzt
+- Fix Werft: `<select name="auftr[]">` war außerhalb des `<form>` → Auswahl wurde nie übermittelt; jetzt inside form
+- Fix Werft: `serializeArray()` überschrieb Multi-Select-Werte → durch `$form.serialize()` ersetzt
+- Fix Gebäude: Abbrechen/Entfernen-Formulare hatten kein `data-ajax="1"` → full page reload statt AJAX
+- Fix Gebäude: Progressbar startete bei 100% (hardcoded) → 0% + `data-totaltime` für korrekte Prozentberechnung
+- Neu: Forschungs-Queue-Panel komplett hinzugefügt (fehlte bisher): Liste, Countdown-Timer, Progressbar, AJAX-Abbrechen-Formulare
+- Fix Werft: `window.location.href`-Reload bei Fertigstellung → `SmAjax.refreshPageContent()`
 
 **Support-System UI**
 - Komplettes UI-Overhaul: futuristisches Ticket-Center mit SVG-Icons, Status-Badges, Animationen

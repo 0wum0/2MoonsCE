@@ -7,6 +7,25 @@ Project: [github.com/0wum0/2MoonsCE](https://github.com/0wum0/2MoonsCE)
 
 ## [Unreleased] – März 2026
 
+### Build Queue Timers & AJAX-Refresh (März 2026)
+- Fixed build queue timers not updating after AJAX build action on all pages (buildings, research, shipyard) — by 0wum0
+- Root cause: `$.parseHTML(html, document, false)` in `refreshPageContent()` stripped all `<script>` tags from parsed HTML before insertion, so inline timer scripts were never re-executed after AJAX content swap — by 0wum0
+- Fixed `ajax.js` `refreshPageContent()`: inline script bodies now extracted from raw HTML string via regex **before** `$.parseHTML` call, then `eval()`-ed after `replaceWith()` so DOM elements exist — by 0wum0
+- Fixed shipyard queue: moved timer script from `{% block script %}` (in `<head>`, not re-executed on AJAX) into `{% block content %}` inside `.content_page` so it is part of the swapped content — by 0wum0
+- Fixed shipyard queue: replaced missing `DecimalNumber` (bcmath.js, never loaded) with plain `parseInt` counter — by 0wum0
+- Fixed shipyard cancel: `<select name="auftr[]">` was outside `<form>` → selections never submitted; moved inside form — by 0wum0
+- Fixed shipyard cancel: `$form.serializeArray().forEach(f => payload[f.name] = f.value)` overwrote multi-select values; replaced with `$form.serialize()` which correctly handles `auftr[]` arrays — by 0wum0
+- Fixed buildings queue: cancel/remove forms lacked `data-ajax="1"` → triggered full page reload instead of AJAX refresh; added attribute — by 0wum0
+- Fixed buildings queue: progress bar initial value was `width:100%` (hardcoded); changed to `width:0%` and added `data-totaltime="{{ List.time }}"` on track element — by 0wum0
+- Fixed buildings queue: progress bar calculation used `resttime` as total duration (wrong); now reads `data-totaltime` for 100% baseline and calculates correct initial fill `(totalTime - restLeft) / totalTime * 100` — by 0wum0
+- Added buildings queue timer: auto-refresh via `SmAjax.refreshPageContent()` when active build timer reaches zero — by 0wum0
+- Added research queue panel (was entirely missing): queue list with countdown timers, progress bar, and AJAX cancel/remove forms (`data-ajax="1"`) — by 0wum0
+- Fixed research queue progress bar: same `data-totaltime` + correct percentage calculation as buildings — by 0wum0
+- Added research queue timer: auto-refresh via `SmAjax.refreshPageContent()` on completion — by 0wum0
+
+### Shipyard (März 2026)
+- Fixed `shipyard.js`: replaced full `window.location.href` reload on queue completion with `SmAjax.refreshPageContent()` — by 0wum0
+
 ### Support-System UI (März 2026)
 - Complete support system UI overhaul: futuristic ticket center with SVG icons, status badges, animations, thread view — by 0wum0
 - Added `support.css` as dedicated external stylesheet with CSS variables, futuristic design tokens, and responsive layout — by 0wum0
