@@ -119,7 +119,7 @@ HTML;
     // 2. Admin panel head: load full-page chat CSS
     $hm->addAction('head_end', static function (array $ctx): string {
         if (!defined('MODE') || MODE !== 'ADMIN') return '';
-        return '<link rel="stylesheet" href="/plugins/AdminNetwork/assets/css/adminnetwork.css">' . "\n";
+        return '<link rel="stylesheet" href="./plugins/AdminNetwork/assets/css/adminnetwork.css">' . "\n";
     }, 30);
 
     // 3. Admin panel footer: load full-page chat JS
@@ -141,7 +141,7 @@ window.AdminNetwork = {
     pollInterval: {$pollInterval}
 };
 </script>
-<script src="/plugins/AdminNetwork/assets/js/adminnetwork.js" defer></script>
+<script src="./plugins/AdminNetwork/assets/js/adminnetwork.js" defer></script>
 HTML;
     }, 30);
 })();
