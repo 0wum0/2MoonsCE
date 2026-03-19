@@ -26,15 +26,46 @@ $pm->registerAdminRoute(
 (static function (): void {
     $hm = HookManager::get();
 
-    // 1. Ingame footer: inject AdminNetCfg config + show tab for admins
+    // 1. Ingame footer: auto-register if needed, inject AdminNetCfg, show tab for admins
     $hm->addAction('ingame.footer.beforeScripts', static function (array $ctx): string {
         global $USER;
         if (empty($USER['authlevel']) || (int)$USER['authlevel'] < 1) return '';
 
         require_once __DIR__ . '/lib/AdminNetworkConfig.php';
+        require_once __DIR__ . '/lib/HubClient.php';
+
+        $pm  = PluginManager::get();
         $cfg = AdminNetworkConfig::get();
-        if (!$cfg['hub_url'] || !$cfg['instance_key']) {
-            // Config missing — still show tab with setup hint
+
+        // ── Auto-register if instance_key is missing ──────────────────────────
+        if (empty($cfg['instance_key'])) {
+            try {
+                // Read game_name from DB
+                $db       = Database::get();
+                $row      = $db->selectSingle('SELECT game_name, uni_name FROM %%CONFIG%% LIMIT 1;');
+                $gameName = trim((string)($row['game_name'] ?? $row['uni_name'] ?? ''));
+                if ($gameName === '') $gameName = 'Unknown Server';
+
+                $instanceUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+                    . '://' . ($_SERVER['HTTP_HOST'] ?? 'unknown');
+
+                $hubUrl = 'https://2moonsce.makeit.uno/hub/';
+                $client = new HubClient($hubUrl, '');
+                $result = $client->publicRegister($gameName, $instanceUrl);
+
+                if (!empty($result['ok']) && !empty($result['instance_key'])) {
+                    $pm->setConfig('AdminNetwork', 'hub_url',       $hubUrl);
+                    $pm->setConfig('AdminNetwork', 'instance_key',  $result['instance_key']);
+                    $pm->setConfig('AdminNetwork', 'instance_name', $gameName);
+                    $cfg = AdminNetworkConfig::get(true);
+                }
+            } catch (Throwable $e) {
+                error_log('[AdminNetwork] auto-register error: ' . $e->getMessage());
+            }
+        }
+
+        if (empty($cfg['instance_key'])) {
+            // Still not configured (hub unreachable?) — show tab with setup hint
             return <<<HTML
 <script>
 window.AdminNetCfg = { hubUrl:'', instanceKey:'', instanceName:'', ajaxUrl:'admin.php?page=plugin_admin_network' };

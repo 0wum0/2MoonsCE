@@ -22,6 +22,19 @@ class HubClient
         $this->timeout = $timeout;
     }
 
+    /**
+     * Self-register this instance at the hub without a master key.
+     * Returns ['ok' => true, 'instance_key' => '...'] on success.
+     */
+    public function publicRegister(string $instanceName, string $instanceUrl): array
+    {
+        return $this->postAnonymous([
+            'action'        => 'public_register',
+            'instance_name' => $instanceName,
+            'instance_url'  => $instanceUrl,
+        ]);
+    }
+
     public function send(string $text): array
     {
         return $this->post(['action' => 'send', 'text' => $text]);
@@ -53,6 +66,29 @@ class HubClient
     }
 
     // ── Internal HTTP ─────────────────────────────────────────────────────────
+    private function postAnonymous(array $payload): array
+    {
+        $body    = json_encode($payload, JSON_UNESCAPED_UNICODE);
+        $context = stream_context_create([
+            'http' => [
+                'method'        => 'POST',
+                'header'        => "Content-Type: application/json\r\n",
+                'content'       => $body,
+                'timeout'       => $this->timeout,
+                'ignore_errors' => true,
+            ],
+            'ssl' => ['verify_peer' => true, 'verify_peer_name' => true],
+        ]);
+        try {
+            $raw = @file_get_contents($this->hubUrl, false, $context);
+            if ($raw === false) return ['ok' => false, 'error' => 'Hub nicht erreichbar'];
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : ['ok' => false, 'error' => 'Ungültige Hub-Antwort'];
+        } catch (Throwable $e) {
+            return ['ok' => false, 'error' => $e->getMessage()];
+        }
+    }
+
     private function post(array $payload): array
     {
         $payload['api_key'] = $this->apiKey;

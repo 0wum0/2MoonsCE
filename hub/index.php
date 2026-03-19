@@ -53,7 +53,7 @@ if (!$db->checkRateLimit($ip, 60)) {
 // ── Routing ───────────────────────────────────────────────────────────────────
 switch ($action) {
 
-    // ── Register / update instance ──────────────────────────────────────────
+    // ── Register / update instance (requires master key) ────────────────────
     case 'register':
         requireMasterKey($apiKey);
         $name    = trim((string)($input['instance_name'] ?? ''));
@@ -63,6 +63,26 @@ switch ($action) {
         }
         $key = $db->registerInstance($name, $url);
         jsonOk(['instance_key' => $key, 'message' => 'Instance registered. Store this key safely.']);
+        break;
+
+    // ── Public self-registration (no master key, rate-limited 1x/IP/hour) ───
+    case 'public_register':
+        if (!$db->checkRateLimit($ip, 1, 3600, 'pub_reg')) {
+            jsonError(429, 'Too many registration attempts. Try again in 1 hour.');
+        }
+        $name = trim((string)($input['instance_name'] ?? ''));
+        $url  = trim((string)($input['instance_url']  ?? ''));
+        if ($name === '' || $url === '') {
+            jsonError(400, 'instance_name and instance_url required');
+        }
+        if (mb_strlen($name) > 80) {
+            jsonError(400, 'instance_name too long (max 80 chars)');
+        }
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            jsonError(400, 'instance_url must be a valid URL');
+        }
+        $key = $db->registerInstance($name, $url);
+        jsonOk(['instance_key' => $key, 'message' => 'Instance registered successfully.']);
         break;
 
     // ── Send message ────────────────────────────────────────────────────────

@@ -163,9 +163,14 @@ class HubDatabase
     }
 
     // ── Rate limiting ─────────────────────────────────────────────────────────
-    public function checkRateLimit(string $ip, int $maxPerMinute): bool
+    /**
+     * @param int    $maxHits       Maximum allowed hits in the window
+     * @param int    $windowSeconds Window size in seconds (default 60 = per minute)
+     * @param string $bucketPrefix  Prefix to namespace different rate-limit rules
+     */
+    public function checkRateLimit(string $ip, int $maxHits, int $windowSeconds = 60, string $bucketPrefix = 'gen'): bool
     {
-        $bucket = (int)floor(time() / 60);
+        $bucket = $bucketPrefix . ':' . (int)floor(time() / $windowSeconds);
 
         $ins = $this->pdo->prepare("
             INSERT INTO rate_limits (ip, bucket, hits) VALUES (:ip, :b, 1)
@@ -180,10 +185,11 @@ class HubDatabase
         $hits = (int)($sel->fetchColumn() ?: 0);
 
         if (mt_rand(0, 100) < 5) {
-            $this->pdo->exec("DELETE FROM rate_limits WHERE bucket < " . ($bucket - 2));
+            $cutoffBucket = $bucketPrefix . ':' . ((int)floor(time() / $windowSeconds) - 2);
+            $this->pdo->exec("DELETE FROM rate_limits WHERE ip = " . $this->pdo->quote($ip) . " AND bucket <= " . $this->pdo->quote($cutoffBucket));
         }
 
-        return $hits <= $maxPerMinute;
+        return $hits <= $maxHits;
     }
 
     // ── Stats ─────────────────────────────────────────────────────────────────

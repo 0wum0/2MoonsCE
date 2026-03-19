@@ -34,7 +34,6 @@ function ShowAdminNetworkPage(): void
         $pollInt     = max(5, (int)($_POST['poll_interval'] ?? 10));
 
         if ($hubUrl === '') $errors[] = 'Hub-URL darf nicht leer sein.';
-        if ($instanceKey === '') $errors[] = 'Instanz-API-Key darf nicht leer sein.';
         if ($instanceName === '') $errors[] = 'Instanz-Name darf nicht leer sein.';
 
         if (empty($errors)) {
