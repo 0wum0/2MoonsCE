@@ -181,22 +181,52 @@ html:has(#gm-root), body:has(#gm-root) {
 }
 #gm-close:hover { background: rgba(232,48,74,.22); }
 
-/* ── Side panel – desktop: left sidebar ──────────────────────────── */
+/* ── Side panel – desktop: collapsible RIGHT rail ───────────────── */
 #gm-side {
-  position: absolute; top: 56px; left: 10px;
-  width: 238px;
-  max-height: calc(100dvh - 56px - var(--ingameFooterH) - 12px);
+  position: absolute;
+  top: 48px; right: 0;
+  width: 252px;
+  bottom: 0;
   overflow-y: auto; overflow-x: hidden;
-  background: var(--panel); backdrop-filter: blur(18px);
-  border: 1px solid var(--border); border-radius: 12px;
-  padding: 12px 13px; z-index: 100;
-  box-shadow: 0 8px 30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.04);
+  background: rgba(2,6,20,0.96); backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  padding: 14px 14px 20px;
+  z-index: 100;
+  box-shadow: -6px 0 30px rgba(0,0,0,.65);
   pointer-events: all;
   scrollbar-width: thin;
   scrollbar-color: rgba(0,212,255,.2) transparent;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  transform: translateX(0);
+}
+#gm-side.panel-collapsed {
+  transform: translateX(100%);
 }
 #gm-side::-webkit-scrollbar { width: 4px; }
 #gm-side::-webkit-scrollbar-thumb { background: rgba(0,212,255,.2); border-radius: 2px; }
+
+/* Toggle tab that sticks out to the left of the panel */
+#gm-side-toggle {
+  position: absolute;
+  top: 50%;
+  right: 252px;
+  transform: translateY(-50%);
+  width: 22px; height: 64px;
+  background: rgba(2,6,20,0.96);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cyan);
+  font-size: 10px;
+  z-index: 101;
+  transition: right .28s cubic-bezier(.4,0,.2,1), background .2s;
+  pointer-events: all;
+  box-shadow: -4px 0 14px rgba(0,0,0,.5);
+}
+#gm-side-toggle:hover { background: rgba(0,212,255,.12); }
 
 /* ── Mobile: FAB + collapsible side panel ────────────────────────── */
 #gm-panel-toggle { display: none; }
@@ -250,20 +280,22 @@ html:has(#gm-root), body:has(#gm-root) {
   /* View toggle stays visible on mobile (3D enabled on mobile) */
   .hud-view  { display: flex; }
 
-  /* Side panel: full-width bottom sheet */
+  /* Side panel: full-width bottom sheet on mobile */
   #gm-side {
     position: fixed;
-    top: auto; bottom: 0;
-    left: 0; right: 0;
+    top: auto !important; bottom: 0 !important;
+    left: 0 !important; right: 0 !important;
     width: 100% !important; max-width: 100% !important;
     max-height: 65dvh;
-    border-radius: 20px 20px 0 0;
-    border-bottom: none;
-    padding: 28px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
-    transform: translateY(110%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    border-left: none !important;
+    border-top: 1px solid var(--border) !important;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 28px 16px calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
+    transform: translateY(110%) !important;
+    transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
     z-index: 8100;
   }
+  #gm-side.panel-open { transform: translateY(0) !important; }
   /* Drag handle pill */
   #gm-side::before {
     content: '';
@@ -271,9 +303,9 @@ html:has(#gm-root), body:has(#gm-root) {
     width: 40px; height: 4px; border-radius: 2px;
     background: rgba(0,212,255,.28);
   }
-  #gm-side.panel-open { transform: translateY(0); }
-  #gm-panel-toggle { display: none !important; }
-  #gm-fab-outer    { display: flex; }
+  #gm-side-toggle   { display: none !important; }
+  #gm-panel-toggle  { display: none !important; }
+  #gm-fab-outer     { display: flex; }
 
   /* Action panel: full-width, above FAB */
   #gm-action {
@@ -617,6 +649,9 @@ html:has(#gm-root), body:has(#gm-root) {
 
   <!-- Tooltip -->
   <div id="gm-tip"></div>
+
+  <!-- Right-rail collapse toggle (desktop) -->
+  <button id="gm-side-toggle" title="Panel ein-/ausklappen"><i id="gm-side-toggle-icon" class="fas fa-chevron-right"></i></button>
 
   <div id="gm-hint">DRAG = PAN  •  RIGHT-DRAG = ORBIT  •  SCROLL / PINCH = ZOOM  •  TAP = ACTIONS</div>
 </div>
@@ -2333,44 +2368,78 @@ function measureFooterHeight() {
   setTimeout(measure, 800); // second pass after dock layout settles
 }
 
-// ── Mobile panel toggle (FAB) ───────────────────────────────
+// ── Panel toggle: desktop right-rail + mobile FAB ───────────
 function initMobilePanel() {
-  const innerFab = document.getElementById('gm-panel-toggle');
-  const outerFab = document.getElementById('gm-fab-outer');
-  const panel    = document.getElementById('gm-side');
+  const innerFab    = document.getElementById('gm-panel-toggle');
+  const outerFab    = document.getElementById('gm-fab-outer');
+  const desktopBtn  = document.getElementById('gm-side-toggle');
+  const desktopIcon = document.getElementById('gm-side-toggle-icon');
+  const panel       = document.getElementById('gm-side');
   if (!panel) return;
 
-  function togglePanel(e) {
+  function isMobileLayout() { return window.innerWidth <= 768; }
+
+  // ── Desktop: collapse/expand right rail ──
+  function setDesktopCollapsed(collapsed) {
+    panel.classList.toggle('panel-collapsed', collapsed);
+    if (desktopBtn) {
+      desktopBtn.classList.toggle('collapsed', collapsed);
+      // Move toggle tab: when panel collapsed tab is at right:0, else right:252px
+      desktopBtn.style.right = collapsed ? '0' : '252px';
+    }
+    if (desktopIcon) {
+      desktopIcon.className = collapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+    }
+    try { localStorage.setItem('galaxyPanelDesktop', collapsed ? '0' : '1'); } catch(e) {}
+  }
+
+  function toggleDesktop(e) {
+    if (e) e.stopPropagation();
+    setDesktopCollapsed(!panel.classList.contains('panel-collapsed'));
+  }
+
+  // ── Mobile: bottom-sheet open/close ──
+  function toggleMobile(e) {
     if (e) e.stopPropagation();
     const open = panel.classList.toggle('panel-open');
     if (innerFab) innerFab.classList.toggle('active', open);
     if (outerFab) outerFab.classList.toggle('active', open);
-    try { localStorage.setItem('galaxyPanel', open ? 'open' : 'collapsed'); } catch(e2) {}
+    try { localStorage.setItem('galaxyPanel', open ? 'open' : 'closed'); } catch(e2) {}
   }
 
-  function closePanel() {
+  function closeMobile() {
     panel.classList.remove('panel-open');
     if (innerFab) innerFab.classList.remove('active');
     if (outerFab) outerFab.classList.remove('active');
-    try { localStorage.setItem('galaxyPanel', 'collapsed'); } catch(e) {}
   }
 
-  // Restore saved state
+  // ── Restore saved state ──
   try {
-    if (localStorage.getItem('galaxyPanel') === 'open') {
-      panel.classList.add('panel-open');
-      if (innerFab) innerFab.classList.add('active');
-      if (outerFab) outerFab.classList.add('active');
+    const savedDesktop = localStorage.getItem('galaxyPanelDesktop');
+    // Default: panel open (not collapsed) unless explicitly saved as '0'
+    if (!isMobileLayout()) {
+      setDesktopCollapsed(savedDesktop === '0');
     }
   } catch(e) {}
 
-  if (innerFab) innerFab.addEventListener('click', togglePanel);
-  if (outerFab) outerFab.addEventListener('click', togglePanel);
+  // ── Wire events ──
+  if (desktopBtn) desktopBtn.addEventListener('click', toggleDesktop);
+  if (innerFab)   innerFab.addEventListener('click', toggleMobile);
+  if (outerFab)   outerFab.addEventListener('click', toggleMobile);
 
-  // Tap on canvas closes panel (mobile UX)
+  // Tap on canvas closes mobile bottom sheet
   canvas.addEventListener('touchstart', () => {
-    if (window.innerWidth <= 768 && panel.classList.contains('panel-open')) closePanel();
+    if (isMobileLayout() && panel.classList.contains('panel-open')) closeMobile();
   }, { passive: true });
+
+  // On resize: clean up stale classes from wrong layout mode
+  window.addEventListener('resize', () => {
+    if (!isMobileLayout()) {
+      panel.classList.remove('panel-open');
+    } else {
+      panel.classList.remove('panel-collapsed');
+    }
+  });
 }
 
 // ── Input events ────────────────────────────────────────────
