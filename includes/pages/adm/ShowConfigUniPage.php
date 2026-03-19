@@ -103,10 +103,10 @@ function ShowConfigUniPage()
 			'max_dm_missions'		=> $config->max_dm_missions,
 			'alliance_create_min_points' => $config->alliance_create_min_points,
 			'max_fleet_per_build'   => $config->max_fleet_per_build,
-			'combat_rand_variance'  => $config->combat_rand_variance,
-			'combat_crit_chance'    => $config->combat_crit_chance,
-			'combat_crit_mult'      => $config->combat_crit_mult,
-			'combat_morale_enabled' => $config->combat_morale_enabled,
+			'combat_rand_variance'  => isset($config->combat_rand_variance)  ? $config->combat_rand_variance  : 20,
+			'combat_crit_chance'    => isset($config->combat_crit_chance)    ? $config->combat_crit_chance    : 5,
+			'combat_crit_mult'      => isset($config->combat_crit_mult)      ? $config->combat_crit_mult      : 2.0,
+			'combat_morale_enabled' => isset($config->combat_morale_enabled) ? $config->combat_morale_enabled : 1,
 		);
 		
 		$game_disable			= isset($_POST['closed']) && $_POST['closed'] == 'on' ? 1 : 0;
