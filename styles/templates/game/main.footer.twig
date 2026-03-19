@@ -740,8 +740,10 @@ document.addEventListener('DOMContentLoaded', function() {
   canvas.id = 'bg-canvas';
   document.body.insertBefore(canvas, document.body.firstChild);
   var renderer;
+  var _ce = console.error; console.error = function(){};
   try { renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:false, alpha:true}); }
-  catch(e) { canvas.remove(); return; }
+  catch(e) { console.error = _ce; canvas.remove(); return; }
+  console.error = _ce;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setClearColor(0x000000, 0);
   var scene = new THREE.Scene();
