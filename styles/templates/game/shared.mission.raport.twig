@@ -517,9 +517,9 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="br-destroyed-badge">
-                        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
-                        {{ LNG.sys_destroyed }}
+                    <div class="br-destroyed-badge" style="color:var(--br-muted)">
+                        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12zM4 8h8v1H4z"/></svg>
+                        {{ LNG.sys_no_units ?? 'Keine Einheiten' }}
                     </div>
                 {% endif %}
                 {% endfor %}
