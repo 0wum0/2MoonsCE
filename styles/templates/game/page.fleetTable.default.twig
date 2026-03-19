@@ -211,7 +211,7 @@
                 </table>
             </div>
 
-            <!-- Mobile: cards with touch-friendly inputs (no name= here, values synced to desktop inputs on submit) -->
+            <!-- Mobile: cards with touch-friendly inputs (name= present; desktop inputs disabled on submit to avoid duplicates) -->
             <div class="ship-select-mobile">
                 {% for FleetRow in FleetsOnPlanet %}
                 {% if FleetRow.speed != 0 %}
@@ -222,7 +222,7 @@
                     </div>
                     <div class="ship-card-input-row">
                         <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.max(0,(parseInt(el.value)||0)-1);el.value=v;">−</button>
-                        <input type="number" id="ship{{ FleetRow.id }}_minput" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
+                        <input type="number" id="ship{{ FleetRow.id }}_minput" name="ship{{ FleetRow.id }}" class="ship-card-num-input" value="0" min="0" max="{{ FleetRow.count }}" inputmode="numeric">
                         <button type="button" class="ship-stepper-btn" onclick="var el=document.getElementById('ship{{ FleetRow.id }}_minput');var v=Math.min({{ FleetRow.count }},(parseInt(el.value)||0)+1);el.value=v;">+</button>
                         <button type="button" class="ship-stepper-max" onclick="document.getElementById('ship{{ FleetRow.id }}_minput').value={{ FleetRow.count }};">Max</button>
                     </div>
@@ -276,12 +276,10 @@
         form.addEventListener('submit', function() {
             if (isMobileView()) {
                 document.querySelectorAll('.ship-card-num-input').forEach(function(mInput) {
-                    // id pattern: ship201_minput → ship201_input
                     var desktopId = mInput.id.replace('_minput', '_input');
                     var desktopEl = document.getElementById(desktopId);
                     if (desktopEl) {
-                        desktopEl.disabled = false;
-                        desktopEl.value = mInput.value;
+                        desktopEl.disabled = true;
                     }
                 });
             }
