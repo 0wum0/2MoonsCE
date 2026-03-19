@@ -77,6 +77,9 @@
         <div class="sc-tabs">
             <button class="sc-tab active" data-ch="global"   onclick="SmartChat.switchTab('global',this)"><i class="fas fa-globe-americas"></i> Global</button>
             <button class="sc-tab"         data-ch="alliance" onclick="SmartChat.switchTab('alliance',this)"><i class="fas fa-users"></i> Allianz</button>
+            {% if authlevel > 0 %}
+            <button class="sc-tab sc-tab-adminnet" data-ch="adminnet" onclick="SmartChat.switchTab('adminnet',this)" id="scTabAdminNet" style="display:none"><i class="fas fa-network-wired"></i> Netzwerk</button>
+            {% endif %}
         </div>
         <div class="sc-header-actions">
             {% if authlevel > 0 %}
@@ -232,6 +235,7 @@ var SmartChat = (function(){
 
     /* ── Send ── */
     function send(){
+        if(_channel === 'adminnet'){ sendAdminNet(); return; }
         var inp = $id('scInput');
         if(!inp) return;
         var msg = inp.value.trim();
@@ -318,7 +322,88 @@ var SmartChat = (function(){
             toggleInputUI(false, true);
             return;
         }
+        if(ch === 'adminnet'){
+            $id('scMessages').innerHTML = '';
+            $id('scBannedNotice').style.display  = 'none';
+            $id('scNoAlliNotice').style.display  = 'none';
+            $id('scInputArea').style.display     = 'flex';
+            fetchAdminNet(true);
+            return;
+        }
         fetchMessages(true);
+    }
+
+    /* ── AdminNet fetch ── */
+    var _anSinceId = 0;
+    function fetchAdminNet(initial){
+        if(!window.AdminNetCfg || !AdminNetCfg.hubUrl || !AdminNetCfg.instanceKey) {
+            $id('scMessages').innerHTML = '<div class="sc-empty"><i class="fas fa-exclamation-circle"></i> Admin-Netzwerk nicht konfiguriert.<br><a href="admin.php?page=plugin_admin_network" style="color:#00d4ff">Jetzt einrichten</a></div>';
+            return;
+        }
+        var url = AdminNetCfg.ajaxUrl + '&an_action=poll_ajax&since_id=' + _anSinceId;
+        fetch(url, {credentials:'same-origin'})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(!d.ok) return;
+                if(initial){
+                    _anSinceId = 0;
+                    $id('scMessages').innerHTML = '';
+                    if(!d.messages || d.messages.length === 0){
+                        $id('scMessages').innerHTML = '<div class="sc-empty">Noch keine Nachrichten.</div>';
+                    }
+                }
+                if(d.messages) d.messages.forEach(function(m){
+                    if(m.id > _anSinceId) _anSinceId = m.id;
+                    appendAdminNetMessage(m, initial);
+                });
+            }).catch(function(){});
+    }
+    function appendAdminNetMessage(m, prepend){
+        var box = $id('scMessages');
+        if(!box) return;
+        var empty = box.querySelector('.sc-empty');
+        if(empty) empty.remove();
+        var isMine = window.AdminNetCfg && m.instance_name === AdminNetCfg.instanceName;
+        var el = document.createElement('div');
+        el.className = 'sc-msg' + (isMine ? ' sc-msg-mine' : '') + ' sc-msg-adminnet';
+        el.setAttribute('data-an-id', m.id);
+        var time = new Date(m.created_at * 1000);
+        var hh = time.getHours().toString().padStart(2,'0');
+        var mm = time.getMinutes().toString().padStart(2,'0');
+        var delBtn = isMine ? '<button class="sc-admin-btn" onclick="SmartChat.deleteAdminNet('+m.id+')" title="Löschen"><i class="fas fa-trash"></i></button>' : '';
+        el.innerHTML = '<div class="sc-msg-meta">'
+            + '<span class="sc-msg-user sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>'
+            + '<span class="sc-msg-time">'+hh+':'+mm+'</span>'
+            + delBtn
+            +'</div>'
+            + '<div class="sc-msg-text">'+ escHtml(m.text) +'</div>';
+        if(prepend === true){ box.insertBefore(el, box.firstChild); }
+        else { box.appendChild(el); box.scrollTop = box.scrollHeight; }
+    }
+    function sendAdminNet(){
+        var inp = $id('scInput');
+        if(!inp || !window.AdminNetCfg) return;
+        var text = inp.value.trim();
+        if(!text) return;
+        inp.value = '';
+        var fd = new FormData();
+        fd.append('an_action','send_ajax');
+        fd.append('text', text);
+        fetch(AdminNetCfg.ajaxUrl, {method:'POST', credentials:'same-origin', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){ if(d.ok) fetchAdminNet(false); })
+            .catch(function(){});
+    }
+    function deleteAdminNet(msgId){
+        if(!confirm('Nachricht löschen?') || !window.AdminNetCfg) return;
+        var fd = new FormData();
+        fd.append('an_action','delete_ajax');
+        fd.append('message_id', msgId);
+        fetch(AdminNetCfg.ajaxUrl, {method:'POST', credentials:'same-origin', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if(d.ok){ var el = document.querySelector('[data-an-id="'+msgId+'"]'); if(el) el.remove(); }
+            }).catch(function(){});
     }
 
     /* ── Toggle open/close ── */
@@ -329,7 +414,8 @@ var SmartChat = (function(){
         p.classList.toggle('open', _open);
         if(_open){
             updateBadge(false);
-            fetchMessages(true);
+            if(_channel === 'adminnet') fetchAdminNet(true);
+            else fetchMessages(true);
             startPoll();
         } else {
             stopPoll();
@@ -340,7 +426,8 @@ var SmartChat = (function(){
     function startPoll(){
         stopPoll();
         _pollTimer = setInterval(function(){
-            fetchMessages(false);
+            if(_channel === 'adminnet') fetchAdminNet(false);
+            else fetchMessages(false);
         }, 4000);
     }
     function stopPoll(){ clearInterval(_pollTimer); _pollTimer = null; }
@@ -413,7 +500,8 @@ var SmartChat = (function(){
     }, 15000);
 
     return { toggle:toggle, switchTab:switchTab, send:send, deleteMsg:deleteMsg,
-             banUser:banUser, showBans:showBans, hideBans:hideBans, unban:unban, bb:bb };
+             banUser:banUser, showBans:showBans, hideBans:hideBans, unban:unban, bb:bb,
+             deleteAdminNet:deleteAdminNet };
 })();
 </script>
 
@@ -540,6 +628,14 @@ var SmartChat = (function(){
 .sc-toast-text { font-size:12px; color:rgba(255,255,255,0.7); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-toast-close { background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:14px; line-height:1; padding:0 0 0 8px; flex-shrink:0; }
 .sc-toast-close:hover { color:#fff; }
+
+/* AdminNet tab + messages */
+.sc-tab-adminnet { border-color:rgba(180,124,255,0.2) !important; }
+.sc-tab-adminnet.active { background:rgba(180,124,255,0.15) !important; border-color:rgba(180,124,255,0.4) !important; color:#b47cff !important; }
+.sc-msg-adminnet { border-color:rgba(180,124,255,0.12) !important; }
+.sc-msg-adminnet.sc-msg-mine { background:rgba(180,124,255,0.08) !important; border-color:rgba(180,124,255,0.2) !important; }
+.sc-msg-adminnet-inst { color:rgba(180,124,255,0.9) !important; font-size:10px; letter-spacing:.5px; }
+.sc-msg-adminnet.sc-msg-mine .sc-msg-adminnet-inst { color:#b47cff !important; }
 </style>
 {% endautoescape %}
 
