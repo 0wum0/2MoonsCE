@@ -306,8 +306,17 @@ var SmAjax = (function ($) {
             type:     'GET',
             dataType: 'html',
             success: function (html) {
-                /* parseHTML(html, document, true) keeps script tags in the DOM */
-                var $doc        = $('<div>').append($.parseHTML(html, document, true));
+                /* Step 1: extract ALL inline script bodies from raw HTML string
+                   BEFORE any DOM parsing — this avoids browser auto-execution */
+                var scripts = [];
+                var scriptRe = /<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/gi;
+                var m;
+                while ((m = scriptRe.exec(html)) !== null) {
+                    if (m[1].trim()) scripts.push(m[1]);
+                }
+
+                /* Step 2: parse HTML without scripts (false = strip scripts) */
+                var $doc        = $('<div>').append($.parseHTML(html, document, false));
                 var $newContent = $doc.find('.content_page').first();
                 if (!$newContent.length) $newContent = $doc.find('#content').first();
 
@@ -315,15 +324,8 @@ var SmAjax = (function ($) {
                 if (!$target.length) $target = $('#content').first();
 
                 if ($newContent.length && $target.length) {
-                    /* Collect inline scripts before replaceWith strips them */
-                    var scripts = [];
-                    $newContent.find('script').each(function () {
-                        if (!$(this).attr('src')) {
-                            scripts.push($(this).text());
-                        }
-                    });
+                    /* Step 3: swap DOM, THEN eval scripts so DOM elements exist */
                     $target.replaceWith($newContent);
-                    /* Re-execute inline scripts in the swapped content */
                     scripts.forEach(function (code) {
                         try { eval(code); } catch (ex) { /* silent */ }
                     });

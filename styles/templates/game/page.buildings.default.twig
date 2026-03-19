@@ -60,8 +60,8 @@
                         <div class="active-timer-box">
                             <span class="timer" data-time="{{ List.resttime }}">{{ List.display }}</span>
                         </div>
-                        <div class="queue-progress-track">
-                             <div class="queue-progress-bar" style="width: 100%;"></div> 
+                        <div class="queue-progress-track" data-totaltime="{{ List.time }}">
+                             <div class="queue-progress-bar" style="width: 0%;"></div> 
                         </div>
                     {% else %}
                         <div class="waiting-timer">
@@ -233,17 +233,22 @@ function confirmDemolish(id, name, time) {
     });
 
     var activeTimer = document.querySelector('.queue-item.active-build .timer[data-time]');
+    var progressTrack = document.querySelector('.queue-item.active-build .queue-progress-track');
     var progressBar = document.querySelector('.queue-item.active-build .queue-progress-bar');
     if(!activeTimer || !progressBar) return;
 
-    var initialLeft = parseInt(activeTimer.getAttribute('data-time'), 10) || 0;
-    if(initialLeft <= 0) { progressBar.style.width = '100%'; return; }
+    var restLeft   = parseInt(activeTimer.getAttribute('data-time'), 10) || 0;
+    var totalTime  = progressTrack ? (parseInt(progressTrack.getAttribute('data-totaltime'), 10) || restLeft) : restLeft;
+    if(totalTime <= 0) { progressBar.style.width = '100%'; return; }
     var startedAt2 = Date.now();
+
+    var initialPct = Math.min(100, Math.max(0, ((totalTime - restLeft) / totalTime) * 100));
+    progressBar.style.width = initialPct.toFixed(1) + '%';
 
     window.setInterval(function(){
         var elapsed = Math.floor((Date.now() - startedAt2) / 1000);
-        var left = Math.max(0, initialLeft - elapsed);
-        var pct = Math.min(100, Math.max(0, ((initialLeft - left) / initialLeft) * 100));
+        var left = Math.max(0, restLeft - elapsed);
+        var pct = Math.min(100, Math.max(0, ((totalTime - left) / totalTime) * 100));
         progressBar.style.width = pct.toFixed(1) + '%';
     }, 1000);
 })();
