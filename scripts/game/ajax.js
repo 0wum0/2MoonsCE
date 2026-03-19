@@ -306,7 +306,8 @@ var SmAjax = (function ($) {
             type:     'GET',
             dataType: 'html',
             success: function (html) {
-                var $doc        = $('<div>').append($.parseHTML(html, document, false));
+                /* parseHTML(html, document, true) keeps script tags in the DOM */
+                var $doc        = $('<div>').append($.parseHTML(html, document, true));
                 var $newContent = $doc.find('.content_page').first();
                 if (!$newContent.length) $newContent = $doc.find('#content').first();
 
@@ -314,12 +315,17 @@ var SmAjax = (function ($) {
                 if (!$target.length) $target = $('#content').first();
 
                 if ($newContent.length && $target.length) {
-                    $target.replaceWith($newContent);
-                    /* Re-execute inline scripts in the swapped content */
+                    /* Collect inline scripts before replaceWith strips them */
+                    var scripts = [];
                     $newContent.find('script').each(function () {
                         if (!$(this).attr('src')) {
-                            try { eval($(this).text()); } catch (ex) { /* silent */ }
+                            scripts.push($(this).text());
                         }
+                    });
+                    $target.replaceWith($newContent);
+                    /* Re-execute inline scripts in the swapped content */
+                    scripts.forEach(function (code) {
+                        try { eval(code); } catch (ex) { /* silent */ }
                     });
                 }
                 /* Refresh header notification badges from the newly fetched HTML */

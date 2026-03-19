@@ -33,6 +33,89 @@
             <h2 class="page-title"><i class="fas fa-flask"></i> {{ LNG.lm_research }}</h2>
         </div>
 
+        {% if Queue %}
+        <div class="content-box queue-panel">
+            <div class="panel-header">
+                <i class="fas fa-flask"></i> {{ LNG.bd_research }}
+                <span class="queue-badge">{{ Queue|length }}</span>
+            </div>
+            <div class="queue-list-wrapper">
+                {% for List in Queue %}
+                <div class="queue-item {% if loop.first %}active-build{% endif %}">
+                    <div class="queue-visual">
+                        <span class="queue-pos">{{ loop.index }}</span>
+                        <img src="{{ dpath }}gebaeude/{{ List.element }}.gif" alt="{{ LNG.tech[List.element] }}" class="queue-img" onerror="this.style.display='none'">
+                    </div>
+                    <div class="queue-details">
+                        <div class="queue-title">
+                            {{ LNG.tech[List.element] }}
+                            <span class="lvl-badge">{{ List.level }}</span>
+                            {% if List.planet %}<span class="dim"> — {{ List.planet }}</span>{% endif %}
+                        </div>
+                        {% if loop.first %}
+                            <div class="active-timer-box">
+                                <span class="timer" data-time="{{ List.resttime }}">{{ List.display }}</span>
+                            </div>
+                            <div class="queue-progress-track">
+                                <div class="queue-progress-bar" style="width:0%"></div>
+                            </div>
+                        {% else %}
+                            <div class="waiting-timer">
+                                <i class="fas fa-clock"></i> <span class="timer" data-time="{{ List.resttime }}">{{ List.display }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="queue-action">
+                        <form action="game.php?page=research" method="post" data-ajax="1">
+                            <input type="hidden" name="cmd" value="{% if loop.first %}cancel{% else %}remove{% endif %}">
+                            {% if not loop.first %}<input type="hidden" name="listid" value="{{ loop.index }}">{% endif %}
+                            <button type="submit" class="btn-icon-danger" title="{{ LNG.bd_cancel }}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <script>
+        (function(){
+            var allTimers = document.querySelectorAll('.queue-item .timer[data-time]');
+            allTimers.forEach(function(timerEl) {
+                var secsLeft = parseInt(timerEl.getAttribute('data-time'), 10) || 0;
+                var startedAt = Date.now();
+                function tick() {
+                    var elapsed = Math.floor((Date.now() - startedAt) / 1000);
+                    var left = Math.max(0, secsLeft - elapsed);
+                    if (typeof GetRestTimeFormat === 'function') timerEl.textContent = GetRestTimeFormat(left);
+                }
+                tick();
+                var iv = window.setInterval(function() {
+                    var elapsed = Math.floor((Date.now() - startedAt) / 1000);
+                    var left = Math.max(0, secsLeft - elapsed);
+                    if (typeof GetRestTimeFormat === 'function') timerEl.textContent = GetRestTimeFormat(left);
+                    if (left <= 0) {
+                        clearInterval(iv);
+                        if (typeof SmAjax !== 'undefined') SmAjax.refreshPageContent();
+                    }
+                }, 1000);
+            });
+            var activeTimer = document.querySelector('.queue-item.active-build .timer[data-time]');
+            var progressBar = document.querySelector('.queue-item.active-build .queue-progress-bar');
+            if (!activeTimer || !progressBar) return;
+            var initialLeft = parseInt(activeTimer.getAttribute('data-time'), 10) || 0;
+            if (initialLeft <= 0) { progressBar.style.width = '100%'; return; }
+            var startedAt2 = Date.now();
+            window.setInterval(function(){
+                var elapsed = Math.floor((Date.now() - startedAt2) / 1000);
+                var left = Math.max(0, initialLeft - elapsed);
+                var pct = Math.min(100, ((initialLeft - left) / initialLeft) * 100);
+                progressBar.style.width = pct.toFixed(1) + '%';
+            }, 1000);
+        })();
+        </script>
+        {% endif %}
+
         <div class="tech-grid">
             {% for ID, Element in ResearchList %}
             <div class="content-box tech-card {% if not Element.buyable %}disabled{% endif %}"
