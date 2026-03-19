@@ -686,8 +686,10 @@
    RESPONSIVE
 ═══════════════════════════════════════════════════════ */
 @media (max-width: 680px) {
-    .mcc-root { height: auto; border-radius: 0; }
-    .mcc-body { flex-direction: column; }
+    .mcc-root { height: auto; min-height: 0; border-radius: 0; overflow: visible; }
+    .mcc-body { flex-direction: column; overflow: visible; }
+    .mcc-content { overflow: visible; }
+    .mcc-messages-scroll { overflow: visible; height: auto; flex: none; }
     .mcc-sidebar {
         width: 100%; height: auto; max-height: 160px;
         border-right: none; border-bottom: 1px solid var(--mc-border);
