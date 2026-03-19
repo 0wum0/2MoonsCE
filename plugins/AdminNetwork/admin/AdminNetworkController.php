@@ -55,13 +55,14 @@ function ShowAdminNetworkPage(): void
     // ── Send message (AJAX) ───────────────────────────────────────────────────
     if ($action === 'send_ajax' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json');
-        $text = trim((string)($_POST['text'] ?? ''));
+        $text       = trim((string)($_POST['text'] ?? ''));
+        $senderName = trim((string)($USER['username'] ?? ''));
         if ($text === '' || !$cfg['hub_url'] || !$cfg['instance_key']) {
             echo json_encode(['ok' => false, 'error' => 'Konfiguration unvollständig oder Text leer.']);
             exit;
         }
         $client = new HubClient($cfg['hub_url'], $cfg['instance_key']);
-        $result = $client->send($text);
+        $result = $client->send($text, $senderName);
         echo json_encode($result);
         exit;
     }

@@ -371,8 +371,13 @@ var SmartChat = (function(){
         var hh = time.getHours().toString().padStart(2,'0');
         var mm = time.getMinutes().toString().padStart(2,'0');
         var delBtn = isMine ? '<button class="sc-admin-btn" onclick="SmartChat.deleteAdminNet('+m.id+')" title="Löschen"><i class="fas fa-trash"></i></button>' : '';
+        var senderLabel = m.sender_name
+            ? '<span class="sc-msg-user sc-msg-adminnet-sender">'+ escHtml(m.sender_name) +'</span>'
+              + '<span class="sc-msg-adminnet-sep">·</span>'
+              + '<span class="sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>'
+            : '<span class="sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>';
         el.innerHTML = '<div class="sc-msg-meta">'
-            + '<span class="sc-msg-user sc-msg-adminnet-inst">'+ escHtml(m.instance_name) +'</span>'
+            + senderLabel
             + '<span class="sc-msg-time">'+hh+':'+mm+'</span>'
             + delBtn
             +'</div>'
@@ -634,7 +639,10 @@ var SmartChat = (function(){
 .sc-tab-adminnet.active { background:rgba(180,124,255,0.15) !important; border-color:rgba(180,124,255,0.4) !important; color:#b47cff !important; }
 .sc-msg-adminnet { border-color:rgba(180,124,255,0.12) !important; }
 .sc-msg-adminnet.sc-msg-mine { background:rgba(180,124,255,0.08) !important; border-color:rgba(180,124,255,0.2) !important; }
-.sc-msg-adminnet-inst { color:rgba(180,124,255,0.9) !important; font-size:10px; letter-spacing:.5px; }
+.sc-msg-adminnet-sender { font-size:11px; font-weight:700; color:rgba(255,255,255,0.9); font-family:var(--font-hud,sans-serif); }
+.sc-msg-adminnet.sc-msg-mine .sc-msg-adminnet-sender { color:#fff; }
+.sc-msg-adminnet-sep { font-size:10px; color:rgba(180,124,255,0.5); }
+.sc-msg-adminnet-inst { color:rgba(180,124,255,0.7) !important; font-size:10px; letter-spacing:.5px; }
 .sc-msg-adminnet.sc-msg-mine .sc-msg-adminnet-inst { color:#b47cff !important; }
 </style>
 {% endautoescape %}

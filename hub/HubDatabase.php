@@ -24,6 +24,7 @@ class HubDatabase
         $this->pdo->exec('PRAGMA journal_mode=WAL;');
         $this->pdo->exec('PRAGMA foreign_keys=ON;');
         $this->ensureTables();
+        $this->migrate();
     }
 
     public static function get(): self
@@ -52,6 +53,7 @@ class HubDatabase
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
                 instance_id  INTEGER NOT NULL REFERENCES instances(id),
                 instance_name TEXT   NOT NULL,
+                sender_name  TEXT    NOT NULL DEFAULT '',
                 text         TEXT    NOT NULL,
                 created_at   INTEGER NOT NULL DEFAULT (strftime('%s','now'))
             );
@@ -66,6 +68,24 @@ class HubDatabase
                 PRIMARY KEY (ip, bucket)
             );
         ");
+    }
+
+    // ── Migrations ────────────────────────────────────────────────────────────
+    private function migrate(): void
+    {
+        // Add sender_name column if it doesn't exist yet (idempotent)
+        try {
+            $cols = $this->pdo->query("PRAGMA table_info(messages)")->fetchAll(PDO::FETCH_ASSOC);
+            $hasCol = false;
+            foreach ($cols as $col) {
+                if ($col['name'] === 'sender_name') { $hasCol = true; break; }
+            }
+            if (!$hasCol) {
+                $this->pdo->exec("ALTER TABLE messages ADD COLUMN sender_name TEXT NOT NULL DEFAULT ''");
+            }
+        } catch (\Throwable $e) {
+            // Non-fatal — column may already exist
+        }
     }
 
     // ── Instance management ───────────────────────────────────────────────────
@@ -111,13 +131,13 @@ class HubDatabase
     }
 
     // ── Messages ──────────────────────────────────────────────────────────────
-    public function insertMessage(int $instanceId, string $instanceName, string $text): int
+    public function insertMessage(int $instanceId, string $instanceName, string $text, string $senderName = ''): int
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO messages (instance_id, instance_name, text)
-            VALUES (:iid, :iname, :text)
+            INSERT INTO messages (instance_id, instance_name, sender_name, text)
+            VALUES (:iid, :iname, :sname, :text)
         ");
-        $stmt->execute([':iid' => $instanceId, ':iname' => $instanceName, ':text' => $text]);
+        $stmt->execute([':iid' => $instanceId, ':iname' => $instanceName, ':sname' => $senderName, ':text' => $text]);
         $id = (int)$this->pdo->lastInsertId();
         $this->pruneMessages();
         return $id;
@@ -126,7 +146,7 @@ class HubDatabase
     public function getMessages(int $sinceId = 0, int $limit = 50): array
     {
         $stmt = $this->pdo->prepare("
-            SELECT id, instance_name, text, created_at
+            SELECT id, instance_name, sender_name, text, created_at
             FROM messages
             WHERE id > :since
             ORDER BY id ASC

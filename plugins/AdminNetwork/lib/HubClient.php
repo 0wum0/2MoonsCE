@@ -35,9 +35,9 @@ class HubClient
         ]);
     }
 
-    public function send(string $text): array
+    public function send(string $text, string $senderName = ''): array
     {
-        return $this->post(['action' => 'send', 'text' => $text]);
+        return $this->post(['action' => 'send', 'text' => $text, 'sender_name' => $senderName]);
     }
 
     public function poll(int $sinceId = 0, int $limit = 50): array

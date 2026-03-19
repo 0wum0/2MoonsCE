@@ -87,15 +87,16 @@ switch ($action) {
 
     // ── Send message ────────────────────────────────────────────────────────
     case 'send':
-        $instance = requireInstanceKey($apiKey, $db);
-        $text = trim((string)($input['text'] ?? ''));
+        $instance   = requireInstanceKey($apiKey, $db);
+        $text       = trim((string)($input['text'] ?? ''));
+        $senderName = mb_substr(trim((string)($input['sender_name'] ?? '')), 0, 64);
         if ($text === '') {
             jsonError(400, 'text required');
         }
         if (mb_strlen($text) > 2000) {
             jsonError(400, 'text too long (max 2000 chars)');
         }
-        $id = $db->insertMessage($instance['id'], $instance['name'], htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
+        $id = $db->insertMessage($instance['id'], $instance['name'], htmlspecialchars($text, ENT_QUOTES, 'UTF-8'), htmlspecialchars($senderName, ENT_QUOTES, 'UTF-8'));
         $db->updatePing($instance['id']);
         jsonOk(['id' => $id]);
         break;
