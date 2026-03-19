@@ -166,18 +166,19 @@ class HubDatabase
     public function checkRateLimit(string $ip, int $maxPerMinute): bool
     {
         $bucket = (int)floor(time() / 60);
-        $stmt   = $this->pdo->prepare("
+
+        $ins = $this->pdo->prepare("
             INSERT INTO rate_limits (ip, bucket, hits) VALUES (:ip, :b, 1)
             ON CONFLICT(ip, bucket) DO UPDATE SET hits = hits + 1
         ");
-        $stmt->execute([':ip' => $ip, ':b' => $bucket]);
+        $ins->execute([':ip' => $ip, ':b' => $bucket]);
 
-        $hits = (int)$this->pdo->prepare(
-            "SELECT hits FROM rate_limits WHERE ip=:ip AND bucket=:b"
-        )->execute([':ip' => $ip, ':b' => $bucket]) ?
-            $this->pdo->query("SELECT hits FROM rate_limits WHERE ip='$ip' AND bucket=$bucket")->fetchColumn() : 0;
+        $sel = $this->pdo->prepare(
+            "SELECT hits FROM rate_limits WHERE ip = :ip AND bucket = :b"
+        );
+        $sel->execute([':ip' => $ip, ':b' => $bucket]);
+        $hits = (int)($sel->fetchColumn() ?: 0);
 
-        // Clean old buckets occasionally
         if (mt_rand(0, 100) < 5) {
             $this->pdo->exec("DELETE FROM rate_limits WHERE bucket < " . ($bucket - 2));
         }

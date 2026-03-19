@@ -10,7 +10,7 @@
 declare(strict_types=1);
 
 // Master key for registering new instances (change this to something random!)
-define('HUB_MASTER_KEY', 'CHANGE_ME_TO_A_RANDOM_SECRET_KEY_32CHARS');
+define('HUB_MASTER_KEY', '2MoonsCE-Hub-Master-2026!xK9#mZ3@qP7');
 
 // Path to the SQLite database file (must be writable by the web server)
 define('HUB_DB_PATH', __DIR__ . '/data/hub.sqlite');
