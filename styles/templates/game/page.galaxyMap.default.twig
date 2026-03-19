@@ -1275,23 +1275,20 @@ function init() {
   camera.position.set(0, 2000, 3000);
   camera.lookAt(0, 0, 0);
 
-  if (!is3D) {
+  // Always try to create the real renderer — is3D only controls camera angle, not rendering
+  const _ce = console.error;
+  console.error = () => {};
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  } catch(e) {
+    // WebGL genuinely unavailable — hide canvas, use no-op stub
+    is3D = false;
     canvas.style.display = 'none';
+    const fb = document.getElementById('vb-3d');
+    if (fb) { fb.style.display = 'none'; }
     renderer = { setSize:()=>{}, setPixelRatio:()=>{}, render:()=>{} };
-  } else {
-    const _ce = console.error;
-    console.error = () => {};
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    } catch(e) {
-      is3D = false;
-      canvas.style.display = 'none';
-      const fb = document.getElementById('vb-3d');
-      if (fb) { fb.style.display = 'none'; }
-      renderer = { setSize:()=>{}, setPixelRatio:()=>{}, render:()=>{} };
-    } finally {
-      console.error = _ce;
-    }
+  } finally {
+    console.error = _ce;
   }
   renderer.setSize(innerWidth, innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
