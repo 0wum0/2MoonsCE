@@ -202,7 +202,7 @@
 
 /* ── SHIP ROW ───────────────────────────────────────────────── */
 .br-ship-row {
-    display: grid; grid-template-columns: 1fr 60px 60px 60px;
+    display: grid; grid-template-columns: 1fr 60px 60px 60px 60px;
     gap: 4px; align-items: center; padding: 4px 0;
     border-bottom: 1px solid rgba(255,255,255,0.04);
 }
@@ -399,7 +399,7 @@
             <div class="br-loss-value {% if attLost == 0 %}zero{% endif %}">{{ attLost|number_format(0, ',', '.') }}</div>
         </div>
         <div class="br-overview-center">
-            <div class="br-round-count">Kampfrunden</div>
+            <div class="br-round-count">{{ LNG.sys_round_count ?? 'Kampfrunden' }}</div>
             <span class="br-round-num">{{ roundCount }}</span>
         </div>
         <div class="br-losses-def">
@@ -470,7 +470,7 @@
 
             {# ATTACKER FLEETS #}
             <div class="br-fleet-col att">
-                <div class="br-fleet-col-label">Angreifer</div>
+                <div class="br-fleet-col-label">{{ LNG.sys_attacker ?? 'Angreifer' }}</div>
                 {% for Player in RoundInfo.attacker %}
                 {% set P = Raport.players[Player.userID] %}
                 {% if not loop.first %}
@@ -483,6 +483,7 @@
                         <div class="br-ship-amount">{{ ShipData[0]|number_format(0, ',', '.') }}</div>
                         <div class="br-ship-stat att">{{ ShipData[1]|number_format(0, ',', '.') }}</div>
                         <div class="br-ship-stat shd">{{ ShipData[2]|number_format(0, ',', '.') }}</div>
+                        <div class="br-ship-stat hp">{{ ShipData[3] is defined ? ShipData[3]|number_format(0, ',', '.') : '-' }}</div>
                     </div>
                     {% endfor %}
                 {% else %}
@@ -499,7 +500,7 @@
 
             {# DEFENDER FLEETS #}
             <div class="br-fleet-col def">
-                <div class="br-fleet-col-label">Verteidiger</div>
+                <div class="br-fleet-col-label">{{ LNG.sys_defender ?? 'Verteidiger' }}</div>
                 {% for Player in RoundInfo.defender %}
                 {% set P = Raport.players[Player.userID] %}
                 {% if not loop.first %}
@@ -512,6 +513,7 @@
                         <div class="br-ship-amount">{{ ShipData[0]|number_format(0, ',', '.') }}</div>
                         <div class="br-ship-stat att">{{ ShipData[1]|number_format(0, ',', '.') }}</div>
                         <div class="br-ship-stat shd">{{ ShipData[2]|number_format(0, ',', '.') }}</div>
+                        <div class="br-ship-stat hp">{{ ShipData[3] is defined ? ShipData[3]|number_format(0, ',', '.') : '-' }}</div>
                     </div>
                     {% endfor %}
                 {% else %}

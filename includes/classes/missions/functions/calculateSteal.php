@@ -67,25 +67,29 @@ function calculateSteal($attackFleets, $defenderPlanet, $simulate = false)
 		return $stealResource;
 	}
 	
+	$res1 = max(0.0, (float)($defenderPlanet[$resource[$firstResource]]  ?? 0));
+	$res2 = max(0.0, (float)($defenderPlanet[$resource[$secondResource]] ?? 0));
+	$res3 = max(0.0, (float)($defenderPlanet[$resource[$thirdResource]]  ?? 0));
+
 	// Step 1
-	$stealResource[$firstResource]		= min($capacity / 3, $defenderPlanet[$resource[$firstResource]] / 2);
+	$stealResource[$firstResource]		= min($capacity / 3, $res1 / 2);
 	$capacity	-= $stealResource[$firstResource];
 	 
 	// Step 2
-	$stealResource[$secondResource] 	= min($capacity / 2, $defenderPlanet[$resource[$secondResource]] / 2);
+	$stealResource[$secondResource] 	= min($capacity / 2, $res2 / 2);
 	$capacity	-= $stealResource[$secondResource];
 	 
 	// Step 3
-	$stealResource[$thirdResource] 		= min($capacity, $defenderPlanet[$resource[$thirdResource]] / 2);
+	$stealResource[$thirdResource] 		= min($capacity, $res3 / 2);
 	$capacity	-= $stealResource[$thirdResource];
 		 
 	// Step 4
 	$oldMetalBooty  					= $stealResource[$firstResource];
-	$stealResource[$firstResource] 		+= min($capacity / 2, $defenderPlanet[$resource[$firstResource]] / 2 - $stealResource[$firstResource]);
+	$stealResource[$firstResource] 		+= min($capacity / 2, $res1 / 2 - $stealResource[$firstResource]);
 	$capacity	-= $stealResource[$firstResource] - $oldMetalBooty;
 		 
 	// Step 5
-	$stealResource[$secondResource] 	+= min($capacity, $defenderPlanet[$resource[$secondResource]] / 2 - $stealResource[$secondResource]);
+	$stealResource[$secondResource] 	+= min($capacity, $res2 / 2 - $stealResource[$secondResource]);
 			
 	if($simulate)
 	{

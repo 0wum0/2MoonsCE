@@ -521,38 +521,57 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
         }
 
         // ── Phase 2: pre-compute rapid-fire bonus damage ──────────────────
-        $rfBonusForAtt = [];
-        $rfBonusForDef = [];
+        // RF[$targetID][$shooterID] = shots means: a unit of type $shooterID
+        // fires $shots times per round against units of type $targetID.
+        // The *extra* damage from RF is (shots - 1) * perShotDamage per shooter unit.
+        // perShotDamage = totalAttackOfShooterFleet / countOfShooterUnits (avg per unit).
+        //
+        // $rfBonusForDef = extra damage attackers deal to defenders (via attacker RF)
+        // $rfBonusForAtt = extra damage defenders deal to attackers (via defender RF)
+        //
+        // Indexed as [$targetFleetID][$targetElementID] = bonusDamage so the
+        // loss-calculation phases can add it to incoming damage for that unit type.
 
-        foreach ($attackers as $fleetID => $attacker) {
-            foreach ($attacker['unit'] as $element => $amount) {
-                if ($amount <= 0 || empty($RF[$element])) continue;
-                $bonus = 0.0;
-                foreach ($RF[$element] as $shooterID => $shots) {
-                    foreach ($defArray as $dfID => $dfUnits) {
-                        if (empty($dfUnits[$shooterID]['att'])) continue;
-                        $sc = (float)($defenders[$dfID]['unit'][$shooterID] ?? 0);
-                        if ($sc <= 0.0) continue;
-                        $bonus += ($dfUnits[$shooterID]['att'] / $sc) * (float)$shots * (float)$amount;
+        $rfBonusForAtt = []; // bonus damage incoming to attackers (from defending side RF)
+        $rfBonusForDef = []; // bonus damage incoming to defenders (from attacking side RF)
+
+        // Attacker RF: attacker units shoot extra times at defender unit types
+        foreach ($attackers as $afID => $attacker) {
+            foreach ($attacker['unit'] as $shooterID => $shooterCount) {
+                if ($shooterCount <= 0 || empty($CombatCaps[$shooterID]['sd'])) continue;
+                $perShotDmg = isset($attArray[$afID][$shooterID]['att'])
+                    ? $attArray[$afID][$shooterID]['att'] / max(1.0, (float)$shooterCount)
+                    : 0.0;
+                if ($perShotDmg <= 0.0) continue;
+                foreach ($CombatCaps[$shooterID]['sd'] as $targetID => $shots) {
+                    if ($shots <= 1) continue;
+                    foreach ($defenders as $dfID => $defender) {
+                        $tc = (float)($defender['unit'][$targetID] ?? 0);
+                        if ($tc <= 0.0) continue;
+                        $extraBonus = $perShotDmg * (float)$shooterCount * ($shots - 1) * ($tc / max(1.0, (float)array_sum($defender['unit'])));
+                        $rfBonusForDef[$dfID][$targetID] = ($rfBonusForDef[$dfID][$targetID] ?? 0.0) + $extraBonus;
                     }
                 }
-                $rfBonusForAtt[$fleetID][$element] = $bonus;
             }
         }
 
-        foreach ($defenders as $fleetID => $defender) {
-            foreach ($defender['unit'] as $element => $amount) {
-                if ($amount <= 0 || empty($RF[$element])) continue;
-                $bonus = 0.0;
-                foreach ($RF[$element] as $shooterID => $shots) {
-                    foreach ($attArray as $afID => $afUnits) {
-                        if (empty($afUnits[$shooterID]['att'])) continue;
-                        $sc = (float)($attackers[$afID]['unit'][$shooterID] ?? 0);
-                        if ($sc <= 0.0) continue;
-                        $bonus += ($afUnits[$shooterID]['att'] / $sc) * (float)$shots * (float)$amount;
+        // Defender RF: defender units shoot extra times at attacker unit types
+        foreach ($defenders as $dfID => $defender) {
+            foreach ($defender['unit'] as $shooterID => $shooterCount) {
+                if ($shooterCount <= 0 || empty($CombatCaps[$shooterID]['sd'])) continue;
+                $perShotDmg = isset($defArray[$dfID][$shooterID]['att'])
+                    ? $defArray[$dfID][$shooterID]['att'] / max(1.0, (float)$shooterCount)
+                    : 0.0;
+                if ($perShotDmg <= 0.0) continue;
+                foreach ($CombatCaps[$shooterID]['sd'] as $targetID => $shots) {
+                    if ($shots <= 1) continue;
+                    foreach ($attackers as $afID => $attacker) {
+                        $tc = (float)($attacker['unit'][$targetID] ?? 0);
+                        if ($tc <= 0.0) continue;
+                        $extraBonus = $perShotDmg * (float)$shooterCount * ($shots - 1) * ($tc / max(1.0, (float)array_sum($attacker['unit'])));
+                        $rfBonusForAtt[$afID][$targetID] = ($rfBonusForAtt[$afID][$targetID] ?? 0.0) + $extraBonus;
                     }
                 }
-                $rfBonusForDef[$fleetID][$element] = $bonus;
             }
         }
 
@@ -758,21 +777,33 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
                 $TRES['defender'] -= (($pricelist[$element]['cost'][901] ?? 0)
                                     + ($pricelist[$element]['cost'][902] ?? 0)) * $amount;
             } else {
+                // Defense structure rebuild logic.
+                // $amount here is the post-battle survivor count (from engine loop).
                 $survivorCount = (int)$amount;
                 $startCount    = (int)($STARTDEF[$element] ?? $survivorCount);
                 $lost          = max(0, $startCount - $survivorCount);
-                $TRES['defender'] -= (($pricelist[$element]['cost'][901] ?? 0)
-                                    + ($pricelist[$element]['cost'][902] ?? 0)) * $survivorCount;
+
                 if ($lost > 0) {
                     $giveback  = (int)round($lost * (mt_rand(DEF_REBUILD_MIN, DEF_REBUILD_MAX) / 100.0));
                     $permanent = $lost - $giveback;
+
+                    // Write rebuilt units back so planet gets correct count
                     $defenders[$fleetID]['unit'][$element] = $survivorCount + $giveback;
-                    $TRES['defender'] -= (($pricelist[$element]['cost'][901] ?? 0)
-                                        + ($pricelist[$element]['cost'][902] ?? 0)) * $giveback;
+
+                    // unitLost = cost of permanently-destroyed units only.
+                    // survivors + rebuilt units are NOT lost.
+                    $unitCost = (float)(($pricelist[$element]['cost'][901] ?? 0)
+                                     + ($pricelist[$element]['cost'][902] ?? 0));
+                    $TRES['defender'] -= $unitCost * (float)($survivorCount + $giveback);
+
                     if ($permanent > 0) {
                         $DRESDefs['metal']   += ($pricelist[$element]['cost'][901] ?? 0) * $permanent;
                         $DRESDefs['crystal'] += ($pricelist[$element]['cost'][902] ?? 0) * $permanent;
                     }
+                } else {
+                    // No losses — subtract full survivor cost so TRES difference = 0 lost
+                    $TRES['defender'] -= (($pricelist[$element]['cost'][901] ?? 0)
+                                        + ($pricelist[$element]['cost'][902] ?? 0)) * $survivorCount;
                 }
             }
         }
