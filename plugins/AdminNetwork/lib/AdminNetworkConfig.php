@@ -19,7 +19,7 @@ class AdminNetworkConfig
 
         $pm = PluginManager::get();
         self::$cache = [
-            'hub_url'       => (string)$pm->getConfig('AdminNetwork', 'hub_url',        ''),
+            'hub_url'       => (string)$pm->getConfig('AdminNetwork', 'hub_url',        'https://2moonsce.makeit.uno/hub/'),
             'instance_key'  => (string)$pm->getConfig('AdminNetwork', 'instance_key',   ''),
             'instance_name' => (string)$pm->getConfig('AdminNetwork', 'instance_name',  ''),
             'poll_interval' => max(5, (int)$pm->getConfig('AdminNetwork', 'poll_interval', 10)),
