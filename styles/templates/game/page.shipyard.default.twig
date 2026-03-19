@@ -129,23 +129,68 @@
 
         </form>
 
+        {% if BuildList %}
+        <script type="text/javascript">
+        $(function() {
+            var _data  = {{ BuildList|json_encode|raw }};
+            var _bd_op = {{ LNG.bd_operating|json_encode|raw }};
+
+            if (!_data || !_data.Queue || !_data.Queue.length) return;
+
+            var v        = new Date();
+            var Shipyard = _data.Queue.slice();
+            var Amount   = parseInt(Shipyard[0][1], 10);
+            var hanger   = _data.b_hangar_id_plus;
+            var interval;
+
+            $('#timeleft').text(_data.pretty_time_b_hangar);
+            buildList();
+            tick();
+            interval = window.setInterval(tick, 1000);
+
+            function tick() {
+                var n = new Date();
+                var s = Math.round(Shipyard[0][2] - hanger - (n.getTime() - v.getTime()) / 1000);
+                if (s <= 0) {
+                    Amount -= 1;
+                    if (Amount <= 0) {
+                        Shipyard.shift();
+                        if (Shipyard.length === 0) {
+                            window.clearInterval(interval);
+                            if (typeof SmAjax !== 'undefined') {
+                                SmAjax.refreshPageContent();
+                            } else {
+                                window.location.reload();
+                            }
+                            return;
+                        }
+                        Amount = parseInt(Shipyard[0][1], 10);
+                        buildList();
+                    } else {
+                        var opt = document.getElementById('auftr');
+                        if (opt && opt.options[0]) opt.options[0].innerHTML = Amount + ' ' + Shipyard[0][0] + ' ' + _bd_op;
+                    }
+                    hanger = 0;
+                    v = new Date();
+                    s = 0;
+                }
+                $('#bx').text(Shipyard[0][0] + ' ' + GetRestTimeFormat(s));
+            }
+
+            function buildList() {
+                var sel = document.getElementById('auftr');
+                if (!sel) return;
+                while (sel.options.length) sel.options[sel.options.length - 1] = null;
+                for (var i = 0; i < Shipyard.length; i++) {
+                    var cnt = (i === 0) ? Amount : Shipyard[i][1];
+                    sel.options[i] = new Option(cnt + ' ' + Shipyard[i][0] + ' ' + _bd_op, i);
+                }
+            }
+        });
+        </script>
+        {% endif %}
+
     </div>
 </div>
 
-{% endblock %}
-{% block script %}
-{% if BuildList %}
-<script src="scripts/game/shipyard.js"></script>
-{% endif %}
-<script type="text/javascript">
-data = {{ BuildList|json_encode|raw }};
-bd_operating = '{{ LNG.bd_operating }}';
-bd_available = '{{ LNG.bd_available }}';
-
-$(function() {
-    if(typeof ShipyardInit === 'function') {
-        ShipyardInit();
-    }
-});
-</script>
 {% endblock %}
