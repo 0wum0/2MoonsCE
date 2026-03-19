@@ -27,12 +27,22 @@
 
 {% block content %}
 {% autoescape false %}
+<style>
+/* Remove ALL stacking contexts on ancestor elements so position:fixed on #gm-root works relative to the viewport.
+   2moonsce.base.css line 158: position:relative + z-index:1 on #page-content and .content-wrapper
+   2moonsce.base.css line 168: animation:pageIn (transform) on #page-content
+   Any of these alone creates a stacking context that traps position:fixed children. */
+#page-content,
+.content-wrapper {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  z-index: auto !important;
+  isolation: auto !important;
+  will-change: auto !important;
+}
+</style>
 <script>
-  // Strip pageIn animation from #page-content immediately — its transform breaks position:fixed on #gm-root
-  (function(){
-    var pc = document.getElementById('page-content');
-    if (pc) { pc.style.animation='none'; pc.style.transform='none'; pc.style.opacity='1'; }
-  })();
   window.SM = {
     userId:  {{ USER.id|default(0) }},
     allyId:  {{ USER.ally_id|default(0) }},
@@ -54,12 +64,6 @@ html:has(#gm-root), body:has(#gm-root) {
   overscroll-behavior: none;
 }
 
-/* Kill the pageIn animation on #page-content — its transform breaks position:fixed on #gm-root */
-#page-content:has(#gm-root) {
-  animation: none !important;
-  transform: none !important;
-  opacity: 1 !important;
-}
 
 /* ── Root: covers full viewport over game UI ──────────────────────── */
 #gm-root {
