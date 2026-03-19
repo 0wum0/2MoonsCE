@@ -73,15 +73,20 @@ class CombatFramework
     ): array {
         // ── Input normalisation ───────────────────────────────────────────
         // Fills missing/null sub-keys; removes fleet entries with no valid units.
+        // Snapshot pre-normalisation so emptyResult() can still show player names/coords
+        // even when a side has zero units (e.g. undefended planet).
+        $attackersSnapshot = $attackers;
+        $defendersSnapshot = $defenders;
+
         self::normaliseFleetArray($attackers);
         self::normaliseFleetArray($defenders);
 
         // Edge-case: one side had nothing valid to fight with after normalisation
         if (empty($attackers)) {
-            return self::emptyResult('r', [], $defenders); // defender wins by default
+            return self::emptyResult('r', $attackersSnapshot, $defendersSnapshot); // defender wins by default
         }
         if (empty($defenders)) {
-            return self::emptyResult('a', $attackers, []); // attacker wins by default
+            return self::emptyResult('a', $attackersSnapshot, $defendersSnapshot); // attacker wins by default
         }
 
         $hook = HookManager::get();
