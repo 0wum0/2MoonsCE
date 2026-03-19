@@ -162,22 +162,26 @@ class ShowGalaxyMapPage extends AbstractGamePage
                 ? ($r['owner_name'] ?? '?')
                 : '???';
 
+            // fleet_mess=1 means returning: DB start/end are the original departure coords,
+            // but the fleet is now travelling end→start. Swap so JS always gets travel direction.
+            $isReturn = ((int) $r['fleet_mess'] === 1);
+            if ($isReturn) {
+                $startCoord = ['g' => (int) $r['fleet_end_galaxy'],   's' => (int) $r['fleet_end_system'],   'p' => (int) $r['fleet_end_planet']];
+                $endCoord   = ['g' => (int) $r['fleet_start_galaxy'], 's' => (int) $r['fleet_start_system'], 'p' => (int) $r['fleet_start_planet']];
+            } else {
+                $startCoord = ['g' => (int) $r['fleet_start_galaxy'], 's' => (int) $r['fleet_start_system'], 'p' => (int) $r['fleet_start_planet']];
+                $endCoord   = ['g' => (int) $r['fleet_end_galaxy'],   's' => (int) $r['fleet_end_system'],   'p' => (int) $r['fleet_end_planet']];
+            }
+
             $fleets[] = [
                 'id'           => (int) $r['fleet_id'],
                 'owner_id'     => (int) $r['fleet_owner'],
                 'owner_name'   => $ownerDisplay,
                 'mission'      => (int) $r['fleet_mission'],
                 'mission_name' => $missionName,
-                'start'        => [
-                    'g' => (int) $r['fleet_start_galaxy'],
-                    's' => (int) $r['fleet_start_system'],
-                    'p' => (int) $r['fleet_start_planet'],
-                ],
-                'end'          => [
-                    'g' => (int) $r['fleet_end_galaxy'],
-                    's' => (int) $r['fleet_end_system'],
-                    'p' => (int) $r['fleet_end_planet'],
-                ],
+                'is_return'    => $isReturn,
+                'start'        => $startCoord,
+                'end'          => $endCoord,
                 'start_time'   => $startTime,
                 'end_time'     => $endTime,
                 'progress'     => round($progress, 6),

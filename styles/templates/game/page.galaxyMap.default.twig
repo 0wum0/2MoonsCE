@@ -1461,49 +1461,67 @@ function makeStarTex() {
 }
 
 // ── Starfield ──────────────────────────────────────────────
+// Two layers: dim background field + bright foreground stars.
+// Three.js r128 PointsMaterial does NOT support per-vertex size —
+// we use two separate Points objects with different material sizes.
 function buildStars() {
   const starTex = makeStarTex();
-  const N = 9000;
-  const pos = new Float32Array(N*3);
-  const col = new Float32Array(N*3);
-  const sz  = new Float32Array(N);
-  for (let i = 0; i < N; i++) {
-    const rr = 1200 + Math.random()*4800;
-    const t  = Math.random()*Math.PI*2;
-    const p  = Math.acos(2*Math.random()-1);
-    pos[i*3]   = rr*Math.sin(p)*Math.cos(t);
-    pos[i*3+1] = rr*Math.sin(p)*Math.sin(t)*0.20;
-    pos[i*3+2] = rr*Math.cos(p);
-    // Colour tints: mostly white/blue-white, rare warm stars
+
+  function makeStarColor(col, i) {
     const roll = Math.random();
     if (roll < 0.12) {
-      // warm orange/yellow
-      col[i*3]=1; col[i*3+1]=0.82+Math.random()*.1; col[i*3+2]=0.45+Math.random()*.2;
-    } else if (roll < 0.25) {
-      // cyan/blue
-      col[i*3]=0.55+Math.random()*.2; col[i*3+1]=0.75+Math.random()*.2; col[i*3+2]=1;
+      col[i]=1; col[i+1]=0.82+Math.random()*.1; col[i+2]=0.45+Math.random()*.2; // warm
+    } else if (roll < 0.28) {
+      col[i]=0.55+Math.random()*.2; col[i+1]=0.75+Math.random()*.2; col[i+2]=1;  // cyan/blue
     } else {
-      // white with slight blue
-      const v = 0.6+Math.random()*.4;
-      col[i*3]=v*0.88; col[i*3+1]=v*0.92; col[i*3+2]=v;
+      const v=0.55+Math.random()*.45; col[i]=v*0.88; col[i+1]=v*0.92; col[i+2]=v; // white
     }
-    // Varied sizes: most tiny, few larger
-    sz[i] = Math.random() < 0.05 ? 3.5+Math.random()*2 : 1.2+Math.random()*1.4;
   }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
-  geo.setAttribute('size',     new THREE.BufferAttribute(sz,  1));
-  starField = new THREE.Points(geo, new THREE.PointsMaterial({
-    map: starTex,
-    vertexColors: true,
-    sizeAttenuation: true,
-    transparent: true,
-    opacity: 0.92,
-    depthWrite: false,
-    alphaTest: 0.01,
+
+  function starPos(pos, i, rMin, rMax, flatY) {
+    const rr = rMin + Math.random()*(rMax-rMin);
+    const t  = Math.random()*Math.PI*2;
+    const p  = Math.acos(2*Math.random()-1);
+    pos[i]   = rr*Math.sin(p)*Math.cos(t);
+    pos[i+1] = rr*Math.sin(p)*Math.sin(t)*flatY;
+    pos[i+2] = rr*Math.cos(p);
+  }
+
+  // ── Layer 1: 8000 small dim background stars ──
+  const N1 = 8000;
+  const pos1 = new Float32Array(N1*3), col1 = new Float32Array(N1*3);
+  for (let i = 0; i < N1; i++) {
+    starPos(pos1, i*3, 1400, 6000, 0.22);
+    makeStarColor(col1, i*3);
+  }
+  const geo1 = new THREE.BufferGeometry();
+  geo1.setAttribute('position', new THREE.BufferAttribute(pos1, 3));
+  geo1.setAttribute('color',    new THREE.BufferAttribute(col1, 3));
+  starField = new THREE.Points(geo1, new THREE.PointsMaterial({
+    map: starTex, size: 12, vertexColors: true,
+    sizeAttenuation: true, transparent: true, opacity: 0.75,
+    depthWrite: false, alphaTest: 0.005,
   }));
   scene.add(starField);
+
+  // ── Layer 2: 300 bright foreground stars ──
+  const N2 = 300;
+  const pos2 = new Float32Array(N2*3), col2 = new Float32Array(N2*3);
+  for (let i = 0; i < N2; i++) {
+    starPos(pos2, i*3, 1200, 4000, 0.18);
+    makeStarColor(col2, i*3);
+  }
+  const geo2 = new THREE.BufferGeometry();
+  geo2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
+  geo2.setAttribute('color',    new THREE.BufferAttribute(col2, 3));
+  const brightMat = new THREE.PointsMaterial({
+    map: starTex, size: 38, vertexColors: true,
+    sizeAttenuation: true, transparent: true, opacity: 0.92,
+    depthWrite: false, alphaTest: 0.005,
+  });
+  const brightStars = new THREE.Points(geo2, brightMat);
+  brightStars.userData.isBrightStars = true;
+  scene.add(brightStars);
 }
 
 // ── Nebula soft-glow texture ───────────────────────────────
@@ -1971,13 +1989,14 @@ function buildFleets(fleets) {
     fleetAnimState[id].targetPrg = realPrg;
     fleetAnimState[id].data      = f;
 
-    // Resolve world positions – posMap[g:s:p] → posMap[g:s:0] (sun) → toWorld() fallback
+    // Resolve world positions – prefer live planet mesh position, then posMap, then toWorld() with orbit offset
     const spKey = `${f.start.g}:${f.start.s}:${f.start.p}`;
     const epKey = `${f.end.g}:${f.end.s}:${f.end.p}`;
-    const spFallback = posMap[`${f.start.g}:${f.start.s}:0`] || toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
-    const epFallback = posMap[`${f.end.g}:${f.end.s}:0`]   || toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
-    fleetAnimState[id].sPos = (posMap[spKey] || spFallback).clone();
-    fleetAnimState[id].ePos = (posMap[epKey] || epFallback).clone();
+    // toWorld with planet slot gives proper orbital position, NOT the sun center
+    const spWorld = toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
+    const epWorld = toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
+    fleetAnimState[id].sPos = (posMap[spKey] || spWorld).clone();
+    fleetAnimState[id].ePos = (posMap[epKey] || epWorld).clone();
 
     // Build CatmullRomCurve3 with a mid-point arc for visual interest
     const s3 = fleetAnimState[id].sPos;
@@ -3167,6 +3186,17 @@ function animate(now = 0){
 
   // Starfield slow spin (barely perceptible)
   if (starField) starField.rotation.y = tNeb * 0.00008;
+
+  // Star twinkle: pulse opacity on bright stars layer + slow drift on dim layer
+  if (frame % 2 === 0) {
+    const t2 = now * 0.0006;
+    scene.children.forEach(obj => {
+      if (obj.isPoints && obj.userData.isBrightStars) {
+        obj.material.opacity = 0.72 + 0.22 * Math.sin(t2 * 1.3);
+        obj.rotation.y = t2 * 0.00005;
+      }
+    });
+  }
 
   renderer.render(scene, camera);
 }
