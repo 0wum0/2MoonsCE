@@ -103,6 +103,10 @@ function ShowConfigUniPage()
 			'max_dm_missions'		=> $config->max_dm_missions,
 			'alliance_create_min_points' => $config->alliance_create_min_points,
 			'max_fleet_per_build'   => $config->max_fleet_per_build,
+			'combat_rand_variance'  => $config->combat_rand_variance,
+			'combat_crit_chance'    => $config->combat_crit_chance,
+			'combat_crit_mult'      => $config->combat_crit_mult,
+			'combat_morale_enabled' => $config->combat_morale_enabled,
 		);
 		
 		$game_disable			= isset($_POST['closed']) && $_POST['closed'] == 'on' ? 1 : 0;
@@ -162,6 +166,10 @@ function ShowConfigUniPage()
 		$darkmatter_start		= HTTP::_GP('darkmatter_start', 0);
 		$deuterium_cost_galaxy	= HTTP::_GP('deuterium_cost_galaxy', 0);
 		$max_fleet_per_build	= max(0, round(HTTP::_GP('max_fleet_per_build', 0.0)));
+		$combat_rand_variance   = max(0, min(50, (int)HTTP::_GP('combat_rand_variance', 20)));
+		$combat_crit_chance     = max(0, min(100, (int)HTTP::_GP('combat_crit_chance', 5)));
+		$combat_crit_mult       = max(1.0, min(10.0, (float)HTTP::_GP('combat_crit_mult', 2.0)));
+		$combat_morale_enabled  = isset($_POST['combat_morale_enabled']) && $_POST['combat_morale_enabled'] == 'on' ? 1 : 0;
 		$ref_bonus				= HTTP::_GP('ref_bonus', 0);
 		$ref_minpoints			= HTTP::_GP('ref_minpoints', 0);
 		$silo_factor			= HTTP::_GP('silo_factor', 0);
@@ -231,7 +239,11 @@ function ShowConfigUniPage()
 			'silo_factor'			=> $silo_factor,
 			'max_dm_missions'		=> $max_dm_missions,
 			'alliance_create_min_points' => $alliance_create_min_points,
-			'max_fleet_per_build'	=> $max_fleet_per_build
+			'max_fleet_per_build'	=> $max_fleet_per_build,
+			'combat_rand_variance'  => $combat_rand_variance,
+			'combat_crit_chance'    => $combat_crit_chance,
+			'combat_crit_mult'      => $combat_crit_mult,
+			'combat_morale_enabled' => $combat_morale_enabled,
         );
 
 
@@ -477,7 +489,23 @@ function ShowConfigUniPage()
 		'ref_max_referals'				=> $config->ref_max_referals,
 		'silo_factor'					=> $config->silo_factor,
 		'max_dm_missions'				=> $config->max_dm_missions,
-		'alliance_create_min_points' 	=> $config->alliance_create_min_points
+		'alliance_create_min_points' 	=> $config->alliance_create_min_points,
+		'combat_rand_variance'          => (int)($config->combat_rand_variance ?? 20),
+		'combat_crit_chance'            => (int)($config->combat_crit_chance ?? 5),
+		'combat_crit_mult'              => (float)($config->combat_crit_mult ?? 2.0),
+		'combat_morale_enabled'         => (int)($config->combat_morale_enabled ?? 1),
+	));
+
+	$template->assign_vars(array(
+		'se_combat_engine_head'             => 'Combat Engine Settings',
+		'se_combat_rand_variance'           => 'Attack Variance (%)',
+		'se_combat_rand_variance_info'      => 'Random attack variance per ship type per round (±%). OGame uses 15%, default is 20%. Set to 0 to disable randomness.',
+		'se_combat_crit_chance'             => 'Critical Hit Chance (%)',
+		'se_combat_crit_chance_info'        => 'Probability (0-100%) that a ship type deals a critical hit this round. Set to 0 to disable critical hits.',
+		'se_combat_crit_mult'               => 'Critical Hit Multiplier',
+		'se_combat_crit_mult_info'          => 'Damage multiplier when a critical hit occurs (e.g. 2.0 = double damage). Only applies if Critical Hit Chance > 0.',
+		'se_combat_morale_enabled'          => 'Morale System',
+		'se_combat_morale_enabled_info'     => 'When enabled, a fleet that is outnumbered loses up to 40% attack power per round. Disable for a more symmetric battle outcome.',
 	));
 	
 	$template->show('ConfigBodyUni.twig');

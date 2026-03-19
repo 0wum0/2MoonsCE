@@ -197,7 +197,31 @@
 	<td>{{ se_def_cdr }}</td>
 	<td><input name="Defs_Cdr" maxlength="3" size="3" value="{{ defenses }}" type="text"> %</td>
 	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ se_def_cdr_message }}"></td>
+</tr>
+</table>
+
+<h2>{{ se_combat_engine_head }}</h2>
+<table width="100%" class="table">
+<tr>
+	<td>{{ se_combat_rand_variance }}</td>
+	<td><input name="combat_rand_variance" maxlength="3" size="3" value="{{ combat_rand_variance }}" type="text"> %</td>
+	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ se_combat_rand_variance_info }}"></td>
 </tr><tr>
+	<td>{{ se_combat_crit_chance }}</td>
+	<td><input name="combat_crit_chance" maxlength="3" size="3" value="{{ combat_crit_chance }}" type="text"> %</td>
+	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ se_combat_crit_chance_info }}"></td>
+</tr><tr>
+	<td>{{ se_combat_crit_mult }}</td>
+	<td><input name="combat_crit_mult" maxlength="4" size="4" value="{{ combat_crit_mult }}" type="text"> ×</td>
+	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ se_combat_crit_mult_info }}"></td>
+</tr><tr>
+	<td>{{ se_combat_morale_enabled }}</td>
+	<td><input name="combat_morale_enabled"{% if combat_morale_enabled %} checked="checked"{% endif %} type="checkbox"></td>
+	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ se_combat_morale_enabled_info }}"></td>
+</tr>
+</table>
+<table width="100%" class="table">
+<tr>
 	<td>{{ se_max_galaxy }}</td>
 	<td><input name="max_galaxy" maxlength="3" size="3" value="{{ max_galaxy }}" type="text"></td>
 	<td><img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ se_max_galaxy_info }}"></td>

@@ -135,6 +135,14 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 {
     global $pricelist, $CombatCaps, $resource;
 
+    // ── Per-universe combat tuning (admin panel → Universe Config) ────────
+    // Falls back to the compile-time constants so existing installs are unaffected.
+    $_cfg               = class_exists('Config', false) ? Config::get() : null;
+    $COMBAT_VARIANCE    = max(0, min(50,  (int)  (($_cfg !== null && isset($_cfg->combat_rand_variance))  ? $_cfg->combat_rand_variance  : 20)));
+    $COMBAT_CRIT_CHANCE = max(0, min(100, (int)  (($_cfg !== null && isset($_cfg->combat_crit_chance))    ? $_cfg->combat_crit_chance    : CRIT_HIT_CHANCE)));
+    $COMBAT_CRIT_MULT   = max(1.0,        (float)(($_cfg !== null && isset($_cfg->combat_crit_mult))      ? $_cfg->combat_crit_mult      : CRIT_HIT_MULT));
+    $COMBAT_MORALE      =                 (bool) (($_cfg !== null && isset($_cfg->combat_morale_enabled)) ? $_cfg->combat_morale_enabled : true);
+
     // ── OPT-1: Decode static lookup tables ONCE ───────────────────────────
     // These never change during a battle.  By decoding here we avoid
     // repeated unserialize() calls inside closures and the round loop.
@@ -283,7 +291,7 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
             'fAttMul'   => $form['att'] * (1.0 + $syn['att']),
             'fShdMul'   => $form['shd'] * (1.0 + $syn['shd']),
             'fHpMul'    => 1.0 + $syn['hp'],
-            'critBase'  => CRIT_HIT_CHANCE + (int)$form['crit'],
+            'critBase'  => $COMBAT_CRIT_CHANCE + (int)$form['crit'],
             'pen'       => (float)$form['pen'],
             'formLabel' => !empty($attacker['formation']) ? ucfirst((string)$attacker['formation']) : '',
             'synLabels' => $syn['labels'],
@@ -296,7 +304,7 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
             'fAttMul'   => $form['att'] * (1.0 + $syn['att']),
             'fShdMul'   => $form['shd'] * (1.0 + $syn['shd']),
             'fHpMul'    => 1.0 + $syn['hp'],
-            'critBase'  => CRIT_HIT_CHANCE + (int)$form['crit'],
+            'critBase'  => $COMBAT_CRIT_CHANCE + (int)$form['crit'],
             'pen'       => (float)$form['pen'],
             'formLabel' => !empty($defender['formation']) ? ucfirst((string)$defender['formation']) : '',
             'synLabels' => $syn['labels'],
@@ -408,10 +416,10 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 
                 $thisAtt = (float)$amount * $baseAtt * $attTech
                            * $pre['fAttMul']
-                           * (mt_rand(80, 120) / 100.0);
+                           * ($COMBAT_VARIANCE > 0 ? (mt_rand(100 - $COMBAT_VARIANCE, 100 + $COMBAT_VARIANCE) / 100.0) : 1.0);
 
-                if ($thisAtt > 0.0 && mt_rand(1, 100) <= $pre['critBase']) {
-                    $thisAtt   *= CRIT_HIT_MULT;
+                if ($thisAtt > 0.0 && $COMBAT_CRIT_CHANCE > 0 && mt_rand(1, 100) <= $pre['critBase']) {
+                    $thisAtt   *= $COMBAT_CRIT_MULT;
                     $attCrits[] = [$fleetID, $element];
                 }
 
@@ -456,10 +464,10 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
 
                 $thisAtt = (float)$amount * $baseAtt * $attTech
                            * $pre['fAttMul']
-                           * (mt_rand(80, 120) / 100.0);
+                           * ($COMBAT_VARIANCE > 0 ? (mt_rand(100 - $COMBAT_VARIANCE, 100 + $COMBAT_VARIANCE) / 100.0) : 1.0);
 
-                if ($thisAtt > 0.0 && mt_rand(1, 100) <= $pre['critBase']) {
-                    $thisAtt   *= CRIT_HIT_MULT;
+                if ($thisAtt > 0.0 && $COMBAT_CRIT_CHANCE > 0 && mt_rand(1, 100) <= $pre['critBase']) {
+                    $thisAtt   *= $COMBAT_CRIT_MULT;
                     $defCrits[] = [$fleetID, $element];
                 }
 
@@ -485,7 +493,7 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
         // ── Phase 1b: Morale check & penalty ─────────────────────────────
         // OPT-6: compare against pre-computed threshold, not recalculated ratio
         $attMoraleMul = 1.0;
-        if ($attackWeightTotal < $attMoraleThreshold) {
+        if ($COMBAT_MORALE && $attackWeightTotal < $attMoraleThreshold) {
             $attMoraleBrokenRounds++;
             $penalty      = min(MORALE_CAP, $attMoraleBrokenRounds * MORALE_PENALTY);
             $attMoraleMul = 1.0 - $penalty;
@@ -503,7 +511,7 @@ function calculateAttack(array &$attackers, array &$defenders, float $FleetTF, f
         }
 
         $defMoraleMul = 1.0;
-        if ($defenseWeightTotal < $defMoraleThreshold) {
+        if ($COMBAT_MORALE && $defenseWeightTotal < $defMoraleThreshold) {
             $defMoraleBrokenRounds++;
             $penalty      = min(MORALE_CAP, $defMoraleBrokenRounds * MORALE_PENALTY);
             $defMoraleMul = 1.0 - $penalty;
