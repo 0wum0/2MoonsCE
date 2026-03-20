@@ -434,9 +434,9 @@ class BotEngine
 
         $this->log("FLEET after personality: pve=" . ($pve ? '1' : '0') . " pvp=" . ($pvp ? '1' : '0'));
 
-        // Fleet slots
+        // Fleet slots — bots get a minimum of bot_min_fleet_slots (default 5) to compensate for computer_tech=0
         $activeSlots = FleetFunctions::GetCurrentFleets($USER['id']);
-        $maxSlots    = FleetFunctions::GetMaxFleetSlots($USER);
+        $maxSlots    = max(FleetFunctions::GetMaxFleetSlots($USER), (int)($settings['bot_min_fleet_slots'] ?? 5));
         if ($activeSlots >= $maxSlots) {
             $this->log("FLEET skip: no fleet slots ({$activeSlots}/{$maxSlots})");
             return false;
@@ -701,8 +701,8 @@ class BotEngine
         $conds[] = "p.id_owner != :me";
         $params[':me'] = $myId;
 
-        $conds[] = "u.urlaubs_modus = 0";
-        $conds[] = "u.banaday = 0";
+        // Note: bots may attack players in vacation mode or other bots — no urlaubs_modus/banaday filter
+        // (on small servers all real players may be in vacation; bots must still be able to attack each other)
 
         if (!$allowSameAlly && $myAlly > 0) {
             $conds[] = "(u.ally_id = 0 OR u.ally_id != :ally)";
