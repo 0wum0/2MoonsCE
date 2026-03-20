@@ -26,7 +26,9 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-require_once 'includes/classes/cronjob/CronjobTask.interface.php';
+if (!interface_exists('CronjobTask')) {
+    require_once (defined('ROOT_PATH') ? ROOT_PATH : '') . 'includes/classes/cronjob/CronjobTask.interface.php';
+}
 
 class botActionsCronjob implements CronjobTask
 {
