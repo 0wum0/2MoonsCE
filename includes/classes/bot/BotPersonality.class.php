@@ -34,14 +34,45 @@ class BotPersonality
     public static function load(): void
     {
         if (self::$personalities !== null) return;
-        
-        $db = Database::get();
-        $rows = $db->select("SELECT * FROM " . DB_PREFIX . "bot_personalities");
-        
-        self::$personalities = [];
-        foreach ($rows as $row) {
-            self::$personalities[$row['name']] = $row;
+
+        self::$personalities = self::getDefaults();
+
+        try {
+            $db   = Database::get();
+            $rows = $db->select("SELECT * FROM " . DB_PREFIX . "bot_personalities");
+            if (!empty($rows)) {
+                self::$personalities = [];
+                foreach ($rows as $row) {
+                    self::$personalities[$row['name']] = $row;
+                }
+            }
+        } catch (Throwable $e) {
+            // Table missing or DB error – use hardcoded defaults silently
         }
+    }
+
+    private static function getDefaults(): array
+    {
+        $base = [
+            'allow_raids'        => 0,
+            'allow_expeditions'  => 1,
+            'aggression'         => 0.3,
+            'priority_mines'     => 0.7,
+            'priority_energy'    => 0.5,
+            'priority_storage'   => 0.3,
+            'priority_research'  => 0.4,
+            'priority_fleet'     => 0.3,
+            'priority_defense'   => 0.2,
+            'save_resources'     => 0,
+        ];
+        return [
+            'balanced'   => array_merge($base, ['name' => 'balanced',   'aggression' => 0.3, 'allow_raids' => 0]),
+            'farmer'     => array_merge($base, ['name' => 'farmer',     'priority_mines' => 0.9, 'allow_raids' => 0]),
+            'raider'     => array_merge($base, ['name' => 'raider',     'aggression' => 0.8, 'allow_raids' => 1, 'priority_fleet' => 0.8]),
+            'researcher' => array_merge($base, ['name' => 'researcher', 'priority_research' => 0.9, 'allow_raids' => 0]),
+            'miner'      => array_merge($base, ['name' => 'miner',      'priority_mines' => 0.95, 'allow_raids' => 0, 'save_resources' => 1]),
+            'turtle'     => array_merge($base, ['name' => 'turtle',     'priority_defense' => 0.9, 'allow_raids' => 0, 'save_resources' => 1]),
+        ];
     }
     
     /**
