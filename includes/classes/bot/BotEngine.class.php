@@ -579,11 +579,11 @@ class BotEngine
 
     private function findRaidTarget(array $USER, array $PLANET, array $settings): ?array
     {
-        $minMetal   = (int)($settings['raid_min_cargo_metal'] ?? 20000);
-        $minCrystal = (int)($settings['raid_min_cargo_crystal'] ?? 10000);
-        $minGain    = (int)($settings['raid_min_gain'] ?? 50000);
+        $minMetal   = (int)($settings['raid_min_cargo_metal'] ?? 0);
+        $minCrystal = (int)($settings['raid_min_cargo_crystal'] ?? 0);
+        $minGain    = (int)($settings['raid_min_gain'] ?? 0);
 
-        $inactiveOnly   = !empty((int)($settings['raid_inactive_only'] ?? 1));
+        $inactiveOnly   = !empty((int)($settings['raid_inactive_only'] ?? 0));
         $allowSameAlly  = !empty((int)($settings['raid_allow_same_ally'] ?? 0));
         $maxRankDiff    = (int)($settings['raid_max_rank_diff'] ?? 250);
 
@@ -618,13 +618,18 @@ class BotEngine
         }
 
         // loot
-        $conds[] = "(p.metal + p.crystal) >= :minGain";
-        $params[':minGain'] = $minGain;
-
-        $conds[] = "p.metal >= :minMetal";
-        $conds[] = "p.crystal >= :minCrystal";
-        $params[':minMetal'] = $minMetal;
-        $params[':minCrystal'] = $minCrystal;
+        if ($minGain > 0) {
+            $conds[] = "(p.metal + p.crystal) >= :minGain";
+            $params[':minGain'] = $minGain;
+        }
+        if ($minMetal > 0) {
+            $conds[] = "p.metal >= :minMetal";
+            $params[':minMetal'] = $minMetal;
+        }
+        if ($minCrystal > 0) {
+            $conds[] = "p.crystal >= :minCrystal";
+            $params[':minCrystal'] = $minCrystal;
+        }
 
         // rank diff (needs STATPOINTS table in 2Moons: %%STATPOINTS%%)
         // We'll do a soft join; if table absent, we skip rank filter by try/catch.
@@ -632,12 +637,6 @@ class BotEngine
         // misil_launcher=401, small_laser=402, big_laser=403, gauss_canyon=404,
         // ionic_canyon=405, buster_canyon=406, small_protection_shield=407,
         // planet_protector=408, big_protection_shield=409, graviton_canyon=410
-        // interceptor_misil=411, interplanetary_misil=412
-        // We skip targets with ANY active defense structures
-        $conds[] = "(p.misil_launcher + p.small_laser + p.big_laser + p.gauss_canyon
-                    + p.ionic_canyon + p.buster_canyon + p.small_protection_shield
-                    + p.planet_protector + p.big_protection_shield + p.graviton_canyon) = 0";
-
         $where = implode(" AND ", $conds);
 
         $sql = "SELECT p.id, p.id_owner, p.galaxy, p.system, p.planet, p.metal, p.crystal, u.username, u.ally_id, u.onlinetime
