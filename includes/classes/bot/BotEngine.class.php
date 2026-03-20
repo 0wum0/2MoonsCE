@@ -421,7 +421,7 @@ class BotEngine
         }
     }
 
-    private function saveFleet(array $USER, array $PLANET, array $settings): bool
+    private function saveFleet(array $USER, array &$PLANET, array $settings): bool
     {
         global $resource;
 
@@ -482,6 +482,7 @@ class BotEngine
             return false;
         }
 
+        $this->subtractFleetFromPlanet($PLANET, $fleetArray);
         $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
         $this->log("SAVE fleet sent to [{$saveGalaxy}:{$saveSystem}:{$savePlanet}] ships=" . count($fleetArray) . " dur={$duration}s");
         return true;
@@ -500,7 +501,7 @@ class BotEngine
     // Fleet actions (Expedition / Recycle / Raid)
     // ---------------------------------------------------------------------
 
-    private function doFleetActions(array $USER, array $PLANET, array $botRow, array $settings, ?array $personality, int &$actionsLeft): bool
+    private function doFleetActions(array $USER, array &$PLANET, array $botRow, array $settings, ?array $personality, int &$actionsLeft): bool
     {
         if ($actionsLeft <= 0) {
             return false;
@@ -616,7 +617,7 @@ class BotEngine
         return $anyDid;
     }
 
-    private function sendSpy(array $USER, array $PLANET, array $settings, ?array $pvpTarget = null): bool
+    private function sendSpy(array $USER, array &$PLANET, array $settings, ?array $pvpTarget = null): bool
     {
         global $resource;
 
@@ -699,12 +700,13 @@ class BotEngine
             return false;
         }
 
+        $this->subtractFleetFromPlanet($PLANET, $fleetArray);
         $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
         $this->log("SPY sent {$probesNeeded} probes → {$target['username']} [{$target['galaxy']}:{$target['system']}:{$target['planet']}]");
         return true;
     }
 
-    private function sendRaid(array $USER, array $PLANET, array $settings, ?array $pvpTarget = null): bool
+    private function sendRaid(array $USER, array &$PLANET, array $settings, ?array $pvpTarget = null): bool
     {
         global $resource;
 
@@ -811,6 +813,7 @@ class BotEngine
                 0
             );
 
+            $this->subtractFleetFromPlanet($PLANET, $fleetArray);
             $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
             return true;
 
@@ -940,10 +943,26 @@ class BotEngine
     }
 
     // ---------------------------------------------------------------------
+    // Helper: keep $PLANET ship-counts in sync after sendFleet
+    // sendFleet only updates the DB; without this the next sendFleet in the
+    // same tick would see stale (too-high) counts and cause unsigned underflow.
+    // ---------------------------------------------------------------------
+
+    private function subtractFleetFromPlanet(array &$PLANET, array $fleetArray): void
+    {
+        global $resource;
+        foreach ($fleetArray as $sid => $cnt) {
+            if (!isset($resource[$sid])) continue;
+            $col = $resource[$sid];
+            $PLANET[$col] = max(0, (int)($PLANET[$col] ?? 0) - (int)$cnt);
+        }
+    }
+
+    // ---------------------------------------------------------------------
     // Existing Fleet actions from your previous code (kept, unchanged core)
     // ---------------------------------------------------------------------
 
-    private function sendExpedition(array $USER, array $PLANET, array $botRow, array $settings): bool
+    private function sendExpedition(array $USER, array &$PLANET, array $botRow, array $settings): bool
     {
         global $resource;
 
@@ -960,7 +979,7 @@ class BotEngine
         }
 
         $activeSlots = FleetFunctions::GetCurrentFleets($USER['id']);
-        $maxSlots    = FleetFunctions::GetMaxFleetSlots($USER);
+        $maxSlots    = max(FleetFunctions::GetMaxFleetSlots($USER), (int)($settings['bot_min_fleet_slots'] ?? 5));
         if ($activeSlots >= $maxSlots) {
             $this->log("EXPEDITION skip: no fleet slots ({$activeSlots}/{$maxSlots}).");
             return false;
@@ -1038,6 +1057,7 @@ class BotEngine
                 0
             );
 
+            $this->subtractFleetFromPlanet($PLANET, $fleetArray);
             $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
             return true;
 
@@ -1047,7 +1067,7 @@ class BotEngine
         }
     }
 
-    private function sendRecycleOnOwnDebris(array $USER, array $PLANET, array $botRow, array $settings): bool
+    private function sendRecycleOnOwnDebris(array $USER, array &$PLANET, array $botRow, array $settings): bool
     {
         global $resource, $pricelist;
 
@@ -1150,6 +1170,7 @@ class BotEngine
                 0
             );
 
+            $this->subtractFleetFromPlanet($PLANET, $fleetArray);
             $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
             return true;
 
@@ -1642,6 +1663,7 @@ class BotEngine
             return false;
         }
 
+        $this->subtractFleetFromPlanet($PLANET, $fleetArray);
         $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
         $this->log("ACS sent: {$USER['username']} -> {$target['username']} [{$tGalaxy}:{$tSystem}:{$tPlanet}] group={$fleetGroup} ships=" . array_sum($fleetArray));
         return true;
