@@ -101,6 +101,9 @@ class BotEngine
 
         $this->log("BOT#{$botId} ({$user['username']}) type={$typeId} personality={$personalityName} tick start");
 
+        // 0) Alliance management — join or create a bot-alliance (no-op if already in one)
+        $this->doAllianceActions($user, $universeId);
+
         // 1) Player-like queued actions first (economy)
         $didAny = false;
         $maxActions = max(1, (int)($settings['max_actions_per_tick'] ?? 4));
@@ -113,6 +116,14 @@ class BotEngine
         // 2) Fleet actions (PVE/PVP)
         if ($actionsLeft > 0) {
             $didAny = $this->doFleetActions($user, $planet, $botRow, $settings, $personality, $actionsLeft) || $didAny;
+        }
+
+        // 3) ACS raid — coordinated attack with alliance-bots (raider/balanced only, 30% chance per tick)
+        $canAcs = !empty((int)($settings['can_acs'] ?? 1));
+        if ($canAcs && $actionsLeft > 0 && mt_rand(1, 100) <= 30) {
+            if ($this->doAcsRaid($user, $planet, $settings, $personalityName)) {
+                $didAny = true;
+            }
         }
 
         // Persist (BotActions changes are in-memory; we persist user+planet queues safely)
@@ -1421,5 +1432,218 @@ class BotEngine
         } catch (Throwable $e) {
             // Silent fail - stats nicht kritisch
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Alliance Management
+    // -------------------------------------------------------------------------
+
+    /**
+     * Ensures this bot is in a bot-only alliance.
+     * - If already in an alliance: nothing to do.
+     * - If a bot-alliance with free slots exists: join it.
+     * - Otherwise: create a new bot-alliance.
+     * Called once per tick (cheap: early-exit if already has ally_id).
+     */
+    public function doAllianceActions(array &$USER, int $universeId): void
+    {
+        $myAlly = (int)($USER['ally_id'] ?? 0);
+        if ($myAlly > 0) {
+            return; // already in an alliance
+        }
+
+        $myId = (int)$USER['id'];
+
+        try {
+            // Look for an existing bot-alliance with free slots
+            // Bot-alliances are identified by ally_name starting with "BOT_"
+            $existing = $this->db->selectSingle(
+                "SELECT a.id, a.ally_members, a.ally_max_members
+                 FROM %%ALLIANCE%% a
+                 WHERE a.ally_name LIKE 'BOT_%'
+                   AND a.ally_universe = :uni
+                   AND a.ally_members < a.ally_max_members
+                 ORDER BY a.ally_members DESC
+                 LIMIT 1",
+                [':uni' => $universeId]
+            );
+
+            if ($existing && (int)$existing['id'] > 0) {
+                $allyId = (int)$existing['id'];
+                // Join existing bot-alliance
+                $this->db->update(
+                    "UPDATE %%USERS%% SET ally_id = :aid, ally_register_time = :t, ally_rank_id = 0 WHERE id = :uid",
+                    [':aid' => $allyId, ':t' => TIMESTAMP, ':uid' => $myId]
+                );
+                $this->db->update(
+                    "UPDATE %%ALLIANCE%% SET ally_members = ally_members + 1 WHERE id = :aid",
+                    [':aid' => $allyId]
+                );
+                $USER['ally_id'] = $allyId;
+                $this->log("ALLY joined existing bot-alliance id={$allyId} user={$USER['username']}");
+            } else {
+                // Create a new bot-alliance
+                $tag  = 'BOT' . strtoupper(substr(md5($myId . TIMESTAMP), 0, 4));
+                $name = 'BOT_' . $USER['username'];
+
+                $this->db->insert(
+                    "INSERT INTO %%ALLIANCE%% (ally_name, ally_tag, ally_owner, ally_register_time, ally_universe, ally_members, ally_max_members, ally_request_notallow)
+                     VALUES (:name, :tag, :owner, :t, :uni, 1, 50, 0)",
+                    [
+                        ':name'  => $name,
+                        ':tag'   => $tag,
+                        ':owner' => $myId,
+                        ':t'     => TIMESTAMP,
+                        ':uni'   => $universeId,
+                    ]
+                );
+                $newAllyId = $this->db->lastInsertId();
+
+                $this->db->update(
+                    "UPDATE %%USERS%% SET ally_id = :aid, ally_register_time = :t, ally_rank_id = 0 WHERE id = :uid",
+                    [':aid' => $newAllyId, ':t' => TIMESTAMP, ':uid' => $myId]
+                );
+                $USER['ally_id'] = $newAllyId;
+                $this->log("ALLY created new bot-alliance '{$name}' [{$tag}] id={$newAllyId} user={$USER['username']}");
+            }
+        } catch (Throwable $t) {
+            $this->log("ALLY error: " . $t->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // ACS (coordinated attack) — only for bots in the same alliance
+    // -------------------------------------------------------------------------
+
+    /**
+     * Attempt to join or initiate an ACS raid with ally-bots.
+     * Rules:
+     * - Only bots in the same alliance participate.
+     * - Max 3 bots per ACS group.
+     * - An existing ACS group for the same target is joined; otherwise a new one is created.
+     * - Only 'raider' and 'balanced' personalities join ACS.
+     */
+    public function doAcsRaid(array $USER, array $PLANET, array $settings, string $personalityName): bool
+    {
+        global $resource;
+
+        $myAlly = (int)($USER['ally_id'] ?? 0);
+        if ($myAlly === 0) {
+            $this->log("ACS skip: not in an alliance");
+            return false;
+        }
+
+        // Only aggressive personalities do ACS
+        if (!in_array($personalityName, ['raider', 'balanced'], true)) {
+            return false;
+        }
+
+        $maxAcsSize = (int)($settings['acs_max_size'] ?? 3);
+
+        // Find a target (same logic as solo raid, random)
+        $target = $this->findRaidTarget($USER, $PLANET, $settings);
+        if (!$target) {
+            $this->log("ACS skip: no target found");
+            return false;
+        }
+
+        $tGalaxy = (int)$target['galaxy'];
+        $tSystem = (int)$target['system'];
+        $tPlanet = (int)$target['planet'];
+        $tOwner  = (int)$target['id_owner'];
+        $tPlanetId = (int)$target['id'];
+
+        try {
+            // Check if an existing ACS fleet group is already heading to this target from this alliance
+            $existingGroup = $this->db->selectSingle(
+                "SELECT f.fleet_group, COUNT(*) as cnt
+                 FROM %%FLEETS%% f
+                 INNER JOIN %%USERS%% u ON u.id = f.fleet_owner
+                 WHERE f.fleet_end_galaxy  = :g
+                   AND f.fleet_end_system  = :s
+                   AND f.fleet_end_planet  = :p
+                   AND f.fleet_mission     = 2
+                   AND f.fleet_group       > 0
+                   AND f.fleet_mess        = 0
+                   AND u.ally_id           = :ally
+                 GROUP BY f.fleet_group
+                 HAVING cnt < :max
+                 LIMIT 1",
+                [
+                    ':g'    => $tGalaxy,
+                    ':s'    => $tSystem,
+                    ':p'    => $tPlanet,
+                    ':ally' => $myAlly,
+                    ':max'  => $maxAcsSize,
+                ]
+            );
+        } catch (Throwable $t) {
+            $this->log("ACS query failed: " . $t->getMessage());
+            return false;
+        }
+
+        if ($existingGroup && (int)$existingGroup['fleet_group'] > 0) {
+            $fleetGroup = (int)$existingGroup['fleet_group'];
+            $this->log("ACS joining existing group={$fleetGroup} target={$target['username']} [{$tGalaxy}:{$tSystem}:{$tPlanet}]");
+        } else {
+            // Create a new fleet_group ID (use timestamp + random for uniqueness)
+            $fleetGroup = (int)(TIMESTAMP % 100000) * 1000 + mt_rand(1, 999);
+            $this->log("ACS creating new group={$fleetGroup} target={$target['username']} [{$tGalaxy}:{$tSystem}:{$tPlanet}]");
+        }
+
+        // Build raid fleet
+        $want = [204 => 20, 205 => 10, 206 => 5, 202 => 20, 210 => 3];
+        $fleetArray = [];
+        foreach ($want as $sid => $cnt) {
+            if (!isset($resource[$sid])) continue;
+            $avail = (int)($PLANET[$resource[$sid]] ?? 0);
+            $use   = min($avail, $cnt);
+            if ($use > 0) $fleetArray[$sid] = $use;
+        }
+
+        if (empty($fleetArray)) {
+            $this->log("ACS skip: no ships available");
+            return false;
+        }
+
+        $speedFactor   = FleetFunctions::GetGameSpeedFactor();
+        $maxFleetSpeed = FleetFunctions::GetFleetMaxSpeed($fleetArray, $USER);
+        $distance      = FleetFunctions::GetTargetDistance(
+            [(int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet']],
+            [$tGalaxy, $tSystem, $tPlanet]
+        );
+        $duration    = FleetFunctions::GetMissionDuration(10, $maxFleetSpeed, $distance, $speedFactor, $USER);
+        $consumption = FleetFunctions::GetFleetConsumption($fleetArray, $duration, $distance, $USER, $speedFactor);
+
+        if ((float)($PLANET['deuterium'] ?? 0) < $consumption) {
+            $this->log("ACS skip: not enough deut");
+            return false;
+        }
+
+        $now     = TIMESTAMP;
+        $endTime = $now + $duration;
+
+        try {
+            FleetFunctions::sendFleet(
+                $fleetArray,
+                2, // Mission: ACS Attack
+                (int)$USER['id'],
+                (int)$PLANET['id'],
+                (int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet'], (int)($PLANET['planet_type'] ?? 1),
+                $tOwner,
+                $tPlanetId,
+                $tGalaxy, $tSystem, $tPlanet, 1,
+                [901 => 0, 902 => 0, 903 => 0],
+                $now, $endTime, $endTime,
+                $fleetGroup
+            );
+        } catch (Throwable $t) {
+            $this->log("ACS sendFleet failed: " . $t->getMessage());
+            return false;
+        }
+
+        $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
+        $this->log("ACS sent: {$USER['username']} -> {$target['username']} [{$tGalaxy}:{$tSystem}:{$tPlanet}] group={$fleetGroup} ships=" . array_sum($fleetArray));
+        return true;
     }
 }
