@@ -460,30 +460,49 @@ class BotEngine
             }
         }
 
-        // 3. Spy (PVP)
-        if ($pvp && !empty((int)($settings['can_spy'] ?? 1)) && $actionsLeft > 0) {
-            if ($this->sendSpy($USER, $PLANET, $settings)) {
-                $actionsLeft--;
-                $anyDid = true;
-            }
-        } elseif ($pvp) {
-            $this->log("SPY skip: can_spy=" . ($settings['can_spy'] ?? 'NULL'));
-        }
+        // 3+4. PVP: find ONE target, spy first, then raid only if worth it
+        if ($pvp && $actionsLeft > 0) {
+            $canSpy  = !empty((int)($settings['can_spy']  ?? 1));
+            $canRaid = !empty((int)($settings['can_raid'] ?? 1));
 
-        // 4. Raid (PVP) — default can_raid NOW 1
-        if ($pvp && !empty((int)($settings['can_raid'] ?? 1)) && $actionsLeft > 0) {
-            if ($this->sendRaid($USER, $PLANET, $settings)) {
-                $actionsLeft--;
-                $anyDid = true;
+            if ($canSpy || $canRaid) {
+                // Pick a random target so bots spread across different players
+                $pvpTarget = $this->findRaidTarget($USER, $PLANET, $settings);
+
+                if ($pvpTarget) {
+                    // Spy first
+                    if ($canSpy && $actionsLeft > 0) {
+                        if ($this->sendSpy($USER, $PLANET, $settings, $pvpTarget)) {
+                            $actionsLeft--;
+                            $anyDid = true;
+                        }
+                    }
+
+                    // Raid only if target has enough resources to be worth it
+                    $minLoot = (int)($settings['raid_min_loot'] ?? 10000);
+                    $targetLoot = (int)($pvpTarget['metal'] ?? 0) + (int)($pvpTarget['crystal'] ?? 0);
+                    if ($canRaid && $actionsLeft > 0) {
+                        if ($targetLoot >= $minLoot) {
+                            if ($this->sendRaid($USER, $PLANET, $settings, $pvpTarget)) {
+                                $actionsLeft--;
+                                $anyDid = true;
+                            }
+                        } else {
+                            $this->log("RAID skip: target loot too low ({$targetLoot} < {$minLoot})");
+                        }
+                    }
+                } else {
+                    $this->log("PVP skip: no target found");
+                }
+            } else {
+                $this->log("PVP skip: both spy and raid disabled");
             }
-        } elseif ($pvp) {
-            $this->log("RAID skip: can_raid=" . ($settings['can_raid'] ?? 'NULL'));
         }
 
         return $anyDid;
     }
 
-    private function sendSpy(array $USER, array $PLANET, array $settings): bool
+    private function sendSpy(array $USER, array $PLANET, array $settings, ?array $pvpTarget = null): bool
     {
         global $resource;
 
@@ -505,24 +524,28 @@ class BotEngine
         // Fleet functions expect [shipId (int) => count] — use integer key 210
         $fleetArray = [210 => $probesNeeded];
 
-        $myId = (int)$USER['id'];
-        try {
-            $target = $this->db->selectSingle(
-                "SELECT p.id, p.id_owner, p.galaxy, p.system, p.planet, u.username
-                 FROM %%PLANETS%% p
-                 INNER JOIN %%USERS%% u ON u.id = p.id_owner
-                 WHERE p.id_owner != :me
-                 ORDER BY RAND() LIMIT 1",
-                [':me' => $myId]
-            );
-        } catch (Throwable $t) {
-            $this->log("SPY findTarget failed: " . $t->getMessage());
-            return false;
-        }
-
-        if (!$target) {
-            $this->log("SPY skip: no target found");
-            return false;
+        // Use shared target if provided, otherwise pick a random one
+        if ($pvpTarget !== null) {
+            $target = $pvpTarget;
+        } else {
+            $myId = (int)$USER['id'];
+            try {
+                $target = $this->db->selectSingle(
+                    "SELECT p.id, p.id_owner, p.galaxy, p.system, p.planet, u.username
+                     FROM %%PLANETS%% p
+                     INNER JOIN %%USERS%% u ON u.id = p.id_owner
+                     WHERE p.id_owner != :me
+                     ORDER BY RAND() LIMIT 1",
+                    [':me' => (int)$USER['id']]
+                );
+            } catch (Throwable $t) {
+                $this->log("SPY findTarget failed: " . $t->getMessage());
+                return false;
+            }
+            if (!$target) {
+                $this->log("SPY skip: no target found");
+                return false;
+            }
         }
 
         $speedFactor   = FleetFunctions::GetGameSpeedFactor();
@@ -567,7 +590,7 @@ class BotEngine
         return true;
     }
 
-    private function sendRaid(array $USER, array $PLANET, array $settings): bool
+    private function sendRaid(array $USER, array $PLANET, array $settings, ?array $pvpTarget = null): bool
     {
         global $resource;
 
@@ -577,10 +600,15 @@ class BotEngine
         // - Optional: inactive only
         // - Optional: not same ally (unless allowed)
         // - Has enough loot
-        $target = $this->findRaidTarget($USER, $PLANET, $settings);
-        if (!$target) {
-            $this->log("RAID skip: no suitable target");
-            return false;
+        // Use shared target if provided (from doFleetActions spy+raid flow)
+        if ($pvpTarget !== null) {
+            $target = $pvpTarget;
+        } else {
+            $target = $this->findRaidTarget($USER, $PLANET, $settings);
+            if (!$target) {
+                $this->log("RAID skip: no suitable target");
+                return false;
+            }
         }
 
         // Build fleet for raid (cargo + some fighters)
@@ -740,12 +768,13 @@ class BotEngine
         // planet_protector=408, big_protection_shield=409, graviton_canyon=410
         $where = implode(" AND ", $conds);
 
+        // ORDER BY RAND() so different bots pick different targets
         $sql = "SELECT p.id, p.id_owner, p.galaxy, p.system, p.planet, p.metal, p.crystal, u.username, u.ally_id, u.onlinetime
                 FROM %%PLANETS%% p
                 INNER JOIN %%USERS%% u ON u.id = p.id_owner
                 WHERE {$where}
-                ORDER BY (p.metal + p.crystal) DESC
-                LIMIT 25;";
+                ORDER BY RAND()
+                LIMIT 1;";
 
         try {
             $rows = $this->db->select($sql, $params);
