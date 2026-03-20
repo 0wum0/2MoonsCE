@@ -598,10 +598,12 @@ class BotEngine
             if ($use > 0) $fleetArray[$sid] = $use;
         }
 
+        $this->log("RAID ships on planet: " . json_encode(array_map(fn($sid) => [$sid => (int)($PLANET[$resource[$sid] ?? ''] ?? 0)], array_keys($want))));
         if (empty($fleetArray)) {
-            $this->log("RAID fail: no ships available");
+            $this->log("RAID fail: no ships available on planet");
             return false;
         }
+        $this->log("RAID fleet built: " . json_encode($fleetArray));
 
         $startGalaxy = (int)$PLANET['galaxy'];
         $startSystem = (int)$PLANET['system'];
@@ -621,8 +623,8 @@ class BotEngine
         $duration      = FleetFunctions::GetMissionDuration(10, $maxFleetSpeed, $distance, $speedFactor, $USER);
         $consumption   = FleetFunctions::GetFleetConsumption($fleetArray, $duration, $distance, $USER, $speedFactor);
 
-        $maxFlight = (int)($settings['raid_max_flight_seconds'] ?? 14400);
-        if ($duration > $maxFlight) {
+        $maxFlight = (int)($settings['raid_max_flight_seconds'] ?? 0); // 0 = no limit
+        if ($maxFlight > 0 && $duration > $maxFlight) {
             $this->log("RAID skip: flight too long duration={$duration}s max={$maxFlight}s");
             return false;
         }
@@ -681,7 +683,7 @@ class BotEngine
 
         $inactiveOnly   = !empty((int)($settings['raid_inactive_only'] ?? 0));
         $allowSameAlly  = !empty((int)($settings['raid_allow_same_ally'] ?? 0));
-        $maxRankDiff    = (int)($settings['raid_max_rank_diff'] ?? 250);
+        $maxRankDiff    = (int)($settings['raid_max_rank_diff'] ?? 0); // 0 = disabled
 
         $myAlly = (int)($USER['ally_id'] ?? 0);
         $myId   = (int)$USER['id'];
@@ -750,32 +752,27 @@ class BotEngine
         }
 
         if (empty($rows)) {
-            $this->log("RAID skip: no target found matching criteria (resources/vacation/defense filter)");
+            $this->log("RAID findTarget: 0 rows returned from DB (all filtered by vacation/ban)");
             return null;
         }
 
-        // Optional: rank diff filter (best effort)
-        $myRank = $this->getUserRankPoints($myId);
+        $this->log("RAID findTarget: " . count($rows) . " candidates");
+
+        // Rank diff filter (only if maxRankDiff > 0)
+        $myRank = ($maxRankDiff > 0) ? $this->getUserRankPoints($myId) : null;
         foreach ($rows as $r) {
             if ($maxRankDiff > 0 && $myRank !== null) {
                 $theirRank = $this->getUserRankPoints((int)$r['id_owner']);
-                if ($theirRank !== null) {
-                    if (abs($theirRank - $myRank) > $maxRankDiff) {
-                        continue;
-                    }
+                if ($theirRank !== null && abs($theirRank - $myRank) > $maxRankDiff) {
+                    $this->log("RAID skip candidate {$r['username']}: rank diff too large");
+                    continue;
                 }
             }
-
-            // Quick distance/flight sanity via coords
-            $dist = FleetFunctions::GetTargetDistance(
-                [(int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet']],
-                [(int)$r['galaxy'], (int)$r['system'], (int)$r['planet']]
-            );
-
-            // avoid “same system spam” only if you want; here we accept all.
+            $this->log("RAID target selected: {$r['username']} [{$r['galaxy']}:{$r['system']}:{$r['planet']}] metal={$r['metal']} crystal={$r['crystal']}");
             return $r;
         }
 
+        $this->log("RAID findTarget: all " . count($rows) . " candidates filtered by rank diff");
         return null;
     }
 
