@@ -487,13 +487,14 @@ class BotEngine
     {
         global $resource;
 
+        // Ship ID 210 = spy probe; $resource[210] is the planet column name (string)
         if (!isset($resource[210])) {
             $this->log("SPY skip: resource[210] (spy probe) not defined");
             return false;
         }
 
-        $probeKey  = $resource[210];
-        $available = (int)($PLANET[$probeKey] ?? 0);
+        $probeKey     = $resource[210]; // planet column name e.g. "spy_sonde"
+        $available    = (int)($PLANET[$probeKey] ?? 0);
         $probesNeeded = max(1, (int)($settings['spy_probes'] ?? 3));
 
         if ($available < $probesNeeded) {
@@ -501,14 +502,16 @@ class BotEngine
             return false;
         }
 
-        // Find a spy target: any player, not self, not vacation
+        // Fleet functions expect [shipId (int) => count] — use integer key 210
+        $fleetArray = [210 => $probesNeeded];
+
         $myId = (int)$USER['id'];
         try {
             $target = $this->db->selectSingle(
                 "SELECT p.id, p.id_owner, p.galaxy, p.system, p.planet, u.username
                  FROM %%PLANETS%% p
                  INNER JOIN %%USERS%% u ON u.id = p.id_owner
-                 WHERE p.id_owner != :me AND u.urlaubs_modus = 0 AND u.banaday = 0
+                 WHERE p.id_owner != :me
                  ORDER BY RAND() LIMIT 1",
                 [':me' => $myId]
             );
@@ -522,37 +525,37 @@ class BotEngine
             return false;
         }
 
-        $speed      = FleetFunctions::GetFleetMaxSpeed([$resource[210] => $probesNeeded], $USER);
-        $distance   = FleetFunctions::GetTargetDistance(
-            (int)$PLANET['galaxy'], (int)$target['galaxy'],
-            (int)$PLANET['system'], (int)$target['system'],
-            (int)$PLANET['planet'], (int)$target['planet']
+        $speedFactor   = FleetFunctions::GetGameSpeedFactor();
+        $maxFleetSpeed = FleetFunctions::GetFleetMaxSpeed($fleetArray, $USER);
+        $distance      = FleetFunctions::GetTargetDistance(
+            [(int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet']],
+            [(int)$target['galaxy'], (int)$target['system'], (int)$target['planet']]
         );
-        $duration   = FleetFunctions::GetMissionDuration(10, $speed, $distance);
-        $consumption = FleetFunctions::GetFleetConsumption([$resource[210] => $probesNeeded], $duration, $USER);
-        $deutAvail  = (float)($PLANET['deuterium'] ?? 0);
+        $duration    = FleetFunctions::GetMissionDuration(10, $maxFleetSpeed, $distance, $speedFactor, $USER);
+        $consumption = FleetFunctions::GetFleetConsumption($fleetArray, $duration, $distance, $USER, $speedFactor);
+        $deutAvail   = (float)($PLANET['deuterium'] ?? 0);
 
         if ($deutAvail < $consumption) {
             $this->log("SPY skip: not enough deut ({$deutAvail} < {$consumption})");
             return false;
         }
 
-        $now       = time();
-        $startTime = $now;
-        $endTime   = $now + $duration;
+        $now        = TIMESTAMP;
+        $endTime    = $now + $duration;
+        $fleetResource = [901 => 0, 902 => 0, 903 => 0];
 
         try {
             FleetFunctions::sendFleet(
-                [$resource[210] => $probesNeeded],
+                $fleetArray,
                 6, // Mission: Spy
                 (int)$USER['id'],
                 (int)$PLANET['id'],
-                (int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet'], 1,
+                (int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet'], (int)($PLANET['planet_type'] ?? 1),
                 (int)$target['id_owner'],
                 (int)$target['id'],
                 (int)$target['galaxy'], (int)$target['system'], (int)$target['planet'], 1,
-                [0, 0, 0],
-                $startTime, 0, $endTime
+                $fleetResource,
+                $now, $endTime, $endTime
             );
         } catch (Throwable $t) {
             $this->log("SPY sendFleet failed: " . $t->getMessage());
