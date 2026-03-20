@@ -129,43 +129,143 @@ class BotEngine
     // Economy / Queues (Build / Research / Shipyard)
     // ---------------------------------------------------------------------
 
+    // -------------------------------------------------------------------------
+    // Personality build/research/defense priority tables
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns ordered building priority list per personality.
+     * IDs: 1=MetalMine 2=CrystalMine 3=DeutSynth 4=SolarPlant 12=FusionReactor
+     * 14=NaniteFactory 15=RoboFactory 21=Shipyard 22=MetalStorage 23=CrystalStorage
+     * 24=DeutTank 31=ResearchLab 33=Terraformer 34=AllianceDepot 41=LunarBase
+     * 42=SensorPhalanx 43=JumpGate 44=MissilesSilo
+     */
+    private function getBuildingPriority(string $personality): array
+    {
+        $common = [
+            // Emergency energy first (handled dynamically, these are fallback order)
+            4,   // Solar Plant
+            1,   // Metal Mine
+            2,   // Crystal Mine
+            4,   // Solar Plant (repeat — energy keeps up with mines)
+            3,   // Deut Synth
+            22,  // Metal Storage
+            23,  // Crystal Storage
+            24,  // Deut Tank
+            15,  // Robo Factory
+            14,  // Nanite Factory
+            21,  // Shipyard
+            31,  // Research Lab
+            12,  // Fusion Reactor
+            44,  // Missiles Silo
+        ];
+
+        switch ($personality) {
+            case 'miner':
+                return [
+                    4, 1, 2, 4, 3, 1, 2, 3, 22, 23, 24, 15, 14, 12, 31, 21,
+                ];
+            case 'raider':
+                return [
+                    4, 1, 2, 15, 21, 14, 31, 3, 22, 23, 24, 12, 44,
+                ];
+            case 'researcher':
+                return [
+                    4, 1, 2, 31, 15, 14, 3, 22, 23, 24, 21, 12,
+                ];
+            case 'farmer':
+                return [
+                    4, 1, 2, 3, 22, 23, 24, 15, 14, 12, 31,
+                ];
+            case 'turtle':
+                return [
+                    4, 1, 2, 3, 15, 21, 44, 22, 23, 24, 14, 31, 12,
+                ];
+            default: // balanced
+                return $common;
+        }
+    }
+
+    /**
+     * Returns ordered research priority list per personality.
+     * IDs: 106=Espionage 108=Computer 109=Weapons 110=Shields 111=Armor
+     * 113=Energy 114=Hyperspace 115=Combustion 117=Impulse 118=Hyperspace Drive
+     * 120=Laser 121=Ion 122=Plasma 123=IntergalacticNet 124=Astrophysics 199=Graviton
+     */
+    private function getResearchPriority(string $personality): array
+    {
+        switch ($personality) {
+            case 'miner':
+                return [113, 115, 117, 106, 108, 124, 118, 109, 110, 111, 114, 120, 121, 122, 123];
+            case 'raider':
+                return [109, 110, 111, 115, 117, 118, 108, 106, 113, 114, 120, 121, 122, 124, 123];
+            case 'researcher':
+                return [113, 114, 120, 121, 122, 115, 117, 118, 106, 108, 109, 110, 111, 123, 124, 199];
+            case 'farmer':
+                return [113, 115, 106, 108, 117, 110, 111, 124, 118, 109, 120, 121, 122, 123];
+            case 'turtle':
+                return [109, 110, 111, 120, 121, 122, 113, 115, 117, 106, 108, 118, 114, 123, 124];
+            default: // balanced
+                return [106, 108, 113, 115, 117, 109, 110, 111, 118, 114, 120, 121, 122, 124, 123];
+        }
+    }
+
+    /**
+     * Returns shipyard build todo per personality.
+     * Ships: 202=SmallCargo 203=LargeCargo 204=LightFighter 205=HeavyFighter
+     *        206=Cruiser 207=Battleship 208=ColonyShip 209=Recycler 210=SpyProbe
+     *        211=Bomber 212=SolarSatellite 213=Destroyer 214=Deathstar 215=BattleCruiser
+     * Defense: 401=RocketLauncher 402=LightLaser 403=HeavyLaser 404=GaussCanyon
+     *          405=IonCanyon 406=PlasmaTurret 407=SmallShield 408=LargeShield
+     */
+    private function getShipyardTodo(string $personality): array
+    {
+        switch ($personality) {
+            case 'miner':
+                return [210 => 5, 202 => 30, 203 => 10, 209 => 15, 204 => 5];
+            case 'raider':
+                return [210 => 10, 204 => 30, 205 => 15, 206 => 10, 202 => 20, 203 => 10, 207 => 5, 209 => 5];
+            case 'researcher':
+                return [210 => 10, 202 => 10, 203 => 5, 209 => 5, 204 => 5];
+            case 'farmer':
+                return [210 => 5, 202 => 50, 203 => 20, 209 => 20];
+            case 'turtle':
+                return [210 => 5, 202 => 10, 203 => 5, 204 => 10, 209 => 5];
+            default: // balanced
+                return [210 => 5, 202 => 25, 203 => 10, 209 => 10, 204 => 15, 205 => 5, 206 => 3];
+        }
+    }
+
+    /**
+     * Returns defense todo per personality.
+     */
+    private function getDefenseTodo(string $personality): array
+    {
+        switch ($personality) {
+            case 'turtle':
+                return [401 => 50, 402 => 30, 403 => 20, 407 => 1, 408 => 1, 404 => 5, 405 => 5, 406 => 2];
+            case 'raider':
+                return [401 => 10, 402 => 5, 407 => 1];
+            case 'farmer':
+            case 'miner':
+                return [401 => 20, 402 => 10, 407 => 1, 408 => 1];
+            case 'researcher':
+                return [401 => 15, 402 => 10, 407 => 1];
+            default: // balanced
+                return [401 => 25, 402 => 15, 403 => 10, 407 => 1, 408 => 1, 404 => 3];
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Economy actions
+    // -------------------------------------------------------------------------
+
     private function doEconomyActions(array &$USER, array &$PLANET, array $settings, ?array $personality, int &$actionsLeft): bool
     {
         if ($actionsLeft <= 0) {
             return false;
         }
 
-        // Feature toggles
-        $canBuild    = !empty((int)($settings['can_build'] ?? 1));
-        $canResearch = !empty((int)($settings['can_research'] ?? 1));
-        $canShipyard = !empty((int)($settings['can_shipyard'] ?? 1));
-        
-        // PERSONALITY FILTERS
-        if ($personality !== null && class_exists('BotPersonality')) {
-            // Miner personality: ONLY builds mines, never research or fleet
-            if (($personality['name'] ?? '') === 'miner') {
-                $canResearch = false;
-                $canShipyard = false;
-            }
-            
-            // Raider personality: Minimal economy, focus on fleet
-            if (($personality['name'] ?? '') === 'raider') {
-                $canBuild = (mt_rand(1, 100) <= 30); // 30% chance to build
-                $canResearch = (mt_rand(1, 100) <= 20); // 20% chance to research
-            }
-            
-            // Researcher personality: Max research priority
-            if (($personality['name'] ?? '') === 'researcher') {
-                $canShipyard = (mt_rand(1, 100) <= 40); // Less fleet building
-            }
-            
-            // Farmer personality: No fleet, focus economy
-            if (($personality['name'] ?? '') === 'farmer') {
-                $canShipyard = false; // Never build ships
-            }
-        }
-
-        // Vacation mode => no economy actions
         if (function_exists('IsVacationMode') && IsVacationMode($USER)) {
             $this->log("ECONOMY skip: vacation mode");
             return false;
@@ -176,201 +276,204 @@ class BotEngine
             return false;
         }
 
-        $did = false;
+        $pName = 'balanced';
+        if ($personality !== null) {
+            $pName = $personality['name'] ?? 'balanced';
+        }
 
-        // Build priority: Energy -> Mines -> Storage -> Buildings
+        $canBuild    = !empty((int)($settings['can_build']    ?? 1));
+        $canResearch = !empty((int)($settings['can_research'] ?? 1));
+        $canShipyard = !empty((int)($settings['can_shipyard'] ?? 1));
+        $canDefense  = !empty((int)($settings['can_defense']  ?? 1));
+
+        // Personality overrides
+        if ($pName === 'miner')      { $canResearch = false; $canShipyard = false; }
+        if ($pName === 'farmer')     { $canShipyard = false; }
+        if ($pName === 'raider')     { $canBuild = (mt_rand(1,100) <= 40); $canResearch = (mt_rand(1,100) <= 30); }
+        if ($pName === 'researcher') { $canShipyard = (mt_rand(1,100) <= 30); }
+        if ($pName === 'turtle')     { $canDefense = true; }
+
+        // --- 0. Planet Save: detect incoming attacks and save fleet first ---
+        if ($this->hasIncomingAttack($USER, $PLANET)) {
+            $this->log("SAVE: incoming attack detected, saving fleet");
+            if ($this->saveFleet($USER, $PLANET, $settings)) {
+                $actionsLeft--;
+                return true;
+            }
+        }
+
+        // --- 1. Emergency energy check ---
         if ($canBuild && $actionsLeft > 0) {
-            $did = $this->tryUpgradeEnergyOrMines($USER, $PLANET, $settings);
-            if ($did) {
-                $actionsLeft--;
-                return true;
+            $energyFree = (float)($PLANET['energy_max'] ?? 0) - (float)($PLANET['energy_used'] ?? 0);
+            if ($energyFree < 0) {
+                foreach ([4, 12] as $bid) {
+                    if (BotActions::tryQueueBuilding($USER, $PLANET, $bid, true)) {
+                        $this->log("BUILD emergency energy: id={$bid}");
+                        $actionsLeft--;
+                        return true;
+                    }
+                }
             }
         }
 
-        // Research priority (basic “player-ish”)
+        // --- 2. Storage if near cap ---
+        if ($canBuild && $actionsLeft > 0) {
+            $storageMap = [901 => [22, 'metal_max', 'metal'], 902 => [23, 'crystal_max', 'crystal'], 903 => [24, 'deuterium_max', 'deuterium']];
+            foreach ($storageMap as [$sid, $capKey, $resKey]) {
+                $cap = (float)($PLANET[$capKey] ?? 0);
+                $cur = (float)($PLANET[$resKey] ?? 0);
+                if ($cap > 0 && $cur > $cap * 0.85) {
+                    if (BotActions::tryQueueBuilding($USER, $PLANET, $sid, true)) {
+                        $this->log("BUILD storage full: id={$sid}");
+                        $actionsLeft--;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // --- 3. Main building priority list ---
+        if ($canBuild && $actionsLeft > 0) {
+            $prio = $this->getBuildingPriority($pName);
+            foreach ($prio as $bid) {
+                if (BotActions::tryQueueBuilding($USER, $PLANET, $bid, true)) {
+                    $this->log("BUILD queued: id={$bid} personality={$pName}");
+                    $actionsLeft--;
+                    return true;
+                }
+            }
+        }
+
+        // --- 4. Research priority list ---
         if ($canResearch && $actionsLeft > 0) {
-            $did = $this->tryResearchPriority($USER, $PLANET, $settings);
-            if ($did) {
-                $actionsLeft--;
-                return true;
+            $prio = $this->getResearchPriority($pName);
+            foreach ($prio as $tid) {
+                if (BotActions::tryQueueResearch($USER, $PLANET, $tid)) {
+                    $this->log("RESEARCH queued: id={$tid} personality={$pName}");
+                    $actionsLeft--;
+                    return true;
+                }
             }
         }
 
-        // Shipyard priority (build cargos / recyclers / probes)
+        // --- 5. Shipyard (ships) ---
         if ($canShipyard && $actionsLeft > 0) {
-            $did = $this->tryShipyardPriority($USER, $PLANET, $settings);
-            if ($did) {
+            $todo = $this->getShipyardTodo($pName);
+            if (BotActions::tryQueueShipyard($USER, $PLANET, $todo)) {
+                $this->log("SHIPYARD queued: personality={$pName}");
                 $actionsLeft--;
                 return true;
             }
         }
 
-        return false;
-    }
-
-    private function tryUpgradeEnergyOrMines(array &$USER, array &$PLANET, array $settings): bool
-    {
-        // Standard 2Moons IDs:
-        // Mines: 1 Metal, 2 Crystal, 3 Deut
-        // Energy: 4 Solar Plant, 12 Fusion Reactor
-        // Storages: 22 Metal, 23 Crystal, 24 Deut
-        // Tech: 31 Lab, 21 Shipyard, 14 Factory, 15 Robo
-
-        // If fields full or queue full, BotActions will reject.
-        $energyNow = (float)($PLANET['energy_max'] ?? 0);
-        $energyUse = (float)($PLANET['energy_used'] ?? 0);
-        $energyFree = $energyNow - $energyUse;
-
-        // If energy negative/low => solar first
-        if ($energyFree < 0) {
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, 4, true);
-            if ($ok) {
-                $this->log("BUILD queued: Solar Plant (4)");
-                return true;
-            }
-            // fallback fusion if solar locked
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, 12, true);
-            if ($ok) {
-                $this->log("BUILD queued: Fusion Reactor (12)");
-                return true;
-            }
-        }
-
-        // Mines balancing:
-        $m = (int)($PLANET['metal_mine'] ?? ($PLANET['metal_mine'] ?? 0));
-        // In 2Moons planet fields use $resource mapping; we rely on BotActions to use $resource.
-        // We'll pick based on current levels via $resource in BotActions itself, but we need IDs here.
-        $minePick = $this->pickMineToUpgrade($PLANET);
-
-        if ($minePick > 0) {
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, $minePick, true);
-            if ($ok) {
-                $this->log("BUILD queued: Mine {$minePick}");
-                return true;
-            }
-        }
-
-        // Storage if resources close to capacity (simple heuristic)
-        $ok = $this->tryStorageIfNeeded($USER, $PLANET);
-        if ($ok) {
-            return true;
-        }
-
-        // If nothing else, improve infrastructure (Lab, Shipyard, Robo)
-        foreach ([31, 14, 15, 21] as $bid) {
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, $bid, true);
-            if ($ok) {
-                $this->log("BUILD queued: Infra {$bid}");
-                return true;
+        // --- 6. Defense ---
+        if ($canDefense && $canShipyard && $actionsLeft > 0) {
+            $todo = $this->getDefenseTodo($pName);
+            if (!empty($todo)) {
+                // Defense uses tryQueueShipyard with defense IDs
+                if (BotActions::tryQueueShipyard($USER, $PLANET, $todo)) {
+                    $this->log("DEFENSE queued: personality={$pName}");
+                    $actionsLeft--;
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    private function pickMineToUpgrade(array $PLANET): int
+    // -------------------------------------------------------------------------
+    // Planet Save: detect incoming attacks and save fleet away
+    // -------------------------------------------------------------------------
+
+    private function hasIncomingAttack(array $USER, array $PLANET): bool
     {
-        // Simple and stable:
-        // - Prefer Metal early
-        // - Keep Crystal a bit behind
-        // - Deut slightly behind Crystal
-        // Without $resource mapping here, we use known IDs directly.
-        // BotActions will ensure affordability and access.
-
-        $mLvl = $this->getPlanetBuildingLevel($PLANET, 1);
-        $cLvl = $this->getPlanetBuildingLevel($PLANET, 2);
-        $dLvl = $this->getPlanetBuildingLevel($PLANET, 3);
-
-        // keep Crystal within -2 of Metal
-        if ($cLvl < $mLvl - 2) return 2;
-
-        // keep Deut within -2 of Crystal
-        if ($dLvl < $cLvl - 2) return 3;
-
-        // otherwise metal
-        return 1;
+        try {
+            $count = $this->db->selectSingle(
+                "SELECT COUNT(*) as cnt FROM %%FLEETS%%
+                 WHERE fleet_target_owner = :uid
+                   AND fleet_end_galaxy   = :g
+                   AND fleet_end_system   = :s
+                   AND fleet_end_planet   = :p
+                   AND fleet_mission      IN (1, 2, 9)
+                   AND fleet_mess         = 0",
+                [
+                    ':uid' => (int)$USER['id'],
+                    ':g'   => (int)$PLANET['galaxy'],
+                    ':s'   => (int)$PLANET['system'],
+                    ':p'   => (int)$PLANET['planet'],
+                ]
+            );
+            return (int)($count['cnt'] ?? 0) > 0;
+        } catch (Throwable $t) {
+            return false;
+        }
     }
 
-    private function tryStorageIfNeeded(array &$USER, array &$PLANET): bool
+    private function saveFleet(array $USER, array $PLANET, array $settings): bool
     {
-        // If current resources > 85% capacity, upgrade storage.
-        $capM = (float)($PLANET['metal_max'] ?? 0);
-        $capC = (float)($PLANET['crystal_max'] ?? 0);
-        $capD = (float)($PLANET['deuterium_max'] ?? 0);
+        global $resource;
 
-        $m = (float)($PLANET['metal'] ?? 0);
-        $c = (float)($PLANET['crystal'] ?? 0);
-        $d = (float)($PLANET['deuterium'] ?? 0);
-
-        if ($capM > 0 && $m > $capM * 0.85) {
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, 22, true);
-            if ($ok) {
-                $this->log("BUILD queued: Metal Storage (22)");
-                return true;
-            }
-        }
-        if ($capC > 0 && $c > $capC * 0.85) {
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, 23, true);
-            if ($ok) {
-                $this->log("BUILD queued: Crystal Storage (23)");
-                return true;
-            }
-        }
-        if ($capD > 0 && $d > $capD * 0.85) {
-            $ok = BotActions::tryQueueBuilding($USER, $PLANET, 24, true);
-            if ($ok) {
-                $this->log("BUILD queued: Deut Storage (24)");
-                return true;
-            }
+        // Collect all ships on the planet
+        $shipIds = [202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 213, 214, 215];
+        $fleetArray = [];
+        foreach ($shipIds as $sid) {
+            if (!isset($resource[$sid])) continue;
+            $cnt = (int)($PLANET[$resource[$sid]] ?? 0);
+            if ($cnt > 0) $fleetArray[$sid] = $cnt;
         }
 
-        return false;
-    }
-
-    private function tryResearchPriority(array &$USER, array &$PLANET, array $settings): bool
-    {
-        // Research IDs (2Moons defaults):
-        // 106 Espionage, 108 Computer, 109 Weapons, 110 Shields, 111 Armor
-        // 113 Energy, 115 Combustion, 117 Impulse, 118 Hyperspace Drive
-        // 120 Laser, 121 Ion, 122 Plasma
-        // 124 Astrophysics, 199 Grav
-        // We'll keep it basic and "player-ish": Espionage -> Computer -> Energy -> Drives -> Astro
-
-        $priority = [106, 108, 113, 115, 117, 118, 124, 109, 110, 111, 120, 121, 122];
-
-        foreach ($priority as $tid) {
-            $ok = BotActions::tryQueueResearch($USER, $PLANET, $tid);
-            if ($ok) {
-                $this->log("RESEARCH queued: Tech {$tid}");
-                return true;
-            }
+        if (empty($fleetArray)) {
+            $this->log("SAVE skip: no ships on planet");
+            return false;
         }
 
-        return false;
-    }
+        // Send as expedition (mission 15) to save — target own position with offset system
+        $speedFactor   = FleetFunctions::GetGameSpeedFactor();
+        $maxFleetSpeed = FleetFunctions::GetFleetMaxSpeed($fleetArray, $USER);
 
-    private function tryShipyardPriority(array &$USER, array &$PLANET, array $settings): bool
-    {
-        // Ships (2Moons):
-        // 202 Small Cargo, 203 Large Cargo, 209 Recycler, 210 Spy Probe, 204 Light Fighter, 205 Heavy Fighter
-        // We ensure bot can do expeditions and raids: cargos + recycler + probes + few fighters
+        // Save target: same galaxy, random system offset to create travel time
+        $saveGalaxy = (int)$PLANET['galaxy'];
+        $saveSystem = max(1, min(499, (int)$PLANET['system'] + mt_rand(10, 50)));
+        $savePlanet = 16; // expedition slot
 
-        $todo = [];
+        $distance    = FleetFunctions::GetTargetDistance(
+            [(int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet']],
+            [$saveGalaxy, $saveSystem, $savePlanet]
+        );
+        $duration    = FleetFunctions::GetMissionDuration(10, $maxFleetSpeed, $distance, $speedFactor, $USER);
+        $consumption = FleetFunctions::GetFleetConsumption($fleetArray, $duration, $distance, $USER, $speedFactor);
+        $deutAvail   = (float)($PLANET['deuterium'] ?? 0);
 
-        $todo[210] = 5;     // probes
-        $todo[202] = 25;    // small cargos
-        $todo[203] = 5;     // large cargos
-        $todo[209] = 10;    // recyclers
-        $todo[204] = 15;    // light fighters
-        $todo[205] = 5;     // heavy fighters
-
-        $ok = BotActions::tryQueueShipyard($USER, $PLANET, $todo);
-        if ($ok) {
-            $this->log("SHIPYARD queued: base fleet package");
-            return true;
+        if ($deutAvail < $consumption) {
+            $this->log("SAVE skip: not enough deut ({$deutAvail} < {$consumption})");
+            return false;
         }
 
-        return false;
+        $now     = TIMESTAMP;
+        $endTime = $now + $duration;
+
+        try {
+            FleetFunctions::sendFleet(
+                $fleetArray,
+                15, // Expedition
+                (int)$USER['id'],
+                (int)$PLANET['id'],
+                (int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet'], (int)($PLANET['planet_type'] ?? 1),
+                (int)$USER['id'],
+                (int)$PLANET['id'],
+                $saveGalaxy, $saveSystem, $savePlanet, 1,
+                [901 => 0, 902 => 0, 903 => 0],
+                $now, $endTime, $endTime
+            );
+        } catch (Throwable $t) {
+            $this->log("SAVE sendFleet failed: " . $t->getMessage());
+            return false;
+        }
+
+        $this->subtractPlanetDeuterium((int)$PLANET['id'], $consumption);
+        $this->log("SAVE fleet sent to [{$saveGalaxy}:{$saveSystem}:{$savePlanet}] ships=" . count($fleetArray) . " dur={$duration}s");
+        return true;
     }
 
     private function getPlanetBuildingLevel(array $PLANET, int $elementId): int
