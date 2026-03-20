@@ -102,7 +102,7 @@ class BotEngine
         $this->log("BOT#{$botId} ({$user['username']}) type={$typeId} personality={$personalityName} tick start");
 
         // 0) Alliance management — join or create a bot-alliance (no-op if already in one)
-        $this->doAllianceActions($user, $universeId);
+        $this->doAllianceActions($user, $universeId, $settings);
 
         // 1) Player-like queued actions first (economy)
         $didAny = false;
@@ -118,9 +118,10 @@ class BotEngine
             $didAny = $this->doFleetActions($user, $planet, $botRow, $settings, $personality, $actionsLeft) || $didAny;
         }
 
-        // 3) ACS raid — coordinated attack with alliance-bots (raider/balanced only, 30% chance per tick)
-        $canAcs = !empty((int)($settings['can_acs'] ?? 1));
-        if ($canAcs && $actionsLeft > 0 && mt_rand(1, 100) <= 30) {
+        // 3) ACS raid — coordinated attack with alliance-bots (raider/balanced only, configurable chance)
+        $canAcs      = !empty((int)($settings['can_acs'] ?? 1));
+        $acsChance   = (int)($settings['acs_chance_percent'] ?? 30);
+        if ($canAcs && $actionsLeft > 0 && mt_rand(1, 100) <= $acsChance) {
             if ($this->doAcsRaid($user, $planet, $settings, $personalityName)) {
                 $didAny = true;
             }
@@ -305,7 +306,8 @@ class BotEngine
         if ($pName === 'turtle')     { $canDefense = true; }
 
         // --- 0. Planet Save: detect incoming attacks and save fleet first ---
-        if ($this->hasIncomingAttack($USER, $PLANET)) {
+        $canSaveFleet = !empty((int)($settings['can_save_fleet'] ?? 1));
+        if ($canSaveFleet && $this->hasIncomingAttack($USER, $PLANET)) {
             $this->log("SAVE: incoming attack detected, saving fleet");
             if ($this->saveFleet($USER, $PLANET, $settings)) {
                 $actionsLeft--;
@@ -1460,38 +1462,50 @@ class BotEngine
     // -------------------------------------------------------------------------
 
     /**
-     * Ensures this bot is in a bot-only alliance.
-     * - If already in an alliance: nothing to do.
-     * - If a bot-alliance with free slots exists: join it.
-     * - Otherwise: create a new bot-alliance.
-     * Called once per tick (cheap: early-exit if already has ally_id).
+     * Ensures this bot is in a bot-alliance.
+     * Fully configurable via bot_setting:
+     * - can_alliance: 0 = disabled entirely
+     * - alliance_max_count: max number of bot-alliances on server (default 1)
+     * - alliance_max_members: slots per bot-alliance
+     * - alliance_name_pool: JSON array of names to pick from (e.g. ["Iron Fist","Red Storm"])
+     * - alliance_tag_pool: JSON array of tags to pick from (e.g. ["IF","RS"])
+     * - alliance_internal_tag: hidden marker stored in ally_events field (never shown publicly)
      */
-    public function doAllianceActions(array &$USER, int $universeId): void
+    public function doAllianceActions(array &$USER, int $universeId, array $settings = []): void
     {
+        // Feature disabled?
+        if (empty((int)($settings['can_alliance'] ?? 1))) {
+            return;
+        }
+
         $myAlly = (int)($USER['ally_id'] ?? 0);
         if ($myAlly > 0) {
             return; // already in an alliance
         }
 
-        $myId = (int)$USER['id'];
+        $myId        = (int)$USER['id'];
+        $maxCount    = (int)($settings['alliance_max_count']   ?? 1);
+        $maxMembers  = (int)($settings['alliance_max_members'] ?? 50);
+        $internalTag = trim((string)($settings['alliance_internal_tag'] ?? 'bot_managed'));
+        if ($internalTag === '') $internalTag = 'bot_managed';
 
         try {
-            // Look for an existing bot-alliance with free slots
-            // Bot-alliances are identified by ally_name starting with "BOT_"
+            // Find existing bot-alliances identified by internal tag stored in ally_events
+            // ally_events is a varchar(55) we repurpose as an internal marker — never shown in UI
             $existing = $this->db->selectSingle(
                 "SELECT a.id, a.ally_members, a.ally_max_members
                  FROM %%ALLIANCE%% a
-                 WHERE a.ally_name LIKE 'BOT_%'
-                   AND a.ally_universe = :uni
-                   AND a.ally_members < a.ally_max_members
+                 WHERE a.ally_events     = :tag
+                   AND a.ally_universe   = :uni
+                   AND a.ally_members    < a.ally_max_members
                  ORDER BY a.ally_members DESC
                  LIMIT 1",
-                [':uni' => $universeId]
+                [':tag' => $internalTag, ':uni' => $universeId]
             );
 
             if ($existing && (int)$existing['id'] > 0) {
-                $allyId = (int)$existing['id'];
                 // Join existing bot-alliance
+                $allyId = (int)$existing['id'];
                 $this->db->update(
                     "UPDATE %%USERS%% SET ally_id = :aid, ally_register_time = :t, ally_rank_id = 0 WHERE id = :uid",
                     [':aid' => $allyId, ':t' => TIMESTAMP, ':uid' => $myId]
@@ -1501,35 +1515,116 @@ class BotEngine
                     [':aid' => $allyId]
                 );
                 $USER['ally_id'] = $allyId;
-                $this->log("ALLY joined existing bot-alliance id={$allyId} user={$USER['username']}");
-            } else {
-                // Create a new bot-alliance
-                $tag  = 'BOT' . strtoupper(substr(md5($myId . TIMESTAMP), 0, 4));
-                $name = 'BOT_' . $USER['username'];
-
-                $this->db->insert(
-                    "INSERT INTO %%ALLIANCE%% (ally_name, ally_tag, ally_owner, ally_register_time, ally_universe, ally_members, ally_max_members, ally_request_notallow)
-                     VALUES (:name, :tag, :owner, :t, :uni, 1, 50, 0)",
-                    [
-                        ':name'  => $name,
-                        ':tag'   => $tag,
-                        ':owner' => $myId,
-                        ':t'     => TIMESTAMP,
-                        ':uni'   => $universeId,
-                    ]
-                );
-                $newAllyId = $this->db->lastInsertId();
-
-                $this->db->update(
-                    "UPDATE %%USERS%% SET ally_id = :aid, ally_register_time = :t, ally_rank_id = 0 WHERE id = :uid",
-                    [':aid' => $newAllyId, ':t' => TIMESTAMP, ':uid' => $myId]
-                );
-                $USER['ally_id'] = $newAllyId;
-                $this->log("ALLY created new bot-alliance '{$name}' [{$tag}] id={$newAllyId} user={$USER['username']}");
+                $this->log("ALLY joined id={$allyId} user={$USER['username']}");
+                return;
             }
+
+            // Check if max alliance count is reached
+            if ($maxCount > 0) {
+                $countRow = $this->db->selectSingle(
+                    "SELECT COUNT(*) as cnt FROM %%ALLIANCE%% WHERE ally_events = :tag AND ally_universe = :uni",
+                    [':tag' => $internalTag, ':uni' => $universeId]
+                );
+                $currentCount = (int)($countRow['cnt'] ?? 0);
+                if ($currentCount >= $maxCount) {
+                    $this->log("ALLY skip: max alliance count reached ({$currentCount}/{$maxCount})");
+                    return;
+                }
+            }
+
+            // Generate name + tag
+            [$name, $tag] = $this->generateAllianceNameTag($settings, $myId);
+
+            // Ensure uniqueness — append random suffix if name already taken
+            $taken = $this->db->selectSingle(
+                "SELECT id FROM %%ALLIANCE%% WHERE ally_name = :n OR ally_tag = :t LIMIT 1",
+                [':n' => $name, ':t' => $tag]
+            );
+            if ($taken) {
+                $suffix = strtoupper(substr(md5((string)mt_rand()), 0, 3));
+                $name   = substr($name, 0, 46) . $suffix;
+                $tag    = substr($tag, 0, 17) . $suffix;
+            }
+
+            $this->db->insert(
+                "INSERT INTO %%ALLIANCE%% (ally_name, ally_tag, ally_owner, ally_register_time, ally_universe, ally_members, ally_max_members, ally_request_notallow, ally_events)
+                 VALUES (:name, :tag, :owner, :t, :uni, 1, :maxm, 0, :itag)",
+                [
+                    ':name'  => $name,
+                    ':tag'   => $tag,
+                    ':owner' => $myId,
+                    ':t'     => TIMESTAMP,
+                    ':uni'   => $universeId,
+                    ':maxm'  => $maxMembers,
+                    ':itag'  => $internalTag,
+                ]
+            );
+            $newAllyId = $this->db->lastInsertId();
+
+            $this->db->update(
+                "UPDATE %%USERS%% SET ally_id = :aid, ally_register_time = :t, ally_rank_id = 0 WHERE id = :uid",
+                [':aid' => $newAllyId, ':t' => TIMESTAMP, ':uid' => $myId]
+            );
+            $USER['ally_id'] = $newAllyId;
+            $this->log("ALLY created '{$name}' [{$tag}] id={$newAllyId} user={$USER['username']}");
         } catch (Throwable $t) {
             $this->log("ALLY error: " . $t->getMessage());
         }
+    }
+
+    /**
+     * Generates a natural-looking alliance name + tag.
+     * Uses alliance_name_pool / alliance_tag_pool from settings if set,
+     * otherwise picks from a built-in list of plausible guild names.
+     */
+    private function generateAllianceNameTag(array $settings, int $seed): array
+    {
+        // Name pool from settings
+        $namePool = [];
+        $rawNames = trim((string)($settings['alliance_name_pool'] ?? ''));
+        if ($rawNames !== '') {
+            $decoded = json_decode($rawNames, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                $namePool = $decoded;
+            }
+        }
+
+        // Tag pool from settings
+        $tagPool = [];
+        $rawTags = trim((string)($settings['alliance_tag_pool'] ?? ''));
+        if ($rawTags !== '') {
+            $decoded = json_decode($rawTags, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                $tagPool = $decoded;
+            }
+        }
+
+        // Built-in fallback name pool — looks like normal player guilds
+        if (empty($namePool)) {
+            $namePool = [
+                'Iron Vanguard', 'Silent Storm', 'Nova Corps', 'Red Horizon',
+                'Dark Matter', 'Stellar Pact', 'Void Walkers', 'Crimson Fleet',
+                'Solar Guard', 'Nebula Force', 'Astral Union', 'Eclipse Order',
+                'Star Forge', 'Quantum Drift', 'Galactic Front', 'Phantom Wing',
+                'Iron Summit', 'Zenith Pact', 'Arcane Fleet', 'Binary Star',
+            ];
+        }
+
+        // Built-in fallback tag pool
+        if (empty($tagPool)) {
+            $tagPool = [
+                'IV', 'SS', 'NC', 'RH', 'DM', 'SP', 'VW', 'CF',
+                'SG', 'NF', 'AU', 'EO', 'SF', 'QD', 'GF', 'PW',
+                'IS', 'ZP', 'AF', 'BS',
+            ];
+        }
+
+        // Pick deterministically based on seed so same bot always gets same name
+        // (avoids re-creating alliance on every tick if something goes wrong)
+        $nameIdx = $seed % count($namePool);
+        $tagIdx  = $seed % count($tagPool);
+
+        return [$namePool[$nameIdx], strtoupper($tagPool[$tagIdx])];
     }
 
     // -------------------------------------------------------------------------

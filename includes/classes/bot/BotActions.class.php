@@ -74,6 +74,27 @@ class BotActions
             'can_buy_dm_extras'       => false,
             'can_use_trader'          => false,
             'max_dm_spend_per_day'    => 0,
+
+            // Alliance settings
+            'can_alliance'            => true,
+            'alliance_max_count'      => 1,
+            'alliance_max_members'    => 50,
+            'alliance_name_pool'      => '',
+            'alliance_tag_pool'       => '',
+            'alliance_internal_tag'   => '',
+
+            // ACS settings
+            'can_acs'                 => true,
+            'acs_max_size'            => 3,
+            'acs_chance_percent'      => 30,
+            'acs_min_loot'            => 50000,
+
+            // Defense & fleet-save
+            'can_defense'             => true,
+            'can_save_fleet'          => true,
+            'bot_min_fleet_slots'     => 5,
+            'spy_probes'              => 3,
+            'raid_min_loot'           => 10000,
         ];
     }
 
