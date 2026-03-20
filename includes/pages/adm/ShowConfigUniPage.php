@@ -33,7 +33,18 @@ function ShowConfigUniPage()
 	global $LNG;
 
 	$config = Config::get(Universe::getEmulated());
-	
+
+	// Auto-add combat engine columns if they don't exist yet (migration_15 catch-up)
+	if (!isset($config->combat_rand_variance)) {
+		$db = Database::get();
+		$db->nativeQuery("ALTER TABLE %%CONFIG%% ADD COLUMN `combat_rand_variance` tinyint(3) unsigned NOT NULL DEFAULT 20");
+		$db->nativeQuery("ALTER TABLE %%CONFIG%% ADD COLUMN `combat_crit_chance` tinyint(3) unsigned NOT NULL DEFAULT 5");
+		$db->nativeQuery("ALTER TABLE %%CONFIG%% ADD COLUMN `combat_crit_mult` float NOT NULL DEFAULT 2.0");
+		$db->nativeQuery("ALTER TABLE %%CONFIG%% ADD COLUMN `combat_morale_enabled` tinyint(1) unsigned NOT NULL DEFAULT 1");
+		Config::reload();
+		$config = Config::get(Universe::getEmulated());
+	}
+
 	if (!empty($_POST))
 	{
 		$config_before = array(
