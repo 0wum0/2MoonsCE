@@ -37,15 +37,13 @@ function ShowConfigUniPage()
 	// Auto-add combat engine columns if they don't exist yet (migration_15 catch-up)
 	if (!isset($config->combat_rand_variance)) {
 		$pdo = Database::get()->getHandle();
-		$cols = [
-			"ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_rand_variance` tinyint(3) unsigned NOT NULL DEFAULT 20",
-			"ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_crit_chance` tinyint(3) unsigned NOT NULL DEFAULT 5",
-			"ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_crit_mult` float NOT NULL DEFAULT 2.0",
-			"ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_morale_enabled` tinyint(1) unsigned NOT NULL DEFAULT 1",
-		];
-		foreach ($cols as $sql) {
-			try { $pdo->exec($sql); } catch (Throwable $e) { /* column already exists – ignore */ }
-		}
+		$prevErrMode = $pdo->getAttribute(PDO::ATTR_ERRMODE);
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+		$pdo->exec("ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_rand_variance` tinyint(3) unsigned NOT NULL DEFAULT 20");
+		$pdo->exec("ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_crit_chance` tinyint(3) unsigned NOT NULL DEFAULT 5");
+		$pdo->exec("ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_crit_mult` float NOT NULL DEFAULT 2.0");
+		$pdo->exec("ALTER TABLE `" . CONFIG . "` ADD COLUMN `combat_morale_enabled` tinyint(1) unsigned NOT NULL DEFAULT 1");
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, $prevErrMode);
 		Config::reload();
 		$config = Config::get(Universe::getEmulated());
 	}
