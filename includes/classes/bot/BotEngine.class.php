@@ -103,7 +103,7 @@ class BotEngine
 
         // 1) Player-like queued actions first (economy)
         $didAny = false;
-        $maxActions = max(1, (int)($settings['max_actions_per_tick'] ?? 2));
+        $maxActions = max(1, (int)($settings['max_actions_per_tick'] ?? 4));
         $actionsLeft = $maxActions;
 
         if ($actionsLeft > 0) {
@@ -397,37 +397,42 @@ class BotEngine
             return false;
         }
 
+        // Default pvp/pve from settings — pvp_enabled default NOW 1 so raids happen unless explicitly disabled
         $pve = !empty((int)($settings['pve_enabled'] ?? 1));
-        $pvp = !empty((int)($settings['pvp_enabled'] ?? 0));
-        
-        // PERSONALITY FILTERS FOR FLEET ACTIONS
+        $pvp = !empty((int)($settings['pvp_enabled'] ?? 1));
+
+        // PERSONALITY FILTERS — apply on top of settings
+        $personalityName = 'balanced';
         if ($personality !== null) {
             $personalityName = $personality['name'] ?? 'balanced';
-            
-            // Miner & Farmer: NO PVP, minimal PVE
-            if (in_array($personalityName, ['miner', 'farmer'])) {
+        } elseif (!empty($botRow['personality'])) {
+            $personalityName = (string)$botRow['personality'];
+        }
+
+        $this->log("FLEET personalityName={$personalityName} pvp_setting=" . ($settings['pvp_enabled'] ?? 'NULL') . " can_raid=" . ($settings['can_raid'] ?? 'NULL'));
+
+        switch ($personalityName) {
+            case 'miner':
+            case 'farmer':
                 $pvp = false;
-                $pve = (mt_rand(1, 100) <= 30); // 30% chance for expeditions
-            }
-            
-            // Turtle: NO PVP, only recycling
-            if ($personalityName === 'turtle') {
-                $pvp = false;
-                $pve = true; // Only recycle, no expeditions/raids
-            }
-            
-            // Raider: MAX PVP, less PVE
-            if ($personalityName === 'raider') {
-                $pvp = true; // Always PVP if enabled in settings
-                $pve = (mt_rand(1, 100) <= 40); // Less focus on expeditions
-            }
-            
-            // Researcher: PVE for resources, no PVP
-            if ($personalityName === 'researcher') {
+                $pve = (mt_rand(1, 100) <= 30);
+                break;
+            case 'turtle':
                 $pvp = false;
                 $pve = true;
-            }
+                break;
+            case 'raider':
+                $pvp = true; // Force PVP regardless of settings default
+                $pve = (mt_rand(1, 100) <= 40);
+                break;
+            case 'researcher':
+                $pvp = false;
+                $pve = true;
+                break;
+            // balanced: use settings as-is
         }
+
+        $this->log("FLEET after personality: pve=" . ($pve ? '1' : '0') . " pvp=" . ($pvp ? '1' : '0'));
 
         // Fleet slots
         $activeSlots = FleetFunctions::GetCurrentFleets($USER['id']);
@@ -437,42 +442,45 @@ class BotEngine
             return false;
         }
 
-        // Priority: Recycle (if debris) -> Expedition -> Raid (if enabled)
-        // (Raid last, damit Bot nicht komplett aggressiv wird ohne Eco)
-        $did = false;
+        $anyDid = false;
 
+        // 1. Recycle own debris (PVE)
         if ($pve && !empty((int)($settings['can_recycle'] ?? 1)) && $actionsLeft > 0) {
-            $did = $this->sendRecycleOnOwnDebris($USER, $PLANET, $botRow, $settings);
-            if ($did) {
+            if ($this->sendRecycleOnOwnDebris($USER, $PLANET, $botRow, $settings)) {
                 $actionsLeft--;
-                return true;
+                $anyDid = true;
             }
         }
 
+        // 2. Expedition (PVE) — does NOT abort further actions anymore
         if ($pve && !empty((int)($settings['can_expedition'] ?? 1)) && $actionsLeft > 0) {
-            $did = $this->sendExpedition($USER, $PLANET, $botRow, $settings);
-            if ($did) {
+            if ($this->sendExpedition($USER, $PLANET, $botRow, $settings)) {
                 $actionsLeft--;
-                return true;
+                $anyDid = true;
             }
         }
 
+        // 3. Spy (PVP)
         if ($pvp && !empty((int)($settings['can_spy'] ?? 1)) && $actionsLeft > 0) {
-            $did = $this->sendSpy($USER, $PLANET, $settings);
-            if ($did) {
+            if ($this->sendSpy($USER, $PLANET, $settings)) {
                 $actionsLeft--;
+                $anyDid = true;
             }
+        } elseif ($pvp) {
+            $this->log("SPY skip: can_spy=" . ($settings['can_spy'] ?? 'NULL'));
         }
 
-        if ($pvp && !empty((int)($settings['can_raid'] ?? 0)) && $actionsLeft > 0) {
-            $did = $this->sendRaid($USER, $PLANET, $settings);
-            if ($did) {
+        // 4. Raid (PVP) — default can_raid NOW 1
+        if ($pvp && !empty((int)($settings['can_raid'] ?? 1)) && $actionsLeft > 0) {
+            if ($this->sendRaid($USER, $PLANET, $settings)) {
                 $actionsLeft--;
-                return true;
+                $anyDid = true;
             }
+        } elseif ($pvp) {
+            $this->log("RAID skip: can_raid=" . ($settings['can_raid'] ?? 'NULL'));
         }
 
-        return false;
+        return $anyDid;
     }
 
     private function sendSpy(array $USER, array $PLANET, array $settings): bool
