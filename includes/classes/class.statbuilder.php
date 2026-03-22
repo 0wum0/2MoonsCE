@@ -84,28 +84,67 @@ class statbuilder
 		$select_buildings	= '';
 		$selected_tech		= '';
 		$select_fleets		= '';
-				
+
+		$database = Database::get();
+
+		// Load actual column names from planets + users tables once to guard against
+		// plugin columns that are registered in reslist but not yet in the DB schema.
+		$planetCols = [];
+		$userCols   = [];
+		try {
+			$rawPlanet = $database->nativeQuery('SHOW COLUMNS FROM ' . DB_PREFIX . 'planets');
+			foreach ($rawPlanet as $col) { $planetCols[$col['Field']] = true; }
+			$rawUser = $database->nativeQuery('SHOW COLUMNS FROM ' . DB_PREFIX . 'users');
+			foreach ($rawUser as $col) { $userCols[$col['Field']] = true; }
+		} catch (\Throwable $e) {
+			$this->log('SHOW COLUMNS failed: ' . $e->getMessage());
+		}
+
 		foreach($reslist['build'] as $Building){
-			$select_buildings	.= " p.".$resource[$Building].",";
+			$col = $resource[$Building];
+			if (!empty($planetCols) && !isset($planetCols[$col])) {
+				$this->log("statbuilder: skipping missing planets column '{$col}' (plugin not installed?)");
+				continue;
+			}
+			$select_buildings	.= " p.".$col.",";
 		}
 		
 		foreach($reslist['tech'] as $Techno){
-			$selected_tech		.= " u.".$resource[$Techno].",";
+			$col = $resource[$Techno];
+			if (!empty($userCols) && !isset($userCols[$col])) {
+				$this->log("statbuilder: skipping missing users column '{$col}' (plugin not installed?)");
+				continue;
+			}
+			$selected_tech		.= " u.".$col.",";
 		}	
 		
 		foreach($reslist['fleet'] as $Fleet){
-			$select_fleets		.= " SUM(p.".$resource[$Fleet].") as ".$resource[$Fleet].",";
+			$col = $resource[$Fleet];
+			if (!empty($planetCols) && !isset($planetCols[$col])) {
+				$this->log("statbuilder: skipping missing planets column '{$col}' (plugin not installed?)");
+				continue;
+			}
+			$select_fleets		.= " SUM(p.".$col.") as ".$col.",";
 		}	
 		
 		foreach($reslist['defense'] as $Defense){
-			$select_defenses	.= " SUM(p.".$resource[$Defense].") as ".$resource[$Defense].",";
+			$col = $resource[$Defense];
+			if (!empty($planetCols) && !isset($planetCols[$col])) {
+				$this->log("statbuilder: skipping missing planets column '{$col}' (plugin not installed?)");
+				continue;
+			}
+			$select_defenses	.= " SUM(p.".$col.") as ".$col.",";
 		}
 		
 		foreach($reslist['missile'] as $Defense){
-			$select_defenses	.= " SUM(p.".$resource[$Defense].") as ".$resource[$Defense].",";
+			$col = $resource[$Defense];
+			if (!empty($planetCols) && !isset($planetCols[$col])) {
+				$this->log("statbuilder: skipping missing planets column '{$col}' (plugin not installed?)");
+				continue;
+			}
+			$select_defenses	.= " SUM(p.".$col.") as ".$col.",";
 		}
 
-		$database		= Database::get();
 		$FlyingFleets	= [];
 		$SQLFleets		= $database->select('SELECT fleet_array, fleet_owner FROM %%FLEETS%%;');
 		
