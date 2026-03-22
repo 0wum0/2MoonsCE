@@ -56,7 +56,7 @@ function ovSaveRename() {
   if (!newName || newName === nameEl.textContent) { ovCancelRename(); return; }
   _ovSaving = true;
   input.disabled = true;
-  fetch('game.php?page=overview&mode=rename', {
+  fetch('game.php?page=overview&mode=rename&ajax=1', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'name=' + encodeURIComponent(newName)
@@ -73,7 +73,7 @@ function ovSaveRename() {
       alert(data.message);
     }
   })
-  .catch(() => {})
+  .catch(() => { alert('Rename failed – server error.'); })
   .finally(() => {
     _ovSaving = false;
     input.disabled = false;
