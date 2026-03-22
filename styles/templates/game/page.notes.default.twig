@@ -55,7 +55,7 @@
 
             <div style="padding: 10px 0; display: flex; gap: 8px;">
                 <button type="submit" class="btn btn-danger btn-sm" style="font-size: 0.8rem;">
-                    <i class="fas fa-trash"></i> {{ LNG.nt_s_delete|default('Markierte löschen') }}
+                    <i class="fas fa-trash"></i> {{ LNG.nt_s_delete|default(LNG.mg_delete_selected) }}
                 </button>
             </div>
         {% else %}

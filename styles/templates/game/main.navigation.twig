@@ -25,7 +25,7 @@
 
     <!-- ── DESKTOP COLLAPSE TOGGLE ── -->
     <button class="sidebar-collapse-btn" id="sidebar-collapse-btn"
-            aria-label="Sidebar einklappen" title="Sidebar einklappen / ausklappen"
+            aria-label="{{ LNG.hd_sidebar_collapse }}" title="{{ LNG.nav_sidebar_collapse }}"
             onclick="(function(){
                 var s=document.getElementById('leftmenu');
                 var ic=document.getElementById('sidebar-collapse-icon');
@@ -113,10 +113,10 @@
             <a href="game.php?page=galaxyMap" class="nav-link{% if GET.page|default('') == 'galaxyMap' %} active{% endif %}" style="padding-left:2rem;">
                 <i class="fas fa-map"></i>
                 <span class="nav-link-text" style="display:flex;align-items:center;gap:6px;">
-                    Galaxy Map
-                    <span id="nav-gm-2d" onclick="event.preventDefault();event.stopPropagation();setGmView('2d');" title="2D Ansicht"
+                    {{ LNG.nav_galaxy_map }}
+                    <span id="nav-gm-2d" onclick="event.preventDefault();event.stopPropagation();setGmView('2d');" title="{{ LNG.nav_galaxy_2d }}"
                           style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:background .2s;">2D</span>
-                    <span id="nav-gm-3d" onclick="event.preventDefault();event.stopPropagation();setGmView('3d');" title="3D Ansicht"
+                    <span id="nav-gm-3d" onclick="event.preventDefault();event.stopPropagation();setGmView('3d');" title="{{ LNG.nav_galaxy_3d }}"
                           style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:background .2s;">3D</span>
                 </span>
             </a>
@@ -158,7 +158,7 @@
 
         <!-- ── GEMEINSCHAFT ── -->
         <div class="nav-section">
-            <div class="nav-section-label">{{ LNG.lm_community|default('Community') }}</div>
+            <div class="nav-section-label">{{ LNG.lm_community|default(LNG.nav_community) }}</div>
 
             {% if isModuleAvailable(constant('MODULE_MESSAGES')) %}
             <a href="game.php?page=messages" class="nav-link{% if GET.page|default('') == 'messages' %} active{% endif %}">
@@ -181,7 +181,7 @@
 
         <!-- ── TOOLS ── -->
         <div class="nav-section">
-            <div class="nav-section-label">{{ LNG.lm_tools|default('Tools') }}</div>
+            <div class="nav-section-label">{{ LNG.lm_tools|default(LNG.nav_tools) }}</div>
 
             {% if isModuleAvailable(constant('MODULE_STATISTICS')) %}
             <a href="game.php?page=statistics" class="nav-link{% if GET.page|default('') == 'statistics' %} active{% endif %}">

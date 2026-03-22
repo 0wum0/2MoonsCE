@@ -556,6 +556,50 @@ $LNG['mg_answer_to']						= 'Antwort an:';
 $LNG['mg_write_mail_to_ops']				= 'Schreibe eine E-Mail an';
 $LNG['mg_page']								= 'Seite';
 $LNG['mg_receiver_block_pm']				= 'Der Empfänger blockiert Private Nachrichten.';
+$LNG['mg_all']								= 'Alle';
+$LNG['mg_delete_selected']					= 'Markierte löschen';
+$LNG['mg_messages']							= 'Nachrichten';
+$LNG['mg_reply']								= 'Antworten';
+$LNG['mg_delete']							= 'Löschen';
+$LNG['mg_no_messages']						= 'Keine Nachrichten';
+$LNG['mg_confirm_delete_selected']			= 'Markierte Nachrichten löschen?';
+
+//----------------------------------------------------------------------------//
+// FORUM (ForumPage.twig)
+$LNG['forum_title']					= 'Galaktisches Terminal';
+$LNG['forum_home']					= 'Home';
+$LNG['forum_search']				= 'Suche';
+$LNG['forum_topics']				= 'Themen';
+$LNG['forum_posts']					= 'Beiträge';
+$LNG['forum_no_subcategories']		= 'Keine Unterkategorien vorhanden.';
+$LNG['forum_no_categories']			= 'Noch keine Kategorien vorhanden. Ein Administrator muss zuerst Kategorien anlegen.';
+$LNG['forum_new_topic']				= 'Neues Thema';
+$LNG['forum_by']					= 'von';
+$LNG['forum_no_topics']				= 'Noch keine Themen vorhanden.';
+$LNG['forum_new_topic_create']		= 'Neues Thema erstellen';
+$LNG['forum_subject']				= 'Betreff';
+$LNG['forum_content']				= 'Inhalt';
+$LNG['forum_create_topic_btn']		= 'Thema erstellen';
+$LNG['forum_back_to_sector']		= 'Zum Sektor';
+$LNG['forum_locked']				= 'Gesperrt';
+$LNG['forum_rank']					= 'Platz';
+$LNG['forum_pts']					= 'Pkt.';
+$LNG['forum_signal_in']				= 'Signal-Eingang';
+$LNG['forum_save']					= 'Speichern';
+$LNG['forum_cancel']				= 'Abbrechen';
+$LNG['forum_report']				= 'Melden';
+$LNG['forum_like']					= 'Like';
+$LNG['forum_quote']					= 'Zitieren';
+$LNG['forum_edit']					= 'Bearbeiten';
+$LNG['forum_delete']				= 'Löschen';
+$LNG['forum_confirm_delete']		= 'Beitrag wirklich löschen?';
+$LNG['forum_no_posts']				= 'Noch keine Beiträge vorhanden.';
+$LNG['forum_send_reply']			= 'Übertragung senden';
+$LNG['forum_submit']				= 'Absenden';
+
+//----------------------------------------------------------------------------//
+// NAVIGATION HEADER (main.navigation_header.twig)
+$LNG['hd_nav_open']					= 'Navigation öffnen';
 
 //----------------------------------------------------------------------------//
 //ALLIANCE
@@ -1063,6 +1107,10 @@ $LNG['tkb_datum']                  			= 'Datum';
 $LNG['tkb_units']             				= 'Units';
 $LNG['tkb_legende']               		 	= '<b>Legende: </b>';
 $LNG['tkb_gewinner']              		 	= '<b>-Gewinner-</b>';
+$LNG['raport_moon_chance']					= 'Mondchance';
+$LNG['raport_chance']						= 'Chance';
+$LNG['raport_destroyed']					= 'Zerstört';
+$LNG['raport_intact']						= 'Intakt';
 $LNG['tkb_verlierer']              			= '<b>-Verlierer-</b>';
 $LNG['tkb_unentschieden']         			= '<b>-Beide Weiss, unentschieden- </b>';
 $LNG['tkb_missing']              		  	= '<br>Missing in Action: Der Useraccount existiert nicht mehr.';
@@ -1187,4 +1235,115 @@ $LNG['lo_continue']							= 'Klicken Sie hier, um nicht zu warten';
 
 
 // Translated into German by Jan . All rights reversed (C) 2011
+
+//----------------------------------------------------------------------------//
+// NOTIFICATION HEADER (main.navigation_header.twig)
+$LNG['hd_buildings']					= 'Gebäude';
+$LNG['hd_research']						= 'Forschung';
+$LNG['hd_shipyard']						= 'Werft';
+$LNG['hd_fleets']						= 'Flotten';
+$LNG['hd_messages']						= 'Nachrichten';
+$LNG['hd_queue']						= 'In Warteschlange';
+$LNG['hd_queue_hangar']					= 'Warteschlange';
+$LNG['hd_free']							= 'Frei';
+$LNG['hd_no_fleet_movements']			= 'Keine Flottenbewegungen';
+$LNG['hd_all_messages']					= 'Alle';
+$LNG['hd_new_messages']					= '%d neue Nachricht(en)';
+$LNG['hd_more_messages']				= '+%d weitere';
+$LNG['hd_no_new_messages']				= 'Keine neuen Nachrichten';
+$LNG['hd_no_subject']					= '(Kein Betreff)';
+$LNG['hd_theme_toggle']					= 'Dark/Light Mode';
+$LNG['hd_theme_switch']					= 'Theme umschalten';
+$LNG['hd_theme_dark']					= 'Dark Mode aktivieren';
+$LNG['hd_theme_light']					= 'Light Mode aktivieren';
+$LNG['hd_forum']						= 'Forum';
+$LNG['hd_forum_mark_all']				= 'Alle als gelesen markieren';
+$LNG['hd_forum_mentions_tab']			= 'Erwähnungen';
+$LNG['hd_forum_posts_tab']				= 'Neue Beiträge';
+$LNG['hd_no_mentions']					= 'Keine neuen Erwähnungen';
+$LNG['hd_no_posts']						= 'Keine neuen Beiträge';
+$LNG['hd_loading']						= 'Lade…';
+$LNG['hd_profile']						= 'Profil';
+$LNG['hd_user_menu']					= 'Benutzermenü';
+$LNG['hd_sidebar_collapse']				= 'Sidebar einklappen';
+$LNG['hd_sidebar_expand']				= 'Sidebar ausklappen';
+$LNG['hd_nav_open']						= 'Navigation öffnen';
+$LNG['hd_forum_read']					= 'Als gelesen markieren';
+$LNG['hd_forum_from']					= 'von';
+$LNG['hd_load_error']					= 'Fehler beim Laden';
+$LNG['hd_build_prefix']					= 'Bau:';
+$LNG['hd_research_prefix']				= 'Forschung:';
+$LNG['hd_just_now']						= 'gerade eben';
+$LNG['hd_time_min']						= 'Min.';
+$LNG['hd_time_h']						= 'Std.';
+$LNG['hd_time_d']						= 'Tg.';
+$LNG['hd_res_time_to_full']				= 'Zeit bis voll';
+$LNG['hd_res_full']						= 'Voll';
+$LNG['hd_res_current']					= 'Aktuell';
+$LNG['hd_res_max']						= 'Maximum';
+$LNG['hd_res_storage']					= 'Lager';
+$LNG['hd_res_production']				= 'Produktion';
+$LNG['hd_res_almost_full']				= 'fast voll';
+
+//----------------------------------------------------------------------------//
+// CHAT / FOOTER (main.footer.twig)
+$LNG['chat_title']						= 'Chat';
+$LNG['chat_open']						= 'Chat öffnen';
+$LNG['chat_channel_global']				= 'Global';
+$LNG['chat_channel_alliance']			= 'Allianz';
+$LNG['chat_channel_adminnet']			= 'Netzwerk';
+$LNG['chat_banlist']					= 'Banliste';
+$LNG['chat_close']						= 'Schließen';
+$LNG['chat_placeholder']				= 'Nachricht…';
+$LNG['chat_send']						= 'Senden';
+$LNG['chat_banlist_title']				= 'Chat-Banliste';
+$LNG['chat_banned_notice']				= 'Du bist vom Chat gebannt.';
+$LNG['chat_no_alliance']				= 'Kein Allianz-Chat ohne Allianz.';
+$LNG['chat_bb_bold']					= 'Fett';
+$LNG['chat_bb_italic']					= 'Kursiv';
+$LNG['chat_bb_underline']				= 'Unterstrichen';
+$LNG['chat_bb_color']					= 'Farbe';
+$LNG['chat_bb_link']					= 'Link';
+$LNG['chat_no_messages']				= 'Noch keine Nachrichten.';
+$LNG['chat_error']						= 'Fehler';
+$LNG['chat_network_error']				= 'Netzwerkfehler';
+$LNG['chat_confirm_delete']				= 'Nachricht löschen?';
+$LNG['chat_delete']						= 'Löschen';
+$LNG['chat_ban']						= 'Bannen';
+$LNG['chat_ban_reason_prefix']			= 'Grund für Bann von';
+$LNG['chat_ban_reason_optional']		= '(optional)';
+$LNG['chat_ban_success']				= 'gebannt.';
+$LNG['chat_no_bans']					= 'Keine aktiven Banns.';
+$LNG['chat_unban']						= 'Entbannen';
+$LNG['chat_adminnet_not_configured']	= 'Admin-Netzwerk nicht konfiguriert.';
+$LNG['chat_adminnet_setup']				= 'Jetzt einrichten';
+$LNG['chat_load_error']					= 'Fehler beim Laden';
+$LNG['footer_powered_by']				= 'Powered by';
+
+//----------------------------------------------------------------------------//
+// NAVIGATION (main.navigation.twig)
+$LNG['nav_community']					= 'Community';
+$LNG['nav_tools']						= 'Tools';
+$LNG['nav_galaxy_map']					= 'Galaxy Map';
+$LNG['nav_galaxy_2d']					= '2D Ansicht';
+$LNG['nav_galaxy_3d']					= '3D Ansicht';
+$LNG['nav_sidebar_collapse']			= 'Sidebar einklappen / ausklappen';
+
+//----------------------------------------------------------------------------//
+// BATTLE HALL (page.battleHall.default.twig)
+$LNG['tkb_rank_1']						= '1. Platz';
+$LNG['tkb_rank_2']						= '2. Platz';
+$LNG['tkb_rank_3']						= '3. Platz';
+$LNG['tkb_vs']							= 'VS';
+
+//----------------------------------------------------------------------------//
+// BUILDINGS (page.buildings.default.twig)
+$LNG['bd_action_failed']				= 'Aktion fehlgeschlagen.';
+$LNG['bd_notres']						= 'Nicht genügend Ressourcen';
+$LNG['bd_max_level']					= 'Maximalstufe';
+$LNG['bd_duration']						= 'Dauer';
+
+//----------------------------------------------------------------------------//
+// STATISTICS (page.statistics.default.twig)
+// (alle Keys bereits vorhanden: st_player, st_alliance, st_points, st_members, st_per_member)
 

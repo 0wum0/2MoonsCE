@@ -592,17 +592,17 @@
         <div class="br-footer-card">
             <div class="br-footer-card-title" style="color:#a78bfa">
                 <svg viewBox="0 0 16 16" fill="currentColor"><path d="M10 2a6 6 0 0 0-6 6 6 6 0 0 0 6 6 6 6 0 0 0 0-12z"/></svg>
-                Mondchance
+                {{ LNG.raport_moon_chance }}
             </div>
             <div class="br-res-row">
-                <span class="br-res-name">Chance</span>
+                <span class="br-res-name">{{ LNG.raport_chance }}</span>
                 <span class="br-res-value">{{ Raport.moon.moonChance }}%</span>
             </div>
             {% if Raport.moon.moonDestroySuccess is defined %}
             <div class="br-res-row">
                 <span class="br-res-name">{{ Raport.moon.moonName }}</span>
                 <span class="br-res-value" style="color:{% if Raport.moon.moonDestroySuccess %}var(--br-red){% else %}var(--br-green){% endif %}">
-                    {% if Raport.moon.moonDestroySuccess %}Zerstört{% else %}Intakt{% endif %}
+                    {% if Raport.moon.moonDestroySuccess %}{{ LNG.raport_destroyed }}{% else %}{{ LNG.raport_intact }}{% endif %}
                 </span>
             </div>
             {% endif %}

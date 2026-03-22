@@ -63,11 +63,11 @@
                 <tr class="bh-row" onclick="window.location='game.php?page=raport&mode=battlehall&raport={{ row.rid }}'" style="cursor:pointer;">
                     <td style="text-align:center;">
                         {% if loop.index == 1 %}
-                            <i class="fas fa-trophy" style="color:var(--gold);font-size:14px;" title="1. Platz"></i>
+                            <i class="fas fa-trophy" style="color:var(--gold);font-size:14px;" title="{{ LNG.tkb_rank_1 }}"></i>
                         {% elseif loop.index == 2 %}
-                            <i class="fas fa-medal" style="color:#b0bec5;font-size:14px;" title="2. Platz"></i>
+                            <i class="fas fa-medal" style="color:#b0bec5;font-size:14px;" title="{{ LNG.tkb_rank_2 }}"></i>
                         {% elseif loop.index == 3 %}
-                            <i class="fas fa-medal" style="color:#cd7f32;font-size:14px;" title="3. Platz"></i>
+                            <i class="fas fa-medal" style="color:#cd7f32;font-size:14px;" title="{{ LNG.tkb_rank_3 }}"></i>
                         {% else %}
                             <span style="font-family:var(--font-hud);font-size:11px;color:var(--dim);">{{ loop.index }}</span>
                         {% endif %}
@@ -77,15 +77,15 @@
                         <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
                             {% if row.result == "a" %}
                                 <span style="color:var(--green);font-weight:600;overflow:hidden;text-overflow:ellipsis;max-width:38%;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.attacker }}</span>
-                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">VS</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">{{ LNG.tkb_vs }}</span>
                                 <span style="color:var(--red);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.defender }}</span>
                             {% elseif row.result == "r" %}
                                 <span style="color:var(--red);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.attacker }}</span>
-                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">VS</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">{{ LNG.tkb_vs }}</span>
                                 <span style="color:var(--green);font-weight:600;overflow:hidden;text-overflow:ellipsis;max-width:38%;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.defender }}</span>
                             {% else %}
                                 <span style="color:var(--orange);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.attacker }}</span>
-                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">VS</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">{{ LNG.tkb_vs }}</span>
                                 <span style="color:var(--orange);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.defender }}</span>
                             {% endif %}
                         </div>
@@ -142,15 +142,15 @@
                     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
                         {% if row.result == "a" %}
                             <span style="color:var(--green);font-weight:600;font-size:13px;"><i class="fas fa-crown" style="font-size:9px;color:var(--gold);margin-right:2px;"></i>{{ row.attacker }}</span>
-                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">VS</span>
+                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">{{ LNG.tkb_vs }}</span>
                             <span style="color:var(--red);font-size:13px;">{{ row.defender }}</span>
                         {% elseif row.result == "r" %}
                             <span style="color:var(--red);font-size:13px;">{{ row.attacker }}</span>
-                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">VS</span>
+                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">{{ LNG.tkb_vs }}</span>
                             <span style="color:var(--green);font-weight:600;font-size:13px;"><i class="fas fa-crown" style="font-size:9px;color:var(--gold);margin-right:2px;"></i>{{ row.defender }}</span>
                         {% else %}
                             <span style="color:var(--orange);font-size:13px;">{{ row.attacker }}</span>
-                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">VS</span>
+                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">{{ LNG.tkb_vs }}</span>
                             <span style="color:var(--orange);font-size:13px;">{{ row.defender }}</span>
                         {% endif %}
                     </div>
@@ -179,7 +179,7 @@
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);">
             <i class="fas fa-circle" style="color:var(--green);font-size:7px;"></i>
             <i class="fas fa-crown" style="color:var(--gold);font-size:9px;"></i>
-            <span style="color:var(--green);">{{ LNG.tkb_no_entries is defined ? LNG.tkb_gewinner|striptags : 'Gewinner' }}</span>
+            <span style="color:var(--green);">{{ LNG.tkb_gewinner|striptags }}</span>
         </span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);">
             <i class="fas fa-circle" style="color:var(--red);font-size:7px;"></i>

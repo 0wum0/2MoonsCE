@@ -134,10 +134,10 @@
 <div class="forum-container">
 
     <div class="fl-header">
-        <h1 style="margin:0; font-size: 20px; font-weight: 800;">🌌 Galaktisches Terminal</h1>
+        <h1 style="margin:0; font-size: 20px; font-weight: 800;">🌌 {{ LNG.forum_title }}</h1>
         <div style="display: flex; gap: 10px;">
-            {% if mode != 'index' %}<a href="game.php?page=forum" class="fl-btn-main" style="background: rgba(255,255,255,0.1); color: #fff !important;">🏠 Home</a>{% endif %}
-            <a href="game.php?page=forum&mode=search" class="fl-btn-main" style="background: rgba(255,255,255,0.1); color: #fff !important;">🔍 Suche</a>
+            {% if mode != 'index' %}<a href="game.php?page=forum" class="fl-btn-main" style="background: rgba(255,255,255,0.1); color: #fff !important;">🏠 {{ LNG.forum_home }}</a>{% endif %}
+            <a href="game.php?page=forum&mode=search" class="fl-btn-main" style="background: rgba(255,255,255,0.1); color: #fff !important;">🔍 {{ LNG.forum_search }}</a>
         </div>
     </div>
 
@@ -163,19 +163,19 @@
                                     <div style="font-size: 13px; color: var(--fl-muted);">{{ sub.description }}</div>
                                 </div>
                                 <div style="text-align: right; min-width: 120px; font-size: 12px; color: var(--fl-muted);">
-                                    <b style="color: var(--fl-accent)">{{ sub.topic_count|default(0) }}</b> Themen<br>
-                                    <b>{{ sub.post_count|default(0) }}</b> Posts
+                                    <b style="color: var(--fl-accent)">{{ sub.topic_count|default(0) }}</b> {{ LNG.forum_topics }}<br>
+                                    <b>{{ sub.post_count|default(0) }}</b> {{ LNG.forum_posts }}
                                 </div>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="fl-item" style="color: var(--fl-muted); font-size: 13px;">Keine Unterkategorien vorhanden.</div>
+                        <div class="fl-item" style="color: var(--fl-muted); font-size: 13px;">{{ LNG.forum_no_subcategories }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
         {% else %}
             <div class="fl-box" style="padding: 30px; text-align: center; color: var(--fl-muted);">
-                Noch keine Kategorien vorhanden. Ein Administrator muss zuerst Kategorien anlegen.
+                {{ LNG.forum_no_categories }}
             </div>
         {% endif %}
 
@@ -190,7 +190,7 @@
 
             <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
                 {% if not category.is_locked %}
-                <a href="game.php?page=forum&mode=new_topic&category_id={{ category.id }}" class="fl-btn-main">✏️ Neues Thema</a>
+                <a href="game.php?page=forum&mode=new_topic&category_id={{ category.id }}" class="fl-btn-main">✏️ {{ LNG.forum_new_topic }}</a>
                 {% endif %}
             </div>
 
@@ -204,7 +204,7 @@
                             <div class="fl-content-main">
                                 <a href="game.php?page=forum&mode=topic&id={{ topic.id }}" class="fl-link-title">{{ topic.title }}</a>
                                 <div style="font-size: 12px; color: var(--fl-muted);">
-                                    von <b style="color:#fff"><a href="#" class="js-playercard" data-player-id="{{ topic.user_id|default(0) }}" style="color:#fff;text-decoration:none;">{{ topic.username|default('Unbekannt') }}</a></b>
+                                    {{ LNG.forum_by }} <b style="color:#fff"><a href="#" class="js-playercard" data-player-id="{{ topic.user_id|default(0) }}" style="color:#fff;text-decoration:none;">{{ topic.username|default(LNG.adm_unknown) }}</a></b>
                                     &nbsp;·&nbsp; {{ topic.created_at|date('d.m.Y H:i') }}
                                 </div>
                             </div>
@@ -215,7 +215,7 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div style="padding: 30px; text-align: center; color: var(--fl-muted);">Noch keine Themen vorhanden.</div>
+                    <div style="padding: 30px; text-align: center; color: var(--fl-muted);">{{ LNG.forum_no_topics }}</div>
                 {% endif %}
             </div>
         {% endif %}
@@ -225,7 +225,7 @@
         {% if category is defined %}
             <div style="margin-bottom: 20px;">
                 <a href="game.php?page=forum&mode=category&id={{ category.id }}" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← {{ category.title }}</a>
-                <h1 style="font-size: 22px; margin: 10px 0; color:#fff; font-weight: 800;">✏️ Neues Thema erstellen</h1>
+                <h1 style="font-size: 22px; margin: 10px 0; color:#fff; font-weight: 800;">✏️ {{ LNG.forum_new_topic_create }}</h1>
             </div>
 
             <div class="fl-box" style="padding: 25px;">
@@ -234,13 +234,13 @@
                     <input type="hidden" name="category_id" value="{{ category.id }}">
 
                     <div style="margin-bottom: 15px;">
-                        <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Betreff</label>
+                        <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">{{ LNG.forum_subject }}</label>
                         <input type="text" name="title" required maxlength="255"
                                style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 8px; color: #fff; padding: 12px 15px; font-size: 15px; box-sizing: border-box;">
                     </div>
 
                     <div style="margin-bottom: 6px;">
-                        <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Inhalt</label>
+                        <label style="display: block; color: var(--fl-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">{{ LNG.forum_content }}</label>
                         <div class="bb-toolbar">
                             <button type="button" class="bb-btn" onclick="bbInsert('forum-content','b')"><b>B</b></button>
                             <button type="button" class="bb-btn" onclick="bbInsert('forum-content','i')"><i>I</i></button>
@@ -261,7 +261,7 @@
                                   style="width: 100%; height: 220px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 15px; font-family: inherit; font-size: 15px; box-sizing: border-box; resize: vertical;"></textarea>
                     </div>
 
-                    <button type="submit" class="fl-btn-main" style="margin-top: 12px;">🚀 Thema erstellen</button>
+                    <button type="submit" class="fl-btn-main" style="margin-top: 12px;">🚀 {{ LNG.forum_create_topic_btn }}</button>
                 </form>
             </div>
         {% endif %}
@@ -270,9 +270,9 @@
     {% elseif mode == 'topic' %}
         {% if topic is defined %}
         <div style="margin-bottom: 20px;">
-            <a href="game.php?page=forum&mode=category&id={{ topic.category_id }}" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← Zum Sektor</a>
+            <a href="game.php?page=forum&mode=category&id={{ topic.category_id }}" style="color: var(--fl-accent); text-decoration: none; font-size: 12px; font-weight: 800; text-transform: uppercase;">← {{ LNG.forum_back_to_sector }}</a>
             <h1 style="font-size: 26px; margin: 10px 0; color:#fff; font-weight: 800;">{{ topic.title }}</h1>
-            {% if topic.is_locked %}<span style="color: #ef4444; font-size: 12px; font-weight: 700;">🔒 Gesperrt</span>{% endif %}
+            {% if topic.is_locked %}<span style="color: #ef4444; font-size: 12px; font-weight: 700;">🔒 {{ LNG.forum_locked }}</span>{% endif %}
         </div>
 
         {% for post in posts %}
@@ -280,18 +280,18 @@
                 <div class="fl-author-info">
                     <div class="fl-avatar-circle" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 24px;">{{ post.username|default('?')|slice(0, 1)|upper }}</div>
                     <div class="fl-author-meta">
-                        <a href="#" class="js-playercard" data-player-id="{{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default('Unbekannt') }}</a>
-                        <span class="fl-rank-tag">Platz {{ post.user_rank|default('?') }}</span>
-                        <span class="fl-points"><b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> Pkt.</span>
+                        <a href="#" class="js-playercard" data-player-id="{{ post.user_id }}" style="color: #fff; font-weight: 800; text-decoration: none; font-size: 15px;">{{ post.username|default(LNG.adm_unknown) }}</a>
+                        <span class="fl-rank-tag">{{ LNG.forum_rank }} {{ post.user_rank|default('?') }}</span>
+                        <span class="fl-points"><b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> {{ LNG.forum_pts }}</span>
                         <div class="fl-stat-chips">
-                            <span class="fl-stat-chip">🏆 <b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> Pkt.</span>
+                            <span class="fl-stat-chip">🏆 <b data-number="{{ post.user_points|default(0) }}">{{ post.user_points|default(0) }}</b> {{ LNG.forum_pts }}</span>
                             <span class="fl-stat-chip">📊 #{{ post.user_rank|default('?') }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="fl-post-body-container">
                     <div class="fl-post-header">
-                        <span>Signal-Eingang: {{ post.created_at|date('d.m.Y H:i') }}</span>
+                        <span>{{ LNG.forum_signal_in }}: {{ post.created_at|date('d.m.Y H:i') }}</span>
                         {% if post.authlevel is defined and post.authlevel > 0 %}<span style="color: #f87171; font-weight: 900; font-size: 10px;">[STAFF]</span>{% endif %}
                     </div>
                     <div class="fl-post-text" id="post-data-{{ post.id }}">{{ post.content_html|default('')|raw }}</div>
@@ -304,8 +304,8 @@
                             <input type="hidden" name="topic_id" value="{{ topic.id }}">
                             <textarea name="content" id="edit-content-{{ post.id }}">{{ post.content|e }}</textarea>
                             <div class="fl-inline-edit-actions">
-                                <button type="submit" class="fl-inline-save">💾 Speichern</button>
-                                <button type="button" class="fl-inline-cancel" onclick="toggleEdit({{ post.id }})">✕ Abbrechen</button>
+                                <button type="submit" class="fl-inline-save">💾 {{ LNG.forum_save }}</button>
+                                <button type="button" class="fl-inline-cancel" onclick="toggleEdit({{ post.id }})">✕ {{ LNG.forum_cancel }}</button>
                             </div>
                         </form>
                     </div>
@@ -319,39 +319,39 @@
                             <input type="hidden" name="topic_id" value="{{ topic.id }}">
                             <input type="text" name="reason" placeholder="Grund (optional)" maxlength="500">
                             <div class="fl-report-form-actions">
-                                <button type="submit" class="fl-inline-save" style="background:#f59e0b;">🚩 Melden</button>
-                                <button type="button" class="fl-inline-cancel" onclick="toggleReport({{ post.id }})">✕ Abbrechen</button>
+                                <button type="submit" class="fl-inline-save" style="background:#f59e0b;">🚩 {{ LNG.forum_report }}</button>
+                                <button type="button" class="fl-inline-cancel" onclick="toggleReport({{ post.id }})">✕ {{ LNG.forum_cancel }}</button>
                             </div>
                         </form>
                     </div>
                     {% endif %}
 
                     <div class="fl-actions">
-                        <span class="fl-action-btn" onclick="likePost({{ post.id }})">❤️ Like (<span id="lc-{{ post.id }}">{{ post.like_count|default(0) }}</span>)</span>
-                        <span class="fl-action-btn" onclick="quotePost('{{ post.username|default('') }}', 'post-data-{{ post.id }}')">💬 Zitieren</span>
+                        <span class="fl-action-btn" onclick="likePost({{ post.id }})">❤️ {{ LNG.forum_like }} (<span id="lc-{{ post.id }}">{{ post.like_count|default(0) }}</span>)</span>
+                        <span class="fl-action-btn" onclick="quotePost('{{ post.username|default('') }}', 'post-data-{{ post.id }}')">💬 {{ LNG.forum_quote }}</span>
                         {% if post.can_edit %}
-                        <span class="fl-action-btn fl-action-btn-edit" onclick="toggleEdit({{ post.id }})">✏️ Bearbeiten</span>
+                        <span class="fl-action-btn fl-action-btn-edit" onclick="toggleEdit({{ post.id }})">✏️ {{ LNG.forum_edit }}</span>
                         {% endif %}
                         {% if post.can_delete %}
-                        <form action="game.php?page=forum&mode=delete_post" method="POST" style="display:inline;" onsubmit="return confirm('Beitrag wirklich löschen?');">
+                        <form action="game.php?page=forum&mode=delete_post" method="POST" style="display:inline;" onsubmit="return confirm({{ LNG.forum_confirm_delete|json_encode }})">
                             <input type="hidden" name="post_id" value="{{ post.id }}">
                             <input type="hidden" name="topic_id" value="{{ topic.id }}">
-                            <button type="submit" class="fl-action-btn fl-action-btn-delete" style="background:none;border:none;padding:0;cursor:pointer;font-size:12px;font-weight:700;">🗑 Löschen</button>
+                            <button type="submit" class="fl-action-btn fl-action-btn-delete" style="background:none;border:none;padding:0;cursor:pointer;font-size:12px;font-weight:700;">🗑 {{ LNG.forum_delete }}</button>
                         </form>
                         {% endif %}
                         {% if post.can_report %}
-                        <span class="fl-action-btn fl-action-btn-report" onclick="toggleReport({{ post.id }})">🚩 Melden</span>
+                        <span class="fl-action-btn fl-action-btn-report" onclick="toggleReport({{ post.id }})">🚩 {{ LNG.forum_report }}</span>
                         {% endif %}
                     </div>
                 </div>
             </div>
         {% else %}
-            <div class="fl-box" style="padding: 30px; text-align: center; color: var(--fl-muted);">Noch keine Beiträge vorhanden.</div>
+            <div class="fl-box" style="padding: 30px; text-align: center; color: var(--fl-muted);">{{ LNG.forum_no_posts }}</div>
         {% endfor %}
 
         {% if not topic.is_locked %}
             <div class="fl-box" style="padding: 25px;">
-                <h3 style="margin-top:0; font-size: 16px; font-weight: 800; color: var(--fl-accent); text-transform: uppercase;">📡 Übertragung senden</h3>
+                <h3 style="margin-top:0; font-size: 16px; font-weight: 800; color: var(--fl-accent); text-transform: uppercase;">📡 {{ LNG.forum_send_reply }}</h3>
 
                 <div class="bb-toolbar">
                     <button type="button" class="bb-btn" onclick="bbInsert('forum-content','b')"><b>B</b></button>
@@ -373,7 +373,7 @@
                 <form action="game.php?page=forum&mode=topic&id={{ topic.id }}" method="POST">
                     <input type="hidden" name="create_post" value="1">
                     <textarea name="content" id="forum-content" style="width: 100%; height: 160px; background: rgba(0,0,0,0.5); border: 1px solid var(--fl-border); border-radius: 10px; color: #fff; padding: 18px; font-family: inherit; font-size: 15px; margin-bottom: 15px; box-sizing: border-box; resize: vertical;"></textarea>
-                    <button type="submit" class="fl-btn-main">🚀 Absenden</button>
+                    <button type="submit" class="fl-btn-main">🚀 {{ LNG.forum_submit }}</button>
                 </form>
             </div>
         {% endif %}

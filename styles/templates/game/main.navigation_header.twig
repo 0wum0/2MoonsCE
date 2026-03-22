@@ -30,7 +30,7 @@
         <button id="sidebar-toggle"
                 class="sidebar-menu-toggle burger-menu"
                 type="button"
-                aria-label="Navigation öffnen"
+                aria-label="{{ LNG.hd_nav_open }}"
                 aria-controls="leftmenu"
                 aria-expanded="false">
             <span class="burger-line" aria-hidden="true"></span>
@@ -73,7 +73,7 @@
                 </button>
                 <div class="notif-dropdown" id="notif-building-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-building"></i> Gebäude</span>
+                        <span><i class="fas fa-building"></i> {{ LNG.hd_buildings }}</span>
                         <a href="game.php?page=buildings" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="notif-dropdown-body">
@@ -90,12 +90,12 @@
                                             <span class="nq-timer" id="nq-building-timer">--:--:--</span>
                                         </div>
                                     {% else %}
-                                        <div class="nq-queued"><i class="fas fa-clock"></i> In Warteschlange</div>
+                                        <div class="nq-queued"><i class="fas fa-clock"></i> {{ LNG.hd_queue }}</div>
                                     {% endif %}
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Frei</div>
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> {{ LNG.hd_free }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -108,7 +108,7 @@
                 </button>
                 <div class="notif-dropdown" id="notif-research-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-flask"></i> Forschung</span>
+                        <span><i class="fas fa-flask"></i> {{ LNG.hd_research }}</span>
                         <a href="game.php?page=research" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="notif-dropdown-body">
@@ -125,12 +125,12 @@
                                             <span class="nq-timer" id="nq-research-timer">--:--:--</span>
                                         </div>
                                     {% else %}
-                                        <div class="nq-queued"><i class="fas fa-clock"></i> In Warteschlange</div>
+                                        <div class="nq-queued"><i class="fas fa-clock"></i> {{ LNG.hd_queue }}</div>
                                     {% endif %}
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Frei</div>
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> {{ LNG.hd_free }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -143,7 +143,7 @@
                 </button>
                 <div class="notif-dropdown" id="notif-hangar-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-hammer"></i> Werft</span>
+                        <span><i class="fas fa-hammer"></i> {{ LNG.hd_shipyard }}</span>
                         <a href="game.php?page=shipyard" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="notif-dropdown-body">
@@ -160,12 +160,12 @@
                                             <span class="nq-timer" id="nq-hangar-timer">--:--:--</span>
                                         </div>
                                     {% else %}
-                                        <div class="nq-queued"><i class="fas fa-clock"></i> Warteschlange</div>
+                                        <div class="nq-queued"><i class="fas fa-clock"></i> {{ LNG.hd_queue_hangar }}</div>
                                     {% endif %}
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Frei</div>
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> {{ LNG.hd_free }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -178,11 +178,11 @@
                 </button>
                 <div class="notif-dropdown" id="notif-fleets-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-rocket"></i> Flotten</span>
+                        <span><i class="fas fa-rocket"></i> {{ LNG.hd_fleets }}</span>
                         <a href="game.php?page=fleetTable" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="notif-dropdown-body" id="notif-fleets-list">
-                        <div class="notif-empty"><i class="fas fa-check-circle"></i> Keine Flottenbewegungen</div>
+                        <div class="notif-empty"><i class="fas fa-check-circle"></i> {{ LNG.hd_no_fleet_movements }}</div>
                     </div>
                 </div>
             </div>
@@ -194,34 +194,34 @@
                 </button>
                 <div class="notif-dropdown" id="notif-messages-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-envelope"></i> Nachrichten</span>
-                        <a href="game.php?page=messages" class="notif-header-link">Alle <i class="fas fa-external-link-alt"></i></a>
+                        <span><i class="fas fa-envelope"></i> {{ LNG.hd_messages }}</span>
+                        <a href="game.php?page=messages" class="notif-header-link">{{ LNG.hd_all_messages }} <i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="notif-dropdown-body">
                         {% if recentMessages is defined and recentMessages|length > 0 %}
                             {% for msg in recentMessages %}
                                 <a href="game.php?page=messages&id={{ msg.id }}" class="notif-msg-item unread">
-                                    <div class="notif-msg-from"><i class="fas fa-envelope-open-text"></i> {{ msg.subject|default('(Kein Betreff)') }}</div>
+                                    <div class="notif-msg-from"><i class="fas fa-envelope-open-text"></i> {{ msg.subject|default(LNG.hd_no_subject) }}</div>
                                     <div class="notif-msg-preview">{{ msg.preview }}</div>
                                     <div class="notif-msg-time">{{ msg.time|date('d.m.Y H:i') }}</div>
                                 </a>
                             {% endfor %}
                             {% if new_message > recentMessages|length %}
-                                <a href="game.php?page=messages" class="notif-msg-more">+{{ new_message - recentMessages|length }} weitere</a>
+                                <a href="game.php?page=messages" class="notif-msg-more">+{{ new_message - recentMessages|length }} {{ LNG.hd_more_messages }}</a>
                             {% endif %}
                         {% elseif new_message > 0 %}
                             <a href="game.php?page=messages" class="notif-msg-item unread">
-                                <div class="notif-msg-from"><i class="fas fa-envelope-open-text"></i> {{ new_message }} neue Nachricht(en)</div>
+                                <div class="notif-msg-from"><i class="fas fa-envelope-open-text"></i> {{ new_message }} {{ LNG.hd_new_messages }}</div>
                             </a>
                         {% else %}
-                            <div class="notif-empty"><i class="fas fa-check-circle"></i> Keine neuen Nachrichten</div>
+                            <div class="notif-empty"><i class="fas fa-check-circle"></i> {{ LNG.hd_no_new_messages }}</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- THEME TOGGLE -->
-            <button id="sm-theme-toggle" class="notif-btn" title="Dark/Light Mode" aria-label="Theme umschalten" style="flex-shrink:0">
+            <button id="sm-theme-toggle" class="notif-btn" title="{{ LNG.hd_theme_toggle }}" aria-label="{{ LNG.hd_theme_switch }}" style="flex-shrink:0">
                 <i class="fas fa-moon" id="sm-theme-icon"></i>
             </button>
 
@@ -232,30 +232,30 @@
                 </button>
                 <div class="notif-dropdown notif-dropdown-forum" id="notif-forum-dropdown">
                     <div class="notif-dropdown-header">
-                        <span><i class="fas fa-comments"></i> Forum</span>
+                        <span><i class="fas fa-comments"></i> {{ LNG.hd_forum }}</span>
                         <div style="display:flex;gap:8px;align-items:center;">
-                            <button class="forum-notif-mark-all notif-header-link" id="forum-mark-all-btn" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--notif-accent,#38bdf8);padding:0;" title="Alle als gelesen markieren"><i class="fas fa-check-double"></i></button>
+                            <button class="forum-notif-mark-all notif-header-link" id="forum-mark-all-btn" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--notif-accent,#38bdf8);padding:0;" title="{{ LNG.hd_forum_mark_all }}"><i class="fas fa-check-double"></i></button>
                             <a href="game.php?page=forum" class="notif-header-link"><i class="fas fa-external-link-alt"></i></a>
                         </div>
                     </div>
                     <div class="notif-dropdown-tabs">
-                        <button class="forum-notif-tab active" data-tab="mention"><i class="fas fa-at"></i> Erwähnungen</button>
-                        <button class="forum-notif-tab" data-tab="new_post"><i class="fas fa-reply"></i> Neue Beiträge</button>
+                        <button class="forum-notif-tab active" data-tab="mention"><i class="fas fa-at"></i> {{ LNG.hd_forum_mentions_tab }}</button>
+                        <button class="forum-notif-tab" data-tab="new_post"><i class="fas fa-reply"></i> {{ LNG.hd_forum_posts_tab }}</button>
                     </div>
                     <div class="notif-dropdown-body" id="forum-notif-list">
-                        <div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> Lade…</div>
+                        <div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> {{ LNG.hd_loading }}</div>
                     </div>
                 </div>
             </div>
 
             <!-- ======== USER AVATAR MENU ======== -->
             <div class="notif-icon-wrap user-avatar-wrap">
-                <button class="user-avatar-btn" type="button" onclick="SmartNotif.toggle('usermenu')" aria-label="Profil" aria-haspopup="true" aria-expanded="false">
+                <button class="user-avatar-btn" type="button" onclick="SmartNotif.toggle('usermenu')" aria-label="{{ LNG.hd_profile }}" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-user"></i>
                     {% if new_message > 0 %}<span class="avatar-dot"></span>{% endif %}
                 </button>
 
-                <div class="notif-dropdown user-menu-dropdown" id="notif-usermenu-dropdown" role="menu" aria-label="Benutzermenü">
+                <div class="notif-dropdown user-menu-dropdown" id="notif-usermenu-dropdown" role="menu" aria-label="{{ LNG.hd_user_menu }}">
                     <div class="user-menu-header">
                         <div class="user-menu-avatar"><i class="fas fa-user-astronaut"></i></div>
                         <div class="user-menu-info">
@@ -270,7 +270,7 @@
                             <i class="fas fa-envelope"></i><span>{{ LNG.lm_messages|default('Nachrichten') }}</span>
                             {% if new_message > 0 %}<span class="user-menu-badge">{{ new_message }}</span>{% endif %}
                         </a>
-						<a href="game.php?page=forum" class="user-menu-item"><i class="fas fa-comments"></i><span>Forum</span></a>
+						<a href="game.php?page=forum" class="user-menu-item"><i class="fas fa-comments"></i><span>{{ LNG.hd_forum }}</span></a>
                         <a href="game.php?page=buddyList" class="user-menu-item"><i class="fas fa-user-friends"></i><span>{{ LNG.lm_buddylist|default('Buddyliste') }}</span></a>
                         <a href="game.php?page=statistics" class="user-menu-item"><i class="fas fa-chart-line"></i><span>{{ LNG.lm_statistics|default('Statistiken') }}</span></a>
                         <a href="game.php?page=alliance" class="user-menu-item"><i class="fas fa-users"></i><span>{{ LNG.lm_alliance|default('Allianz') }}</span></a>
@@ -377,7 +377,7 @@
             var ic = document.getElementById('sidebar-collapse-icon');
             if (ic) ic.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
             var cb = document.getElementById('sidebar-collapse-btn');
-            if (cb) cb.setAttribute('aria-label', collapsed ? 'Sidebar ausklappen' : 'Sidebar einklappen');
+            if (cb) cb.setAttribute('aria-label', collapsed ? {{ LNG.hd_sidebar_expand|json_encode }} : {{ LNG.hd_sidebar_collapse|json_encode }});
             t.classList.toggle('active', !collapsed);
             try { localStorage.setItem(SK, collapsed ? '1' : '0'); } catch(e) {}
         }
@@ -545,11 +545,11 @@ if(typeof resourceTicker==='function'){
         if (production > 0 && max > 0 && current < max) {
             var remaining = max - current;
             var minutes = Math.ceil(remaining / production * 60);
-            if (minutes < 60)      timeToFull = minutes + ' Min.';
-            else if (minutes < 1440) timeToFull = Math.floor(minutes/60) + 'h ' + (minutes%60) + 'm';
-            else                    timeToFull = Math.floor(minutes/1440) + 'd ' + Math.floor((minutes%1440)/60) + 'h';
+            if (minutes < 60)      timeToFull = minutes + ' ' + {{ LNG.hd_time_min|json_encode }};
+            else if (minutes < 1440) timeToFull = Math.floor(minutes/60) + ' ' + {{ LNG.hd_time_h|json_encode }} + ' ' + (minutes%60) + 'm';
+            else                    timeToFull = Math.floor(minutes/1440) + ' ' + {{ LNG.hd_time_d|json_encode }} + ' ' + Math.floor((minutes%1440)/60) + ' ' + {{ LNG.hd_time_h|json_encode }};
         } else if (production <= 0 && current >= max) {
-            timeToFull = 'Voll';
+            timeToFull = {{ LNG.hd_res_full|json_encode }};
         }
 
         // Production color
@@ -565,20 +565,20 @@ if(typeof resourceTicker==='function'){
         else                 barColor = '#f97316';
 
         var timeRow = timeToFull
-            ? '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px"><span style="color:#7a9ab8">Zeit bis voll</span><span style="color:#a3e635">' + timeToFull + '</span></div>'
+            ? '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px"><span style="color:#7a9ab8">' + {{ LNG.hd_res_time_to_full|json_encode }} + '</span><span style="color:#a3e635">' + timeToFull + '</span></div>'
             : '';
 
         return '<div style="font-size:11px;letter-spacing:2px;color:var(--cyan,#00d4ff);margin-bottom:8px;text-transform:uppercase">' + label + '</div>'
-            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Aktuell</span><span style="color:#fff">' + fmtNum(current) + '</span></div>'
-            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Maximum</span><span style="color:#7a9ab8">' + fmtNum(max) + '</span></div>'
+            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">' + {{ LNG.hd_res_current|json_encode }} + '</span><span style="color:#fff">' + fmtNum(current) + '</span></div>'
+            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">' + {{ LNG.hd_res_max|json_encode }} + '</span><span style="color:#7a9ab8">' + fmtNum(max) + '</span></div>'
             + '<div style="height:1px;background:rgba(0,212,255,0.1);margin:7px 0"></div>'
             + '<div style="margin-bottom:6px">'
-            +   '<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="color:#7a9ab8">Lager</span><span style="color:' + barColor + '">' + pctStr + '%</span></div>'
+            +   '<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="color:#7a9ab8">' + {{ LNG.hd_res_storage|json_encode }} + '</span><span style="color:' + barColor + '">' + pctStr + '%</span></div>'
             +   '<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">'
             +     '<div style="height:100%;width:' + pctStr + '%;background:' + barColor + ';border-radius:3px;transition:width 0.4s"></div>'
             +   '</div>'
             + '</div>'
-            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Produktion</span><span style="color:' + prodColor + '">' + prodStr + '</span></div>'
+            + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">' + {{ LNG.hd_res_production|json_encode }} + '</span><span style="color:' + prodColor + '">' + prodStr + '</span></div>'
             + timeRow;
     }
 
@@ -658,7 +658,7 @@ if(typeof resourceTicker==='function'){
                 // Toast via SmartNotif (falls geladen)
                 if (typeof SmartNotif !== 'undefined' && SmartNotif.toast) {
                     SmartNotif.toast(
-                        name + ' fast voll (' + pct.toFixed(0) + '%)',
+                        name + ' ' + {{ LNG.hd_res_almost_full|json_encode }} + ' (' + pct.toFixed(0) + '%)',
                         'exclamation-circle',
                         '#f97316'
                     );
@@ -680,7 +680,7 @@ if(typeof resourceTicker==='function'){
             try { sessionStorage.setItem('sm_res_warned', JSON.stringify(warnedRes)); } catch(e) {}
             if (typeof SmartNotif !== 'undefined' && SmartNotif.toast) {
                 SmartNotif.toast(
-                    name.charAt(0).toUpperCase() + name.slice(1) + ' fast voll (' + pct.toFixed(0) + '%)',
+                    name.charAt(0).toUpperCase() + name.slice(1) + ' ' + {{ LNG.hd_res_almost_full|json_encode }} + ' (' + pct.toFixed(0) + '%)',
                     'exclamation-circle',
                     '#f97316'
                 );
@@ -711,7 +711,7 @@ if(typeof resourceTicker==='function'){
             html.setAttribute('data-theme', t);
             if (icon) icon.className = (t === 'light') ? 'fas fa-sun' : 'fas fa-moon';
             if (btn) {
-                btn.title = (t === 'light') ? 'Dark Mode aktivieren' : 'Light Mode aktivieren';
+                btn.title = (t === 'light') ? {{ LNG.hd_theme_dark|json_encode }} : {{ LNG.hd_theme_light|json_encode }};
                 btn.setAttribute('aria-label', btn.title);
             }
         }
@@ -920,7 +920,7 @@ var SmartNotif=(function(){
             setBadge('fleet-badge', 0);
             var emptyTarget = document.getElementById('notif-fleets-list');
             if(emptyTarget) {
-                emptyTarget.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> Keine Flottenbewegungen</div>';
+                emptyTarget.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> ' + {{ LNG.hd_no_fleet_movements|json_encode }} + '</div>';
             }
             return;
         }
@@ -935,7 +935,7 @@ var SmartNotif=(function(){
             if(f.isHostile) atk = true;
             
             var restTime = parseInt(f.resttime) || 0;
-            var fleetText = (typeof f.text === 'string' && f.text.length) ? f.text : 'Unbekannte Flotte';
+            var fleetText = (typeof f.text === 'string' && f.text.length) ? f.text : {{ LNG.ov_unknown|default('Unbekannte Flotte')|json_encode }};
             
             html += '<div class="notif-fleet-item' + (f.isHostile ? ' hostile' : '') + '">';
             html += '<span class="notif-fleet-timer" id="hft-'+i+'">' + fmt(restTime) + '</span>';
@@ -944,7 +944,7 @@ var SmartNotif=(function(){
         }
         el.innerHTML = html;
         setAttackMode(atk);
-        if(atk) toast('Feindliche Flotte im Anflug!', 'exclamation-triangle', '#ef4444');
+        if(atk) toast({{ LNG.ov_attack_incoming|default('Feindliche Flotte im Anflug!')|json_encode }}, 'exclamation-triangle', '#ef4444');
 
         // Timer update only if we have fleets
         if(fleetTickHandle) {
@@ -975,9 +975,9 @@ var SmartNotif=(function(){
         var cancelBtn = document.createElement('button');
         cancelBtn.className = 'nq-cancel';
         cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
-        cancelBtn.title = 'Abbrechen';
+        cancelBtn.title = {{ LNG.ov_cancel|json_encode }};
         cancelBtn.onclick = function() {
-            if(confirm('Bau wirklich abbrechen?')) {
+            if(confirm({{ LNG.ov_cancel|json_encode }})) {
                 window.location.href = cancelUrl;
             }
         };
@@ -1052,13 +1052,13 @@ var SmartNotif=(function(){
     /* ===== TOAST bei Page Load ===== */
     function initToasts(){
         {% if new_message is defined and new_message > 0 %}
-        toast({{ (new_message ~ ' neue Nachricht(en)')|json_encode }}, 'envelope', '#00f3ff');
+        toast({{ new_message }} + ' ' + {{ LNG.hd_new_messages|json_encode }}, 'envelope', '#00f3ff');
         {% endif %}
         {% if buildQueue.building is defined and buildQueue.building %}
-        toast({{ ('Bau: ' ~ buildQueue.building.items[0].name|default('?') ~ ' Lv.' ~ buildQueue.building.items[0].level|default('?'))|json_encode }}, 'building', '#3b82f6');
+        toast({{ LNG.hd_build_prefix|json_encode }} + ' ' + {{ buildQueue.building.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.building.items[0].level|default('?')|json_encode }}, 'building', '#3b82f6');
         {% endif %}
         {% if buildQueue.research is defined and buildQueue.research %}
-        toast({{ ('Forschung: ' ~ buildQueue.research.items[0].name|default('?') ~ ' Lv.' ~ buildQueue.research.items[0].level|default('?'))|json_encode }}, 'flask', '#a855f7');
+        toast({{ LNG.hd_research_prefix|json_encode }} + ' ' + {{ buildQueue.research.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.research.items[0].level|default('?')|json_encode }}, 'flask', '#a855f7');
         {% endif %}
     }
 
@@ -1100,10 +1100,10 @@ var SmartNotif=(function(){
 
     function relTime(ts) {
         var diff = Math.floor(Date.now()/1000) - ts;
-        if (diff < 60)   return 'gerade eben';
-        if (diff < 3600) return Math.floor(diff/60) + ' Min.';
-        if (diff < 86400) return Math.floor(diff/3600) + ' Std.';
-        return Math.floor(diff/86400) + ' Tg.';
+        if (diff < 60)   return {{ LNG.hd_just_now|json_encode }};
+        if (diff < 3600) return Math.floor(diff/60) + ' ' + {{ LNG.hd_time_min|json_encode }};
+        if (diff < 86400) return Math.floor(diff/3600) + ' ' + {{ LNG.hd_time_h|json_encode }};
+        return Math.floor(diff/86400) + ' ' + {{ LNG.hd_time_d|json_encode }};
     }
 
     function updateBadge(count) {
@@ -1125,7 +1125,7 @@ var SmartNotif=(function(){
         if (!list) return;
         var filtered = _items.filter(function(i){ return i.type === _activeTab; });
         if (!filtered.length) {
-            list.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> Keine neuen ' + (_activeTab === 'mention' ? 'Erw\u00e4hnungen' : 'Beitr\u00e4ge') + '</div>';
+            list.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle"></i> ' + (_activeTab === 'mention' ? {{ LNG.hd_no_mentions|json_encode }} : {{ LNG.hd_no_posts|json_encode }}) + '</div>';
             return;
         }
         var html = '';
@@ -1136,11 +1136,11 @@ var SmartNotif=(function(){
             var link = 'game.php?page=forum&mode=topic&id=' + item.topic_id + '#post-' + item.post_id;
             html += '<div class="forum-notif-item" data-id="' + item.id + '" data-type="' + item.type + '" data-link="' + link + '">';
             html += '<div>' + icon + '<span class="forum-notif-title">' + item.topic_title + '</span></div>';
-            html += '<div class="forum-notif-by">von ' + item.by_username + '</div>';
+            html += '<div class="forum-notif-by">' + {{ LNG.hd_forum_from|json_encode }} + ' ' + item.by_username + '</div>';
             if (item.snippet) html += '<div class="forum-notif-snippet">' + item.snippet + '</div>';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
             html += '<span class="forum-notif-time">' + relTime(item.created_at) + '</span>';
-            html += '<button class="forum-notif-read-btn" data-id="' + item.id + '" data-type="' + item.type + '" title="Als gelesen markieren"><i class="fas fa-check"></i></button>';
+            html += '<button class="forum-notif-read-btn" data-id="' + item.id + '" data-type="' + item.type + '" title="' + {{ LNG.hd_forum_read|json_encode }} + '"><i class="fas fa-check"></i></button>';
             html += '</div></div>';
         });
         list.innerHTML = html;
@@ -1201,7 +1201,7 @@ var SmartNotif=(function(){
 
     function fetchList() {
         var list = document.getElementById('forum-notif-list');
-        if (list) list.innerHTML = '<div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> Lade\u2026</div>';
+        if (list) list.innerHTML = '<div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> ' + {{ LNG.hd_loading|json_encode }} + '</div>';
         fetch('game.php?page=forumNotif&mode=notifications&ajax=1')
             .then(function(r){ return r.json(); })
             .then(function(data) {
@@ -1212,7 +1212,7 @@ var SmartNotif=(function(){
             })
             .catch(function() {
                 var list2 = document.getElementById('forum-notif-list');
-                if (list2) list2.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i> Fehler beim Laden</div>';
+                if (list2) list2.innerHTML = '<div class="notif-empty"><i class="fas fa-exclamation-circle"></i> ' + {{ LNG.hd_load_error|json_encode }} + '</div>';
             });
     }
 

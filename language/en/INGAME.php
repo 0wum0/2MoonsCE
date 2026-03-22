@@ -563,6 +563,50 @@ $LNG['mg_read_type_all']					= 'Mark all messages of this type as read';
 $LNG['mg_read_all']							= 'Mark all messages as read';
 $LNG['mg_confirm']							= 'Confirm';
 $LNG['mg_receiver_block_pm']				= 'The receiver block private messages.';
+$LNG['mg_all']								= 'All';
+$LNG['mg_delete_selected']					= 'Delete selected';
+$LNG['mg_messages']							= 'Messages';
+$LNG['mg_reply']								= 'Reply';
+$LNG['mg_delete']							= 'Delete';
+$LNG['mg_no_messages']						= 'No messages';
+$LNG['mg_confirm_delete_selected']			= 'Delete selected messages?';
+
+//----------------------------------------------------------------------------//
+// FORUM (ForumPage.twig)
+$LNG['forum_title']					= 'Galactic Terminal';
+$LNG['forum_home']					= 'Home';
+$LNG['forum_search']				= 'Search';
+$LNG['forum_topics']				= 'Topics';
+$LNG['forum_posts']					= 'Posts';
+$LNG['forum_no_subcategories']		= 'No subcategories available.';
+$LNG['forum_no_categories']			= 'No categories yet. An administrator must create categories first.';
+$LNG['forum_new_topic']				= 'New Topic';
+$LNG['forum_by']					= 'by';
+$LNG['forum_no_topics']				= 'No topics yet.';
+$LNG['forum_new_topic_create']		= 'Create New Topic';
+$LNG['forum_subject']				= 'Subject';
+$LNG['forum_content']				= 'Content';
+$LNG['forum_create_topic_btn']		= 'Create Topic';
+$LNG['forum_back_to_sector']		= 'Back to Sector';
+$LNG['forum_locked']				= 'Locked';
+$LNG['forum_rank']					= 'Rank';
+$LNG['forum_pts']					= 'pts.';
+$LNG['forum_signal_in']				= 'Signal received';
+$LNG['forum_save']					= 'Save';
+$LNG['forum_cancel']				= 'Cancel';
+$LNG['forum_report']				= 'Report';
+$LNG['forum_like']					= 'Like';
+$LNG['forum_quote']					= 'Quote';
+$LNG['forum_edit']					= 'Edit';
+$LNG['forum_delete']				= 'Delete';
+$LNG['forum_confirm_delete']		= 'Really delete this post?';
+$LNG['forum_no_posts']				= 'No posts yet.';
+$LNG['forum_send_reply']			= 'Send reply';
+$LNG['forum_submit']				= 'Submit';
+
+//----------------------------------------------------------------------------//
+// NAVIGATION HEADER (main.navigation_header.twig)
+$LNG['hd_nav_open']					= 'Open navigation';
 
 
 //----------------------------------------------------------------------------//
@@ -1070,6 +1114,10 @@ $LNG['tkb_datum']							= 'Date';
 $LNG['tkb_units']							= 'Units';
 $LNG['tkb_legende']							= '<b>Legend: </b>';
 $LNG['tkb_gewinner']						= '<b>-Winner-</b>';
+$LNG['raport_moon_chance']					= 'Moon chance';
+$LNG['raport_chance']						= 'Chance';
+$LNG['raport_destroyed']					= 'Destroyed';
+$LNG['raport_intact']						= 'Intact';
 $LNG['tkb_verlierer']						= '<b>-Loser-</b>';
 $LNG['tkb_unentschieden']					= '<b>-Both Weisses, undecided- </b>';
 $LNG['tkb_missing']							= '<br>Missing in Action: The user account does not exist any more.';
@@ -1177,6 +1225,117 @@ $LNG['ft_total']							= 'TOTAL';
 $LNG['ft_charge']							= 'Merchant rate';
 $LNG['ft_absenden']							= 'Send';	
 $LNG['ft_empty']							= 'Empty';	
+
+//----------------------------------------------------------------------------//
+// NOTIFICATION HEADER (main.navigation_header.twig)
+$LNG['hd_buildings']					= 'Buildings';
+$LNG['hd_research']						= 'Research';
+$LNG['hd_shipyard']						= 'Shipyard';
+$LNG['hd_fleets']						= 'Fleets';
+$LNG['hd_messages']						= 'Messages';
+$LNG['hd_queue']						= 'In queue';
+$LNG['hd_queue_hangar']					= 'Queue';
+$LNG['hd_free']							= 'Free';
+$LNG['hd_no_fleet_movements']			= 'No fleet movements';
+$LNG['hd_all_messages']					= 'All';
+$LNG['hd_new_messages']					= '%d new message(s)';
+$LNG['hd_more_messages']				= '+%d more';
+$LNG['hd_no_new_messages']				= 'No new messages';
+$LNG['hd_no_subject']					= '(No subject)';
+$LNG['hd_theme_toggle']					= 'Dark/Light Mode';
+$LNG['hd_theme_switch']					= 'Switch theme';
+$LNG['hd_theme_dark']					= 'Enable dark mode';
+$LNG['hd_theme_light']					= 'Enable light mode';
+$LNG['hd_forum']						= 'Forum';
+$LNG['hd_forum_mark_all']				= 'Mark all as read';
+$LNG['hd_forum_mentions_tab']			= 'Mentions';
+$LNG['hd_forum_posts_tab']				= 'New posts';
+$LNG['hd_no_mentions']					= 'No new mentions';
+$LNG['hd_no_posts']						= 'No new posts';
+$LNG['hd_loading']						= 'Loading…';
+$LNG['hd_profile']						= 'Profile';
+$LNG['hd_user_menu']					= 'User menu';
+$LNG['hd_sidebar_collapse']				= 'Collapse sidebar';
+$LNG['hd_sidebar_expand']				= 'Expand sidebar';
+$LNG['hd_nav_open']						= 'Open navigation';
+$LNG['hd_forum_read']					= 'Mark as read';
+$LNG['hd_forum_from']					= 'by';
+$LNG['hd_load_error']					= 'Failed to load';
+$LNG['hd_build_prefix']					= 'Build:';
+$LNG['hd_research_prefix']				= 'Research:';
+$LNG['hd_just_now']						= 'just now';
+$LNG['hd_time_min']						= 'min.';
+$LNG['hd_time_h']						= 'h';
+$LNG['hd_time_d']						= 'd';
+$LNG['hd_res_time_to_full']				= 'Time to full';
+$LNG['hd_res_full']						= 'Full';
+$LNG['hd_res_current']					= 'Current';
+$LNG['hd_res_max']						= 'Maximum';
+$LNG['hd_res_storage']					= 'Storage';
+$LNG['hd_res_production']				= 'Production';
+$LNG['hd_res_almost_full']				= 'almost full';
+
+//----------------------------------------------------------------------------//
+// CHAT / FOOTER (main.footer.twig)
+$LNG['chat_title']						= 'Chat';
+$LNG['chat_open']						= 'Open chat';
+$LNG['chat_channel_global']				= 'Global';
+$LNG['chat_channel_alliance']			= 'Alliance';
+$LNG['chat_channel_adminnet']			= 'Network';
+$LNG['chat_banlist']					= 'Ban list';
+$LNG['chat_close']						= 'Close';
+$LNG['chat_placeholder']				= 'Message…';
+$LNG['chat_send']						= 'Send';
+$LNG['chat_banlist_title']				= 'Chat ban list';
+$LNG['chat_banned_notice']				= 'You are banned from chat.';
+$LNG['chat_no_alliance']				= 'No alliance chat without an alliance.';
+$LNG['chat_bb_bold']					= 'Bold';
+$LNG['chat_bb_italic']					= 'Italic';
+$LNG['chat_bb_underline']				= 'Underline';
+$LNG['chat_bb_color']					= 'Color';
+$LNG['chat_bb_link']					= 'Link';
+$LNG['chat_no_messages']				= 'No messages yet.';
+$LNG['chat_error']						= 'Error';
+$LNG['chat_network_error']				= 'Network error';
+$LNG['chat_confirm_delete']				= 'Delete message?';
+$LNG['chat_delete']						= 'Delete';
+$LNG['chat_ban']						= 'Ban';
+$LNG['chat_ban_reason_prefix']			= 'Reason for ban of';
+$LNG['chat_ban_reason_optional']		= '(optional)';
+$LNG['chat_ban_success']				= 'banned.';
+$LNG['chat_no_bans']					= 'No active bans.';
+$LNG['chat_unban']						= 'Unban';
+$LNG['chat_adminnet_not_configured']	= 'Admin network not configured.';
+$LNG['chat_adminnet_setup']				= 'Set up now';
+$LNG['chat_load_error']					= 'Failed to load';
+$LNG['footer_powered_by']				= 'Powered by';
+
+//----------------------------------------------------------------------------//
+// NAVIGATION (main.navigation.twig)
+$LNG['nav_community']					= 'Community';
+$LNG['nav_tools']						= 'Tools';
+$LNG['nav_galaxy_map']					= 'Galaxy Map';
+$LNG['nav_galaxy_2d']					= '2D View';
+$LNG['nav_galaxy_3d']					= '3D View';
+$LNG['nav_sidebar_collapse']			= 'Collapse / expand sidebar';
+
+//----------------------------------------------------------------------------//
+// BATTLE HALL (page.battleHall.default.twig)
+$LNG['tkb_rank_1']						= '1st Place';
+$LNG['tkb_rank_2']						= '2nd Place';
+$LNG['tkb_rank_3']						= '3rd Place';
+$LNG['tkb_vs']							= 'VS';
+
+//----------------------------------------------------------------------------//
+// BUILDINGS (page.buildings.default.twig)
+$LNG['bd_action_failed']				= 'Action failed.';
+$LNG['bd_notres']						= 'Not enough resources';
+$LNG['bd_max_level']					= 'Maximum level';
+$LNG['bd_duration']						= 'Duration';
+
+//----------------------------------------------------------------------------//
+// STATISTICS (page.statistics.default.twig)
+// (all keys already present: st_player, st_alliance, st_points, st_members, st_per_member)
 
 //----------------------------------------------------------------------------//
 // Logout

@@ -33,12 +33,12 @@
     <div class="mcc-bulk-bar">
         <input type="checkbox" class="mcc-bulk-check" id="mcc-all"
                onchange="document.querySelectorAll('.mcc-row-check').forEach(function(c){c.checked=this.checked;},this)">
-        <label for="mcc-all" class="mcc-bulk-label">Alle</label>
+        <label for="mcc-all" class="mcc-bulk-label">{{ LNG.mg_all }}</label>
         <button class="mcc-bulk-del" onclick="mccDeleteChecked({{ MessID }}, {{ page }})">
             <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M6 2a1 1 0 00-1 1H2v1h12V3h-3a1 1 0 00-1-1H6zM3 5l1 9h8l1-9H3z"/></svg>
-            Markierte löschen
+            {{ LNG.mg_delete_selected }}
         </button>
-        <span class="mcc-bulk-count">{{ MessageList|length }} Nachrichten</span>
+        <span class="mcc-bulk-count">{{ MessageList|length }} {{ LNG.mg_messages }}</span>
     </div>
     {% endif %}
 
@@ -85,13 +85,13 @@
                 <button class="mcc-act reply"
                         onclick="Dialog.PM({{ Msg.sender }}, 'RE: {{ Msg.subject|striptags|e('js') }}')">
                     <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M7.5 2L2 7l5.5 5V9.5C10.5 9.5 13.5 11.5 13.5 14.5c0-5.5-3-7-6-7V2z"/></svg>
-                    Antworten
+                    {{ LNG.mg_reply }}
                 </button>
                 {% endif %}
                 <button class="mcc-act delete"
                         onclick="Message.deleteMessage({{ Msg.id }}, {{ MessID }}, {{ page }})">
                     <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M6 2a1 1 0 00-1 1H2v1h12V3h-3a1 1 0 00-1-1H6zM3 5l1 9h8l1-9H3z"/></svg>
-                    Löschen
+                    {{ LNG.mg_delete }}
                 </button>
             </div>
         </div>
@@ -106,7 +106,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
             </svg>
         </div>
-        <div class="mcc-empty-title">Keine Nachrichten</div>
+        <div class="mcc-empty-title">{{ LNG.mg_no_messages }}</div>
         <div class="mcc-empty-sub">// MAILBOX_EMPTY</div>
     </div>
 {% endif %}
@@ -161,7 +161,7 @@ function mccDeleteChecked(messCat, pg) {
     var ids = [];
     document.querySelectorAll('.mcc-row-check:checked').forEach(function(c){ ids.push(c.value); });
     if (!ids.length) return;
-    if (!confirm('Markierte Nachrichten löschen?')) return;
+    if (!confirm({{ LNG.mg_confirm_delete_selected|json_encode }})) return;
     if (typeof SmAjax !== 'undefined') {
         var payload = {};
         ids.forEach(function(id, i){ payload['messageID[' + i + ']'] = id; });

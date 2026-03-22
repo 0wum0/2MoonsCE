@@ -162,15 +162,15 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <div class="dash-header">
-  <h1>Dashboard</h1>
-  <p>2MoonsCE Administrationszentrum &mdash; Uni {{ uniName|default('1') }}</p>
+  <h1>{{ LNG.adm_dash_title }}</h1>
+  <p>{{ LNG.adm_dash_subtitle }} &mdash; {{ LNG.adm_dash_uni }} {{ uniName|default('1') }}</p>
 </div>
 
 <div class="period-tabs">
-  <button class="period-tab{% if period == 'day' %} active{% endif %}" data-period="day">Tag</button>
-  <button class="period-tab{% if period == 'week' %} active{% endif %}" data-period="week">Woche</button>
-  <button class="period-tab{% if period == 'month' %} active{% endif %}" data-period="month">Monat</button>
-  <button class="period-tab{% if period == 'year' %} active{% endif %}" data-period="year">Jahr</button>
+  <button class="period-tab{% if period == 'day' %} active{% endif %}" data-period="day">{{ LNG.adm_period_day }}</button>
+  <button class="period-tab{% if period == 'week' %} active{% endif %}" data-period="week">{{ LNG.adm_period_week }}</button>
+  <button class="period-tab{% if period == 'month' %} active{% endif %}" data-period="month">{{ LNG.adm_period_month }}</button>
+  <button class="period-tab{% if period == 'year' %} active{% endif %}" data-period="year">{{ LNG.adm_period_year }}</button>
 </div>
 
 {% if Messages is defined and Messages is not empty %}
@@ -187,22 +187,22 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Spieler Online</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_players_online }}</span>
           <div class="flipcard-icon">&#128101;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-online">
             {{ report.players_online.online|default(0) }} <span class="sub">/ {{ report.players_online.total|default(0) }}</span>
           </div>
-          <div class="flipcard-trend neutral">Online / Gesamt</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_online_total }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Details</div>
-        <div class="flipcard-back-item"><span>Online (15 Min)</span><span class="flipcard-back-item-value">{{ report.players_online.online|default(0) }}</span></div>
-        <div class="flipcard-back-item"><span>Gesamt registriert</span><span class="flipcard-back-item-value">{{ report.players_online.total|default(0) }}</span></div>
-        <div class="flipcard-back-item"><span>Gesperrt</span><span class="flipcard-back-item-value">{{ report.banned_players.count|default(0) }}</span></div>
-        <div class="flipcard-back-item"><span>Offene Tickets</span><span class="flipcard-back-item-value">{{ report.open_tickets.count|default(0) }}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_details }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_online_15m }}</span><span class="flipcard-back-item-value">{{ report.players_online.online|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_total_registered }}</span><span class="flipcard-back-item-value">{{ report.players_online.total|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_banned }}</span><span class="flipcard-back-item-value">{{ report.banned_players.count|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_open_tickets }}</span><span class="flipcard-back-item-value">{{ report.open_tickets.count|default(0) }}</span></div>
       </div>
     </div>
   </div>
@@ -211,18 +211,18 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Registrierungen</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_registrations }}</span>
           <div class="flipcard-icon">&#128100;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-registrations">{{ report.registrations.count|default(0) }}</div>
-          <div class="flipcard-trend neutral">Im Zeitraum</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_in_period }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Registrierungen</div>
-        <div class="flipcard-back-item"><span>Neue Spieler</span><span class="flipcard-back-item-value">{{ report.registrations.count|default(0) }}</span></div>
-        <div class="flipcard-back-item"><span>Zeitraum</span><span class="flipcard-back-item-value">{{ period|default('day') }}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_registrations }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_new_players }}</span><span class="flipcard-back-item-value">{{ report.registrations.count|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_period }}</span><span class="flipcard-back-item-value">{{ period|default('day') }}</span></div>
       </div>
     </div>
   </div>
@@ -231,20 +231,20 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Flotten gesendet</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_fleets_sent }}</span>
           <div class="flipcard-icon">&#128640;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-fleets">
             {% if report.fleets_sent.count is defined and report.fleets_sent.count >= 0 %}{{ report.fleets_sent.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
           </div>
-          <div class="flipcard-trend neutral">Im Zeitraum</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_in_period }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Flotten Info</div>
-        <div class="flipcard-back-item"><span>Gesendet</span><span class="flipcard-back-item-value">{% if report.fleets_sent.count is defined and report.fleets_sent.count >= 0 %}{{ report.fleets_sent.count }}{% else %}n/a{% endif %}</span></div>
-        <div class="flipcard-back-item"><span>Aktuell fliegend</span><span class="flipcard-back-item-value">{% if report.flying_fleets.count is defined and report.flying_fleets.count >= 0 %}{{ report.flying_fleets.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_fleets_info }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_sent }}</span><span class="flipcard-back-item-value">{% if report.fleets_sent.count is defined and report.fleets_sent.count >= 0 %}{{ report.fleets_sent.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_flying }}</span><span class="flipcard-back-item-value">{% if report.flying_fleets.count is defined and report.flying_fleets.count >= 0 %}{{ report.flying_fleets.count }}{% else %}n/a{% endif %}</span></div>
       </div>
     </div>
   </div>
@@ -253,20 +253,20 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Neue Allianzen</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_new_alliances }}</span>
           <div class="flipcard-icon">&#127942;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-alliances">
             {% if report.alliances_founded.count is defined and report.alliances_founded.count >= 0 %}{{ report.alliances_founded.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
           </div>
-          <div class="flipcard-trend neutral">Gegr&uuml;ndet</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_founded }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Allianzen</div>
-        <div class="flipcard-back-item"><span>Neue im Zeitraum</span><span class="flipcard-back-item-value">{% if report.alliances_founded.count is defined and report.alliances_founded.count >= 0 %}{{ report.alliances_founded.count }}{% else %}n/a{% endif %}</span></div>
-        <div class="flipcard-back-item"><span>Gesamt</span><span class="flipcard-back-item-value">{% if report.alliances_total.count is defined and report.alliances_total.count >= 0 %}{{ report.alliances_total.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_alliances_info }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_new_in_period }}</span><span class="flipcard-back-item-value">{% if report.alliances_founded.count is defined and report.alliances_founded.count >= 0 %}{{ report.alliances_founded.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_total }}</span><span class="flipcard-back-item-value">{% if report.alliances_total.count is defined and report.alliances_total.count >= 0 %}{{ report.alliances_total.count }}{% else %}n/a{% endif %}</span></div>
       </div>
     </div>
   </div>
@@ -275,19 +275,19 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">K&auml;mpfe</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_combats }}</span>
           <div class="flipcard-icon">&#9876;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-combats">
             {% if report.combats.count is defined and report.combats.count >= 0 %}{{ report.combats.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
           </div>
-          <div class="flipcard-trend neutral">Im Zeitraum</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_in_period }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Kampf-Details</div>
-        <div class="flipcard-back-item"><span>K&auml;mpfe</span><span class="flipcard-back-item-value">{% if report.combats.count is defined and report.combats.count >= 0 %}{{ report.combats.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_combat_details }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_combats }}</span><span class="flipcard-back-item-value">{% if report.combats.count is defined and report.combats.count >= 0 %}{{ report.combats.count }}{% else %}n/a{% endif %}</span></div>
       </div>
     </div>
   </div>
@@ -296,19 +296,19 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Nachrichten</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_messages }}</span>
           <div class="flipcard-icon">&#9993;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-messages">
             {% if report.messages.count is defined and report.messages.count >= 0 %}{{ report.messages.count }}{% else %}<span class="na-value">n/a</span>{% endif %}
           </div>
-          <div class="flipcard-trend neutral">Im Zeitraum</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_in_period }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Nachrichten</div>
-        <div class="flipcard-back-item"><span>Gesendet</span><span class="flipcard-back-item-value">{% if report.messages.count is defined and report.messages.count >= 0 %}{{ report.messages.count }}{% else %}n/a{% endif %}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_messages }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_sent }}</span><span class="flipcard-back-item-value">{% if report.messages.count is defined and report.messages.count >= 0 %}{{ report.messages.count }}{% else %}n/a{% endif %}</span></div>
       </div>
     </div>
   </div>
@@ -317,20 +317,20 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Multi-Verdacht</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_multi_suspect }}</span>
           <div class="flipcard-icon">&#128279;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-multi">
             {% if report.multiaccount_flags.flagged_ips is defined %}{{ report.multiaccount_flags.flagged_ips|default(0) }}{% else %}<span class="na-value">n/a</span>{% endif %}
           </div>
-          <div class="flipcard-trend neutral">Geteilte IPs</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_shared_ips }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Multiaccount</div>
-        <div class="flipcard-back-item"><span>Geteilte IPs</span><span class="flipcard-back-item-value">{{ report.multiaccount_flags.flagged_ips|default(0) }}</span></div>
-        <div class="flipcard-back-item"><span>Betroffene User</span><span class="flipcard-back-item-value">{{ report.multiaccount_flags.flagged_users|default(0) }}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_multiaccount }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_shared_ips }}</span><span class="flipcard-back-item-value">{{ report.multiaccount_flags.flagged_ips|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_affected_users }}</span><span class="flipcard-back-item-value">{{ report.multiaccount_flags.flagged_users|default(0) }}</span></div>
       </div>
     </div>
   </div>
@@ -339,19 +339,19 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Planeten</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_planets }}</span>
           <div class="flipcard-icon">&#127759;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-planets">
             {% if report.planets_total.count is defined %}{{ report.planets_total.count|default(0) }}{% else %}<span class="na-value">n/a</span>{% endif %}
           </div>
-          <div class="flipcard-trend neutral">Gesamt</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_total }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Planeten</div>
-        <div class="flipcard-back-item"><span>Gesamt</span><span class="flipcard-back-item-value">{{ report.planets_total.count|default(0) }}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_planets }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_total }}</span><span class="flipcard-back-item-value">{{ report.planets_total.count|default(0) }}</span></div>
       </div>
     </div>
   </div>
@@ -360,19 +360,19 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="flipcard-inner">
       <div class="flipcard-front">
         <div class="flipcard-front-top">
-          <span class="flipcard-label">Bots aktiv</span>
+          <span class="flipcard-label">{{ LNG.adm_kpi_bots_active }}</span>
           <div class="flipcard-icon">&#129302;</div>
         </div>
         <div>
           <div class="flipcard-value" id="kpi-bots">{{ report.bot_activity.active_last_15m|default(0) }}</div>
-          <div class="flipcard-trend neutral">Letzte 15 Minuten</div>
+          <div class="flipcard-trend neutral">{{ LNG.adm_kpi_last_15m }}</div>
         </div>
       </div>
       <div class="flipcard-back">
-        <div class="flipcard-back-title">Bot-Details</div>
-        <div class="flipcard-back-item"><span>Aktiv (15 Min)</span><span class="flipcard-back-item-value">{{ report.bot_activity.active_last_15m|default(0) }}</span></div>
-        <div class="flipcard-back-item"><span>Letzter Tick</span><span class="flipcard-back-item-value">{{ report.bot_activity.last_tick_human|default('n/a') }}</span></div>
-        <div class="flipcard-back-item"><span>Log Pfad</span><span class="flipcard-back-item-value" style="font-size:11px;opacity:.8;">{{ report.bot_activity.log_path|default('nicht gefunden') }}</span></div>
+        <div class="flipcard-back-title">{{ LNG.adm_kpi_bot_details }}</div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_active_15m }}</span><span class="flipcard-back-item-value">{{ report.bot_activity.active_last_15m|default(0) }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_last_tick }}</span><span class="flipcard-back-item-value">{{ report.bot_activity.last_tick_human|default('n/a') }}</span></div>
+        <div class="flipcard-back-item"><span>{{ LNG.adm_kpi_log_path }}</span><span class="flipcard-back-item-value" style="font-size:11px;opacity:.8;">{{ report.bot_activity.log_path|default(LNG.adm_kpi_not_found) }}</span></div>
       </div>
     </div>
   </div>
@@ -383,10 +383,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <div class="dash-box">
     <div class="dash-box-title">
-      <span>&#127942; Top Spieler</span>
-      <span class="dash-meta">Top 5 (Punkte)</span>
+      <span>&#127942; {{ LNG.adm_top_players }}</span>
+      <span class="dash-meta">{{ LNG.adm_top_players_sub }}</span>
     </div>
-    <div class="dash-box-sub">Highscore im Universum</div>
+    <div class="dash-box-sub">{{ LNG.adm_top_players_uni }}</div>
 
     {% set topPlayers = report.top_players|default([]) %}
     {% if topPlayers is not empty %}
@@ -395,23 +395,23 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="dash-row">
             <div class="dash-row-left">
               <span class="badge">{{ loop.index }}</span>
-              <span class="dash-name">{{ p.username|default('Unbekannt') }}</span>
+              <span class="dash-name">{{ p.username|default(LNG.adm_unknown) }}</span>
             </div>
-            <div class="dash-meta">{{ p.points|default(0) }} Pkt</div>
+            <div class="dash-meta">{{ p.points|default(0) }} {{ LNG.adm_pts }}</div>
           </div>
         {% endfor %}
       </div>
     {% else %}
-      <div class="no-data">Keine Top-Spieler Daten verf&uuml;gbar</div>
+      <div class="no-data">{{ LNG.adm_no_top_players }}</div>
     {% endif %}
   </div>
 
   <div class="dash-box">
     <div class="dash-box-title">
-      <span>&#128293; Aktive Spieler</span>
+      <span>&#128293; {{ LNG.adm_active_players }}</span>
       <span class="dash-meta">Top 5</span>
     </div>
-    <div class="dash-box-sub">Zuletzt aktiv / Online</div>
+    <div class="dash-box-sub">{{ LNG.adm_active_players_sub }}</div>
 
     {% set activePlayers = report.active_players|default([]) %}
     {% if activePlayers is not empty %}
@@ -420,58 +420,58 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="dash-row">
             <div class="dash-row-left">
               <span class="badge">{{ loop.index }}</span>
-              <span class="dash-name">{{ p.username|default('Unbekannt') }}</span>
+              <span class="dash-name">{{ p.username|default(LNG.adm_unknown) }}</span>
             </div>
-            <div class="dash-meta">online</div>
+            <div class="dash-meta">{{ LNG.adm_online }}</div>
           </div>
         {% endfor %}
       </div>
     {% else %}
-      <div class="no-data">Keine Aktivit&auml;tsdaten verf&uuml;gbar</div>
+      <div class="no-data">{{ LNG.adm_no_activity }}</div>
     {% endif %}
   </div>
 
   <div class="dash-box">
     <div class="dash-box-title">
-      <span>&#128279; Multi-IP Details</span>
+      <span>&#128279; {{ LNG.adm_multi_ip }}</span>
       <span class="dash-meta">{{ report.multiaccount_flags.flagged_ips|default(0) }} IPs</span>
     </div>
-    <div class="dash-box-sub">Verd&auml;chtige Logins nach IP (Zusammenfassung)</div>
+    <div class="dash-box-sub">{{ LNG.adm_multi_ip_sub }}</div>
 
     <div class="dash-list">
       <div class="dash-row">
         <div class="dash-row-left">
           <span class="badge warn">IPs</span>
-          <span class="dash-name">Geteilte IPs</span>
+          <span class="dash-name">{{ LNG.adm_kpi_shared_ips }}</span>
         </div>
         <div class="dash-meta">{{ report.multiaccount_flags.flagged_ips|default(0) }}</div>
       </div>
       <div class="dash-row">
         <div class="dash-row-left">
           <span class="badge warn">User</span>
-          <span class="dash-name">Betroffene User</span>
+          <span class="dash-name">{{ LNG.adm_kpi_affected_users }}</span>
         </div>
         <div class="dash-meta">{{ report.multiaccount_flags.flagged_users|default(0) }}</div>
       </div>
       <a class="qa" href="admin.php?page=multiips" style="margin-top:10px;">
-        &#128269; Multi-IP Seite &ouml;ffnen
+        &#128269; {{ LNG.adm_multi_ip_open }}
       </a>
     </div>
   </div>
 
   <div class="dash-box">
     <div class="dash-box-title">
-      <span>&#9881; Quick Actions</span>
-      <span class="dash-meta">Admin Tools</span>
+      <span>&#9881; {{ LNG.adm_quick_actions }}</span>
+      <span class="dash-meta">{{ LNG.adm_admin_tools }}</span>
     </div>
-    <div class="dash-box-sub">Schnellzugriffe (damit du nicht suchen musst)</div>
+    <div class="dash-box-sub">{{ LNG.adm_quick_links }}</div>
 
     <div class="quick-actions">
-      <a class="qa" href="admin.php?page=clearcache">&#128465; Cache leeren</a>
-      <a class="qa" href="admin.php?page=log">&#128203; Admin-Log</a>
-      <a class="qa" href="admin.php?page=fleets">&#128640; Flotten</a>
-      <a class="qa" href="admin.php?page=messagelist">&#9993; Nachrichten</a>
-      <a class="qa" href="admin.php?page=EditBots">&#129302; Bots</a>
+      <a class="qa" href="admin.php?page=clearcache">&#128465; {{ LNG.adm_qa_cache }}</a>
+      <a class="qa" href="admin.php?page=log">&#128203; {{ LNG.adm_qa_log }}</a>
+      <a class="qa" href="admin.php?page=fleets">&#128640; {{ LNG.adm_qa_fleets }}</a>
+      <a class="qa" href="admin.php?page=messagelist">&#9993; {{ LNG.adm_qa_messages }}</a>
+      <a class="qa" href="admin.php?page=EditBots">&#129302; {{ LNG.adm_qa_bots }}</a>
     </div>
   </div>
 
@@ -482,8 +482,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="chart-card">
     <div class="chart-card-header">
       <div>
-        <div class="chart-card-title">Aktivit&auml;t / Online Verlauf</div>
-        <div class="chart-card-subtitle">Aktive Spieler im Zeitraum</div>
+        <div class="chart-card-title">{{ LNG.adm_chart_activity }}</div>
+        <div class="chart-card-subtitle">{{ LNG.adm_chart_activity_sub }}</div>
       </div>
     </div>
     <div class="chart-container"><canvas id="chartActivity"></canvas></div>
@@ -492,8 +492,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="chart-card">
     <div class="chart-card-header">
       <div>
-        <div class="chart-card-title">Registrierungen</div>
-        <div class="chart-card-subtitle">Neue Spieler im Zeitraum</div>
+        <div class="chart-card-title">{{ LNG.adm_chart_registrations }}</div>
+        <div class="chart-card-subtitle">{{ LNG.adm_chart_registrations_sub }}</div>
       </div>
     </div>
     <div class="chart-container"><canvas id="chartRegistrations"></canvas></div>
@@ -502,8 +502,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="chart-card">
     <div class="chart-card-header">
       <div>
-        <div class="chart-card-title">Flottenstarts</div>
-        <div class="chart-card-subtitle">Gestartete Flotten im Zeitraum</div>
+        <div class="chart-card-title">{{ LNG.adm_chart_fleets }}</div>
+        <div class="chart-card-subtitle">{{ LNG.adm_chart_fleets_sub }}</div>
       </div>
     </div>
     <div class="chart-container"><canvas id="chartFleets"></canvas></div>
@@ -512,8 +512,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="chart-card">
     <div class="chart-card-header">
       <div>
-        <div class="chart-card-title">K&auml;mpfe</div>
-        <div class="chart-card-subtitle">Kampfberichte im Zeitraum</div>
+        <div class="chart-card-title">{{ LNG.adm_chart_combats }}</div>
+        <div class="chart-card-subtitle">{{ LNG.adm_chart_combats_sub }}</div>
       </div>
     </div>
     <div class="chart-container"><canvas id="chartCombats"></canvas></div>
@@ -522,8 +522,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="chart-card">
     <div class="chart-card-header">
       <div>
-        <div class="chart-card-title">Bots</div>
-        <div class="chart-card-subtitle">Bot-Ticks im Zeitraum</div>
+        <div class="chart-card-title">{{ LNG.adm_chart_bots }}</div>
+        <div class="chart-card-subtitle">{{ LNG.adm_chart_bots_sub }}</div>
       </div>
     </div>
     <div class="chart-container"><canvas id="chartBots"></canvas></div>
@@ -532,11 +532,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
 {# ---- Bot Log Section (wie bei dir) ---- #}
 <div class="report-section">
-  <div class="report-section-title">&#128202; Bilanz &mdash; {{ periodLabel|default('Heute') }}</div>
+  <div class="report-section-title">&#128202; {{ LNG.adm_bilanz }} &mdash; {{ periodLabel|default(LNG.adm_today) }}</div>
 
   <div class="report-grid">
     <div class="report-card" style="grid-column: 1 / -1;">
-      <div class="report-card-title">&#129302; Bot-Aktivit&auml;t (Live Log)</div>
+      <div class="report-card-title">&#129302; {{ LNG.adm_bot_live_log }}</div>
 
       {% set botEvents = report.bot_activity.events|default([]) %}
       {% if botEvents is not empty %}
@@ -569,10 +569,8 @@ document.addEventListener('DOMContentLoaded', function(){
           {% endfor %}
         </div>
       {% else %}
-        <div class="no-data">Keine Bot-Events verf&uuml;gbar</div>
-        <div style="margin-top:8px;color:#94a3b8;font-size:12px;">
-          Erwartet Log-Datei unter: <code>bot_actions_debug.txt</code> oder <code>cache/bot_actions_debug.txt</code> oder <code>includes/bot_actions_debug.txt</code>.
-        </div>
+        <div class="no-data">{{ LNG.adm_no_bot_events }}</div>
+        <div style="margin-top:8px;color:#94a3b8;font-size:12px;">{{ LNG.adm_bot_log_expected|raw }}</div>
       {% endif %}
     </div>
   </div>
@@ -637,8 +635,8 @@ document.addEventListener('DOMContentLoaded', function() {
   mkChart('chartActivity', {
     type: 'line',
     data: { labels, datasets: [
-      { label: 'Aktivität', data: series.activity, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.12)', fill: true },
-      { label: 'Bots',      data: series.bots,     borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,0.10)', fill: true }
+      { label: {{ LNG.adm_chart_activity|json_encode }}, data: series.activity, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.12)', fill: true },
+      { label: {{ LNG.adm_chart_bots|json_encode }},      data: series.bots,     borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,0.10)', fill: true }
     ]},
     options: Object.assign({}, ctxOpts, { plugins: { legend: { display: true, labels: { color: '#94a3b8' } } } })
   });
@@ -646,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function() {
   mkChart('chartRegistrations', {
     type: 'bar',
     data: { labels, datasets: [
-      { label: 'Registrierungen', data: series.registrations, backgroundColor: '#34d399', borderRadius: 4 }
+      { label: {{ LNG.adm_chart_registrations|json_encode }}, data: series.registrations, backgroundColor: '#34d399', borderRadius: 4 }
     ]},
     options: ctxOpts
   });
@@ -654,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
   mkChart('chartFleets', {
     type: 'line',
     data: { labels, datasets: [
-      { label: 'Flotten', data: series.fleets, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.12)', fill: true }
+      { label: {{ LNG.adm_qa_fleets|json_encode }}, data: series.fleets, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.12)', fill: true }
     ]},
     options: ctxOpts
   });
@@ -662,7 +660,7 @@ document.addEventListener('DOMContentLoaded', function() {
   mkChart('chartCombats', {
     type: 'bar',
     data: { labels, datasets: [
-      { label: 'Kämpfe', data: series.combats, backgroundColor: '#f87171', borderRadius: 4 }
+      { label: {{ LNG.adm_kpi_combats|json_encode }}, data: series.combats, backgroundColor: '#f87171', borderRadius: 4 }
     ]},
     options: ctxOpts
   });
@@ -670,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
   mkChart('chartBots', {
     type: 'bar',
     data: { labels, datasets: [
-      { label: 'Bot-Ticks', data: series.bots, backgroundColor: '#2dd4bf', borderRadius: 4 }
+      { label: {{ LNG.adm_chart_bots_sub|json_encode }}, data: series.bots, backgroundColor: '#2dd4bf', borderRadius: 4 }
     ]},
     options: ctxOpts
   });

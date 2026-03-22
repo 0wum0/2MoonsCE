@@ -188,7 +188,7 @@ function confirmDemolish(id, name, time) {
         if(typeof SmAjax !== 'undefined') {
             SmAjax.post('game.php?page=buildings', {cmd: 'destroy', building: id})
                 .done(function(){ SmAjax.refreshPageContent('game.php?page=buildings'); })
-                .fail(function(err){ SmAjax.toastError(err || 'Aktion fehlgeschlagen.'); });
+                .fail(function(err){ SmAjax.toastError(err || {{ LNG.bd_action_failed|json_encode }}); });
         } else {
             var form = document.createElement('form');
             form.method = 'post';

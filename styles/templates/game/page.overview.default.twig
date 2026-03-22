@@ -256,7 +256,7 @@ window.OVERVIEW_DATA = {
           </div>
 
           <!-- PLANET IMAGE (clickable, hover glow) -->
-          <div class="ov-planet-img-wrap" id="ovPlanetImgWrap" onclick="window.location.href='game.php?page=buildings'" title="{{ LNG.ov_buildings|default('Gebäude') }}">
+          <div class="ov-planet-img-wrap" id="ovPlanetImgWrap" onclick="window.location.href='game.php?page=buildings'" title="{{ LNG.ov_buildings|default(LNG.lm_buildings) }}">
             <img src="styles/theme/gow/planeten/{{ planetimage }}.jpg"
                  onerror="this.src='styles/theme/gow/planeten/normaltempplanet01.jpg'"
                  class="ov-planet-img" id="ovPlanetImg" alt="{{ planetname }}">
@@ -273,20 +273,20 @@ window.OVERVIEW_DATA = {
         <div class="ov-planet-actions">
           <a href="game.php?page=ticket" class="ov-btn ov-btn-sm"><i class="fas fa-headset"></i> Support</a>
           <a href="game.php?page=messages" class="ov-btn ov-btn-sm"><i class="fas fa-envelope"></i> {{ LNG.lm_messages }}</a>
-          <a href="game.php?page=statistics" class="ov-btn ov-btn-sm"><i class="fas fa-chart-bar"></i> {{ LNG.lm_statistics|default('Statistik') }}</a>
+          <a href="game.php?page=statistics" class="ov-btn ov-btn-sm"><i class="fas fa-chart-bar"></i> {{ LNG.lm_statistics }}</a>
         </div>
       </div>
 
       <!-- BUILD QUEUE -->
       {% if buildInfo.buildings or buildInfo.tech or buildInfo.fleet %}
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-hammer"></i> {{ LNG.ov_queue|default('Bauqueue') }}</div>
+        <div class="ov-card-header"><i class="fas fa-hammer"></i> {{ LNG.ov_queue|default(LNG.hd_queue) }}</div>
         <div class="ov-queue-list">
           {% if buildInfo.buildings %}
           <div class="ov-queue-item ov-queue-building">
             <i class="fas fa-city"></i>
             <div class="ov-queue-info">
-              <span class="ov-queue-name">{{ LNG.tech[buildInfo.buildings.id]|default('Gebäude') }} <span class="ov-queue-lvl">Lv {{ buildInfo.buildings.level }}</span></span>
+              <span class="ov-queue-name">{{ LNG.tech[buildInfo.buildings.id]|default(LNG.lm_buildings) }} <span class="ov-queue-lvl">Lv {{ buildInfo.buildings.level }}</span></span>
               <span class="ov-queue-time" data-time="{{ buildInfo.buildings.timeleft }}"><i class="fas fa-clock"></i> {{ buildInfo.buildings.starttime }}</span>
             </div>
             <div class="ov-queue-bar-wrap"><div class="ov-queue-bar" id="qbar-building"></div></div>
@@ -296,7 +296,7 @@ window.OVERVIEW_DATA = {
           <div class="ov-queue-item ov-queue-tech">
             <i class="fas fa-flask"></i>
             <div class="ov-queue-info">
-              <span class="ov-queue-name">{{ LNG.tech[buildInfo.tech.id]|default('Forschung') }} <span class="ov-queue-lvl">Lv {{ buildInfo.tech.level }}</span></span>
+              <span class="ov-queue-name">{{ LNG.tech[buildInfo.tech.id]|default(LNG.lm_research) }} <span class="ov-queue-lvl">Lv {{ buildInfo.tech.level }}</span></span>
               <span class="ov-queue-time" data-time="{{ buildInfo.tech.timeleft }}"><i class="fas fa-clock"></i> {{ buildInfo.tech.starttime }}</span>
             </div>
             <div class="ov-queue-bar-wrap"><div class="ov-queue-bar" id="qbar-tech"></div></div>
@@ -306,7 +306,7 @@ window.OVERVIEW_DATA = {
           <div class="ov-queue-item ov-queue-fleet">
             <i class="fas fa-rocket"></i>
             <div class="ov-queue-info">
-              <span class="ov-queue-name">{{ LNG.tech[buildInfo.fleet.id]|default('Schiff') }} <span class="ov-queue-lvl">x{{ buildInfo.fleet.level }}</span></span>
+              <span class="ov-queue-name">{{ LNG.tech[buildInfo.fleet.id]|default(LNG.hd_shipyard) }} <span class="ov-queue-lvl">x{{ buildInfo.fleet.level }}</span></span>
               <span class="ov-queue-time" data-time="{{ buildInfo.fleet.timeleft }}"><i class="fas fa-clock"></i> {{ buildInfo.fleet.starttime }}</span>
             </div>
             <div class="ov-queue-bar-wrap"><div class="ov-queue-bar" id="qbar-fleet"></div></div>
@@ -319,7 +319,7 @@ window.OVERVIEW_DATA = {
       <!-- FLEETS -->
       {% if fleets is defined and fleets|length > 0 %}
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-rocket"></i> {{ LNG.ov_fleet|default('Flotten') }} <span class="ov-badge">{{ fleets|length }}</span></div>
+        <div class="ov-card-header"><i class="fas fa-rocket"></i> {{ LNG.ov_fleet|default(LNG.lm_fleet) }} <span class="ov-badge">{{ fleets|length }}</span></div>
         <div class="ov-fleet-body">
           {% for fleetEntry in fleets %}
           <div class="ov-fleet-entry {% if fleetEntry.isHostile %}ov-fleet-hostile{% elseif fleetEntry.isOwn %}ov-fleet-own{% else %}ov-fleet-foreign{% endif %}">
@@ -341,7 +341,7 @@ window.OVERVIEW_DATA = {
 
       <!-- REFLINK -->
       <div class="ov-card">
-        <div class="ov-card-header"><i class="fas fa-share-alt"></i> {{ LNG.ov_reflink|default('Empfehlungslink') }}</div>
+        <div class="ov-card-header"><i class="fas fa-share-alt"></i> {{ LNG.ov_reflink|default(LNG.ov_reflink) }}</div>
         <div class="ov-card-body">
           {% if ref_active %}
             {% if isModuleAvailable(constant('MODULE_BANNER')) %}
