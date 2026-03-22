@@ -157,15 +157,13 @@ function check(){
 		$.post('admin.php?page=globalmessage&action=send&ajax=1', $('#message').serialize(), function(data) {
 			// Prüfung ob erfolgreich (2Moons liefert oft Text zurück)
             // Wir bauen ein Modal mit den gewünschten Buttons
-            if(data.indexOf('erfolgreich') !== -1 || data.indexOf('gesendet') !== -1 || data.indexOf('sended') !== -1) {
+            if(data.indexOf('{{ LNG.sm_success_check }}') !== -1 || data.indexOf('{{ LNG.sm_sent_check }}') !== -1 || data.indexOf('sended') !== -1) {
                 Dialog.alert('<div style="text-align:center; padding:10px;"><h2 style="color:#22c55e;">✅ GESENDET</h2><p>'+data+'</p></div>', function() {
                     window.location.href = 'admin.php?page=globalmessage';
                 });
-                // Button Text im Modal anpassen (2Moons Standard nutzt oft jQuery UI oder interne Dialoge)
-                $('.ui-dialog-buttonset button').text('Weiter');
+                $('.ui-dialog-buttonset button').text('{{ LNG.sm_next_btn }}');
             } else {
-                Dialog.confirm('<div style="text-align:center; padding:10px;"><h2 style="color:#ef4444;">❌ FEHLER</h2><p>Die Nachricht konnte nicht übertragen werden.</p><small>'+data+'</small></div>', 'Wiederholen', 'Abbrechen', function() {
-                    // Bleibt auf der Seite zum Wiederholen
+                Dialog.confirm('<div style="text-align:center; padding:10px;"><h2 style="color:#ef4444;">{{ LNG.sm_error_title }}</h2><p>{{ LNG.sm_error_msg }}</p><small>'+data+'</small></div>', '{{ LNG.sm_retry }}', '{{ LNG.sm_cancel }}', function() {
                 });
             }
 		});
@@ -216,12 +214,12 @@ function check(){
                     <button type="button" class="bb-btn" onclick="insertBB('b')">B</button>
                     <button type="button" class="bb-btn" onclick="insertBB('i')">I</button>
                     <button type="button" class="bb-btn" onclick="insertBB('u')">U</button>
-                    <button type="button" class="bb-btn" onclick="insertBB('quote')">Zitat</button>
-                    <button type="button" class="bb-btn" onclick="insertBB('url')">Link</button>
-                    <button type="button" class="bb-btn" onclick="insertBB('img')">Bild</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('quote')">{{ LNG.sm_bb_quote }}</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('url')">{{ LNG.sm_bb_link }}</button>
+                    <button type="button" class="bb-btn" onclick="insertBB('img')">{{ LNG.sm_bb_image }}</button>
                 </div>
 
-                <textarea name="text" id="text" class="gm-textarea" onkeyup="$('#cntChars').text($('#text').val().length);" placeholder="Nachricht hier eingeben..."></textarea>
+                <textarea name="text" id="text" class="gm-textarea" onkeyup="$('#cntChars').text($('#text').val().length);" placeholder="{{ LNG.sm_placeholder }}"></textarea>
             </div>
 
             <button type="button" class="btn-submit" onclick="check();">

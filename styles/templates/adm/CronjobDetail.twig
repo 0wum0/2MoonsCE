@@ -48,7 +48,7 @@
             <td>Klasse</td>
             <td>
                 <select name="class" class="glass-select" style="width: 100%;">
-                    <option value="">-- Klasse wählen --</option>
+                    <option value="">{{ LNG.adm_select_class }}</option>
                     {% for cronClass in avalibleCrons %}
                         <option value="{{ cronClass }}" {% if cronClass == class %}selected{% endif %}>{{ cronClass }}</option>
                     {% endfor %}
@@ -104,7 +104,7 @@
 
         <tr>
             <td colspan="2" style="text-align: right; padding-top: 20px;">
-                <input type="submit" value="Speichern" class="button">
+                <input type="submit" value="{{ LNG.plg_modal_save }}" class="button">
             </td>
         </tr>
     </table>

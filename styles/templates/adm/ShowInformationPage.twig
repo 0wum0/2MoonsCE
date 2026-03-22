@@ -28,8 +28,8 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="dash-header">
-                <h1><i class="fas fa-server"></i> Server Informationen</h1>
-                <p class="text-muted">Technische Details und Umgebungsvariablen</p>
+                <h1><i class="fas fa-server"></i> {{ LNG.si_title }}</h1>
+                <p class="text-muted">{{ LNG.si_subtitle }}</p>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <div class="col-12 col-lg-6">
             <div class="card h-100 neon-card">
                 <div class="card-header">
-                    <h5 class="m-0"><i class="fab fa-php"></i> System Umgebung</h5>
+                    <h5 class="m-0"><i class="fab fa-php"></i> {{ LNG.si_system_env }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush neon-list">
@@ -60,15 +60,15 @@
                             <span class="badge {% if safemode == 'Ja' %}bg-danger{% else %}bg-success{% endif %}">{{ safemode }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>JSON Verfügbar</span>
+                            <span>{{ LNG.si_json }}</span>
                             <span class="badge {% if json == 'Ja' %}bg-success{% else %}bg-danger{% endif %}">{{ json }}</span>
                         </li>
                          <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>BCMath Verfügbar</span>
+                            <span>{{ LNG.si_bcmath }}</span>
                             <span class="badge {% if bcmath == 'Ja' %}bg-success{% else %}bg-danger{% endif %}">{{ bcmath }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>cURL Verfügbar</span>
+                            <span>{{ LNG.si_curl }}</span>
                             <span class="badge {% if curl == 'Ja' %}bg-success{% else %}bg-danger{% endif %}">{{ curl }}</span>
                         </li>
                     </ul>
@@ -79,7 +79,7 @@
         <div class="col-12 col-lg-6">
             <div class="card h-100 neon-card">
                 <div class="card-header">
-                    <h5 class="m-0"><i class="fas fa-database"></i> Datenbank & Spiel</h5>
+                    <h5 class="m-0"><i class="fas fa-database"></i> {{ LNG.si_db_game }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush neon-list">
@@ -111,18 +111,18 @@
         <div class="col-12">
             <div class="card neon-card">
                 <div class="card-header">
-                    <h5 class="m-0"><i class="fas fa-map-signs"></i> Pfade & Einstellungen</h5>
+                    <h5 class="m-0"><i class="fas fa-map-signs"></i> {{ LNG.si_paths }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="text-muted small">Game Adresse</label>
+                            <label class="text-muted small">{{ LNG.si_game_addr }}</label>
                             <div class="input-group">
                                 <input type="text" class="form-control glass-input" value="http://{{ root }}/" readonly>
                             </div>
                         </div>
                          <div class="col-md-6">
-                            <label class="text-muted small">Game Pfad</label>
+                            <label class="text-muted small">{{ LNG.si_game_path }}</label>
                             <div class="input-group">
                                 <input type="text" class="form-control glass-input" value="http://{{ gameroot }}/index.php" readonly>
                             </div>
@@ -145,8 +145,8 @@
         <div class="col-12">
             <div class="card neon-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="m-0"><i class="fas fa-bug"></i> Bug Report Template</h5>
-                    <button class="btn btn-sm btn-primary" onclick="copyToClipboard()">Kopieren</button>
+                    <h5 class="m-0"><i class="fas fa-bug"></i> {{ LNG.si_bug_report }}</h5>
+                    <button class="btn btn-sm btn-primary" onclick="copyToClipboard()">{{ LNG.si_copy_btn }}</button>
                 </div>
                 <div class="card-body p-0">
 <textarea id="rawLog" class="form-control glass-input" style="height: 200px; font-family: monospace; border:none; border-radius: 0 0 12px 12px;" readonly>```-- Server Info --
@@ -184,7 +184,7 @@ function copyToClipboard() {
   copyText.select();
   copyText.setSelectionRange(0, 99999); 
   navigator.clipboard.writeText(copyText.value);
-  alert("In die Zwischenablage kopiert!");
+  alert("{{ LNG.si_copied_alert }}");
 }
 </script>
 

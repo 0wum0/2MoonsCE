@@ -69,9 +69,9 @@ function nwsInsertBB(tag, id) {
       <button type="button" class="bb-btn" onclick="nwsInsertBB('s','nws-text')"><s>S</s></button>
       <button type="button" class="bb-btn" onclick="nwsInsertBB('url','nws-text')">URL</button>
       <button type="button" class="bb-btn" onclick="nwsInsertBB('img','nws-text')">IMG</button>
-      <button type="button" class="bb-btn" onclick="nwsInsertBB('color','nws-text')">Farbe</button>
-      <button type="button" class="bb-btn" onclick="nwsInsertBB('size','nws-text')">Größe</button>
-      <button type="button" class="bb-btn" onclick="nwsInsertBB('quote','nws-text')">Zitat</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('color','nws-text')">{{ LNG.adm_news_color }}</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('size','nws-text')">{{ LNG.adm_news_size }}</button>
+      <button type="button" class="bb-btn" onclick="nwsInsertBB('quote','nws-text')">{{ LNG.sm_bb_quote }}</button>
     </div>
     <textarea name="text" id="nws-text" class="nws-textarea">{{ news_text }}</textarea>
   </div>
