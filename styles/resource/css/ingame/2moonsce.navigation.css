@@ -486,7 +486,7 @@ body.loading #game-header::after { width:100%; }
 
 /* ── MISC GAME CLASSES ── */
 .content_page { padding:0; }
-.aerospace-wrapper, .aerospace-container { display:flex; flex-direction:column; gap:12px; }
+.aerospace-wrapper, .aerospace-container { display:flex; flex-direction:column; gap:12px; width:100%; }
 .sectiontitle td { font-family:var(--font-hud) !important; font-size:10px !important; letter-spacing:3px !important; color:var(--cyan) !important; padding:12px 16px !important; text-transform:uppercase !important; background:linear-gradient(90deg,rgba(0,212,255,0.07),transparent) !important; border-bottom:1px solid var(--border) !important; }
 .bb-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:rgba(0,212,255,0.08); border:1px solid var(--border2); border-radius:7px; color:var(--cyan); font-family:var(--font-hud); font-size:9px; letter-spacing:1px; text-transform:uppercase; text-decoration:none; cursor:pointer; transition:var(--transition); white-space:nowrap; }
 .bb-btn:hover { background:var(--cyan); color:#000; border-color:var(--cyan); }
