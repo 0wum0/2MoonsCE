@@ -115,15 +115,18 @@
     </div>
 
     <div style="display:flex;gap:16px;align-items:center;padding:8px 4px;">
-        <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
-            <i class="fas fa-crown" style="color:var(--gold);font-size:10px;"></i>
-            <i class="fas fa-circle" style="color:var(--green);font-size:7px;"></i> {{ LNG.tkb_gewinner }}
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);">
+            <i class="fas fa-circle" style="color:var(--green);font-size:7px;"></i>
+            <i class="fas fa-crown" style="color:var(--gold);font-size:9px;"></i>
+            <span style="color:var(--green);">{{ LNG.tkb_no_entries is defined ? LNG.tkb_gewinner|striptags : 'Gewinner' }}</span>
         </span>
-        <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
-            <i class="fas fa-circle" style="color:var(--red);font-size:7px;"></i> {{ LNG.tkb_verlierer }}
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);">
+            <i class="fas fa-circle" style="color:var(--red);font-size:7px;"></i>
+            <span style="color:var(--red);">{{ LNG.tkb_verlierer|striptags }}</span>
         </span>
-        <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
-            <i class="fas fa-circle" style="color:var(--orange);font-size:7px;"></i> Unentschieden
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);">
+            <i class="fas fa-circle" style="color:var(--orange);font-size:7px;"></i>
+            <span style="color:var(--orange);">{{ LNG.tkb_unentschieden|striptags }}</span>
         </span>
     </div>
 
