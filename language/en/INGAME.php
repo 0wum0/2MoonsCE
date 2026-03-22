@@ -1073,6 +1073,8 @@ $LNG['tkb_gewinner']						= '<b>-Winner-</b>';
 $LNG['tkb_verlierer']						= '<b>-Loser-</b>';
 $LNG['tkb_unentschieden']					= '<b>-Both Weisses, undecided- </b>';
 $LNG['tkb_missing']							= '<br>Missing in Action: The user account does not exist any more.';
+$LNG['tkb_no_entries']                  = 'No battle reports available.';
+$LNG['tkb_view']                        = 'Report';
 
 //----------------------------------------------------------------------------//
 // Perfil de Jogador

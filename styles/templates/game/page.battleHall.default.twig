@@ -26,92 +26,107 @@
 {% block title %}{{ LNG.lm_topkb }}{% endblock %}
 {% block content %}
 
+<div class="content_page">
 <div class="aerospace-container">
-    
+
     <div class="content-box header-panel">
-        <h2 class="page-title"><i class="fas fa-trophy"></i> {{ LNG.tkb_top }}</h2>
-        <div class="header-subtitle">{{ LNG.tkb_gratz }}</div>
+        <h2 class="page-title"><i class="fas fa-trophy" style="color:var(--gold);"></i> {{ LNG.tkb_top }}</h2>
+        <div style="font-size:11px;color:var(--dim);">{{ LNG.tkb_gratz }}</div>
     </div>
 
-    <div class="content-box table-panel">
-        <div class="table-responsive">
-            <table class="glass-table full-width">
-                <thead>
-                    <tr>
-                        <th class="text-center">#</th>
-                        <th>{{ LNG.tkb_owners }}</th>
-                        <th>
-                            <a href="game.php?page=battleHall&order=date&sort={% if sort == 'ASC' %}DESC{% else %}ASC{% endif %}" class="sort-link {% if order == 'date' %}active{% endif %}">
-                                <i class="far fa-calendar-alt"></i> {{ LNG.tkb_datum }}
-                                {% if order == 'date' %}<i class="fas fa-sort-{{ sort|lower }}"></i>{% endif %}
-                            </a>
-                        </th>
-                        <th>
-                            <a href="game.php?page=battleHall&order=units&sort={% if sort == 'ASC' %}DESC{% else %}ASC{% endif %}" class="sort-link {% if order == 'units' %}active{% endif %}">
-                                <i class="fas fa-fighter-jet"></i> {{ LNG.tkb_units }}
-                                {% if order == 'units' %}<i class="fas fa-sort-{{ sort|lower }}"></i>{% endif %}
-                            </a>
-                        </th>
-                        <th>{{ LNG.tkb_legende }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in TopKBList %}
-                    <tr class="battle-row">
-                        <td class="text-center rank-cell">
-                            {% if loop.index == 1 %}
-                                <i class="fas fa-medal medal-gold" title="1. Place"></i>
-                            {% elseif loop.index == 2 %}
-                                <i class="fas fa-medal medal-silver" title="2. Place"></i>
-                            {% elseif loop.index == 3 %}
-                                <i class="fas fa-medal medal-bronze" title="3. Place"></i>
+    <div class="content-box" style="padding:0;overflow:hidden;">
+        <table class="stat-table" style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="width:44px;">#</th>
+                    <th>{{ LNG.tkb_owners }}</th>
+                    <th>
+                        <a href="game.php?page=battleHall&order=date&sort={% if sort == 'ASC' %}DESC{% else %}ASC{% endif %}"
+                           style="color:{% if order == 'date' %}var(--cyan){% else %}var(--dim){% endif %};display:inline-flex;align-items:center;gap:5px;text-decoration:none;">
+                            <i class="far fa-calendar-alt"></i> {{ LNG.tkb_datum }}
+                            {% if order == 'date' %}<i class="fas fa-sort-{{ sort|lower }}" style="font-size:9px;"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th style="text-align:right;">
+                        <a href="game.php?page=battleHall&order=units&sort={% if sort == 'ASC' %}DESC{% else %}ASC{% endif %}"
+                           style="color:{% if order == 'units' %}var(--cyan){% else %}var(--dim){% endif %};display:inline-flex;align-items:center;gap:5px;text-decoration:none;justify-content:flex-end;">
+                            <i class="fas fa-crosshairs"></i> {{ LNG.tkb_units }}
+                            {% if order == 'units' %}<i class="fas fa-sort-{{ sort|lower }}" style="font-size:9px;"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th style="width:80px;text-align:center;">{{ LNG.tkb_legende }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in TopKBList %}
+                <tr>
+                    <td style="text-align:center;">
+                        {% if loop.index == 1 %}
+                            <i class="fas fa-trophy" style="color:var(--gold);font-size:14px;" title="1. Platz"></i>
+                        {% elseif loop.index == 2 %}
+                            <i class="fas fa-medal" style="color:#b0bec5;font-size:14px;" title="2. Platz"></i>
+                        {% elseif loop.index == 3 %}
+                            <i class="fas fa-medal" style="color:#cd7f32;font-size:14px;" title="3. Platz"></i>
+                        {% else %}
+                            <span style="font-family:var(--font-hud);font-size:11px;color:var(--dim);">{{ loop.index }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            {% if row.result == "a" %}
+                                <span style="color:var(--green);font-weight:600;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.attacker }}</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;">VS</span>
+                                <span style="color:var(--red);">{{ row.defender }}</span>
+                            {% elseif row.result == "r" %}
+                                <span style="color:var(--red);">{{ row.attacker }}</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;">VS</span>
+                                <span style="color:var(--green);font-weight:600;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.defender }}</span>
                             {% else %}
-                                <span class="rank-num">{{ loop.index }}</span>
+                                <span style="color:var(--orange);">{{ row.attacker }}</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;">VS</span>
+                                <span style="color:var(--orange);">{{ row.defender }}</span>
                             {% endif %}
-                        </td>
+                        </div>
+                    </td>
 
-                        <td>
-                             <div class="battle-versus">
-                                {% if row.result == "a" %}
-                                    <span class="player winner"><i class="fas fa-crown"></i> {{ row.attacker }}</span>
-                                    <span class="vs-badge">VS</span>
-                                    <span class="player loser">{{ row.defender }}</span>
-                                {% elseif row.result == "r" %}
-                                    <span class="player loser">{{ row.attacker }}</span>
-                                    <span class="vs-badge">VS</span>
-                                    <span class="player winner"><i class="fas fa-crown"></i> {{ row.defender }}</span>
-                                {% else %}
-                                    <span class="player draw">{{ row.attacker }}</span>
-                                    <span class="vs-badge">VS</span>
-                                    <span class="player draw">{{ row.defender }}</span>
-                                {% endif %}
-                            </div>
-                        </td>
+                    <td style="color:var(--dim);font-size:11px;white-space:nowrap;">{{ row.date }}</td>
 
-                        <td class="text-muted">{{ row.date }}</td>
+                    <td style="text-align:right;font-family:var(--font-mono);color:var(--cyan);font-size:12px;white-space:nowrap;">
+                        {{ row.units|number_format }}
+                    </td>
 
-                        <td class="text-highlight font-weight-bold">{{ row.units|number_format }}</td>
-
-                        <td>
-                            <a href="game.php?page=raport&amp;mode=battlehall&amp;raport={{ row.rid }}" data-fancybox class="btn-ghost small">
-                                <i class="fas fa-file-alt"></i> {{ LNG.tkb_view }}
-                            </a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center p-3 text-muted">{{ LNG.tkb_no_entries }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="table-legend">
-            <span class="legend-item"><span class="dot win"></span> {{ LNG.tkb_gewinner }}</span>
-            <span class="legend-item"><span class="dot loss"></span> {{ LNG.tkb_verlierer }}</span>
-        </div>
+                    <td style="text-align:center;">
+                        <a href="game.php?page=raport&amp;mode=battlehall&amp;raport={{ row.rid }}" data-fancybox class="bb-btn">
+                            <i class="fas fa-scroll"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center;padding:24px;color:var(--dim);font-size:12px;">
+                        <i class="fas fa-inbox" style="font-size:20px;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                        {{ LNG.tkb_no_entries }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
+    <div style="display:flex;gap:16px;align-items:center;padding:8px 4px;">
+        <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
+            <i class="fas fa-crown" style="color:var(--gold);font-size:10px;"></i>
+            <i class="fas fa-circle" style="color:var(--green);font-size:7px;"></i> {{ LNG.tkb_gewinner }}
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
+            <i class="fas fa-circle" style="color:var(--red);font-size:7px;"></i> {{ LNG.tkb_verlierer }}
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
+            <i class="fas fa-circle" style="color:var(--orange);font-size:7px;"></i> Unentschieden
+        </span>
+    </div>
+
+</div>
 </div>
 {% endblock %}
