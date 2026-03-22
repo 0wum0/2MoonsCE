@@ -39,23 +39,23 @@
         <table class="stat-table" style="width:100%;">
             <thead>
                 <tr>
-                    <th style="width:44px;">#</th>
-                    <th>{{ LNG.tkb_owners }}</th>
-                    <th>
+                    <th style="width:40px;">#</th>
+                    <th style="width:40%;">{{ LNG.tkb_owners }}</th>
+                    <th style="width:25%;white-space:nowrap;">
                         <a href="game.php?page=battleHall&order=date&sort={% if sort == 'ASC' %}DESC{% else %}ASC{% endif %}"
                            style="color:{% if order == 'date' %}var(--cyan){% else %}var(--dim){% endif %};display:inline-flex;align-items:center;gap:5px;text-decoration:none;">
                             <i class="far fa-calendar-alt"></i> {{ LNG.tkb_datum }}
                             {% if order == 'date' %}<i class="fas fa-sort-{{ sort|lower }}" style="font-size:9px;"></i>{% endif %}
                         </a>
                     </th>
-                    <th style="text-align:right;">
+                    <th style="text-align:right;white-space:nowrap;">
                         <a href="game.php?page=battleHall&order=units&sort={% if sort == 'ASC' %}DESC{% else %}ASC{% endif %}"
                            style="color:{% if order == 'units' %}var(--cyan){% else %}var(--dim){% endif %};display:inline-flex;align-items:center;gap:5px;text-decoration:none;justify-content:flex-end;">
                             <i class="fas fa-crosshairs"></i> {{ LNG.tkb_units }}
                             {% if order == 'units' %}<i class="fas fa-sort-{{ sort|lower }}" style="font-size:9px;"></i>{% endif %}
                         </a>
                     </th>
-                    <th style="width:60px;text-align:center;"><i class="fas fa-scroll" style="color:var(--dim);"></i></th>
+                    <th style="width:50px;text-align:center;"><i class="fas fa-scroll" style="color:var(--dim);"></i></th>
                 </tr>
             </thead>
             <tbody>
@@ -73,20 +73,20 @@
                         {% endif %}
                     </td>
 
-                    <td>
-                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <td style="white-space:nowrap;">
+                        <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
                             {% if row.result == "a" %}
-                                <span style="color:var(--green);font-weight:600;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.attacker }}</span>
-                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;">VS</span>
-                                <span style="color:var(--red);">{{ row.defender }}</span>
+                                <span style="color:var(--green);font-weight:600;overflow:hidden;text-overflow:ellipsis;max-width:38%;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.attacker }}</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">VS</span>
+                                <span style="color:var(--red);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.defender }}</span>
                             {% elseif row.result == "r" %}
-                                <span style="color:var(--red);">{{ row.attacker }}</span>
-                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;">VS</span>
-                                <span style="color:var(--green);font-weight:600;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.defender }}</span>
+                                <span style="color:var(--red);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.attacker }}</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">VS</span>
+                                <span style="color:var(--green);font-weight:600;overflow:hidden;text-overflow:ellipsis;max-width:38%;"><i class="fas fa-crown" style="font-size:10px;margin-right:3px;color:var(--gold);"></i>{{ row.defender }}</span>
                             {% else %}
-                                <span style="color:var(--orange);">{{ row.attacker }}</span>
-                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;">VS</span>
-                                <span style="color:var(--orange);">{{ row.defender }}</span>
+                                <span style="color:var(--orange);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.attacker }}</span>
+                                <span style="font-family:var(--font-hud);font-size:9px;color:var(--dim);border:1px solid var(--border);padding:1px 5px;border-radius:3px;letter-spacing:1px;flex-shrink:0;">VS</span>
+                                <span style="color:var(--orange);overflow:hidden;text-overflow:ellipsis;max-width:38%;">{{ row.defender }}</span>
                             {% endif %}
                         </div>
                     </td>
