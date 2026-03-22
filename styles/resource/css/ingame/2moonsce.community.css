@@ -280,8 +280,14 @@
 .no-ally { color:var(--dim); }
 .list-container { overflow:hidden; }
 
+/* ── Battle Hall ── */
+.bh-desktop { display:block; }
+.bh-mobile  { display:none; }
+.bh-row:hover td { background:rgba(0,212,255,0.06) !important; }
+
 @media(max-width:768px) {
   .stat-desktop-view { display:none !important; }
-  .stat-mobile-view { display:block !important; }
+  .stat-mobile-view  { display:block !important; }
+  .bh-desktop        { display:none !important; }
+  .bh-mobile         { display:block !important; }
 }
-

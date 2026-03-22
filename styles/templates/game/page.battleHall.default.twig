@@ -34,7 +34,8 @@
         <div style="font-size:11px;color:var(--dim);">{{ LNG.tkb_gratz }}</div>
     </div>
 
-    <div class="content-box" style="padding:0;overflow:hidden;">
+    {# ── DESKTOP TABLE ── #}
+    <div class="content-box bh-desktop" style="padding:0;overflow:hidden;">
         <table class="stat-table" style="width:100%;">
             <thead>
                 <tr>
@@ -54,12 +55,12 @@
                             {% if order == 'units' %}<i class="fas fa-sort-{{ sort|lower }}" style="font-size:9px;"></i>{% endif %}
                         </a>
                     </th>
-                    <th style="width:80px;text-align:center;">{{ LNG.tkb_legende }}</th>
+                    <th style="width:60px;text-align:center;"><i class="fas fa-scroll" style="color:var(--dim);"></i></th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in TopKBList %}
-                <tr>
+                <tr class="bh-row" onclick="window.location='game.php?page=raport&mode=battlehall&raport={{ row.rid }}'" style="cursor:pointer;">
                     <td style="text-align:center;">
                         {% if loop.index == 1 %}
                             <i class="fas fa-trophy" style="color:var(--gold);font-size:14px;" title="1. Platz"></i>
@@ -96,7 +97,7 @@
                         {{ row.units|number_format }}
                     </td>
 
-                    <td style="text-align:center;">
+                    <td style="text-align:center;" onclick="event.stopPropagation();">
                         <a href="game.php?page=raport&amp;mode=battlehall&amp;raport={{ row.rid }}" data-fancybox class="bb-btn">
                             <i class="fas fa-scroll"></i>
                         </a>
@@ -112,6 +113,66 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    {# ── MOBILE CARDS ── #}
+    <div class="bh-mobile">
+        {% for row in TopKBList %}
+        <a href="game.php?page=raport&amp;mode=battlehall&amp;raport={{ row.rid }}" data-fancybox
+           style="display:block;text-decoration:none;margin-bottom:6px;">
+            <div class="content-box" style="padding:12px 14px;display:flex;align-items:center;gap:12px;transition:var(--transition);border:1px solid var(--border);"
+                 onmouseenter="this.style.borderColor='var(--border2)';this.style.background='rgba(0,212,255,0.04)'"
+                 onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+
+                {# Rang #}
+                <div style="width:32px;text-align:center;flex-shrink:0;">
+                    {% if loop.index == 1 %}
+                        <i class="fas fa-trophy" style="color:var(--gold);font-size:16px;"></i>
+                    {% elseif loop.index == 2 %}
+                        <i class="fas fa-medal" style="color:#b0bec5;font-size:16px;"></i>
+                    {% elseif loop.index == 3 %}
+                        <i class="fas fa-medal" style="color:#cd7f32;font-size:16px;"></i>
+                    {% else %}
+                        <span style="font-family:var(--font-hud);font-size:12px;color:var(--dim);">{{ loop.index }}</span>
+                    {% endif %}
+                </div>
+
+                {# Kampf-Info #}
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+                        {% if row.result == "a" %}
+                            <span style="color:var(--green);font-weight:600;font-size:13px;"><i class="fas fa-crown" style="font-size:9px;color:var(--gold);margin-right:2px;"></i>{{ row.attacker }}</span>
+                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">VS</span>
+                            <span style="color:var(--red);font-size:13px;">{{ row.defender }}</span>
+                        {% elseif row.result == "r" %}
+                            <span style="color:var(--red);font-size:13px;">{{ row.attacker }}</span>
+                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">VS</span>
+                            <span style="color:var(--green);font-weight:600;font-size:13px;"><i class="fas fa-crown" style="font-size:9px;color:var(--gold);margin-right:2px;"></i>{{ row.defender }}</span>
+                        {% else %}
+                            <span style="color:var(--orange);font-size:13px;">{{ row.attacker }}</span>
+                            <span style="font-family:var(--font-hud);font-size:8px;color:var(--dim);border:1px solid var(--border);padding:1px 4px;border-radius:3px;">VS</span>
+                            <span style="color:var(--orange);font-size:13px;">{{ row.defender }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="display:flex;gap:12px;font-size:11px;color:var(--dim);">
+                        <span><i class="far fa-calendar-alt" style="margin-right:3px;"></i>{{ row.date }}</span>
+                        <span style="color:var(--cyan);font-family:var(--font-mono);"><i class="fas fa-crosshairs" style="margin-right:3px;font-size:9px;"></i>{{ row.units|number_format }}</span>
+                    </div>
+                </div>
+
+                {# Pfeil #}
+                <div style="flex-shrink:0;color:var(--border2);">
+                    <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                </div>
+
+            </div>
+        </a>
+        {% else %}
+        <div class="content-box" style="text-align:center;padding:24px;color:var(--dim);font-size:12px;">
+            <i class="fas fa-inbox" style="font-size:20px;display:block;margin-bottom:8px;opacity:0.4;"></i>
+            {{ LNG.tkb_no_entries }}
+        </div>
+        {% endfor %}
     </div>
 
     <div style="display:flex;gap:16px;align-items:center;padding:8px 4px;">
