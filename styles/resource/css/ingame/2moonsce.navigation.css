@@ -233,23 +233,37 @@ body.loading .header-row-main::after { width:100%; }
 @keyframes resFullPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 12px rgba(255,140,0,0.22)} }
 .res-item.res-anim-negative { border-color:rgba(255,61,87,0.2) !important; }
 .res-item.res-anim-positive { border-color:rgba(0,230,118,0.14) !important; }
-/* Image fills the full button as background */
+/* Resource icon: hide old GIF, show emoji via ::before */
 .res-icon {
   position:absolute; inset:0; width:100%; height:100%;
-  border-radius:0; overflow:hidden; background:none;
-  display:flex; align-items:center; justify-content:center;
+  border-radius:0; overflow:hidden;
+  display:flex; align-items:flex-start; justify-content:flex-end;
+  padding:4px 5px 0 0;
 }
-.res-icon img {
-  width:100%; height:100%; object-fit:cover; object-position:center;
-  filter:brightness(0.45) saturate(1.1);
-  display:block;
+.res-icon img { display:none; }
+.res-icon::before {
+  font-size:18px; line-height:1; opacity:0.55;
+  transition:opacity 0.2s, transform 0.2s;
+  filter:drop-shadow(0 0 4px currentColor);
 }
+.res-item:hover .res-icon::before { opacity:0.9; transform:scale(1.15); }
 /* Dark gradient overlay so text is readable */
 .res-icon::after {
   content:''; position:absolute; inset:0;
-  background:linear-gradient(180deg,rgba(0,0,0,0.15) 0%,rgba(0,10,30,0.72) 100%);
+  background:linear-gradient(135deg,rgba(0,0,0,0.05) 0%,rgba(0,10,30,0.68) 60%);
   pointer-events:none;
 }
+/* Per-resource icon + color */
+.res-item[data-res-name="metal"] { background:linear-gradient(135deg,rgba(120,140,160,0.18) 0%,rgba(4,8,22,0.95) 100%); }
+.res-item[data-res-name="metal"] .res-icon::before { content:'⚙'; color:#a0b4c8; }
+.res-item[data-res-name="crystal"] { background:linear-gradient(135deg,rgba(80,160,255,0.18) 0%,rgba(4,8,22,0.95) 100%); }
+.res-item[data-res-name="crystal"] .res-icon::before { content:'💎'; color:#60b0ff; }
+.res-item[data-res-name="deuterium"] { background:linear-gradient(135deg,rgba(0,220,180,0.18) 0%,rgba(4,8,22,0.95) 100%); }
+.res-item[data-res-name="deuterium"] .res-icon::before { content:'💧'; color:#00dcc0; }
+.res-item[data-res-name="energy"] { background:linear-gradient(135deg,rgba(255,220,0,0.15) 0%,rgba(4,8,22,0.95) 100%); }
+.res-item[data-res-name="energy"] .res-icon::before { content:'⚡'; color:#ffe040; }
+.res-item[data-res-name="darkmatter"] { background:linear-gradient(135deg,rgba(160,80,255,0.18) 0%,rgba(4,8,22,0.95) 100%); }
+.res-item[data-res-name="darkmatter"] .res-icon::before { content:'🌑'; color:#b060ff; }
 /* Text content overlays the image */
 .res-info {
   position:absolute; inset:0; display:flex; flex-direction:column;
