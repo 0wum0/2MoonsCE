@@ -1243,7 +1243,8 @@ class BotEngine
 
     private function persistUserAndPlanet(array $USER, array $PLANET): void
     {
-        // Persist only queue fields we touched (safe)
+        global $resource;
+
         try {
             $this->db->update(
                 "UPDATE %%USERS%% SET
@@ -1261,17 +1262,28 @@ class BotEngine
                 ]
             );
 
+            // Persist queue fields AND resources (metal/crystal/deut were deducted in-memory)
+            $metalKey = $resource[901] ?? 'metal';
+            $crystKey = $resource[902] ?? 'crystal';
+            $deutKey  = $resource[903] ?? 'deuterium';
+
             $this->db->update(
                 "UPDATE %%PLANETS%% SET
                     b_building_id = :bqid,
-                    b_building = :bb,
-                    b_hangar_id = :hq
+                    b_building    = :bb,
+                    b_hangar_id   = :hq,
+                    {$metalKey}   = GREATEST(0, :metal),
+                    {$crystKey}   = GREATEST(0, :crystal),
+                    {$deutKey}    = GREATEST(0, :deut)
                  WHERE id = :pid;",
                 [
-                    ':bqid' => (string)($PLANET['b_building_id'] ?? ''),
-                    ':bb'   => (int)($PLANET['b_building'] ?? 0),
-                    ':hq'   => (string)($PLANET['b_hangar_id'] ?? ''),
-                    ':pid'  => (int)$PLANET['id'],
+                    ':bqid'   => (string)($PLANET['b_building_id'] ?? ''),
+                    ':bb'     => (int)($PLANET['b_building'] ?? 0),
+                    ':hq'     => (string)($PLANET['b_hangar_id'] ?? ''),
+                    ':metal'  => (float)($PLANET[$metalKey]  ?? 0),
+                    ':crystal'=> (float)($PLANET[$crystKey] ?? 0),
+                    ':deut'   => (float)($PLANET[$deutKey]   ?? 0),
+                    ':pid'    => (int)$PLANET['id'],
                 ]
             );
         } catch (Throwable $t) {
