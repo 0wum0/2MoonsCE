@@ -38,6 +38,6 @@ class ShowIndexPage extends AbstractAdminPage
     protected function run(): void
     {
         require_once ROOT_PATH . 'includes/pages/adm/ShowOverviewPage.php';
-        (new ShowOverviewPage())->show();
+        ShowOverviewPage();
     }
 }
