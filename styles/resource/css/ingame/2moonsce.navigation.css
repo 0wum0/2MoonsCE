@@ -241,34 +241,50 @@ body.loading .header-row-main::after { width:100%; }
   padding:0 8px 0 0;
 }
 .res-icon img { display:none; }
+/* Dark gradient overlay – rendered BEFORE icon so icon stays on top */
 .res-icon::before {
-  font-size:26px; line-height:1; opacity:0.45;
-  transition:opacity 0.3s, transform 0.3s, filter 0.3s;
-}
-.res-item:hover .res-icon::before { opacity:0.85; filter:drop-shadow(0 0 8px currentColor); transform:scale(1.18) rotate(-5deg); }
-/* Subtle dark overlay – left side darker so text stays readable, right side lighter so icon shines */
-.res-icon::after {
   content:''; position:absolute; inset:0;
-  background:linear-gradient(110deg,rgba(2,6,20,0.78) 0%,rgba(2,6,20,0.40) 55%,rgba(0,0,0,0.0) 100%);
+  background:linear-gradient(110deg,rgba(2,6,20,0.80) 0%,rgba(2,6,20,0.35) 55%,rgba(0,0,0,0.0) 100%);
+  pointer-events:none; z-index:0;
+}
+/* Icon element rendered as a child span via JS so it sits above the overlay */
+.res-icon-emoji {
+  position:relative; z-index:2;
+  font-size:26px; line-height:1; opacity:0.50;
+  transition:opacity 0.3s, transform 0.3s, filter 0.3s;
   pointer-events:none;
 }
+.res-item:hover .res-icon-emoji { opacity:0.90; filter:drop-shadow(0 0 8px currentColor); transform:scale(1.18) rotate(-5deg); }
 /* Idle animations */
 @keyframes resIconSpin   { 0%{transform:rotate(0deg)}   100%{transform:rotate(360deg)} }
 @keyframes resIconFloat  { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-3px)} }
-@keyframes resIconPulse  { 0%,100%{opacity:0.22} 50%{opacity:0.40;filter:drop-shadow(0 0 6px currentColor)} }
+@keyframes resIconPulse  { 0%,100%{opacity:0.45;filter:none} 50%{opacity:0.90;filter:drop-shadow(0 0 8px #ffe040)} }
 @keyframes resIconOrbit  { 0%{transform:rotate(0deg) scale(1)} 50%{transform:rotate(180deg) scale(1.06)} 100%{transform:rotate(360deg) scale(1)} }
-/* Per-resource icon + color + animation */
-.res-item[data-res-name="metal"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(120,140,160,0.28) 100%); }
-.res-item[data-res-name="metal"] .res-icon::before { content:'⚙'; color:#a0b4c8; animation:resIconSpin 8s linear infinite; }
-.res-item[data-res-name="metal"]:hover .res-icon::before { animation-duration:2s; }
-.res-item[data-res-name="crystal"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(80,160,255,0.28) 100%); }
-.res-item[data-res-name="crystal"] .res-icon::before { content:'💎'; color:#60b0ff; animation:resIconFloat 3s ease-in-out infinite; }
-.res-item[data-res-name="deuterium"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(0,220,180,0.28) 100%); }
-.res-item[data-res-name="deuterium"] .res-icon::before { content:'💧'; color:#00dcc0; animation:resIconFloat 2.5s ease-in-out infinite 0.4s; }
-.res-item[data-res-name="energy"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(255,220,0,0.22) 100%); }
-.res-item[data-res-name="energy"] .res-icon::before { content:'⚡'; color:#ffe040; animation:resIconPulse 1.8s ease-in-out infinite; }
-.res-item[data-res-name="darkmatter"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(160,80,255,0.28) 100%); }
-.res-item[data-res-name="darkmatter"] .res-icon::before { content:'🌑'; color:#b060ff; animation:resIconOrbit 6s ease-in-out infinite; }
+/* Dark matter pixel particles */
+@keyframes dmPixel1 { 0%{transform:translate(0,0);opacity:0.8} 100%{transform:translate(12px,-14px);opacity:0} }
+@keyframes dmPixel2 { 0%{transform:translate(0,0);opacity:0.6} 100%{transform:translate(-10px,-12px);opacity:0} }
+@keyframes dmPixel3 { 0%{transform:translate(0,0);opacity:0.7} 100%{transform:translate(8px,14px);opacity:0} }
+@keyframes dmPixel4 { 0%{transform:translate(0,0);opacity:0.5} 100%{transform:translate(-12px,10px);opacity:0} }
+@keyframes dmPixel5 { 0%{transform:translate(0,0);opacity:0.9} 100%{transform:translate(6px,-16px);opacity:0} }
+.dm-pixel { position:absolute; width:2px; height:2px; background:#b060ff; border-radius:0; pointer-events:none; z-index:1; }
+.dm-pixel:nth-child(1){right:22px;top:20px;animation:dmPixel1 2.2s ease-in infinite;}
+.dm-pixel:nth-child(2){right:28px;top:28px;animation:dmPixel2 1.8s ease-in infinite 0.4s;}
+.dm-pixel:nth-child(3){right:18px;top:32px;animation:dmPixel3 2.5s ease-in infinite 0.8s;}
+.dm-pixel:nth-child(4){right:32px;top:16px;animation:dmPixel4 2.0s ease-in infinite 1.2s;}
+.dm-pixel:nth-child(5){right:24px;top:24px;animation:dmPixel5 1.6s ease-in infinite 0.2s;}
+/* Per-resource backgrounds */
+.res-item[data-res-name="metal"]      { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(120,140,160,0.30) 100%); }
+.res-item[data-res-name="crystal"]    { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(80,160,255,0.30) 100%); }
+.res-item[data-res-name="deuterium"]  { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(0,220,180,0.30) 100%); }
+.res-item[data-res-name="energy"]     { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(255,220,0,0.24) 100%); }
+.res-item[data-res-name="darkmatter"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(160,80,255,0.30) 100%); }
+/* Per-resource icon emoji + animation (applied via JS to .res-icon-emoji span) */
+.res-item[data-res-name="metal"]      .res-icon-emoji { color:#a0b4c8; animation:resIconSpin 8s linear infinite; }
+.res-item[data-res-name="metal"]:hover .res-icon-emoji { animation-duration:2s; }
+.res-item[data-res-name="crystal"]    .res-icon-emoji { color:#60b0ff; animation:resIconFloat 3s ease-in-out infinite; }
+.res-item[data-res-name="deuterium"]  .res-icon-emoji { color:#00dcc0; animation:resIconFloat 2.5s ease-in-out infinite 0.4s; }
+.res-item[data-res-name="energy"]     .res-icon-emoji { color:#ffe040; animation:resIconPulse 1.8s ease-in-out infinite; }
+.res-item[data-res-name="darkmatter"] .res-icon-emoji { color:#b060ff; animation:resIconOrbit 6s ease-in-out infinite; }
 /* Hover glow per resource */
 .res-item[data-res-name="metal"]:hover     { box-shadow:inset 0 0 0 1px rgba(160,180,200,0.15), 0 0 20px rgba(160,180,200,0.12); }
 .res-item[data-res-name="crystal"]:hover   { box-shadow:inset 0 0 0 1px rgba(80,160,255,0.2),  0 0 20px rgba(80,160,255,0.15); }

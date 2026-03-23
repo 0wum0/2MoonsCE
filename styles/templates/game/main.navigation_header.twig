@@ -532,6 +532,47 @@ if(typeof resourceTicker==='function'){
 })();
 </script>
 
+<!-- RESOURCE ICON INJECTION -->
+<script>
+(function(){
+    var iconMap = {
+        'metal':      '⛏',
+        'crystal':    '💎',
+        'deuterium':  '💧',
+        'energy':     '⚡',
+        'darkmatter': '✦'
+    };
+    function initResIcons() {
+        document.querySelectorAll('.res-item[data-res-name]').forEach(function(item) {
+            var name = item.getAttribute('data-res-name') || '';
+            var iconEl = item.querySelector('.res-icon');
+            if (!iconEl) return;
+            // Only inject once
+            if (iconEl.querySelector('.res-icon-emoji')) return;
+            var emoji = iconMap[name];
+            if (!emoji) return;
+            var span = document.createElement('span');
+            span.className = 'res-icon-emoji';
+            span.textContent = emoji;
+            iconEl.appendChild(span);
+            // Dark matter: add pixel particles
+            if (name === 'darkmatter') {
+                for (var i = 1; i <= 5; i++) {
+                    var px = document.createElement('span');
+                    px.className = 'dm-pixel';
+                    iconEl.appendChild(px);
+                }
+            }
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initResIcons);
+    } else {
+        initResIcons();
+    }
+})();
+</script>
+
 <!-- FEATURES 1,3,4,5: Tooltip / Section-Highlight / Warn-Toast / Dock-Active -->
 <script>
 (function(){
