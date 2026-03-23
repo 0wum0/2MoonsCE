@@ -26,10 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowVertify() 
+class ShowVertify extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowVertify');
+	}
+
+	protected function run(): void
+	{
 	$EXT		= explode("|", HTTP::_GP("ext", ""));
 	$action 	= HTTP::_GP("action", "");
 	$file	 	= HTTP::_GP("file", "");
@@ -90,6 +97,7 @@ function ShowVertify()
 	}
 	
 	$template->show("VertifyPage.tpl");
+	}
 }
 
 function dir_tree($dir, $EXT, $subDir = true) {

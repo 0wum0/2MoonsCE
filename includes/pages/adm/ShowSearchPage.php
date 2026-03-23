@@ -29,10 +29,17 @@ declare(strict_types=1);
 // TODO: @db-migrate — still uses $GLOBALS['DATABASE'] (mysqli). Dynamic SQL in MyCrazyLittleSearch()
 // makes a direct PDO port non-trivial (ORDER BY injection-safe whitelist already in place).
 // Migration plan: see docs/ROADMAP.md §Phase 3 – Database Unification.
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowSearchPage()
+class ShowSearchPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowSearchPage');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $USER;
 	
 	if(isset($_GET['delete'])){
@@ -310,6 +317,7 @@ function ShowSearchPage()
 	));
 	
 	$template->show('SearchPage.twig');
+	}
 }
 
 function MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SpecialSpecify, $Order, $OrderBY, $Limit, $Table, $Page, $NameLang, $ArrayOSec, $Minimize, $SName, $SearchFile)

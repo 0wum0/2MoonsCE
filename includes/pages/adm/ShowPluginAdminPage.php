@@ -59,7 +59,21 @@ function resolvePluginDir(string $pluginId): ?string
     return null;
 }
 
-function ShowPluginAdminPage(): void
+// @admin-migrated (Phase 10 — AbstractAdminPage)
+
+class ShowPluginAdminPage extends AbstractAdminPage
+{
+	public function __construct()
+	{
+		parent::__construct('ShowPluginAdminPage');
+	}
+
+	protected function run(): void
+	{
+		$this->showPage();
+	}
+
+	private function showPage(): void
 {
     global $LNG;
 
@@ -269,4 +283,5 @@ function ShowPluginAdminPage(): void
         'hookDebug'          => $hookDebug,
     ]);
     $template->show('PluginAdminPage.twig');
+	}
 }

@@ -26,10 +26,19 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if ($USER['id'] != ROOT_USER || ($_GET['sid'] ?? '') != session_id()) exit;
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowResetPage()
+class ShowResetPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		global $USER;
+		if ($USER['id'] != ROOT_USER || ($_GET['sid'] ?? '') != session_id()) exit;
+		parent::__construct('');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $reslist, $resource;
 	$template	= new template();
 	$config	= Config::get(ROOT_UNI);
@@ -195,4 +204,5 @@ function ShowResetPage()
 	));
 	
 	$template->show('ResetPage.twig');
+	}
 }

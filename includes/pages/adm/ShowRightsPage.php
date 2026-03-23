@@ -26,9 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) exit;
-function ShowRightsPage()
+// @admin-migrated (Phase 10 — AbstractAdminPage)
+
+class ShowRightsPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowRightsPage');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $USER;
 	$mode	= HTTP::_GP('mode', '');
 	switch($mode)
@@ -174,6 +182,7 @@ function ShowRightsPage()
 	
 			$template->show('ModerrationUsersPage.twig');
 		break;
+	}
 	}
 }
 

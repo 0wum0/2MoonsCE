@@ -26,8 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-function ShowSystemDebugPage(): void
+// @admin-migrated (Phase 10 — AbstractAdminPage)
+
+class ShowSystemDebugPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('');
+	}
+
+	protected function run(): void
+	{
     global $USER;
 
     // ── Auth guard ────────────────────────────────────────────────────────────
@@ -214,4 +223,5 @@ function ShowSystemDebugPage(): void
         'safeModeCleared'  => $safeModeCleared,
     ]);
     $template->show('SystemDebugPage.twig');
+	}
 }

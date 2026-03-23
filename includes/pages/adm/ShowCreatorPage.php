@@ -26,11 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-
-function ShowCreatorPage()
+class ShowCreatorPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowCreatorPage');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $USER;
 
 	$template	= new template();
@@ -257,5 +263,6 @@ function ShowCreatorPage()
 			
 			$template->show('CreatePage.twig');
 		break;	
+	}
 	}
 }

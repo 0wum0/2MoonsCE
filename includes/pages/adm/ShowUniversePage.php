@@ -26,9 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
  
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowUniversePage() {
+class ShowUniversePage extends AbstractAdminPage
+{
+	public function __construct()
+	{
+		parent::__construct('ShowUniversePage');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $USER;
 	$template	= new template();
 	
@@ -193,4 +201,5 @@ function ShowUniversePage() {
 	));
 	
 	$template->show('UniversePage.twig');
+	}
 }

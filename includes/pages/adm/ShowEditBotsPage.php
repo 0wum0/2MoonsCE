@@ -24,12 +24,17 @@
  * @visit http://makeit.uno/
  */
  
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) {
-    throw new Exception("Permission error!");
-}
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowEditBotsPage()
+class ShowEditBotsPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowEditBotsPage');
+	}
+
+	protected function run(): void
+	{
     global $LNG, $USER;
 
     // Load BotManager
@@ -302,6 +307,7 @@ function ShowEditBotsPage()
     ]);
 
     $template->show('EditBots.twig');
+	}
 }
 
 // ==================== NEW HELPER FUNCTIONS ====================

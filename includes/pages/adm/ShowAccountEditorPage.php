@@ -28,10 +28,17 @@ declare(strict_types=1);
 
 # Actions not logged: Planet-Edit, Alliance-Edit 
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowAccountEditorPage() 
+class ShowAccountEditorPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowAccountEditorPage');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $reslist, $resource;
 	$template 	= new template();
 
@@ -701,5 +708,6 @@ function ShowAccountEditorPage()
 		default:
 			$template->show('AccountEditorPageMenu.twig');
 		break;
+	}
 	}
 }

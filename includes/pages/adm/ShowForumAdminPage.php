@@ -25,8 +25,17 @@ declare(strict_types=1);
  * See LICENSE for details.
  * @visit http://makeit.uno/
  */
-function ShowForumAdminPage(): void
+// @admin-migrated (Phase 10 — AbstractAdminPage)
+
+class ShowForumAdminPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('');
+	}
+
+	protected function run(): void
+	{
     global $USER;
 
     if (!isset($USER) || ((int)$USER['authlevel'] < 3 && !allowedTo('ShowForumAdminPage'))) {
@@ -319,4 +328,5 @@ function ShowForumAdminPage(): void
 
     $template->assign_vars($tplData);
     $template->show('ForumAdminPage.twig');
+	}
 }

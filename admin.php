@@ -77,7 +77,7 @@ switch($page)
 	break;
 	case 'rights':
 		require_once('includes/pages/adm/ShowRightsPage.php');
-		ShowRightsPage();
+		new ShowRightsPage();
 	break;
 	case 'config':
 		require_once('includes/pages/adm/ShowConfigBasicPage.php');
@@ -85,7 +85,7 @@ switch($page)
 	break;
 	case 'configuni':
 		require_once('includes/pages/adm/ShowConfigUniPage.php');
-		ShowConfigUniPage();
+		new ShowConfigUniPage();
 	break;
     case 'configmods':
         require_once('includes/pages/adm/ShowConfigModsPage.php');
@@ -117,11 +117,11 @@ switch($page)
 	break;
 	case 'create':
 		require_once('includes/pages/adm/ShowCreatorPage.php');
-		ShowCreatorPage();
+		new ShowCreatorPage();
 	break;
 	case 'accounteditor':
 		require_once('includes/pages/adm/ShowAccountEditorPage.php');
-		ShowAccountEditorPage();
+		new ShowAccountEditorPage();
 	break;
 	case 'active':
 		require_once('includes/pages/adm/ShowActivePage.php');
@@ -131,9 +131,9 @@ switch($page)
 		require_once('includes/pages/adm/ShowBanPage.php');
 		new ShowBanPage();
 	break;
-		case 'EditBots':
+	case 'EditBots':
 		include_once('includes/pages/adm/ShowEditBotsPage.php');
-		ShowEditBotsPage();
+		new ShowEditBotsPage();
 	break; 
 	case 'messagelist':
 		require_once('includes/pages/adm/ShowMessageListPage.php');
@@ -149,7 +149,7 @@ switch($page)
 	break;
 	case 'accountdata':
 		require_once('includes/pages/adm/ShowAccountDataPage.php');
-		ShowAccountDataPage();
+		new ShowAccountDataPage();
 	break;
 	case 'support':
 		require_once('includes/pages/adm/ShowSupportPage.php');
@@ -161,11 +161,11 @@ switch($page)
 	break;
 	case 'search':
 		require_once('includes/pages/adm/ShowSearchPage.php');
-		ShowSearchPage();
+		new ShowSearchPage();
 	break;
 	case 'qeditor':
 		require_once('includes/pages/adm/ShowQuickEditorPage.php');
-		ShowQuickEditorPage();
+		new ShowQuickEditorPage();
 	break;
 	case 'statsupdate':
 		require_once('includes/pages/adm/ShowStatUpdatePage.php');
@@ -173,7 +173,7 @@ switch($page)
 	break;
 	case 'reset':
 		require_once('includes/pages/adm/ShowResetPage.php');
-		ShowResetPage();
+		new ShowResetPage();
 	break;
 	case 'news':
 		require_once('includes/pages/adm/ShowNewsPage.php');
@@ -197,7 +197,7 @@ switch($page)
 	break;
 	case 'universe':
 		require_once('includes/pages/adm/ShowUniversePage.php');
-		ShowUniversePage();
+		new ShowUniversePage();
 	break;
 	case 'multiips':
 		require_once('includes/pages/adm/ShowMultiIPPage.php');
@@ -209,7 +209,7 @@ switch($page)
 	break;
 	case 'vertify':
 		require_once('includes/pages/adm/ShowVertify.php');
-		ShowVertify();
+		new ShowVertify();
 	break;
 	case 'cronjob':
 		require_once('includes/pages/adm/ShowCronjobPage.php');
@@ -230,15 +230,15 @@ switch($page)
 	case 'ForumAdmin':
 	case 'ForumAdminPage':
 		require_once('includes/pages/adm/ShowForumAdminPage.php');
-		ShowForumAdminPage();
+		new ShowForumAdminPage();
 	break;
 	case 'pluginAdmin':
 		require_once('includes/pages/adm/ShowPluginAdminPage.php');
-		ShowPluginAdminPage();
+		new ShowPluginAdminPage();
 	break;
 	case 'systemDebug':
 		require_once('includes/pages/adm/ShowSystemDebugPage.php');
-		ShowSystemDebugPage();
+		new ShowSystemDebugPage();
 	break;
 	default:
 		require_once('includes/pages/adm/ShowIndexPage.php');

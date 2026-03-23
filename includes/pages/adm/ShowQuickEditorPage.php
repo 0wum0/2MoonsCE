@@ -26,10 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowQuickEditorPage()
+class ShowQuickEditorPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowQuickEditorPage');
+	}
+
+	protected function run(): void
+	{
 	global $USER, $LNG, $reslist, $resource;
 	$action	= HTTP::_GP('action', '');
 	$edit	= HTTP::_GP('edit', '');
@@ -257,5 +264,6 @@ function ShowQuickEditorPage()
 			));
 			$template->show('QuickEditorUser.twig');
 		break;
+	}
 	}
 }
