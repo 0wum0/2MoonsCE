@@ -102,14 +102,18 @@ class ShowInformationPage extends AbstractAdminPage
 	$db        = Database::get();
 	$dbVersion = $db->selectSingle("SELECT dbVersion FROM %%SYSTEM%%;", [], 'dbVersion');
 
+	$pdo = $db->getHandle();
+	$mysqlClientVersion = $pdo ? $pdo->getAttribute(\PDO::ATTR_CLIENT_VERSION) : '-';
+	$mysqlServerVersion = $pdo ? $pdo->getAttribute(\PDO::ATTR_SERVER_VERSION) : '-';
+
 	$this->assign(array(
 		'info_information'	=> sprintf($LNG['info_information'], 'https://github.com/jkroepke/2Moons/issues'),
 		'info'				=> $_SERVER['SERVER_SOFTWARE'],
 		'vPHP'				=> PHP_VERSION,
 		'vAPI'				=> PHP_SAPI,
 		'vGame'				=> $config->VERSION . (file_exists(ROOT_PATH . '/.git/ORIG_HEAD') ? ' (' . trim(file_get_contents(ROOT_PATH . '/.git/ORIG_HEAD')) . ')' : ''),
-		'vMySQLc'			=> $db->getVersion(),
-		'vMySQLs'			=> $db->getServerVersion(),
+		'vMySQLc'			=> $mysqlClientVersion,
+		'vMySQLs'			=> $mysqlServerVersion,
 		'root'				=> $_SERVER['SERVER_NAME'],
 		'gameroot'			=> $_SERVER['SERVER_NAME'] . str_replace('/admin.php', '', $_SERVER['PHP_SELF']),
 		'json'				=> function_exists('json_encode') ? 'Ja' : 'Nein',
