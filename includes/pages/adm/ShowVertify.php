@@ -79,7 +79,7 @@ class ShowVertify extends AbstractAdminPage
 		break;
 		case 'vertify':
 			$template->loadscript('vertify.js');
-			$template->show("VertifyPageResult.tpl");
+			$template->show("VertifyPageResult.twig");
 			exit;
 		break;
 		case 'getFileList':
@@ -96,7 +96,7 @@ class ShowVertify extends AbstractAdminPage
 		break;
 	}
 	
-	$template->show("VertifyPage.tpl");
+	$template->show("VertifyPage.twig");
 	}
 }
 

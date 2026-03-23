@@ -50,7 +50,7 @@ class ShowLogPage extends AbstractAdminPage
 
 	private function showOverview(): void
 	{
-		$this->show('LogOverview.tpl');
+		$this->show('LogOverview.twig');
 	}
 
 	private function showDetail(): void
@@ -67,11 +67,10 @@ class ShowLogPage extends AbstractAdminPage
 			[':id' => (int) $logid]
 		);
 
-		$data        = unserialize($result['data']);
-		$conf_before = [];
-		$conf_after  = [];
-		foreach ($data[0] as $key => $i) { $conf_before[$key] = $i; }
-		foreach ($data[1] as $key => $i) { $conf_after[$key]  = $i; }
+		$raw         = @unserialize((string) ($result['data'] ?? ''));
+		$data        = is_array($raw) ? $raw : [[], []];
+		$conf_before = is_array($data[0] ?? null) ? $data[0] : [];
+		$conf_after  = is_array($data[1] ?? null) ? $data[1] : [];
 
 		$Wrapper = [
 			'resource_multiplier'     => $LNG['se_resources_producion_speed'],
@@ -147,7 +146,7 @@ class ShowLogPage extends AbstractAdminPage
 			'log_old'    => $LNG['log_old'],
 			'log_new'    => $LNG['log_new'],
 		]);
-		$this->show('LogDetail.tpl');
+		$this->show('LogDetail.twig');
 	}
 
 	private function showSettingsList(): void
@@ -192,7 +191,7 @@ class ShowLogPage extends AbstractAdminPage
 			'log_id'     => $LNG['log_id'],
 			'log_view'   => $LNG['log_view'],
 		]);
-		$this->show('LogList.tpl');
+		$this->show('LogList.twig');
 	}
 
 	private function showPlanetsList(): void
@@ -232,7 +231,7 @@ class ShowLogPage extends AbstractAdminPage
 			'log_id'     => $LNG['log_id'],
 			'log_view'   => $LNG['log_view'],
 		]);
-		$this->show('LogList.tpl');
+		$this->show('LogList.twig');
 	}
 
 	private function showPlayersList(): void
@@ -270,7 +269,7 @@ class ShowLogPage extends AbstractAdminPage
 			'log_id'     => $LNG['log_id'],
 			'log_view'   => $LNG['log_view'],
 		]);
-		$this->show('LogList.tpl');
+		$this->show('LogList.twig');
 	}
 
 	private function showPresent(): void
@@ -306,6 +305,6 @@ class ShowLogPage extends AbstractAdminPage
 			'log_id'     => $LNG['log_id'],
 			'log_view'   => $LNG['log_view'],
 		]);
-		$this->show('LogList.tpl');
+		$this->show('LogList.twig');
 	}
 }

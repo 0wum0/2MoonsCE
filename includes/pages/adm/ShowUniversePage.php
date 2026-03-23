@@ -37,169 +37,162 @@ class ShowUniversePage extends AbstractAdminPage
 
 	protected function run(): void
 	{
-	global $LNG, $USER;
-	$template	= new template();
-	
-	$action		= HTTP::_GP('action', '');
-	$universe	= HTTP::_GP('uniID', 0);
-	
-	switch($action)
-	{
-		case 'open':
-			$config = Config::get($universe);
-			$config->game_disable = 1;
-			$config->save();
-		break;
-		case 'closed':
-			$config = Config::get($universe);
-			$config->game_disable = 0;
-			$config->save();
-		break;
-		case 'delete':
-			if(!empty($universe) && $universe != ROOT_UNI && $universe != Universe::current())
-			{
-				$GLOBALS['DATABASE']->query("DELETE FROM ".ALLIANCE.", ".ALLIANCE_RANK.", ".ALLIANCE_REQUEST." 
-				USING ".ALLIANCE." 
-				LEFT JOIN ".ALLIANCE_RANK." ON ".ALLIANCE.".id = ".ALLIANCE_RANK.".allianceID
-				LEFT JOIN ".ALLIANCE_REQUEST." ON ".ALLIANCE.".id = ".ALLIANCE_REQUEST." .allianceID
-				WHERE ally_universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".BANNED." WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".BUDDY.", ".BUDDY_REQUEST."
-				USING ".BUDDY."
-				LEFT JOIN ".BUDDY_REQUEST." ON ".BUDDY.".id = ".BUDDY_REQUEST.".id
-				WHERE ".BUDDY.".universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".CONFIG." WHERE uni = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".DIPLO." WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".FLEETS.", ".FLEETS_EVENT.", ".AKS.", ".LOG_FLEETS."
-				USING ".FLEETS."
-				LEFT JOIN ".FLEETS_EVENT." ON ".FLEETS.".fleet_id = ".FLEETS_EVENT.".fleetID
-				LEFT JOIN ".AKS." ON ".FLEETS.".fleet_group = ".AKS.".id
-				LEFT JOIN ".LOG_FLEETS." ON ".FLEETS.".fleet_id = ".LOG_FLEETS.".fleet_id
-				WHERE ".FLEETS.".fleet_universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".MESSAGES." WHERE message_universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".NOTES." WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".PLANETS." WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".STATPOINTS." WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".TICKETS.", ".TICKETS_ANSWER."
-				USING ".TICKETS."
-				LEFT JOIN ".TICKETS_ANSWER." ON ".TICKETS.".ticketID = ".TICKETS_ANSWER.".ticketID
-				WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".TOPKB." WHERE universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".USERS.", ".USERS_ACS.", ".USERS_AUTH.", ".TOPKB_USERS.", ".SESSION.", ".SHORTCUTS.", ".RECORDS."
-				USING ".USERS."
-				LEFT JOIN ".USERS_ACS." ON ".USERS.".id = ".USERS_ACS.".userID
-				LEFT JOIN ".USERS_AUTH." ON ".USERS.".id = ".USERS_AUTH.".id
-				LEFT JOIN ".TOPKB_USERS." ON ".USERS.".id = ".TOPKB_USERS.".uid
-				LEFT JOIN ".SESSION." ON ".USERS.".id = ".SESSION.".userID
-				LEFT JOIN ".SHORTCUTS." ON ".USERS.".id = ".SHORTCUTS.".ownerID
-				LEFT JOIN ".RECORDS." ON ".USERS.".id = ".RECORDS.".userID
-				LEFT JOIN ".LOSTPASSWORD." ON ".USERS.".id = ".LOSTPASSWORD.".userID
-				WHERE ".USERS.".universe = ".$universe.";");
-				$GLOBALS['DATABASE']->query("DELETE FROM ".USERS_VALID." WHERE universe = ".$universe.";");
-				if(Universe::getEmulated() == $universe)
-				{
-					Universe::setEmulated(Universe::current());
+		global $LNG, $USER;
+
+		$db       = Database::get();
+		$action   = HTTP::_GP('action', '');
+		$universe = (int) HTTP::_GP('uniID', 0);
+
+		switch ($action) {
+			case 'open':
+				$config = Config::get($universe);
+				$config->game_disable = 1;
+				$config->save();
+				break;
+
+			case 'closed':
+				$config = Config::get($universe);
+				$config->game_disable = 0;
+				$config->save();
+				break;
+
+			case 'delete':
+				if (!empty($universe) && $universe !== ROOT_UNI && $universe !== Universe::current()) {
+					$u = $universe;
+					$db->nativeQuery("DELETE FROM %%ALLIANCE%%, %%ALLIANCE_RANK%%, %%ALLIANCE_REQUEST%%
+					USING %%ALLIANCE%%
+					LEFT JOIN %%ALLIANCE_RANK%%    ON %%ALLIANCE%%.id = %%ALLIANCE_RANK%%.allianceID
+					LEFT JOIN %%ALLIANCE_REQUEST%% ON %%ALLIANCE%%.id = %%ALLIANCE_REQUEST%%.allianceID
+					WHERE ally_universe = {$u};");
+					$db->delete("DELETE FROM %%BANNED%%     WHERE universe          = :u;", [':u' => $u]);
+					$db->nativeQuery("DELETE FROM %%BUDDY%%, %%BUDDY_REQUEST%%
+					USING %%BUDDY%%
+					LEFT JOIN %%BUDDY_REQUEST%% ON %%BUDDY%%.id = %%BUDDY_REQUEST%%.id
+					WHERE %%BUDDY%%.universe = {$u};");
+					$db->delete("DELETE FROM %%CONFIG%%     WHERE uni               = :u;", [':u' => $u]);
+					$db->delete("DELETE FROM %%DIPLO%%      WHERE universe          = :u;", [':u' => $u]);
+					$db->nativeQuery("DELETE FROM %%FLEETS%%, %%FLEETS_EVENT%%, %%AKS%%, %%LOG_FLEETS%%
+					USING %%FLEETS%%
+					LEFT JOIN %%FLEETS_EVENT%% ON %%FLEETS%%.fleet_id    = %%FLEETS_EVENT%%.fleetID
+					LEFT JOIN %%AKS%%          ON %%FLEETS%%.fleet_group = %%AKS%%.id
+					LEFT JOIN %%LOG_FLEETS%%   ON %%FLEETS%%.fleet_id    = %%LOG_FLEETS%%.fleet_id
+					WHERE %%FLEETS%%.fleet_universe = {$u};");
+					$db->delete("DELETE FROM %%MESSAGES%%   WHERE message_universe  = :u;", [':u' => $u]);
+					$db->delete("DELETE FROM %%NOTES%%      WHERE universe          = :u;", [':u' => $u]);
+					$db->delete("DELETE FROM %%PLANETS%%    WHERE universe          = :u;", [':u' => $u]);
+					$db->delete("DELETE FROM %%STATPOINTS%% WHERE universe          = :u;", [':u' => $u]);
+					$db->nativeQuery("DELETE FROM %%TICKETS%%, %%TICKETS_ANSWER%%
+					USING %%TICKETS%%
+					LEFT JOIN %%TICKETS_ANSWER%% ON %%TICKETS%%.ticketID = %%TICKETS_ANSWER%%.ticketID
+					WHERE universe = {$u};");
+					$db->delete("DELETE FROM %%TOPKB%%      WHERE universe          = :u;", [':u' => $u]);
+					$db->nativeQuery("DELETE FROM %%USERS%%, %%USERS_ACS%%, %%USERS_AUTH%%, %%TOPKB_USERS%%, %%SESSION%%, %%SHORTCUTS%%, %%RECORDS%%
+					USING %%USERS%%
+					LEFT JOIN %%USERS_ACS%%    ON %%USERS%%.id = %%USERS_ACS%%.userID
+					LEFT JOIN %%USERS_AUTH%%   ON %%USERS%%.id = %%USERS_AUTH%%.id
+					LEFT JOIN %%TOPKB_USERS%%  ON %%USERS%%.id = %%TOPKB_USERS%%.uid
+					LEFT JOIN %%SESSION%%      ON %%USERS%%.id = %%SESSION%%.userID
+					LEFT JOIN %%SHORTCUTS%%    ON %%USERS%%.id = %%SHORTCUTS%%.ownerID
+					LEFT JOIN %%RECORDS%%      ON %%USERS%%.id = %%RECORDS%%.userID
+					LEFT JOIN %%LOSTPASSWORD%% ON %%USERS%%.id = %%LOSTPASSWORD%%.userID
+					WHERE %%USERS%%.universe = {$u};");
+					$db->delete("DELETE FROM %%USERS_VALID%% WHERE universe         = :u;", [':u' => $u]);
+
+					if (Universe::getEmulated() === $universe) {
+						Universe::setEmulated(Universe::current());
+					}
+					if (count(Universe::availableUniverses()) === 2) {
+						setcookie(session_name(), session_id(), SESSION_LIFETIME, HTTP_BASE, null, HTTPS, true);
+						HTTP::redirectTo("../admin.php?reload=r");
+					}
 				}
-				
-				if(count(Universe::availableUniverses()) == 2)
-				{
-					// Hack The Session
-					setcookie(session_name(), session_id(), SESSION_LIFETIME, HTTP_BASE, NULL, HTTPS, true);
-					HTTP::redirectTo("../admin.php?reload=r");
+				break;
+
+			case 'create':
+				$universeCount = count(Universe::availableUniverses());
+				$ch = curl_init();
+				$url = ($universeCount === 1)
+					? PROTOCOL . HTTP_HOST . HTTP_BASE . 'uni' . ROOT_UNI . '/'
+					: PROTOCOL . HTTP_HOST . HTTP_BASE;
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_HTTPGET, true);
+				curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; 2Moons/' . Config::get()->VERSION . '; +http://2moons.cc)');
+				curl_setopt($ch, CURLOPT_HTTPHEADER, [
+					'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+					'Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+					'Accept-Language: de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4',
+				]);
+				curl_exec($ch);
+				$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				if ($httpCode !== 302) {
+					$this->message(
+						str_replace('{NGINX-CODE}', 'rewrite /(.*)/?uni[0-9]+/?(.*) /$1/$2 break;', $LNG->getTemplate('createUniverseInfo'))
+						. '<a href="javascript:window.history.back();"><button>' . $LNG['uvs_back'] . '</button></a>'
+						. '<a href="javascript:window.location.reload();"><button>' . $LNG['uvs_reload'] . '</button></a>'
+					);
+					return;
 				}
-			}
-		break;
-		case 'create':
-			$universeCount = count(Universe::availableUniverses());
-			// Check Multiuniverse Support
-			$ch	= curl_init();
-			if($universeCount == 1)
-			{
-				curl_setopt($ch, CURLOPT_URL, PROTOCOL.HTTP_HOST.HTTP_BASE."uni".ROOT_UNI."/");
-			}
-			else
-			{
-				curl_setopt($ch, CURLOPT_URL, PROTOCOL.HTTP_HOST.HTTP_BASE);
-			}
-			curl_setopt($ch, CURLOPT_HTTPGET, true);
-			curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; 2Moons/".Config::get()->VERSION."; +http://2moons.cc)");
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3",
-				"Accept-Language: de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4",
-			));
-			curl_exec($ch);
-			$httpCode	= curl_getinfo($ch, CURLINFO_HTTP_CODE);
-			
-			curl_close($ch);
-			if($httpCode != 302)
-			{
-				$template = new template();
-				$template->message(str_replace(
-					array(
-						'{NGINX-CODE}'
-					), 
-					array(
-						#'rewrite '.HTTP_ROOT.'uni[0-9]+/?(.*)?$ '.HTTP_ROOT.'$2 break;'
-						'rewrite /(.*)/?uni[0-9]+/?(.*) /$1/$2 break;'
-					),
-					$LNG->getTemplate('createUniverseInfo')
-				)
-				.'<a href="javascript:window.history.back();"><button>'.$LNG['uvs_back'].'</button></a>'
-				.'<a href="javascript:window.location.reload();"><button>'.$LNG['uvs_reload'].'</button></a>');
-				exit;
-			}
 
-			$config	= Config::get();
-			
-			$configSQL	= array();
-			foreach(Config::getGlobalConfigKeys() as $basicConfigKey)
-			{
-				$configSQL[]	= '`'.$basicConfigKey.'` = "'.$config->$basicConfigKey.'"';
-			}
-			
-			$configSQL[]	= '`uni_name` = "'.$LNG['fcm_universe'].' '.($universeCount + 1).'"';
-			$configSQL[]	= '`close_reason` = ""';
-			$configSQL[]	= '`OverviewNewsText` = "'.$GLOBALS['DATABASE']->escape($config->OverviewNewsText).'"';
-		
-			$GLOBALS['DATABASE']->query("INSERT INTO ".CONFIG." SET ".implode(', ', $configSQL).";");
-			$newUniverse	= $GLOBALS['DATABASE']->GetInsertID();
+				$config     = Config::get();
+				$pdo        = $db->getHandle();
+				$setClauses = [];
+				$params     = [];
+				foreach (Config::getGlobalConfigKeys() as $key) {
+					$setClauses[] = '`' . $key . '` = :cfg_' . $key;
+					$params[':cfg_' . $key] = $config->$key;
+				}
+				$setClauses[] = '`uni_name` = :uni_name';
+				$setClauses[] = '`close_reason` = :close_reason';
+				$setClauses[] = '`OverviewNewsText` = :overview_news';
+				$params[':uni_name']      = $LNG['fcm_universe'] . ' ' . ($universeCount + 1);
+				$params[':close_reason']  = '';
+				$params[':overview_news'] = (string) $config->OverviewNewsText;
 
-			Config::reload();
+				$db->insert('INSERT INTO %%CONFIG%% SET ' . implode(', ', $setClauses) . ';', $params);
+				$newUniverse = (int) $db->lastInsertId();
 
-			list($userID, $planetID) = PlayerUtil::createPlayer($newUniverse, $USER['username'], '', $USER['email'], $USER['lang'], 1, 1, 1, NULL, AUTH_ADM);
-			$GLOBALS['DATABASE']->query("UPDATE ".USERS." SET password = '".$USER['password']."' WHERE id = ".$userID.";");
+				Config::reload();
 
-			if($universeCount === 1)
-			{
-				// Hack The Session
-				setcookie(session_name(), session_id(), SESSION_LIFETIME, HTTP_ROOT.'uni'.$USER['universe'].'/', NULL, HTTPS, true);
-				HTTP::redirectTo("uni".$USER['universe']."/admin.php?reload=r");
-			}
-		break;
-	}
-	
-	$uniList	= array();
-	
-	$uniResult	= $GLOBALS['DATABASE']->query("SELECT uni, users_amount, game_disable, energySpeed, halt_speed, resource_multiplier, fleet_speed, game_speed, uni_name, COUNT(DISTINCT inac.id) as inactive, COUNT(planet.id) as planet
-	FROM ".CONFIG." conf
-	LEFT JOIN ".USERS." as inac ON uni = inac.universe AND inac.onlinetime < ".(TIMESTAMP - INACTIVE)."
-	LEFT JOIN ".PLANETS." as planet ON uni = planet.universe
-	GROUP BY conf.uni, inac.universe, planet.universe
-	ORDER BY uni ASC;");
-	
-	while($uniRow = $GLOBALS['DATABASE']->fetch_array($uniResult)) {
-		$uniList[$uniRow['uni']]	= $uniRow;
-	}
-	
-	$template->assign_vars(array(
-		'uniList'	=> $uniList,
-		'SID'		=> session_id(),
-	));
-	
-	$template->show('UniversePage.twig');
+				[$userID] = PlayerUtil::createPlayer($newUniverse, $USER['username'], '', $USER['email'], $USER['lang'], 1, 1, 1, null, AUTH_ADM);
+				$db->update(
+					"UPDATE %%USERS%% SET `password` = :pw WHERE `id` = :id;",
+					[':pw' => $USER['password'], ':id' => (int) $userID]
+				);
+
+				if ($universeCount === 1) {
+					setcookie(session_name(), session_id(), SESSION_LIFETIME, HTTP_ROOT . 'uni' . $USER['universe'] . '/', null, HTTPS, true);
+					HTTP::redirectTo('uni' . $USER['universe'] . '/admin.php?reload=r');
+				}
+				break;
+		}
+
+		$uniRows = $db->select(
+			"SELECT conf.uni, conf.users_amount, conf.game_disable, conf.energySpeed, conf.halt_speed,
+			        conf.resource_multiplier, conf.fleet_speed, conf.game_speed, conf.uni_name,
+			        COUNT(DISTINCT inac.id) AS inactive,
+			        COUNT(planet.id)        AS planet
+			 FROM %%CONFIG%% conf
+			 LEFT JOIN %%USERS%%   AS inac   ON inac.universe  = conf.uni AND inac.onlinetime < :inactive_time
+			 LEFT JOIN %%PLANETS%% AS planet ON planet.universe = conf.uni
+			 GROUP BY conf.uni
+			 ORDER BY conf.uni ASC;",
+			[':inactive_time' => TIMESTAMP - INACTIVE]
+		);
+
+		$uniList = [];
+		foreach ($uniRows as $uniRow) {
+			$uniList[$uniRow['uni']] = $uniRow;
+		}
+
+		$this->assign([
+			'uniList' => $uniList,
+			'SID'     => session_id(),
+		]);
+		$this->show('UniversePage.twig');
 	}
 }

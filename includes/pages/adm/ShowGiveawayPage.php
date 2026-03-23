@@ -85,7 +85,7 @@ class ShowGiveawayPage extends AbstractAdminPage
 	}
 
 	$this->assign(['reslist' => $reslist]);
-	$this->show('giveaway.tpl');
+	$this->show('giveaway.twig');
 	}
 }
 
