@@ -467,10 +467,10 @@ CREATE TABLE `%PREFIX%news` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user` varchar(64) NOT NULL,
   `date` int(11) NOT NULL,
-  `title` varchar(64) NOT NULL,
-  `text` text NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `text` mediumtext NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `%PREFIX%notes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
