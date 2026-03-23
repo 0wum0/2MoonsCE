@@ -182,7 +182,7 @@ body.loading #game-header::after { width:100%; }
 
 /* ── RESOURCE BAR ── */
 .res-bar-row {
-  background:rgba(3,6,15,0.92); border-top:1px solid var(--border); padding:0 16px;
+  background:rgba(3,6,15,0.92); padding:0 16px;
 }
 .res-bar-container { overflow-x:auto; }
 .res-bar { display:flex; gap:6px; padding:6px 0; justify-content:center; flex-wrap:wrap; }
