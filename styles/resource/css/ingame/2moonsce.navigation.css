@@ -24,25 +24,32 @@
 /* ── HEADER ── */
 .game-header, header.game-header, #game-header {
   position:fixed; top:0; left:0; right:0; z-index:1000;
-  background:rgba(3,6,15,0.97) !important;
+  background:transparent !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  border-bottom:none !important;
+  box-shadow:none !important;
+}
+.header-row-main {
+  position:relative; display:flex; align-items:center; height:52px; padding:0 16px; gap:10px; flex-wrap:nowrap; overflow:visible;
+  background:rgba(3,6,15,0.97);
   backdrop-filter:blur(28px) saturate(180%);
   -webkit-backdrop-filter:blur(28px) saturate(180%);
-  border-bottom:1px solid var(--border) !important;
-  box-shadow:0 4px 28px rgba(0,0,0,0.75),0 0 0 1px rgba(0,212,255,0.04) !important;
+  border-bottom:1px solid var(--border);
+  box-shadow:0 4px 28px rgba(0,0,0,0.75),0 0 0 1px rgba(0,212,255,0.04);
 }
-#game-header::before {
+.header-row-main::before {
   content:''; position:absolute; top:0; left:0; right:0; height:1.5px;
   background:linear-gradient(90deg,transparent 0%,var(--cyan) 25%,var(--purple) 75%,transparent 100%);
-  opacity:0.6;
+  opacity:0.6; pointer-events:none;
 }
-#game-header::after {
-  content:''; position:absolute; bottom:-1px; left:0;
+.header-row-main::after {
+  content:''; position:absolute; bottom:0; left:0;
   height:2px; width:0%;
   background:linear-gradient(90deg,var(--cyan),var(--purple));
   transition:width 0.3s ease; pointer-events:none;
 }
-body.loading #game-header::after { width:100%; }
-.header-row-main { display:flex; align-items:center; height:52px; padding:0 16px; gap:10px; flex-wrap:nowrap; overflow:visible; }
+body.loading .header-row-main::after { width:100%; }
 .header-logo {
   display:flex; align-items:center; gap:9px;
   font-family:var(--font-hud) !important; font-size:15px !important;
