@@ -1,15 +1,15 @@
-﻿{#
+{#
 	2MoonsCE
 
 	Based on the original 2Moons project:
 
 	@copyright 2009 Lucky
-	@copyright 2016 Jan-Otto Kröpke <slaver7@gmail.com>
+	@copyright 2016 Jan-Otto Kr�pke <slaver7@gmail.com>
 	@licence MIT
 	@version 1.8.0
 	@link https://github.com/jkroepke/2Moons
 	 2Moons
-	  by Jan-Otto Kröpke 2009-2016
+	  by Jan-Otto Kr�pke 2009-2016
 
 	Modernization, PHP 8.3/8.4 compatibility, Twig Migration (Smarty removed)
 	Refactoring and feature extensions:
@@ -23,46 +23,6 @@
 #}
 {% include 'overall_header.twig' %}
 
-<style>
-.pfaq-wrap{background:var(--adm-card-bg,#131929);border:1px solid var(--adm-border,#1e2d4a);border-radius:12px;padding:24px;margin-bottom:24px;}
-.pfaq-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;gap:12px;}
-.pfaq-header h2{color:var(--adm-neon-blue,#38bdf8);font-size:1rem;margin:0;}
-.pfaq-toggle-btn{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:6px;padding:4px 14px;font-size:0.8rem;cursor:pointer;white-space:nowrap;transition:background .2s;}
-.pfaq-toggle-btn:hover{background:rgba(56,189,248,0.2);}
-.pfaq-body{display:none;margin-top:20px;}
-.pfaq-body.open{display:block;}
-.pfaq-toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;padding:14px 16px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.15);border-radius:8px;}
-.pfaq-toc a{color:#7dd3fc;font-size:0.78rem;text-decoration:none;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:4px;padding:3px 9px;transition:background .15s;}
-.pfaq-toc a:hover{background:rgba(56,189,248,0.2);}
-.pfaq-section{border:1px solid #1e2d4a;border-radius:8px;margin-bottom:10px;overflow:hidden;}
-.pfaq-section summary{list-style:none;padding:13px 16px;cursor:pointer;background:rgba(255,255,255,0.02);color:#e2e8f0;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:10px;transition:background .15s;}
-.pfaq-section summary::-webkit-details-marker{display:none;}
-.pfaq-section summary:hover{background:rgba(56,189,248,0.06);}
-.pfaq-section[open] summary{color:#7dd3fc;border-bottom:1px solid #1e2d4a;}
-.pfaq-section summary .pfaq-arrow{margin-left:auto;font-size:0.7rem;color:#475569;transition:transform .2s;}
-.pfaq-section[open] summary .pfaq-arrow{transform:rotate(90deg);color:#7dd3fc;}
-.pfaq-content{padding:18px 20px;color:#94a3b8;font-size:0.875rem;line-height:1.7;}
-.pfaq-content h4{color:#cbd5e1;font-size:0.82rem;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.05em;}
-.pfaq-content h4:first-child{margin-top:0;}
-.pfaq-content p{margin:0 0 10px;}
-.pfaq-content ul{margin:0 0 10px;padding-left:20px;}
-.pfaq-content li{margin-bottom:4px;}
-.pfaq-content strong{color:#e2e8f0;}
-.pfaq-content a{color:#7dd3fc;}
-.pfaq-content code{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.82rem;color:#7dd3fc;}
-.pfaq-note{background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;color:#fcd34d;font-size:0.83rem;}
-.pfaq-tip{background:rgba(34,197,94,0.07);border-left:3px solid #22c55e;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;color:#86efac;font-size:0.83rem;}
-.pfaq-danger{background:rgba(239,68,68,0.08);border-left:3px solid #ef4444;border-radius:0 6px 6px 0;padding:10px 14px;margin:10px 0;color:#fca5a5;font-size:0.83rem;}
-.pfaq-code-wrap{position:relative;margin:10px 0;}
-.pfaq-code-wrap pre{background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;padding:14px 50px 14px 16px;overflow-x:auto;font-family:'Courier New',monospace;font-size:0.8rem;line-height:1.6;color:#cbd5e1;margin:0;white-space:pre;}
-.pfaq-copy-btn{position:absolute;top:7px;right:8px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#7dd3fc;border-radius:4px;padding:2px 10px;font-size:0.72rem;cursor:pointer;transition:background .2s;z-index:1;}
-.pfaq-copy-btn:hover{background:rgba(56,189,248,0.25);}
-.pfaq-copy-btn.copied{color:#86efac;border-color:#22c55e;background:rgba(34,197,94,0.12);}
-.pfaq-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
-@media(max-width:700px){.pfaq-grid2{grid-template-columns:1fr;}}
-.pfaq-grid2>div{background:rgba(255,255,255,0.02);border:1px solid #1e2d4a;border-radius:6px;padding:12px 14px;}
-.pfaq-grid2>div>strong{display:block;color:#7dd3fc;margin-bottom:6px;font-size:0.82rem;}
-</style>
 
 <div class="content-header">
     <h1 class="content-title">&#128230; Plugin-Verwaltung</h1>
@@ -108,7 +68,7 @@
         <details class="pfaq-section" id="pfaq1">
             <summary>&#128161; 1. Plugin-Grundidee &ndash; Was kann Plugin System v1? <span class="pfaq-arrow">&#9658;</span></summary>
             <div class="pfaq-content">
-                <p>Das Plugin-System v1 erlaubt es, 2MoonsCE <strong>ohne Core-Änderungen</strong> zu erweitern. Plugins werden als eigenständige Verzeichnisse unter <code>plugins/</code> abgelegt und über die Datenbank verwaltet.</p>
+                <p>Das Plugin-System v1 erlaubt es, 2MoonsCE <strong>ohne Core-�nderungen</strong> zu erweitern. Plugins werden als eigenst�ndige Verzeichnisse unter <code>plugins/</code> abgelegt und �ber die Datenbank verwaltet.</p>
                 <h4>Was v1 kann</h4>
                 <ul>
                     <li>Eigene <strong>PHP-Logik</strong> einschleusen (via <code>plugin.php</code> Bootstrap)</li>
@@ -116,16 +76,16 @@
                     <li><strong>Filter-Hooks</strong> registrieren &ndash; Werte transformieren bevor sie gerendert werden</li>
                     <li>Eigene <strong>CSS- und JS-Assets</strong> global oder seitenspezifisch laden</li>
                     <li>Eigene <strong>Twig-Templates</strong> registrieren und rendern</li>
-                    <li><strong>Sprachdateien</strong> (JSON) für mehrsprachige Texte nutzen</li>
-                    <li><strong>SQL-Migrationen</strong> beim Installieren/Deinstallieren ausführen</li>
+                    <li><strong>Sprachdateien</strong> (JSON) f�r mehrsprachige Texte nutzen</li>
+                    <li><strong>SQL-Migrationen</strong> beim Installieren/Deinstallieren ausf�hren</li>
                     <li>Per <strong>ZIP-Upload</strong> oder direkt aus dem <code>plugins/</code>-Ordner installieren</li>
                 </ul>
                 <h4>Was v1 (noch) nicht kann</h4>
                 <ul>
                     <li>Keine eigenen Admin-Seiten / Routen (kein eigenes <code>page=</code>-Routing)</li>
-                    <li>Keine Core-Template-Overrides (Twig-Dateien im Core können nicht ersetzt werden)</li>
-                    <li>Keine automatischen Updates / Dependency-Auflösung zwischen Plugins</li>
-                    <li>Keine Plugin-zu-Plugin-Kommunikation über offizielle API</li>
+                    <li>Keine Core-Template-Overrides (Twig-Dateien im Core k�nnen nicht ersetzt werden)</li>
+                    <li>Keine automatischen Updates / Dependency-Aufl�sung zwischen Plugins</li>
+                    <li>Keine Plugin-zu-Plugin-Kommunikation �ber offizielle API</li>
                 </ul>
                 <div class="pfaq-note">&#9888; Plugins laufen im selben PHP-Prozess wie der Core. Ein fataler Fehler im Plugin-Bootstrap kann die gesamte Seite lahmlegen. Immer <code>try/catch</code> verwenden!</div>
             </div>
@@ -139,34 +99,34 @@
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
                     <pre>plugins/
-└── mein-plugin/            ← Ordnername = Plugin-ID (nur a-z, 0-9, - und _)
-    ├── manifest.json       ← Pflicht: Metadaten des Plugins
-    ├── plugin.php          ← Pflicht: Bootstrap (Hooks, Assets, Twig registrieren)
-    ├── assets/
-    │   ├── mein-plugin.css ← Eigene Styles
-    │   └── mein-plugin.js  ← Eigene Scripts
-    ├── lang/
-    │   ├── de.json         ← Deutsche Übersetzungen
-    │   └── en.json         ← Englische Übersetzungen (Fallback)
-    ├── templates/
-    │   └── widget.twig     ← Eigene Twig-Templates (optional)
-    ├── install.sql         ← SQL beim Installieren (optional)
-    └── uninstall.sql       ← SQL beim Deinstallieren (optional)</pre>
++-- mein-plugin/            ? Ordnername = Plugin-ID (nur a-z, 0-9, - und _)
+    +-- manifest.json       ? Pflicht: Metadaten des Plugins
+    +-- plugin.php          ? Pflicht: Bootstrap (Hooks, Assets, Twig registrieren)
+    +-- assets/
+    �   +-- mein-plugin.css ? Eigene Styles
+    �   +-- mein-plugin.js  ? Eigene Scripts
+    +-- lang/
+    �   +-- de.json         ? Deutsche �bersetzungen
+    �   +-- en.json         ? Englische �bersetzungen (Fallback)
+    +-- templates/
+    �   +-- widget.twig     ? Eigene Twig-Templates (optional)
+    +-- install.sql         ? SQL beim Installieren (optional)
+    +-- uninstall.sql       ? SQL beim Deinstallieren (optional)</pre>
                 </div>
-                <h4>Regeln für die Plugin-ID</h4>
+                <h4>Regeln f�r die Plugin-ID</h4>
                 <ul>
                     <li>Nur Kleinbuchstaben, Ziffern, Bindestriche (<code>-</code>) und Unterstriche (<code>_</code>)</li>
                     <li>Regex: <code>/^[a-z0-9\-_]+$/</code></li>
                     <li>Beispiele: <code>sm-test</code>, <code>my_plugin</code>, <code>shop2</code></li>
-                    <li><strong>Kein</strong> Leerzeichen, keine Großbuchstaben, keine Sonderzeichen</li>
+                    <li><strong>Kein</strong> Leerzeichen, keine Gro�buchstaben, keine Sonderzeichen</li>
                 </ul>
-                <div class="pfaq-tip">&#9989; Nutze einen eindeutigen Prefix für deine Plugin-IDs (z.B. <code>acme-</code>), um Konflikte mit anderen Plugins zu vermeiden.</div>
+                <div class="pfaq-tip">&#9989; Nutze einen eindeutigen Prefix f�r deine Plugin-IDs (z.B. <code>acme-</code>), um Konflikte mit anderen Plugins zu vermeiden.</div>
             </div>
         </details>
 
         <!-- 3. manifest.json -->
         <details class="pfaq-section" id="pfaq3">
-            <summary>&#128196; 3. manifest.json &ndash; Alle Felder erklärt <span class="pfaq-arrow">&#9658;</span></summary>
+            <summary>&#128196; 3. manifest.json &ndash; Alle Felder erkl�rt <span class="pfaq-arrow">&#9658;</span></summary>
             <div class="pfaq-content">
                 <p>Die <code>manifest.json</code> ist die Steuerzentrale des Plugins. Sie wird beim Installieren gelesen und validiert.</p>
                 <div class="pfaq-code-wrap">
@@ -183,25 +143,25 @@
                 </div>
                 <h4>Pflichtfelder</h4>
                 <ul>
-                    <li><code>"id"</code> &ndash; Eindeutige Plugin-ID. Muss <code>/^[a-z0-9\-_]+$/</code> matchen. <strong>Darf nach der Erstinstallation nicht geändert werden.</strong></li>
+                    <li><code>"id"</code> &ndash; Eindeutige Plugin-ID. Muss <code>/^[a-z0-9\-_]+$/</code> matchen. <strong>Darf nach der Erstinstallation nicht ge�ndert werden.</strong></li>
                     <li><code>"name"</code> &ndash; Anzeigename im Admin-Panel (beliebiger String).</li>
                     <li><code>"version"</code> &ndash; Format <code>MAJOR.MINOR[.PATCH]</code>, z.B. <code>"1.0.0"</code>. Muss mit <code>MAJOR.MINOR</code> beginnen.</li>
                 </ul>
                 <h4>Optionale Felder</h4>
                 <ul>
-                    <li><code>"type"</code> &ndash; Typ des Plugins (nur informativ). Standard: <code>"game"</code>. Mögliche Werte: <code>"game"</code>, <code>"admin"</code>, <code>"util"</code>.</li>
+                    <li><code>"type"</code> &ndash; Typ des Plugins (nur informativ). Standard: <code>"game"</code>. M�gliche Werte: <code>"game"</code>, <code>"admin"</code>, <code>"util"</code>.</li>
                     <li><code>"description"</code> &ndash; Kurzbeschreibung des Plugins.</li>
                     <li><code>"author"</code> &ndash; Name des Autors.</li>
-                    <li><code>"min_core"</code> &ndash; Minimale 2MoonsCE-Version (dokumentarisch, wird in v1 nicht automatisch geprüft).</li>
+                    <li><code>"min_core"</code> &ndash; Minimale 2MoonsCE-Version (dokumentarisch, wird in v1 nicht automatisch gepr�ft).</li>
                 </ul>
                 <h4>Versionierung (Semantic Versioning)</h4>
                 <ul>
-                    <li><strong>MAJOR</strong> &ndash; Breaking changes (inkompatible Änderungen)</li>
-                    <li><strong>MINOR</strong> &ndash; Neue Features, abwärtskompatibel</li>
+                    <li><strong>MAJOR</strong> &ndash; Breaking changes (inkompatible �nderungen)</li>
+                    <li><strong>MINOR</strong> &ndash; Neue Features, abw�rtskompatibel</li>
                     <li><strong>PATCH</strong> &ndash; Bugfixes</li>
                 </ul>
                 <h4>Plugin-Einstellungen (<code>"settings"</code>)</h4>
-                <p>Mit dem optionalen <code>"settings"</code>-Array können Plugins konfigurierbare Felder definieren. Der Admin kann diese Werte bequem über das Plugin-Admin-Panel bearbeiten. Die Werte werden in der DB gespeichert und sind in <code>plugin.php</code> über <code>PluginManager::get()-&gt;getConfig()</code> abrufbar.</p>
+                <p>Mit dem optionalen <code>"settings"</code>-Array k�nnen Plugins konfigurierbare Felder definieren. Der Admin kann diese Werte bequem �ber das Plugin-Admin-Panel bearbeiten. Die Werte werden in der DB gespeichert und sind in <code>plugin.php</code> �ber <code>PluginManager::get()-&gt;getConfig()</code> abrufbar.</p>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
                     <pre>"settings": [
@@ -210,7 +170,7 @@
         "type":    "int",
         "label":   "Intervall (Minuten)",
         "default": 60,
-        "hint":    "Zeit zwischen zwei Ausführungen."
+        "hint":    "Zeit zwischen zwei Ausf�hrungen."
     },
     {
         "key":     "enabled",
@@ -233,12 +193,12 @@
                 </div>
                 <h4>Feldtypen</h4>
                 <div class="pfaq-grid2">
-                    <div><strong>text</strong> — Einzeiliges Textfeld (Standard)</div>
-                    <div><strong>int / number</strong> — Ganzzahl-Eingabe</div>
-                    <div><strong>float</strong> — Dezimalzahl-Eingabe</div>
-                    <div><strong>bool / checkbox</strong> — Ein/Aus-Schalter</div>
-                    <div><strong>select</strong> — Dropdown, benötigt <code>"options"</code>-Array</div>
-                    <div><strong>textarea</strong> — Mehrzeiliges Textfeld</div>
+                    <div><strong>text</strong> � Einzeiliges Textfeld (Standard)</div>
+                    <div><strong>int / number</strong> � Ganzzahl-Eingabe</div>
+                    <div><strong>float</strong> � Dezimalzahl-Eingabe</div>
+                    <div><strong>bool / checkbox</strong> � Ein/Aus-Schalter</div>
+                    <div><strong>select</strong> � Dropdown, ben�tigt <code>"options"</code>-Array</div>
+                    <div><strong>textarea</strong> � Mehrzeiliges Textfeld</div>
                 </div>
                 <h4>Config in plugin.php lesen</h4>
                 <div class="pfaq-code-wrap">
@@ -254,7 +214,7 @@ $mode     = (string) $pm-&gt;getConfig('mein-plugin', 'mode',        'normal');
 $config = $pm-&gt;getAllConfig('mein-plugin');</pre>
                 </div>
                 <div class="pfaq-tip">&#9989; Immer einen sinnvollen <code>"default"</code>-Wert in der <code>manifest.json</code> angeben &ndash; er wird im Settings-Dialog als Vorbelegung angezeigt und als Fallback in <code>getConfig()</code> genutzt.</div>
-                <div class="pfaq-note">&#9888; Die <code>id</code> in der <code>manifest.json</code> muss exakt mit dem Ordnernamen unter <code>plugins/</code> übereinstimmen. Stimmt beides nicht überein, schlägt die Installation fehl.</div>
+                <div class="pfaq-note">&#9888; Die <code>id</code> in der <code>manifest.json</code> muss exakt mit dem Ordnernamen unter <code>plugins/</code> �bereinstimmen. Stimmt beides nicht �berein, schl�gt die Installation fehl.</div>
             </div>
         </details>
 
@@ -268,7 +228,7 @@ $config = $pm-&gt;getAllConfig('mein-plugin');</pre>
                     <pre>&lt;?php
 declare(strict_types=1);
 
-// Assets registrieren (global für alle Seiten)
+// Assets registrieren (global f�r alle Seiten)
 AssetRegistry::get()-&gt;registerCss('mein-plugin', 'plugins/mein-plugin/assets/mein-plugin.css');
 AssetRegistry::get()-&gt;registerJs('mein-plugin',  'plugins/mein-plugin/assets/mein-plugin.js');
 
@@ -282,15 +242,15 @@ HookManager::get()-&gt;addFilter('player_name', function(string $name, array $co
     return '[VIP] ' . $name;
 }, 20);</pre>
                 </div>
-                <h4>Wichtige Regeln für plugin.php</h4>
+                <h4>Wichtige Regeln f�r plugin.php</h4>
                 <ul>
-                    <li>Die Datei wird bei <strong>jedem Request</strong> ausgeführt, wenn das Plugin aktiv ist &ndash; kein Caching.</li>
+                    <li>Die Datei wird bei <strong>jedem Request</strong> ausgef�hrt, wenn das Plugin aktiv ist &ndash; kein Caching.</li>
                     <li>Kein direktes Ausgeben von HTML (kein <code>echo</code> auf Top-Level) &ndash; nur Registrierungen.</li>
                     <li>Schwere Operationen (DB-Queries, Datei-I/O) in Hooks kapseln, nicht direkt im Bootstrap.</li>
                     <li>Immer <code>declare(strict_types=1);</code> verwenden.</li>
                 </ul>
                 <h4>install.sql / uninstall.sql (Lifecycle)</h4>
-                <p>Für Datenbankoperationen beim Installieren/Deinstallieren lege SQL-Dateien im Plugin-Root ab:</p>
+                <p>F�r Datenbankoperationen beim Installieren/Deinstallieren lege SQL-Dateien im Plugin-Root ab:</p>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
                     <pre>-- install.sql
@@ -317,22 +277,22 @@ DROP TABLE IF EXISTS %%MP_DATA%%;</pre>
                     <div>
                         <strong>addAction($hook, $callback, $priority)</strong>
                         <ul>
-                            <li>Callback gibt einen <code>string</code> zurück (HTML)</li>
-                            <li>Alle Callbacks werden konkateniert und in den Spot eingefügt</li>
-                            <li>Rückgabe <code>''</code> wenn nichts ausgegeben werden soll</li>
+                            <li>Callback gibt einen <code>string</code> zur�ck (HTML)</li>
+                            <li>Alle Callbacks werden konkateniert und in den Spot eingef�gt</li>
+                            <li>R�ckgabe <code>''</code> wenn nichts ausgegeben werden soll</li>
                         </ul>
                     </div>
                     <div>
                         <strong>addFilter($hook, $callback, $priority)</strong>
                         <ul>
-                            <li>Callback erhält den aktuellen Wert + Context und gibt den neuen Wert zurück</li>
+                            <li>Callback erh�lt den aktuellen Wert + Context und gibt den neuen Wert zur�ck</li>
                             <li>Callbacks werden in Priority-Reihenfolge verkettet</li>
-                            <li>Immer den Wert zurückgeben (auch unverändert)</li>
+                            <li>Immer den Wert zur�ckgeben (auch unver�ndert)</li>
                         </ul>
                     </div>
                 </div>
                 <h4>Priority</h4>
-                <p>Niedrigere Zahl = früher ausgeführt. Standard: <code>10</code>. Bereich: beliebige Integer.</p>
+                <p>Niedrigere Zahl = fr�her ausgef�hrt. Standard: <code>10</code>. Bereich: beliebige Integer.</p>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
                     <pre>// Action: Banner ganz oben (Priority 5 = vor anderen mit Priority 10)
@@ -357,8 +317,8 @@ HookManager::get()-&gt;addFilter('resource_display', function(string $val, array
 }, 20);</pre>
                 </div>
                 <h4>Context-Array</h4>
-                <p>Jeder Hook-Callback erhält ein <code>$context</code>-Array mit Informationen über die aktuelle Seite/den aktuellen Zustand. Die verfügbaren Keys hängen vom jeweiligen Hook ab. Immer defensiv prüfen: <code>$ctx['key'] ?? 'default'</code>.</p>
-                <div class="pfaq-tip">&#9989; Nutze hohe Priority-Werte (z.B. 99) für Debug-Ausgaben, damit sie immer am Ende erscheinen und andere Plugins nicht stören.</div>
+                <p>Jeder Hook-Callback erh�lt ein <code>$context</code>-Array mit Informationen �ber die aktuelle Seite/den aktuellen Zustand. Die verf�gbaren Keys h�ngen vom jeweiligen Hook ab. Immer defensiv pr�fen: <code>$ctx['key'] ?? 'default'</code>.</p>
+                <div class="pfaq-tip">&#9989; Nutze hohe Priority-Werte (z.B. 99) f�r Debug-Ausgaben, damit sie immer am Ende erscheinen und andere Plugins nicht st�ren.</div>
             </div>
         </details>
 
@@ -366,31 +326,31 @@ HookManager::get()-&gt;addFilter('resource_display', function(string $val, array
         <details class="pfaq-section" id="pfaq6">
             <summary>&#127912; 6. Twig hook()-Spots nutzen <span class="pfaq-arrow">&#9658;</span></summary>
             <div class="pfaq-content">
-                <p>In den Core-Twig-Templates sind an strategischen Stellen <code>{{ '{{' }} hook('spot_name', context) {{ '}}' }}</code>-Aufrufe eingebaut. Jeder registrierte Action-Callback für diesen Spot wird aufgerufen und die Rückgaben werden konkateniert ausgegeben.</p>
-                <h4>Verfügbare Spots (v1)</h4>
+                <p>In den Core-Twig-Templates sind an strategischen Stellen <code>{{ '{{' }} hook('spot_name', context) {{ '}}' }}</code>-Aufrufe eingebaut. Jeder registrierte Action-Callback f�r diesen Spot wird aufgerufen und die R�ckgaben werden konkateniert ausgegeben.</p>
+                <h4>Verf�gbare Spots (v1)</h4>
                 <div class="pfaq-grid2">
                     <div>
                         <strong>head_end</strong>
-                        Direkt vor <code>&lt;/head&gt;</code>. Ideal für: eigene <code>&lt;style&gt;</code>-Blöcke, Meta-Tags, Preload-Links.
+                        Direkt vor <code>&lt;/head&gt;</code>. Ideal f�r: eigene <code>&lt;style&gt;</code>-Bl�cke, Meta-Tags, Preload-Links.
                     </div>
                     <div>
                         <strong>content_top</strong>
-                        Ganz oben im Seiteninhalt, nach dem Header. Ideal für: Benachrichtigungsbanner, Ankündigungen, globale Hinweise.
+                        Ganz oben im Seiteninhalt, nach dem Header. Ideal f�r: Benachrichtigungsbanner, Ank�ndigungen, globale Hinweise.
                     </div>
                     <div>
                         <strong>sidebar_end</strong>
-                        Am Ende der Sidebar (Navigation). Ideal für: zusätzliche Navigationslinks, Widgets, Zähler.
+                        Am Ende der Sidebar (Navigation). Ideal f�r: zus�tzliche Navigationslinks, Widgets, Z�hler.
                     </div>
                     <div>
                         <strong>footer_end</strong>
-                        Direkt vor <code>&lt;/body&gt;</code>. Ideal für: Analytics-Snippets, Debug-Kommentare, deferred JS-Init.
+                        Direkt vor <code>&lt;/body&gt;</code>. Ideal f�r: Analytics-Snippets, Debug-Kommentare, deferred JS-Init.
                     </div>
                 </div>
                 <h4>Beispiel: Banner in content_top</h4>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
                     <pre>HookManager::get()-&gt;addAction('content_top', function(array $ctx): string {
-    // Nur auf der Übersichtsseite anzeigen
+    // Nur auf der �bersichtsseite anzeigen
     if (($ctx['page'] ?? '') !== 'overview') {
         return '';
     }
@@ -404,8 +364,8 @@ HookManager::get()-&gt;addFilter('resource_display', function(string $val, array
     return '&lt;style&gt;.mp-event-banner{background:#1e3a5f;color:#7dd3fc;padding:10px 16px;border-radius:8px;margin:8px 0;}&lt;/style&gt;';
 }, 5);</pre>
                 </div>
-                <div class="pfaq-tip">&#9989; Für größere Stylesheets lieber <code>AssetRegistry</code> nutzen (siehe Abschnitt 7) statt alles in <code>head_end</code> zu schreiben.</div>
-                <div class="pfaq-note">&#9888; Die verfügbaren Context-Keys in <code>$ctx</code> hängen vom jeweiligen Template ab. Immer mit <code>?? ''</code> absichern.</div>
+                <div class="pfaq-tip">&#9989; F�r gr��ere Stylesheets lieber <code>AssetRegistry</code> nutzen (siehe Abschnitt 7) statt alles in <code>head_end</code> zu schreiben.</div>
+                <div class="pfaq-note">&#9888; Die verf�gbaren Context-Keys in <code>$ctx</code> h�ngen vom jeweiligen Template ab. Immer mit <code>?? ''</code> absichern.</div>
             </div>
         </details>
 
@@ -413,21 +373,21 @@ HookManager::get()-&gt;addFilter('resource_display', function(string $val, array
         <details class="pfaq-section" id="pfaq7">
             <summary>&#127912; 7. Assets registrieren &ndash; CSS &amp; JS, page-scoped loading <span class="pfaq-arrow">&#9658;</span></summary>
             <div class="pfaq-content">
-                <p>Assets werden über <code>AssetRegistry::get()</code> registriert. Sie werden automatisch in den <code>&lt;head&gt;</code> bzw. vor <code>&lt;/body&gt;</code> eingefügt.</p>
+                <p>Assets werden �ber <code>AssetRegistry::get()</code> registriert. Sie werden automatisch in den <code>&lt;head&gt;</code> bzw. vor <code>&lt;/body&gt;</code> eingef�gt.</p>
                 <h4>Globale Assets (alle Seiten)</h4>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
-                    <pre>// CSS global laden (wird in &lt;head&gt; eingefügt)
+                    <pre>// CSS global laden (wird in &lt;head&gt; eingef�gt)
 AssetRegistry::get()-&gt;registerCss('mein-plugin', 'plugins/mein-plugin/assets/mein-plugin.css');
 
-// JS global laden (wird vor &lt;/body&gt; eingefügt)
+// JS global laden (wird vor &lt;/body&gt; eingef�gt)
 AssetRegistry::get()-&gt;registerJs('mein-plugin', 'plugins/mein-plugin/assets/mein-plugin.js');</pre>
                 </div>
                 <h4>Page-scoped Assets (nur auf bestimmten Seiten)</h4>
-                <p>Um Assets nur auf bestimmten Seiten zu laden, prüfe den aktuellen Page-Kontext im Bootstrap:</p>
+                <p>Um Assets nur auf bestimmten Seiten zu laden, pr�fe den aktuellen Page-Kontext im Bootstrap:</p>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
-                    <pre>// Nur auf der Übersichtsseite laden
+                    <pre>// Nur auf der �bersichtsseite laden
 $currentPage = $_GET['page'] ?? '';
 if ($currentPage === 'overview') {
     AssetRegistry::get()-&gt;registerCss('mp-overview', 'plugins/mein-plugin/assets/overview.css');
@@ -451,7 +411,7 @@ if (defined('ADMIN') &amp;&amp; ADMIN === true) {
                     <li>CSS-Variablen des Core-Themes nutzen: <code>var(--adm-neon-blue)</code>, <code>var(--adm-card-bg)</code></li>
                     <li>Keine <code>!important</code>-Overrides auf Core-Klassen</li>
                 </ul>
-                <div class="pfaq-note">&#9888; Asset-Keys (erster Parameter) müssen eindeutig sein. Doppelte Keys werden ignoriert. Nutze immer deine Plugin-ID als Prefix.</div>
+                <div class="pfaq-note">&#9888; Asset-Keys (erster Parameter) m�ssen eindeutig sein. Doppelte Keys werden ignoriert. Nutze immer deine Plugin-ID als Prefix.</div>
             </div>
         </details>
 
@@ -459,7 +419,7 @@ if (defined('ADMIN') &amp;&amp; ADMIN === true) {
         <details class="pfaq-section" id="pfaq8">
             <summary>&#127760; 8. Sprachdateien &ndash; lang/de.json &amp; lang/en.json <span class="pfaq-arrow">&#9658;</span></summary>
             <div class="pfaq-content">
-                <p>Sprachdateien liegen unter <code>plugins/&lt;id&gt;/lang/</code> als JSON-Dateien. Der PluginManager lädt automatisch die Datei passend zur Nutzersprache &ndash; mit Fallback auf <code>en.json</code>.</p>
+                <p>Sprachdateien liegen unter <code>plugins/&lt;id&gt;/lang/</code> als JSON-Dateien. Der PluginManager l�dt automatisch die Datei passend zur Nutzersprache &ndash; mit Fallback auf <code>en.json</code>.</p>
                 <h4>Dateiformat</h4>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
@@ -496,27 +456,27 @@ return '&lt;div class="mp-banner"&gt;'
                 <ul>
                     <li>PluginManager versucht zuerst <code>lang/{userLang}.json</code> zu laden</li>
                     <li>Falls nicht vorhanden: Fallback auf <code>lang/en.json</code></li>
-                    <li>Falls Key nicht gefunden: Rückgabe des Keys selbst (kein leerer String)</li>
-                    <li>Unterstützte Sprachen: alle Ordner unter <code>language/</code> (z.B. <code>de</code>, <code>en</code>, <code>es</code>, <code>fr</code>)</li>
+                    <li>Falls Key nicht gefunden: R�ckgabe des Keys selbst (kein leerer String)</li>
+                    <li>Unterst�tzte Sprachen: alle Ordner unter <code>language/</code> (z.B. <code>de</code>, <code>en</code>, <code>es</code>, <code>fr</code>)</li>
                 </ul>
                 <div class="pfaq-tip">&#9989; Immer mindestens <code>en.json</code> anlegen &ndash; das ist der universelle Fallback. <code>de.json</code> ist optional aber empfohlen.</div>
-                <div class="pfaq-note">&#9888; Sprachdateien werden beim Laden des Plugins einmalig gecacht. Änderungen an JSON-Dateien erfordern keinen Neustart, aber einen neuen Request.</div>
+                <div class="pfaq-note">&#9888; Sprachdateien werden beim Laden des Plugins einmalig gecacht. �nderungen an JSON-Dateien erfordern keinen Neustart, aber einen neuen Request.</div>
             </div>
         </details>
 
         <!-- 9. Migrationen -->
         <details class="pfaq-section" id="pfaq9">
-            <summary>&#128202; 9. Migrationen &ndash; install.sql, wann läuft es, wie versionieren <span class="pfaq-arrow">&#9658;</span></summary>
+            <summary>&#128202; 9. Migrationen &ndash; install.sql, wann l�uft es, wie versionieren <span class="pfaq-arrow">&#9658;</span></summary>
             <div class="pfaq-content">
-                <p>SQL-Migrationen werden automatisch beim Installieren (<code>install.sql</code>) bzw. Deinstallieren (<code>uninstall.sql</code>) ausgeführt. Die Dateien liegen direkt im Plugin-Root.</p>
-                <h4>Wann wird install.sql ausgeführt?</h4>
+                <p>SQL-Migrationen werden automatisch beim Installieren (<code>install.sql</code>) bzw. Deinstallieren (<code>uninstall.sql</code>) ausgef�hrt. Die Dateien liegen direkt im Plugin-Root.</p>
+                <h4>Wann wird install.sql ausgef�hrt?</h4>
                 <ul>
                     <li>Bei <strong>Erstinstallation</strong> via ZIP-Upload oder "Installieren"-Button</li>
                     <li>Bei <strong>Reinstallation</strong> (Plugin bereits in DB vorhanden &ndash; Update-Pfad)</li>
                     <li><strong>Nicht</strong> beim Aktivieren/Deaktivieren</li>
                     <li><strong>Nicht</strong> beim normalen Seitenaufruf</li>
                 </ul>
-                <h4>Vollständiges Beispiel</h4>
+                <h4>Vollst�ndiges Beispiel</h4>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
                     <pre>-- install.sql
@@ -543,14 +503,14 @@ DROP TABLE IF EXISTS %%MP_SCORES%%;
 DELETE FROM %%CONFIG%% WHERE config_name = 'mp_scores_enabled';</pre>
                 </div>
                 <h4>Versionierung von Migrationen</h4>
-                <p>Da <code>install.sql</code> auch bei Updates ausgeführt wird, müssen alle Statements <strong>idempotent</strong> sein:</p>
+                <p>Da <code>install.sql</code> auch bei Updates ausgef�hrt wird, m�ssen alle Statements <strong>idempotent</strong> sein:</p>
                 <ul>
                     <li><code>CREATE TABLE IF NOT EXISTS</code> statt <code>CREATE TABLE</code></li>
                     <li><code>INSERT IGNORE</code> oder <code>INSERT ... ON DUPLICATE KEY UPDATE</code></li>
                     <li><code>ALTER TABLE ... ADD COLUMN IF NOT EXISTS</code> (MySQL 8.0+)</li>
-                    <li>Für komplexe Migrations-Logik: eigene Versions-Tabelle anlegen und manuell prüfen</li>
+                    <li>F�r komplexe Migrations-Logik: eigene Versions-Tabelle anlegen und manuell pr�fen</li>
                 </ul>
-                <div class="pfaq-danger">&#10060; <strong>Niemals</strong> <code>DROP TABLE</code> in <code>install.sql</code> verwenden &ndash; das würde bei jedem Update alle Daten löschen!</div>
+                <div class="pfaq-danger">&#10060; <strong>Niemals</strong> <code>DROP TABLE</code> in <code>install.sql</code> verwenden &ndash; das w�rde bei jedem Update alle Daten l�schen!</div>
                 <div class="pfaq-note">&#9888; Tabellennamen immer mit <code>%%PLACEHOLDER%%</code> angeben. Der PluginManager ersetzt diese mit dem konfigurierten DB-Prefix.</div>
             </div>
         </details>
@@ -564,38 +524,38 @@ DELETE FROM %%CONFIG%% WHERE config_name = 'mp_scores_enabled';</pre>
                     <li><strong>PHP Error Log</strong> &ndash; Alle <code>error_log()</code>-Ausgaben des PluginManagers landen hier. Pfad je nach Server-Konfiguration (<code>/var/log/apache2/error.log</code>, <code>php_errors.log</code> im Web-Root etc.)</li>
                     <li><strong>Browser-Konsole</strong> &ndash; JS-Fehler aus Plugin-Assets erscheinen hier</li>
                     <li><strong>Admin-Panel Fehlermeldungen</strong> &ndash; Exceptions beim Installieren/Aktivieren werden als rote Alert-Box angezeigt</li>
-                    <li><strong>Weiße Seite / 500-Fehler</strong> &ndash; Fatal Error im Plugin-Bootstrap. PHP-Error-Log prüfen.</li>
+                    <li><strong>Wei�e Seite / 500-Fehler</strong> &ndash; Fatal Error im Plugin-Bootstrap. PHP-Error-Log pr�fen.</li>
                 </ul>
-                <h4>Typische Probleme und Lösungen</h4>
+                <h4>Typische Probleme und L�sungen</h4>
                 <div class="pfaq-grid2">
                     <div>
                         <strong>&#10060; "manifest.json not found"</strong>
-                        Ordnername stimmt nicht mit <code>id</code> überein, oder ZIP-Struktur hat einen Extra-Ordner. ZIP-Inhalt prüfen: <code>manifest.json</code> muss auf Top-Level oder eine Ebene tief liegen.
+                        Ordnername stimmt nicht mit <code>id</code> �berein, oder ZIP-Struktur hat einen Extra-Ordner. ZIP-Inhalt pr�fen: <code>manifest.json</code> muss auf Top-Level oder eine Ebene tief liegen.
                     </div>
                     <div>
                         <strong>&#10060; "Plugin id must match [a-z0-9-_]"</strong>
-                        Die <code>id</code> in <code>manifest.json</code> enthält Großbuchstaben, Leerzeichen oder Sonderzeichen. Nur <code>a-z</code>, <code>0-9</code>, <code>-</code> und <code>_</code> erlaubt.
+                        Die <code>id</code> in <code>manifest.json</code> enth�lt Gro�buchstaben, Leerzeichen oder Sonderzeichen. Nur <code>a-z</code>, <code>0-9</code>, <code>-</code> und <code>_</code> erlaubt.
                     </div>
                     <div>
                         <strong>&#10060; Plugin aktiv, aber nichts passiert</strong>
-                        <code>plugin.php</code> wird nicht gefunden oder wirft einen Fehler. PHP-Log prüfen. Dateiname muss exakt <code>plugin.php</code> sein (Kleinschreibung!).
+                        <code>plugin.php</code> wird nicht gefunden oder wirft einen Fehler. PHP-Log pr�fen. Dateiname muss exakt <code>plugin.php</code> sein (Kleinschreibung!).
                     </div>
                     <div>
                         <strong>&#10060; CSS/JS wird nicht geladen</strong>
-                        Asset-Pfad ist falsch (relativ zum Web-Root, nicht zum Plugin-Ordner). Im Browser-Netzwerk-Tab prüfen ob 404.
+                        Asset-Pfad ist falsch (relativ zum Web-Root, nicht zum Plugin-Ordner). Im Browser-Netzwerk-Tab pr�fen ob 404.
                     </div>
                     <div>
-                        <strong>&#10060; SQL-Migration schlägt fehl</strong>
+                        <strong>&#10060; SQL-Migration schl�gt fehl</strong>
                         Tabellen-Placeholder falsch geschrieben, oder SQL-Syntax-Fehler. PluginManager loggt den genauen Fehler ins PHP-Log.
                     </div>
                     <div>
                         <strong>&#10060; Sprachstring zeigt den Key</strong>
-                        JSON-Datei nicht vorhanden, falscher Dateiname, oder Key existiert nicht. <code>PluginManager::lang()</code> gibt den Key zurück wenn nichts gefunden wird.
+                        JSON-Datei nicht vorhanden, falscher Dateiname, oder Key existiert nicht. <code>PluginManager::lang()</code> gibt den Key zur�ck wenn nichts gefunden wird.
                     </div>
                 </div>
                 <h4>ZIP Slip &ndash; Was ist das?</h4>
-                <p>ZIP Slip ist eine Sicherheitslücke bei der Pfade wie <code>../../config.php</code> in ZIP-Einträgen verwendet werden, um Dateien außerhalb des Zielordners zu schreiben. Der PluginManager schützt dagegen durch <code>realpath()</code>-Prüfung aller Zielpfade. Trotzdem: <strong>Nur ZIPs aus vertrauenswürdigen Quellen installieren!</strong></p>
-                <div class="pfaq-danger">&#10060; Installiere niemals Plugins aus unbekannten Quellen ohne den Code vorher zu prüfen. Ein Plugin hat vollen PHP-Zugriff auf den Server.</div>
+                <p>ZIP Slip ist eine Sicherheitsl�cke bei der Pfade wie <code>../../config.php</code> in ZIP-Eintr�gen verwendet werden, um Dateien au�erhalb des Zielordners zu schreiben. Der PluginManager sch�tzt dagegen durch <code>realpath()</code>-Pr�fung aller Zielpfade. Trotzdem: <strong>Nur ZIPs aus vertrauensw�rdigen Quellen installieren!</strong></p>
+                <div class="pfaq-danger">&#10060; Installiere niemals Plugins aus unbekannten Quellen ohne den Code vorher zu pr�fen. Ein Plugin hat vollen PHP-Zugriff auf den Server.</div>
                 <h4>Debug-Ausgabe im Plugin</h4>
                 <div class="pfaq-code-wrap">
                     <button class="pfaq-copy-btn" onclick="pfaqCopy(this)" type="button">Kopieren</button>
@@ -616,7 +576,7 @@ HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
             <div class="pfaq-content">
                 <h4>Namensgebung &amp; Prefixing</h4>
                 <ul>
-                    <li><strong>Plugin-ID</strong>: Immer mit eigenem Kürzel prefixen, z.B. <code>acme-shop</code>, <code>mymod-vip</code></li>
+                    <li><strong>Plugin-ID</strong>: Immer mit eigenem K�rzel prefixen, z.B. <code>acme-shop</code>, <code>mymod-vip</code></li>
                     <li><strong>CSS-Klassen</strong>: Alle eigenen Klassen mit Plugin-ID prefixen: <code>.acme-shop-cart</code>, <code>.acme-shop-btn</code></li>
                     <li><strong>JS-Globals</strong>: Eigene Objekte in einem Namespace kapseln: <code>window.AcmeShop = { ... }</code></li>
                     <li><strong>DB-Tabellen</strong>: Plugin-ID als Prefix: <code>%%ACME_SHOP_ORDERS%%</code></li>
@@ -625,7 +585,7 @@ HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
                 <h4>Performance</h4>
                 <ul>
                     <li>Keine DB-Queries direkt im Bootstrap (<code>plugin.php</code> Top-Level) &ndash; nur in Hook-Callbacks</li>
-                    <li>Hook-Callbacks so schlank wie möglich halten &ndash; sie laufen bei jedem Request</li>
+                    <li>Hook-Callbacks so schlank wie m�glich halten &ndash; sie laufen bei jedem Request</li>
                     <li>Assets nur laden wenn sie gebraucht werden (page-scoped, siehe Abschnitt 7)</li>
                     <li>Teure Berechnungen cachen (z.B. in statischen Variablen oder Session)</li>
                     <li>Keine synchronen HTTP-Requests in Hooks</li>
@@ -639,14 +599,14 @@ HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
                     <li>Keine <code>eval()</code>, <code>exec()</code>, <code>shell_exec()</code> ohne zwingenden Grund</li>
                 </ul>
                 <h4>Keine Core-Overrides in v1</h4>
-                <p>In Plugin System v1 können Core-Dateien (PHP, Twig, SQL) <strong>nicht überschrieben</strong> werden. Alle Erweiterungen müssen über das Hook-System erfolgen. Das ist gewollt &ndash; es verhindert Update-Konflikte und hält den Core sauber.</p>
+                <p>In Plugin System v1 k�nnen Core-Dateien (PHP, Twig, SQL) <strong>nicht �berschrieben</strong> werden. Alle Erweiterungen m�ssen �ber das Hook-System erfolgen. Das ist gewollt &ndash; es verhindert Update-Konflikte und h�lt den Core sauber.</p>
                 <div class="pfaq-grid2">
                     <div>
                         <strong>&#10060; Nicht so (Core-Override)</strong>
                         <ul>
                             <li>Core-Twig-Datei direkt editieren</li>
-                            <li>Core-PHP-Klasse überschreiben</li>
-                            <li>Core-CSS direkt ändern</li>
+                            <li>Core-PHP-Klasse �berschreiben</li>
+                            <li>Core-CSS direkt �ndern</li>
                         </ul>
                     </div>
                     <div>
@@ -658,7 +618,7 @@ HookManager::get()-&gt;addAction('footer_end', function(array $ctx): string {
                         </ul>
                     </div>
                 </div>
-                <div class="pfaq-tip">&#9989; Halte dein Plugin so klein wie möglich. Ein Plugin das nur einen Hook registriert und eine CSS-Datei lädt ist besser als ein Monolith der alles macht.</div>
+                <div class="pfaq-tip">&#9989; Halte dein Plugin so klein wie m�glich. Ein Plugin das nur einen Hook registriert und eine CSS-Datei l�dt ist besser als ein Monolith der alles macht.</div>
             </div>
         </details>
 
@@ -770,213 +730,6 @@ if (isset($GLOBALS['LNG']) &amp;&amp; $GLOBALS['LNG'] instanceof Language) {
     </div><!-- /pfaq-body -->
 </div><!-- /pfaq-wrap -->
 
-<style>
-/* ── Plugin Marketplace Styles ───────────────────────────── */
-.pm-stats-bar {
-    display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px;
-}
-.pm-stat {
-    flex: 1; min-width: 120px;
-    background: var(--adm-card-bg, #131929);
-    border: 1px solid var(--adm-border, #1e2d4a);
-    border-radius: 10px; padding: 14px 18px;
-    display: flex; align-items: center; gap: 12px;
-}
-.pm-stat-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; flex-shrink: 0;
-}
-.pm-stat-val { font-size: 1.4rem; font-weight: 700; color: #e2e8f0; line-height: 1; }
-.pm-stat-lbl { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
-
-/* Toolbar */
-.pm-toolbar {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-.pm-search {
-    flex: 1; min-width: 200px;
-    background: var(--adm-card-bg, #131929);
-    border: 1px solid var(--adm-border, #1e2d4a);
-    border-radius: 8px; padding: 9px 14px 9px 36px;
-    color: #e2e8f0; font-size: 0.875rem; outline: none;
-    transition: border-color .2s;
-}
-.pm-search:focus { border-color: #38bdf8; }
-.pm-search-wrap { position: relative; flex: 1; min-width: 200px; }
-.pm-search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 13px; pointer-events: none; }
-.pm-filter-btn {
-    padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem;
-    background: var(--adm-card-bg, #131929);
-    border: 1px solid var(--adm-border, #1e2d4a);
-    color: #94a3b8; transition: all .2s; white-space: nowrap;
-}
-.pm-filter-btn.active, .pm-filter-btn:hover {
-    background: rgba(56,189,248,0.1); border-color: #38bdf8; color: #7dd3fc;
-}
-
-/* Cards grid */
-.pm-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px; margin-bottom: 30px;
-}
-.pm-card {
-    background: var(--adm-card-bg, #131929);
-    border: 1px solid var(--adm-border, #1e2d4a);
-    border-radius: 12px; padding: 0;
-    display: flex; flex-direction: column;
-    transition: border-color .2s, box-shadow .2s;
-    overflow: hidden;
-}
-.pm-card:hover {
-    border-color: rgba(56,189,248,0.35);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(56,189,248,0.1);
-}
-.pm-card.is-active { border-color: rgba(34,197,94,0.3); }
-.pm-card.is-active:hover { border-color: rgba(34,197,94,0.55); box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(34,197,94,0.15); }
-
-/* Card header strip */
-.pm-card-header {
-    height: 5px;
-    background: linear-gradient(90deg, #1e2d4a, #1e3a5a);
-}
-.pm-card.is-active .pm-card-header {
-    background: linear-gradient(90deg, #065f46, #0d9488);
-}
-.pm-card.is-discover .pm-card-header {
-    background: linear-gradient(90deg, #78350f, #d97706);
-}
-
-/* Card body */
-.pm-card-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
-
-.pm-card-top { display: flex; align-items: flex-start; gap: 12px; }
-.pm-card-avatar {
-    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg, #1e3a5f, #0f2440);
-    border: 1px solid rgba(56,189,248,0.2);
-    letter-spacing: 0;
-}
-.pm-card.is-active .pm-card-avatar { background: linear-gradient(135deg, #064e3b, #0d9488); border-color: rgba(34,197,94,0.25); }
-.pm-card.is-discover .pm-card-avatar { background: linear-gradient(135deg, #7c2d12, #d97706); border-color: rgba(245,158,11,0.25); }
-
-.pm-card-title-wrap { flex: 1; min-width: 0; }
-.pm-card-name { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pm-card-id   { font-size: 0.72rem; font-family: monospace; color: #7dd3fc; margin-top: 2px; opacity: .8; }
-
-/* Toggle switch */
-.pm-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
-.pm-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-.pm-toggle-slider {
-    position: absolute; inset: 0; background: #1e2d4a; border-radius: 22px;
-    cursor: pointer; transition: background .25s;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-.pm-toggle-slider::before {
-    content: ''; position: absolute;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: #475569; top: 2px; left: 2px;
-    transition: transform .25s, background .25s;
-}
-.pm-toggle input:checked + .pm-toggle-slider { background: rgba(34,197,94,0.25); border-color: rgba(34,197,94,0.4); }
-.pm-toggle input:checked + .pm-toggle-slider::before { transform: translateX(18px); background: #22c55e; }
-
-/* Meta tags */
-.pm-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
-.pm-badge {
-    font-size: 0.7rem; padding: 2px 8px; border-radius: 20px;
-    border: 1px solid transparent; white-space: nowrap;
-}
-.pm-badge-version { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.2); color: #7dd3fc; }
-.pm-badge-type    { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.2); color: #a78bfa; }
-.pm-badge-active  { background: rgba(34,197,94,0.1);  border-color: rgba(34,197,94,0.25);  color: #86efac; }
-.pm-badge-inactive{ background: rgba(100,116,139,0.12); border-color: rgba(100,116,139,0.2); color: #64748b; }
-.pm-badge-discover{ background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25);  color: #fbbf24; }
-
-.pm-card-desc { font-size: 0.82rem; color: #64748b; line-height: 1.5; flex: 1; }
-
-/* Card footer */
-.pm-card-footer {
-    padding: 11px 18px;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-    background: rgba(0,0,0,0.15);
-}
-.pm-btn {
-    padding: 5px 13px; border-radius: 6px; font-size: 0.78rem; font-weight: 500;
-    cursor: pointer; border: 1px solid transparent; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 5px;
-    transition: all .18s; white-space: nowrap;
-}
-.pm-btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
-.pm-btn-danger:hover { background: rgba(239,68,68,0.22); }
-.pm-btn-primary { background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.35); color: #7dd3fc; }
-.pm-btn-primary:hover { background: rgba(56,189,248,0.24); }
-.pm-btn-success { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: #86efac; }
-.pm-btn-success:hover { background: rgba(34,197,94,0.22); }
-
-/* Empty state */
-.pm-empty {
-    grid-column: 1/-1;
-    text-align: center; padding: 40px 20px;
-    color: #475569; font-size: 0.9rem;
-}
-.pm-empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: .4; }
-
-/* Section title */
-.pm-section-title {
-    font-size: 0.78rem; font-weight: 600; letter-spacing: 1.2px;
-    text-transform: uppercase; color: #475569;
-    margin: 0 0 14px; display: flex; align-items: center; gap: 8px;
-}
-.pm-section-title::after {
-    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.04);
-}
-
-/* Drag-and-drop upload zone */
-.pm-upload-zone {
-    border: 2px dashed rgba(56,189,248,0.25);
-    border-radius: 12px; padding: 32px 24px;
-    text-align: center; cursor: pointer;
-    transition: all .2s; background: rgba(56,189,248,0.03);
-    position: relative;
-}
-.pm-upload-zone:hover, .pm-upload-zone.drag-over {
-    border-color: #38bdf8; background: rgba(56,189,248,0.07);
-}
-.pm-upload-zone input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-}
-.pm-upload-icon { font-size: 2rem; color: #38bdf8; margin-bottom: 8px; opacity: .7; }
-.pm-upload-title { color: #e2e8f0; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
-.pm-upload-sub   { color: #64748b; font-size: 0.8rem; }
-.pm-upload-file-name { margin-top: 10px; font-size: 0.82rem; color: #7dd3fc; display: none; }
-
-/* Hook debug */
-.pm-hook-box {
-    background: var(--adm-card-bg, #131929);
-    border: 1px solid var(--adm-border, #1e2d4a);
-    border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
-}
-.pm-hook-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; user-select: none;
-}
-.pm-hook-toggle h2 { color: var(--adm-neon-blue,#38bdf8); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 10px; }
-.pm-hook-body { display: none; margin-top: 16px; }
-.pm-hook-body.open { display: block; }
-.pm-hook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media(max-width:600px){ .pm-hook-grid { grid-template-columns: 1fr; } }
-.pm-hook-col-title { font-size: 0.75rem; color: #64748b; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-.pm-hook-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-.pm-hook-table tr { border-bottom: 1px solid #0f1a2e; }
-.pm-hook-table td { padding: 5px 8px; }
-</style>
-
 <script>
 function pfaqToggle() {
     var body = document.getElementById('pfaqBody');
@@ -1008,7 +761,7 @@ function pfaqCopy(btn) {
 }
 </script>
 
-<!-- ── Stats Bar ──────────────────────────────────────────── -->
+<!-- -- Stats Bar -------------------------------------------- -->
 {% set activeCount    = installedPlugins|filter(p => p.is_active)|length %}
 {% set inactiveCount  = installedPlugins|filter(p => not p.is_active)|length %}
 {% set discoverCount  = uninstalledPlugins|length %}
@@ -1027,7 +780,7 @@ function pfaqCopy(btn) {
     </div>
     <div class="pm-stat">
         <div class="pm-stat-icon" style="background:rgba(245,158,11,0.12);color:#f59e0b;">&#128193;</div>
-        <div><div class="pm-stat-val">{{ discoverCount }}</div><div class="pm-stat-lbl">Verfügbar</div></div>
+        <div><div class="pm-stat-val">{{ discoverCount }}</div><div class="pm-stat-lbl">Verf�gbar</div></div>
     </div>
     {% if hookDebug is defined %}
     <div class="pm-stat">
@@ -1037,19 +790,19 @@ function pfaqCopy(btn) {
     {% endif %}
 </div>
 
-<!-- ── Toolbar: Search + Filter ──────────────────────────── -->
+<!-- -- Toolbar: Search + Filter ---------------------------- -->
 <div class="pm-toolbar">
     <div class="pm-search-wrap">
         <i class="fas fa-search"></i>
-        <input type="text" id="pm-search" class="pm-search" placeholder="Plugin suchen…" oninput="pmFilter()">
+        <input type="text" id="pm-search" class="pm-search" placeholder="Plugin suchen�" oninput="pmFilter()">
     </div>
     <button class="pm-filter-btn active" id="pm-f-all"      onclick="pmSetFilter('all',      this)">Alle</button>
     <button class="pm-filter-btn"        id="pm-f-active"   onclick="pmSetFilter('active',   this)">Aktiv</button>
     <button class="pm-filter-btn"        id="pm-f-inactive" onclick="pmSetFilter('inactive', this)">Inaktiv</button>
-    <button class="pm-filter-btn"        id="pm-f-discover" onclick="pmSetFilter('discover', this)">Neu verfügbar</button>
+    <button class="pm-filter-btn"        id="pm-f-discover" onclick="pmSetFilter('discover', this)">Neu verf�gbar</button>
 </div>
 
-<!-- ── Installed Plugins ──────────────────────────────────── -->
+<!-- -- Installed Plugins ------------------------------------ -->
 <div id="pm-section-installed">
     <div class="pm-section-title"><i class="fas fa-puzzle-piece" style="color:#38bdf8"></i> Installierte Plugins</div>
     <div class="pm-grid" id="pm-installed-grid">
@@ -1073,7 +826,7 @@ function pfaqCopy(btn) {
                         <div class="pm-card-name">{{ plugin.name }}</div>
                         <div class="pm-card-id">{{ plugin.id }}</div>
                     </div>
-                    <!-- Toggle switch → links to activate/deactivate -->
+                    <!-- Toggle switch ? links to activate/deactivate -->
                     <a href="admin.php?page=pluginAdmin&amp;action={{ plugin.is_active ? 'deactivate' : 'activate' }}&amp;pluginId={{ plugin.id }}"
                        title="{{ plugin.is_active ? 'Deaktivieren' : 'Aktivieren' }}"
                        style="text-decoration:none;">
@@ -1126,7 +879,7 @@ function pfaqCopy(btn) {
                 {% endif %}
                 <a href="admin.php?page=pluginAdmin&amp;action=uninstall&amp;pluginId={{ plugin.id }}"
                    class="pm-btn pm-btn-danger"
-                   onclick="return confirm('Plugin \'{{ plugin.name }}\' wirklich deinstallieren?\nDieser Vorgang kann nicht rückgängig gemacht werden.');">
+                   onclick="return confirm('Plugin \'{{ plugin.name }}\' wirklich deinstallieren?\nDieser Vorgang kann nicht r�ckg�ngig gemacht werden.');">
                     <i class="fas fa-trash-alt"></i> Deinstallieren
                 </a>
             </div>
@@ -1136,10 +889,10 @@ function pfaqCopy(btn) {
     </div>
 </div>
 
-<!-- ── Discovered (not installed) Plugins ────────────────── -->
+<!-- -- Discovered (not installed) Plugins ------------------ -->
 {% if uninstalledPlugins is not empty %}
 <div id="pm-section-discover">
-    <div class="pm-section-title" style="color:#f59e0b;"><i class="fas fa-folder-open" style="color:#f59e0b"></i> Gefunden – nicht installiert</div>
+    <div class="pm-section-title" style="color:#f59e0b;"><i class="fas fa-folder-open" style="color:#f59e0b"></i> Gefunden � nicht installiert</div>
     <div class="pm-grid" id="pm-discover-grid">
         {% for plugin in uninstalledPlugins %}
         {% set initial = plugin.name|slice(0,1)|upper %}
@@ -1179,15 +932,15 @@ function pfaqCopy(btn) {
 </div>
 {% endif %}
 
-<!-- ── ZIP Upload ─────────────────────────────────────────── -->
+<!-- -- ZIP Upload ------------------------------------------- -->
 <div id="pm-section-upload" style="margin-bottom:30px;">
     <div class="pm-section-title"><i class="fas fa-upload" style="color:#38bdf8"></i> Plugin per ZIP installieren</div>
     <form method="post" action="admin.php?page=pluginAdmin&amp;action=upload" enctype="multipart/form-data" id="pm-upload-form">
         <div class="pm-upload-zone" id="pm-drop-zone">
             <input type="file" name="plugin_zip" accept=".zip" required id="pm-zip-input">
             <div class="pm-upload-icon">&#128229;</div>
-            <div class="pm-upload-title">ZIP hierher ziehen oder klicken zum Auswählen</div>
-            <div class="pm-upload-sub">Nur <strong>.zip</strong> — muss <code>manifest.json</code> mit <code>id</code>, <code>name</code>, <code>version</code> enthalten</div>
+            <div class="pm-upload-title">ZIP hierher ziehen oder klicken zum Ausw�hlen</div>
+            <div class="pm-upload-sub">Nur <strong>.zip</strong> � muss <code>manifest.json</code> mit <code>id</code>, <code>name</code>, <code>version</code> enthalten</div>
             <div class="pm-upload-file-name" id="pm-file-name"></div>
         </div>
         <div style="margin-top:12px;text-align:right;">
@@ -1200,7 +953,7 @@ function pfaqCopy(btn) {
     </form>
 </div>
 
-<!-- ── Hook Debug ─────────────────────────────────────────── -->
+<!-- -- Hook Debug ------------------------------------------- -->
 {% if hookDebug is defined %}
 <div class="pm-hook-box">
     <div class="pm-hook-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
@@ -1290,7 +1043,7 @@ function pfaqCopy(btn) {
     if (zone && input) {
         input.addEventListener('change', function() {
             if (input.files.length) {
-                fname.textContent = '📎 ' + input.files[0].name;
+                fname.textContent = '?? ' + input.files[0].name;
                 fname.style.display = 'block';
             }
         });
@@ -1310,7 +1063,7 @@ function pfaqCopy(btn) {
                 var dt = new DataTransfer();
                 dt.items.add(files[0]);
                 input.files = dt.files;
-                fname.textContent = '📎 ' + files[0].name;
+                fname.textContent = '?? ' + files[0].name;
                 fname.style.display = 'block';
             }
         });
@@ -1318,7 +1071,7 @@ function pfaqCopy(btn) {
 })();
 </script>
 
-<!-- ── Plugin Settings Modal ──────────────────────────────── -->
+<!-- -- Plugin Settings Modal -------------------------------- -->
 <div id="pm-settings-overlay" style="display:none;position:fixed;inset:0;z-index:9900;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
     <div id="pm-settings-modal" style="
         background:#0d1526;border:1px solid rgba(56,189,248,0.3);border-radius:14px;
@@ -1364,27 +1117,6 @@ function pfaqCopy(btn) {
         </div>
     </div>
 </div>
-
-<style>
-.pm-field-wrap { margin-bottom: 16px; }
-.pm-field-label { display:block; font-size:0.8rem; font-weight:600; color:#cbd5e1; margin-bottom:5px; }
-.pm-field-hint  { font-size:0.73rem; color:#475569; margin-top:4px; }
-.pm-field-input {
-    width:100%; background:#0a1020; border:1px solid rgba(56,189,248,0.2);
-    border-radius:7px; padding:8px 11px; color:#e2e8f0; font-size:0.875rem;
-    outline:none; transition:border-color .2s; box-sizing:border-box;
-}
-.pm-field-input:focus { border-color:#38bdf8; }
-.pm-field-input[type=number] { -moz-appearance:textfield; }
-.pm-field-select {
-    width:100%; background:#0a1020; border:1px solid rgba(56,189,248,0.2);
-    border-radius:7px; padding:8px 11px; color:#e2e8f0; font-size:0.875rem;
-    outline:none; cursor:pointer; transition:border-color .2s;
-}
-.pm-field-select:focus { border-color:#38bdf8; }
-.pm-toggle-row { display:flex; align-items:center; gap:12px; }
-.pm-toggle-row .pm-field-label { margin:0; flex:1; }
-</style>
 
 <script>
 (function() {
