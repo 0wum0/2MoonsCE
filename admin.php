@@ -33,6 +33,7 @@ define('ROOT_PATH', str_replace('\\', '/',dirname(__FILE__)).'/');
 
 require_once 'includes/common.php';
 require_once 'includes/classes/class.Log.php';
+require_once 'includes/pages/adm/AbstractAdminPage.php';
 
 if ($USER['authlevel'] == AUTH_USR)
 {
