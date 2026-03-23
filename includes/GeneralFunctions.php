@@ -687,6 +687,37 @@ function exceptionHandler(\Throwable $exception): void
 	{
 		file_put_contents('includes/error.log', $errorText, FILE_APPEND);
 	}
+
+	// Auto-create a support ticket for game-mode errors affecting a logged-in player
+	if (MODE === 'GAME') {
+		try {
+			if (class_exists('Database', false) && class_exists('SupportTickets', false) === false) {
+				@require_once ROOT_PATH . 'includes/classes/class.SupportTickets.php';
+			}
+			if (class_exists('SupportTickets', false) && class_exists('Database', false)) {
+				$playerID   = isset($GLOBALS['USER']['id'])       ? (int)$GLOBALS['USER']['id']       : 0;
+				$playerName = isset($GLOBALS['USER']['username'])  ? $GLOBALS['USER']['username']      : 'Unknown';
+
+				if ($playerID > 0) {
+					$shortMsg   = mb_substr(strip_tags($exception->getMessage()), 0, 200);
+					$subject    = '[Auto] Fehler: ' . $shortMsg;
+					$body       = "**Automatisch erzeugtes Ticket**\n\n"
+						. "**Fehlermeldung:** " . $exception->getMessage() . "\n"
+						. "**Datei:** " . str_replace(ROOT_PATH, '', $exception->getFile()) . "\n"
+						. "**Zeile:** " . $exception->getLine() . "\n"
+						. "**URL:** " . PROTOCOL . HTTP_HOST . ($_SERVER['REQUEST_URI'] ?? '') . "\n"
+						. "**PHP-Version:** " . PHP_VERSION . "\n"
+						. "**Zeitstempel:** " . date('Y-m-d H:i:s', TIMESTAMP) . "\n\n"
+						. "**Stack Trace:**\n" . mb_substr($exception->getTraceAsString(), 0, 2000);
+
+					$st = new SupportTickets();
+					$st->createTicket($playerID, $playerName, 1, $subject, $body);
+				}
+			}
+		} catch (\Throwable $ticketEx) {
+			// Silently ignore — ticket creation must never break the error page
+		}
+	}
 }
 /*
  *

@@ -296,17 +296,31 @@ class template
 		}
 		ksort($universeSelect);
 
-		// Support ticket count for sidebar badge
+		// Support ticket count (open / unread) for header badge
 		$supportTicketCount = 0;
 		try {
-			if (defined('TICKETS') && isset($GLOBALS['DATABASE'])) {
-				$ticketResult = $GLOBALS['DATABASE']->getFirstCell(
-					"SELECT COUNT(*) FROM " . TICKETS . " WHERE universe = " . Universe::getEmulated() . " AND status = 0;"
-				);
-				$supportTicketCount = (int)$ticketResult;
-			}
+			$db = Database::get();
+			$row = $db->selectSingle(
+				"SELECT COUNT(*) AS cnt FROM %%TICKETS%% WHERE universe = :uni AND status = 0;",
+				[':uni' => Universe::getEmulated()]
+			);
+			$supportTicketCount = (int)($row['cnt'] ?? 0);
 		} catch (\Throwable $e) {
 			$supportTicketCount = 0;
+		}
+
+		// Error log line count for header badge
+		$errorLogCount = 0;
+		try {
+			$errorLogFile = ROOT_PATH . 'includes/error.log';
+			if (is_readable($errorLogFile) && filesize($errorLogFile) > 0) {
+				$errorLogCount = substr_count(file_get_contents($errorLogFile), "\n[");
+				if ($errorLogCount === 0) {
+					$errorLogCount = (int)(filesize($errorLogFile) > 0);
+				}
+			}
+		} catch (\Throwable $e) {
+			$errorLogCount = 0;
 		}
 
 		// ── Safe-Mode notices ─────────────────────────────────────────────────
@@ -338,6 +352,7 @@ class template
 			'UNI'				=> Universe::getEmulated(),
 			'sid'				=> session_id(),
 			'supportTicketCount'=> $supportTicketCount,
+			'errorLogCount'     => $errorLogCount,
 			// Safe-Mode
 			'safeModeNotices'	=> $safeModeNotices,
 			'safeModeLocked'	=> $safeModeLocked,

@@ -2048,3 +2048,181 @@ td.blank{ border:0; background:url(./styles/resource/images/admin/blank.gif); te
 .pm-field-select:focus{ border-color:#38bdf8; }
 .pm-toggle-row{ display:flex; align-items:center; gap:12px; }
 .pm-toggle-row .pm-field-label{ margin:0; flex:1; }
+
+/* ════════════════════════════════════════════════════════════
+   ADMIN HEADER — NOTIFICATION BELLS
+   ════════════════════════════════════════════════════════════ */
+
+.adm-notif-group{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.adm-notif-wrap{
+    position: relative;
+}
+
+.adm-notif-btn{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #94a3b8;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+    flex-shrink: 0;
+}
+.adm-notif-btn:hover{
+    background: rgba(56,189,248,0.1);
+    border-color: rgba(56,189,248,0.3);
+    color: #38bdf8;
+}
+.adm-notif-btn svg{
+    pointer-events: none;
+}
+
+/* Badge */
+.adm-notif-badge{
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 99px;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 17px;
+    text-align: center;
+    pointer-events: none;
+    border: 2px solid var(--adm-bg, #03060f);
+    animation: adm-badge-pop .25s ease-out;
+}
+.adm-notif-badge-red{
+    background: #ef4444;
+    color: #fff;
+}
+.adm-notif-badge-yellow{
+    background: #f59e0b;
+    color: #000;
+}
+@keyframes adm-badge-pop{
+    0%  { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.2); }
+    100%{ transform: scale(1);   opacity: 1; }
+}
+
+/* Dropdown */
+.adm-notif-dropdown{
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 280px;
+    background: #0d1526;
+    border: 1px solid #1e2d4a;
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(56,189,248,0.05);
+    z-index: 2000;
+    overflow: hidden;
+}
+.adm-notif-dropdown.open{
+    display: block;
+    animation: adm-drop-in .18s ease-out;
+}
+@keyframes adm-drop-in{
+    from{ opacity:0; transform: translateY(-6px); }
+    to  { opacity:1; transform: translateY(0); }
+}
+
+.adm-notif-dropdown-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid #1e2d4a;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.adm-notif-viewall{
+    font-size: 0.72rem;
+    color: #7dd3fc;
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.adm-notif-viewall:hover{
+    color: #38bdf8;
+    text-decoration: underline;
+}
+
+.adm-notif-dropdown-body{
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+/* Notification item */
+.adm-notif-item{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background .12s;
+}
+.adm-notif-item:last-child{
+    border-bottom: none;
+}
+.adm-notif-item:hover{
+    background: rgba(255,255,255,0.03);
+}
+.adm-notif-item-icon{
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.adm-notif-item-error .adm-notif-item-icon{
+    background: rgba(239,68,68,0.15);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,0.25);
+}
+.adm-notif-item-ticket .adm-notif-item-icon{
+    background: rgba(245,158,11,0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(245,158,11,0.25);
+}
+.adm-notif-item-text{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.adm-notif-item-text strong{
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.adm-notif-item-text span{
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Empty state */
+.adm-notif-empty{
+    padding: 20px 14px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #475569;
+}

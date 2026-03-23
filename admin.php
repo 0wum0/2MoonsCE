@@ -240,6 +240,10 @@ switch($page)
 		require_once('includes/pages/adm/ShowSystemDebugPage.php');
 		new ShowSystemDebugPage();
 	break;
+	case 'adminNotifications':
+		require_once('includes/pages/adm/ShowAdminNotificationsPage.php');
+		new ShowAdminNotificationsPage();
+	break;
 	default:
 		require_once('includes/pages/adm/ShowIndexPage.php');
 		new ShowIndexPage();
