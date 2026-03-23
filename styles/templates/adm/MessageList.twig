@@ -22,75 +22,173 @@
 	@visit http://makeit.uno/
 #}
 {% include "overall_header.twig" %}
-<div class="legacy-content">
-<div class="content-card">
-  <div class="content-card-header">
-    <div class="content-card-header-left">
-      <div class="content-card-icon">&#9993;</div>
+<div class="ml-page">
+
+  {# ── Filter Card ──────────────────────────────────────────────────── #}
+  <div class="ml-card">
+    <div class="ml-card-header">
+      <span class="ml-card-header-icon">&#9993;</span>
       <div>
-        <div class="content-card-title">Nachrichten</div>
-        <div class="content-card-subtitle">Spieler-Nachrichten einsehen</div>
+        <div class="ml-card-title">Nachrichten</div>
+        <div class="ml-card-subtitle">Spieler-Nachrichten einsehen &amp; durchsuchen</div>
       </div>
     </div>
+    <div class="ml-card-body">
+      <form action="admin.php?page=messagelist" method="post" id="mlForm">
+        <input type="hidden" name="side" value="{{ page }}" id="side">
+        <div class="ml-filter-grid">
+          <div class="ml-filter-field">
+            <label class="ml-label">{{ LNG.ml_type }}</label>
+            <select name="type" class="ml-select">
+              {% for key, value in categories %}
+              <option value="{{ key }}"{% if key == type %} selected{% endif %}>{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ml-filter-field">
+            <label class="ml-label">{{ LNG.ml_sender }}</label>
+            <input type="text" id="sender" name="sender" value="{{ sender }}" class="ml-input" placeholder="Spielername...">
+          </div>
+          <div class="ml-filter-field">
+            <label class="ml-label">{{ LNG.ml_receiver }}</label>
+            <input type="text" id="receiver" name="receiver" value="{{ receiver }}" class="ml-input" placeholder="Spielername...">
+          </div>
+          <div class="ml-filter-field">
+            <label class="ml-label">{{ LNG.ml_date_range }} Von</label>
+            <div class="ml-date-wrap">
+              <input value="{{ dateStart.day|default('') }}"   type="text" name="dateStart[day]"   class="ml-date-part" maxlength="2" placeholder="TT">
+              <span class="ml-date-sep">.</span>
+              <input value="{{ dateStart.month|default('') }}" type="text" name="dateStart[month]" class="ml-date-part" maxlength="2" placeholder="MM">
+              <span class="ml-date-sep">.</span>
+              <input value="{{ dateStart.year|default('') }}"  type="text" name="dateStart[year]"  class="ml-date-part ml-date-year" maxlength="4" placeholder="JJJJ">
+            </div>
+          </div>
+          <div class="ml-filter-field">
+            <label class="ml-label">{{ LNG.ml_date_range }} Bis</label>
+            <div class="ml-date-wrap">
+              <input value="{{ dateEnd.day|default('') }}"   type="text" name="dateEnd[day]"   class="ml-date-part" maxlength="2" placeholder="TT">
+              <span class="ml-date-sep">.</span>
+              <input value="{{ dateEnd.month|default('') }}" type="text" name="dateEnd[month]" class="ml-date-part" maxlength="2" placeholder="MM">
+              <span class="ml-date-sep">.</span>
+              <input value="{{ dateEnd.year|default('') }}"  type="text" name="dateEnd[year]"  class="ml-date-part ml-date-year" maxlength="4" placeholder="JJJJ">
+            </div>
+          </div>
+          <div class="ml-filter-field ml-filter-submit">
+            <button type="submit" class="ml-btn-search">&#128269; {{ LNG.ml_type_submit }}</button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
-  <div class="content-card-body">
-<form action="admin.php?page=messagelist" method="post" id="form">
-<input type="hidden" name="side" value="{{ page }}" id="side">
-<table>
-	<tr>
-		<th colspan="5">{{ LNG.ml_message_list }}</th>
-	</tr>
-	<tr>
-		<td style="width:15%">{{ LNG.ml_type }}</td>
-		<td style="width:35%"><select name="type">{% for key, value in categories %}<option value="{{ key }}"{% if key == type %} selected{% endif %}>{{ value }}</option>{% endfor %}</select></td>
-		<td style="width:15%">{{ LNG.ml_date_range }}</td>
-		<td style="width:17.5%"><input value="{{ dateStart.day|default('') }}" type="text" id="dateStartDay" name="dateStart[day]" style="width:25px" maxlength="2" placeholder="dd">.<input value="{{ dateStart.month|default('') }}" type="text" id="dateStartMonth" name="dateStart[month]" style="width:25px" maxlength="2" placeholder="mm">.<input value="{{ dateStart.year|default('') }}" type="text" id="dateStartYear" name="dateStart[year]" style="width:35px" maxlength="4" placeholder="yyyy"></td>
-		<td style="width:17.5%"><input value="{{ dateEnd.day|default('') }}" type="text" id="dateEndDay" name="dateEnd[day]" style="width:25px" maxlength="2" placeholder="dd">.<input value="{{ dateEnd.month|default('') }}" type="text" id="dateEndMonth" name="dateEnd[month]" style="width:25px" maxlength="2" placeholder="mm">.<input value="{{ dateEnd.year|default('') }}" type="text" id="dateEndYear" name="dateEnd[year]" style="width:35px" maxlength="4" placeholder="yyyy"></td>
-	</tr>
-	<tr>
-		<td style="width:15%"><label for="sender">{{ LNG.ml_sender }}</label></td>
-		<td style="width:35%"><input type="text" id="sender" name="sender" value="{{ sender }}" length="11"></td>
-		<td style="width:15%"><label for="receiver">{{ LNG.ml_receiver }}</label></td>
-		<td style="width:35%" colspan="2"><input type="text" id="receiver" name="receiver" value="{{ receiver }}" length="11"></td>
-	</tr>
-	<tr>
-		<th colspan="5" class="center">
-			<input type="submit" value="{{ LNG.ml_type_submit }}">
-		</th>
-	</tr>
-</table>
-<table>
-	<tr>
-		<th colspan="{% if Selected == 100 %}6{% else %}5{% endif %}">{{ LNG.ml_message_list }}</th>
-	</tr>
-	<tr style="height: 20px;">
-		<td class="right" colspan="{% if Selected == 100 %}6{% else %}5{% endif %}">{{ LNG.mg_page }}: {% if page != 1 %}<a href="#" onclick="gotoPage({{ page - 1 }});return false;">&laquo;</a> {% endif %}{% for site in range(1, maxPage + 1) %}<a href="#" onclick="gotoPage({{ site }});return false;">{% if site == page %}<span style="color:orange"><b>[{{ site }}]</b></span>{% else %}[{{ site }}]{% endif %}</a>{% if site != maxPage %} {% endif %}{% endfor %}{% if page != maxPage %} <a href="#" onclick="gotoPage({{ page + 1 }});return false;">&raquo;</a>{% endif %}</td>
-	</tr>
-	<tr>
-		<th style="width:4%">{{ LNG.ml_id }}</th>
-		{% if Selected == 100 %}<th>{{ LNG.ml_type }}</th>{% endif %}
-		<th style="width:15%">{{ LNG.ml_date }}</th>
-		<th>{{ LNG.ml_sender }}</th>
-		<th>{{ LNG.ml_receiver }}</th>
-		<th>{{ LNG.ml_subject }}</th>
-	</tr>
-	{% for messageID, messageRow in messageList %}
-	<tr data-messageID="{{ messageID }}">
-		<td><a href="#" class="toggle">{{ messageID }}</a></td>
-		{% if Selected == 100 %}<td><a href="#" class="toggle">{{ LNG.mg_type[messageRow.type] }}</a></td>{% endif %}
-		<td><a href="#" class="toggle">{{ messageRow.time }}</a></td>
-		<td><a href="#" class="toggle">{{ messageRow.sender }}</a></td>
-		<td><a href="#" class="toggle">{{ messageRow.receiver }}</a></td>
-		<td><a href="#" class="toggle">{{ messageRow.subject }}{% if messageRow.deleted %} <img src="./styles/resource/images/admin/i.gif" width="16" height="16" alt="" class="tooltip" data-tooltip-content="{{ LNG.ml_deleted }}">{% endif %}</a></td>
-	</tr>
-	<tr id="contentID{{ messageID }}" style="display:none;">
-		<td class="left" colspan="{% if Selected == 100 %}6{% else %}5{% endif %}" style="padding:5px 8px;">{{ messageRow.text }}</td>
-	</tr>
-	{% endfor %}
-</table>
-</form>
+
+  {# ── Message Table Card ───────────────────────────────────────────── #}
+  <div class="ml-card">
+    <div class="ml-card-header">
+      <span class="ml-card-header-icon">&#128235;</span>
+      <div>
+        <div class="ml-card-title">{{ LNG.ml_message_list }}</div>
+        <div class="ml-card-subtitle">{{ messageList|length }} von {{ maxPage * 50 }} Nachrichten &mdash; Seite {{ page }} / {{ maxPage }}</div>
+      </div>
+    </div>
+    <div class="ml-card-body ml-card-body-table">
+
+      {# Pagination #}
+      {% if maxPage > 1 %}
+      <div class="ml-pagination">
+        {% if page > 1 %}
+        <button class="ml-page-btn" onclick="mlGotoPage({{ page - 1 }})" title="Vorherige Seite">&laquo;</button>
+        {% endif %}
+        {% set pStart = [1, page - 3]|max %}
+        {% set pEnd   = [maxPage, page + 3]|min %}
+        {% if pStart > 1 %}
+          <button class="ml-page-btn" onclick="mlGotoPage(1)">1</button>
+          {% if pStart > 2 %}<span class="ml-page-ellipsis">&hellip;</span>{% endif %}
+        {% endif %}
+        {% for site in range(pStart, pEnd) %}
+        <button class="ml-page-btn{% if site == page %} ml-page-active{% endif %}" onclick="mlGotoPage({{ site }})">{{ site }}</button>
+        {% endfor %}
+        {% if pEnd < maxPage %}
+          {% if pEnd < maxPage - 1 %}<span class="ml-page-ellipsis">&hellip;</span>{% endif %}
+          <button class="ml-page-btn" onclick="mlGotoPage({{ maxPage }})">{{ maxPage }}</button>
+        {% endif %}
+        {% if page < maxPage %}
+        <button class="ml-page-btn" onclick="mlGotoPage({{ page + 1 }})" title="Nächste Seite">&raquo;</button>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# Table #}
+      <div class="ml-table-wrap">
+        <table class="ml-table">
+          <thead>
+            <tr>
+              <th class="ml-th-id">{{ LNG.ml_id }}</th>
+              {% if Selected == 100 %}<th>{{ LNG.ml_type }}</th>{% endif %}
+              <th class="ml-th-date">{{ LNG.ml_date }}</th>
+              <th>{{ LNG.ml_sender }}</th>
+              <th>{{ LNG.ml_receiver }}</th>
+              <th>{{ LNG.ml_subject }}</th>
+              <th class="ml-th-toggle"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for messageID, messageRow in messageList %}
+            <tr class="ml-row" data-id="{{ messageID }}">
+              <td class="ml-td-id">{{ messageID }}</td>
+              {% if Selected == 100 %}<td><span class="ml-type-badge">{{ LNG.mg_type[messageRow.type] }}</span></td>{% endif %}
+              <td class="ml-td-date">{{ messageRow.time }}</td>
+              <td class="ml-td-user">{{ messageRow.sender|raw }}</td>
+              <td class="ml-td-user">{{ messageRow.receiver|raw }}</td>
+              <td class="ml-td-subject">
+                {{ messageRow.subject }}
+                {% if messageRow.deleted %}<span class="ml-deleted-badge" title="{{ LNG.ml_deleted }}">&#128465; gelöscht</span>{% endif %}
+              </td>
+              <td class="ml-td-toggle">
+                <button class="ml-expand-btn" data-id="{{ messageID }}" title="Nachricht anzeigen">&#9660;</button>
+              </td>
+            </tr>
+            <tr class="ml-detail-row" id="mlDetail{{ messageID }}">
+              <td colspan="{% if Selected == 100 %}7{% else %}6{% endif %}" class="ml-detail-cell">
+                <div class="ml-detail-body">{{ messageRow.text|raw }}</div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="{% if Selected == 100 %}7{% else %}6{% endif %}" class="ml-empty">Keine Nachrichten gefunden.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {# Pagination bottom #}
+      {% if maxPage > 1 %}
+      <div class="ml-pagination ml-pagination-bottom">
+        {% if page > 1 %}
+        <button class="ml-page-btn" onclick="mlGotoPage({{ page - 1 }})">&laquo;</button>
+        {% endif %}
+        {% set pStart = [1, page - 3]|max %}
+        {% set pEnd   = [maxPage, page + 3]|min %}
+        {% if pStart > 1 %}
+          <button class="ml-page-btn" onclick="mlGotoPage(1)">1</button>
+          {% if pStart > 2 %}<span class="ml-page-ellipsis">&hellip;</span>{% endif %}
+        {% endif %}
+        {% for site in range(pStart, pEnd) %}
+        <button class="ml-page-btn{% if site == page %} ml-page-active{% endif %}" onclick="mlGotoPage({{ site }})">{{ site }}</button>
+        {% endfor %}
+        {% if pEnd < maxPage %}
+          {% if pEnd < maxPage - 1 %}<span class="ml-page-ellipsis">&hellip;</span>{% endif %}
+          <button class="ml-page-btn" onclick="mlGotoPage({{ maxPage }})">{{ maxPage }}</button>
+        {% endif %}
+        {% if page < maxPage %}
+        <button class="ml-page-btn" onclick="mlGotoPage({{ page + 1 }})">&raquo;</button>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </div>
   </div>
-</div>
+
 </div>
 {% include "overall_footer.twig" %}
 <script src="scripts/admin/messageList.js"></script>
