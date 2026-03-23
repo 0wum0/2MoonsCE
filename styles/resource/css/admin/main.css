@@ -2317,10 +2317,10 @@ td.blank{ border:0; background:url(./styles/resource/images/admin/blank.gif); te
 
 /* Detail / expand row */
 .ml-detail-row{
-    display: none;
+    display: none !important;
 }
 .ml-detail-row.ml-detail-open{
-    display: table-row;
+    display: table-row !important;
 }
 .ml-detail-cell{
     padding: 0 !important;
@@ -2473,7 +2473,7 @@ td.blank{ border:0; background:url(./styles/resource/images/admin/blank.gif); te
 
 /* Dropdown */
 .adm-notif-dropdown{
-    display: none;
+    display: none !important;
     position: fixed;
     top: var(--adm-topbar-height, 60px);
     right: 24px;
@@ -2486,7 +2486,7 @@ td.blank{ border:0; background:url(./styles/resource/images/admin/blank.gif); te
     overflow: hidden;
 }
 .adm-notif-dropdown.open{
-    display: block;
+    display: block !important;
     animation: adm-drop-in .18s ease-out;
 }
 @keyframes adm-drop-in{
