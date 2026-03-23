@@ -105,13 +105,37 @@ class NewsRepository
     }
 
     /**
-     * Strips 4-byte UTF-8 sequences (emoji etc.) that are rejected by columns
-     * still using the 3-byte utf8 charset. Safe to call after migration_17
-     * because once the table is utf8mb4 the value passes through the PDO driver
-     * without hitting this path — the column accepts all codepoints natively.
+     * Strips 4-byte UTF-8 sequences (emoji etc.) only when the news table is
+     * still utf8 (3-byte). Once migration_17 converts it to utf8mb4 the cached
+     * flag flips to true and values pass through untouched.
      */
     private static function safe4byte(string $value): string
     {
+        static $isUtf8mb4 = null;
+
+        if ($isUtf8mb4 === null) {
+            try {
+                $db   = Database::get()->getHandle();
+                $stmt = $db->query(
+                    "SELECT CCSA.character_set_name
+                       FROM information_schema.TABLES T
+                       JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY CCSA
+                         ON CCSA.collation_name = T.TABLE_COLLATION
+                      WHERE T.TABLE_SCHEMA = DATABASE()
+                        AND T.TABLE_NAME   = '" . DB_PREFIX . "news'
+                      LIMIT 1"
+                );
+                $charset   = $stmt ? $stmt->fetchColumn() : null;
+                $isUtf8mb4 = ($charset === 'utf8mb4');
+            } catch (\Throwable $e) {
+                $isUtf8mb4 = false;
+            }
+        }
+
+        if ($isUtf8mb4) {
+            return $value;
+        }
+
         return (string) preg_replace('/[\xF0-\xF7][\x80-\xBF]{3}/', '', $value);
     }
 
