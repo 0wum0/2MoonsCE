@@ -535,13 +535,13 @@ if(typeof resourceTicker==='function'){
 <!-- RESOURCE ICON INJECTION -->
 <script>
 (function(){
-    // SVG for metal bar, FA classes for others
-    var svgMetal = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:1em;height:1em"><path d="M3 7h18l-2 10H5L3 7zm2.5 2l1.5 6h10l1.5-6H5.5z"/><rect x="2" y="5" width="20" height="2" rx="1"/></svg>';
-    var iconMap = {
-        'metal':      null,
-        'crystal':    'fas fa-gem',
-        'deuterium':  'fas fa-tint',
-        'energy':     'fas fa-bolt',
+    var emojiMap = {
+        'metal':      '⛏',
+        'crystal':    '💎',
+        'deuterium':  '💧',
+        'energy':     '⚡'
+    };
+    var faMap = {
         'darkmatter': 'fas fa-circle'
     };
     function initResIcons() {
@@ -551,15 +551,15 @@ if(typeof resourceTicker==='function'){
             if (!iconEl) return;
             if (iconEl.querySelector('.res-icon-emoji')) return;
             var span;
-            if (name === 'metal') {
+            if (emojiMap[name]) {
                 span = document.createElement('span');
                 span.className = 'res-icon-emoji';
-                span.innerHTML = svgMetal;
-            } else {
-                var faClass = iconMap[name];
-                if (!faClass) return;
+                span.textContent = emojiMap[name];
+            } else if (faMap[name]) {
                 span = document.createElement('i');
-                span.className = 'res-icon-emoji ' + faClass;
+                span.className = 'res-icon-emoji ' + faMap[name];
+            } else {
+                return;
             }
             iconEl.appendChild(span);
             if (name === 'darkmatter') {
