@@ -180,17 +180,14 @@ body.loading #game-header::after { width:100%; }
 .user-menu-logout:hover { background:rgba(255,61,87,0.1) !important; color:var(--red) !important; border-left-color:var(--red) !important; }
 .user-menu-logout:hover i { color:var(--red) !important; }
 
-/* ── RESOURCE BAR (inline in topbar) ── */
-.res-bar-row { display:none !important; }
-.res-bar-inline {
-  display:flex; align-items:center; gap:5px; flex:1;
-  overflow-x:auto; overflow-y:visible;
-  scrollbar-width:none; -ms-overflow-style:none;
-  padding:0 6px;
+/* ── RESOURCE BAR ── */
+.res-bar-row {
+  background:rgba(3,6,15,0.92); border-top:1px solid var(--border); padding:0;
 }
-.res-bar-inline::-webkit-scrollbar { display:none; }
 .res-bar-container { overflow-x:auto; }
-.res-bar { display:flex; gap:6px; padding:6px 0; justify-content:center; flex-wrap:wrap; }
+.res-bar { display:flex; gap:0; padding:4px 0; justify-content:stretch; flex-wrap:nowrap; }
+.res-bar .res-item { flex:1; width:auto; min-width:70px; border-radius:0; border-left:none; border-top:none; border-bottom:none; border-right:1px solid var(--border); }
+.res-bar .res-item:last-child { border-right:none; }
 .res-item {
   position:relative; overflow:hidden; border-radius:10px;
   border:1px solid var(--border); cursor:default;
