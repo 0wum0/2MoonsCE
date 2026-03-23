@@ -124,25 +124,28 @@ Table name placeholders `%%TABLE_NAME%%` are resolved automatically by the wrapp
 
 **Phase 2 – In progress:** Admin service classes use `Database::get()`. ✓
 
-**Phase 3 – TODO:** Migrate remaining `Database_BC` (mysqli) usages in admin pages to `Database::get()`.
-- Search: `grep -r "Database_BC\|new mysqli\|mysqli_" includes/pages/adm/`
-- Replace one file at a time; test after each
-- Mark completed files with `// @db-migrated` comment
+**Phase 3 – ✅ Complete (March 2026):** All admin pages migrated to `Database::get()` (PDO).
+- ~180 `$GLOBALS['DATABASE']` usages removed across ~20 files
+- `ShowSearchPage::MyCrazyLittleSearch()` uses `nativeQuery()` with `:search_key` binding and ORDER BY whitelist
+- See `docs/ADMIN_DASHBOARD_MODERNIZATION.md` for full log
 
-**Phase 4 – TODO:** Remove `Database_BC.class.php` once no usages remain.
+**Phase 4 – TODO:** Remove `Database_BC.class.php` once installer is also migrated.
 
 ---
 
 ## 5. Admin Page Architecture
 
-### Current State (after Phase 8)
+### Current State (after Phase 10 — March 2026)
 
 | Type | Count | Example |
 |------|-------|---------|
-| `AbstractAdminPage` subclass | 13 | `ShowPassEncripterPage`, `ShowDisclamerPage`, `ShowStatUpdatePage`, `ShowTopnavPage`, `ShowModulePage`, `ShowSupportPage`, `ShowClearCachePage`, `ShowStatsPage`, `ShowBanPage`, `ShowNewsPage`, `ShowAutoCompletePage`, `ShowDumpPage`, `ShowMenuPage` |
-| Plain PHP function | ~30 | `ShowConfigBasicPage`, `ShowCronjobPage`, … |
+| `AbstractAdminPage` subclass | ~22 | `ShowPassEncripterPage`, `ShowDisclamerPage`, `ShowStatUpdatePage`, `ShowTopnavPage`, `ShowModulePage`, `ShowSupportPage`, `ShowClearCachePage`, `ShowStatsPage`, `ShowBanPage`, `ShowNewsPage`, `ShowAutoCompletePage`, `ShowDumpPage`, `ShowMenuPage`, `ShowRightsPage`, `ShowLogPage`, `ShowGiveawayPage`, `ShowQuickEditorPage`, `ShowCreatorPage`, `ShowAccountEditorPage`, `ShowAccountDataPage`, `ShowSearchPage`, `ShowResetPage`, `ShowUniversePage` … |
+| Plain PHP function | ~10 | `ShowConfigBasicPage`, `ShowCronjobPage`, `ShowMultiIPPage`, … |
 
-> See `docs/INSTALLER_ADMIN_HARMONIZATION.md` for findings and deferred work.
+**`$GLOBALS['DATABASE']` status:** Fully removed from all admin pages except `ShowSearchPage::MyCrazyLittleSearch()` where `$SpecifyItems` (PHP-controlled column list) and `$SpecialSpecify` (PHP constants only) remain as raw SQL fragments — no user input injection possible.
+
+> See `docs/ADMIN_DASHBOARD_MODERNIZATION.md` for full migration log.
+> See `docs/INSTALLER_ADMIN_HARMONIZATION.md` for installer findings and deferred work.
 
 ### `AbstractAdminPage` API
 

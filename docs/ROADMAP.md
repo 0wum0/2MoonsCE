@@ -42,36 +42,18 @@
 - [ ] Apply to `ShowIndexPage.php`
 - [ ] Apply to remaining admin pages incrementally
 
-### 1.4 Database Unification Preparation ✅ (Phase 3 complete)
+### 1.4 Database Unification ✅ (Phase 10 complete — March 2026)
 - [x] `Database` (PDO) is primary interface for all game pages
 - [x] `AdminStatsService.php` uses `Database::get()` (PDO)
 - [x] `ShowBanPage.php` migrated (Phase 2)
 - [x] `ShowFlyingFleetPage.php` migrated (Phase 2)
 - [x] `ShowOverviewPage.php` (adm) — already PDO, style pass applied
 - [x] `Database_BC.class.php` marked `@deprecated` with migration instructions
-- [x] `ShowSearchPage.php` — `// TODO: @db-migrate` markers added (deferred)
-- [x] Full codebase audit documented in `docs/DATABASE_MIGRATION.md`
-- [x] Phase 3 batch: 6 more files migrated (see Phase 3 below)
-- [ ] Continue Phase 3b: medium-complexity files (see list below)
-
-**Remaining mysqli files — Phase 3b candidates (medium, ~7–13 usages):**
-1. 📋 `ShowCronjobPage.php` (7 usages)
-2. 📋 `ShowMessageListPage.php` (7 usages)
-3. 📋 `ShowRightsPage.php` (7 usages)
-4. 📋 `ShowCreatorPage.php` (6 usages)
-5. 📋 `ShowTeamspeakPage.php` (1 usage, trivial)
-6. 📋 `ShowAutoCompletePage.php` (4 usages, complex ORDER BY)
-7. 📋 `ShowDumpPage.php` (2 usages, needs SQLDumper audit)
-8. 📋 `ShowInformationPage.php` (2 usages, needs PDO version string helper)
-
-**Remaining mysqli files — Phase 3c (high complexity, defer):**
-1. ⏸ `ShowLogPage.php` (13 usages)
-2. ⏸ `ShowQuickEditorPage.php` (13 usages)
-3. ⏸ `ShowAccountDataPage.php` (11 usages)
-4. ⏸ `ShowSearchPage.php` (9 usages, dynamic SQL)
-5. ⏸ `ShowUniversePage.php` (20 usages)
-6. ⏸ `ShowResetPage.php` (23 usages)
-7. ⏸ `ShowAccountEditorPage.php` (51 usages — do last)
+- [x] Phase 3 batch: 6 files migrated
+- [x] Phase 8–10 batch: all remaining admin pages migrated (~180 usages removed)
+- [x] `ShowSearchPage.php` — migrated to PDO `nativeQuery()` with `:search_key` binding
+- [x] Full migration log in `docs/ADMIN_DASHBOARD_MODERNIZATION.md`
+- [ ] Remove `Database_BC.class.php` once installer is also migrated
 
 ---
 
@@ -159,11 +141,21 @@
 | `ShowSystemDebugPage.php` | `?page=systemDebug` | — |
 | `ShowPluginAdminPage.php` | `?page=pluginAdmin` | — |
 
-### Phase 4 Batch 3 — Deferred (high-risk pages)
+### Phase 4 Batch 3 — ✅ Complete (Phase 10 — March 2026)
 
-⏸ `ShowAccountEditorPage.php`, `ShowResetPage.php`, `ShowUniversePage.php`,
-`ShowLogPage.php`, `ShowQuickEditorPage.php`, `ShowAccountDataPage.php`,
-`ShowSearchPage.php`, `ShowRightsPage.php`
+| File | What changed |
+|------|-------------|
+| `ShowRightsPage.php` | PDO + AbstractAdminPage; handleRights/handleUsers methods |
+| `ShowLogPage.php` | PDO + AbstractAdminPage; unserialize safety; `.tpl` → `.twig` |
+| `ShowGiveawayPage.php` | PDO nativeQuery for dynamic column UPDATE; `.tpl` → `.twig` |
+| `ShowSupportPage.php` | AbstractAdminPage; private showList/view/send methods |
+| `ShowQuickEditorPage.php` | PDO; planet+player edit |
+| `ShowCreatorPage.php` | PDO; player/moon/planet creation |
+| `ShowUniversePage.php` | PDO; sequential delete calls replacing multi_query |
+| `ShowResetPage.php` | PDO; 23 usages removed |
+| `ShowAccountEditorPage.php` | PDO; 51 usages removed |
+| `ShowAccountDataPage.php` | PDO; 11 usages removed |
+| `ShowSearchPage.php` | PDO nativeQuery; `:search_key` binding; ORDER BY whitelist |
 
 **Migration steps per page (admin architecture):**
 1. Replace `if (!allowedTo(...)) throw ...` + `function ShowXxxPage()` with `class ShowXxxPage extends AbstractAdminPage`
@@ -355,7 +347,26 @@
 
 ---
 
-## Phase 10 – Code Style Normalization
+## Phase 10 – Admin Dashboard Full Modernization ✅ (Complete — March 2026)
+
+> All `$GLOBALS['DATABASE']` calls removed from admin pages.
+> All admin pages migrated to `AbstractAdminPage`.
+> All `.tpl` template references replaced with `.twig`.
+> Full details: `docs/ADMIN_DASHBOARD_MODERNIZATION.md`
+
+### Summary
+
+| Metric | Value |
+|--------|-------|
+| `$GLOBALS['DATABASE']` usages removed | ~180 |
+| Admin pages now on `AbstractAdminPage` | ~22 |
+| `.tpl` → `.twig` fixes | all |
+| SQL injection risks eliminated | ✅ |
+| Remaining legacy DB fragments | `ShowSearchPage` PHP-controlled column list only (safe) |
+
+---
+
+## Phase 11 – Code Style Normalization
 
 > Apply `CODING_STYLE.md` rules to touched files incrementally.
 

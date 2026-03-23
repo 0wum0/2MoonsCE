@@ -26,10 +26,7 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-// TODO: @db-migrate — still uses $GLOBALS['DATABASE'] (mysqli). Dynamic SQL in MyCrazyLittleSearch()
-// makes a direct PDO port non-trivial (ORDER BY injection-safe whitelist already in place).
-// Migration plan: see docs/ROADMAP.md §Phase 3 – Database Unification.
-// @admin-migrated (Phase 10 — AbstractAdminPage)
+// @admin-migrated (Phase 10 — AbstractAdminPage + PDO via Database::get())
 
 class ShowSearchPage extends AbstractAdminPage
 {
@@ -101,24 +98,20 @@ class ShowSearchPage extends AbstractAdminPage
 			'500'	=> '500',	
 		),
 	);
-	$template	= new template();
 
-	
-	
-	
 	if (HTTP::_GP('minimize', '') == 'on')
 	{
 		$Minimize			= "&amp;minimize=on";
-		$template->assign_vars(array(	
+		$this->assign([
 			'minimize'	=> 'checked = "checked"',
 			'diisplaay'	=> 'style="display:none;"',
-		));
+		]);
 	}else{
 		$Minimize			= "&amp;minimize=off";
-		$template->assign_vars(array(	
+		$this->assign([
 			'minimize'	=> '',
 			'diisplaay'	=> '',
-		));
+		]);
 	}
 
     $SpecialSpecify	= "";
@@ -128,18 +121,21 @@ class ShowSearchPage extends AbstractAdminPage
 	switch($SearchMethod)
 	{
 		case 'exacto':
-			// TODO: @db-migrate — replace sql_escape() with PDO prepared statement
-		$SpecifyWhere	= "= '".$GLOBALS['DATABASE']->sql_escape($SearchKey)."'";
-		break;
+			$SpecifyWhere	= "= :search_key";
+			$SearchParam	= $SearchKey;
+			break;
 		case 'last':
-			$SpecifyWhere	= "LIKE '".$GLOBALS['DATABASE']->sql_escape($SearchKey, true)."%'";
-		break;
+			$SpecifyWhere	= "LIKE :search_key";
+			$SearchParam	= $SearchKey . '%';
+			break;
 		case 'first':
-			$SpecifyWhere	= "LIKE '%".$GLOBALS['DATABASE']->sql_escape($SearchKey, true)."'";
-		break;
+			$SpecifyWhere	= "LIKE :search_key";
+			$SearchParam	= '%' . $SearchKey;
+			break;
 		default:
-			$SpecifyWhere	= "LIKE '%".$GLOBALS['DATABASE']->sql_escape($SearchKey, true)."%'";
-		break;
+			$SpecifyWhere	= "LIKE :search_key";
+			$SearchParam	= '%' . $SearchKey . '%';
+			break;
 	};
 
 	$OrderBYParse = [];
@@ -288,71 +284,72 @@ class ShowSearchPage extends AbstractAdminPage
 				$OrderBYParse[$ArrayOSec[$OrderNum]]	= $LNG['se_search_alliance_'.$OrderNum];
 		}
 				
-		$RESULT	= MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SpecialSpecify, $Order, $OrderBY, $limit, $Table, $Page, $NameLang, $ArrayOSec, $Minimize, $SName, $SearchFile);
+		$RESULT = MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SearchParam, $SpecialSpecify, $Order, $OrderBY, $limit, $Table, $Page, $NameLang, $ArrayOSec, $Minimize, $SName, $SearchFile);
 	}
 	
-	$template->assign_vars(array(	
-		'Selector'				=> $Selector,
-		'limit'					=> $limit,
-		'search'				=> $SearchKey,
-		'SearchFile'			=> $SearchFile,
-		'SearchFor'				=> $SearchFor,
-		'SearchMethod'			=> $SearchMethod,
-		'Order'					=> $Order,
-		'OrderBY'				=> $OrderBY,
-		'OrderBYParse'			=> $OrderBYParse,
-		'se_search'				=> $LNG['se_search'],
-		'se_limit'				=> $LNG['se_limit'],
-		'se_asc_desc'			=> $LNG['se_asc_desc'],
-		'se_filter_title'		=> $LNG['se_filter_title'],
-		'se_search_in'			=> $LNG['se_search_in'],
-		'se_type_typee'			=> $LNG['se_type_typee'],
-		'se_intro'				=> $LNG['se_intro'],
-		'se_search_title'		=> $LNG['se_search_title'],
-		'se_contrac'			=> $LNG['se_contrac'],
-		'se_search_order'		=> $LNG['se_search_order'],
-		'ac_minimize_maximize'	=> $LNG['ac_minimize_maximize'],
-		'LIST'					=> isset($RESULT['LIST'])?$RESULT['LIST']:'',
-		'PAGES'					=> isset($RESULT['PAGES'])?$RESULT['PAGES']:'',
-	));
-	
-	$template->show('SearchPage.twig');
+	$this->assign([
+		'Selector'           => $Selector,
+		'limit'              => $limit,
+		'search'             => $SearchKey,
+		'SearchFile'         => $SearchFile,
+		'SearchFor'          => $SearchFor,
+		'SearchMethod'       => $SearchMethod,
+		'Order'              => $Order,
+		'OrderBY'            => $OrderBY,
+		'OrderBYParse'       => $OrderBYParse,
+		'se_search'          => $LNG['se_search'],
+		'se_limit'           => $LNG['se_limit'],
+		'se_asc_desc'        => $LNG['se_asc_desc'],
+		'se_filter_title'    => $LNG['se_filter_title'],
+		'se_search_in'       => $LNG['se_search_in'],
+		'se_type_typee'      => $LNG['se_type_typee'],
+		'se_intro'           => $LNG['se_intro'],
+		'se_search_title'    => $LNG['se_search_title'],
+		'se_contrac'         => $LNG['se_contrac'],
+		'se_search_order'    => $LNG['se_search_order'],
+		'ac_minimize_maximize' => $LNG['ac_minimize_maximize'],
+		'LIST'               => $RESULT['LIST'] ?? '',
+		'PAGES'              => $RESULT['PAGES'] ?? '',
+	]);
+	$this->show('SearchPage.twig');
 	}
 }
 
-function MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SpecialSpecify, $Order, $OrderBY, $Limit, $Table, $Page, $NameLang, $ArrayOSec, $Minimize, $SName, $SearchFile)
+function MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SearchParam, $SpecialSpecify, $Order, $OrderBY, $Limit, $Table, $Page, $NameLang, $ArrayOSec, $Minimize, $SName, $SearchFile)
 {
 	global $USER, $LNG;
-	
-	$parse	= $LNG;
-	
-	if (!$Page) 
-	{ 
-		$INI = 0; 
-    	$Page = 1; 
-	}
-	else
-		$INI = ($Page - 1) * $Limit;
-		
-	$ArrayEx	= explode(",", str_replace("CONCAT(u.username, ' (ID:&nbsp;', p.id_owner, ')')", '', $SpecifyItems));
 
-	if (!$Order || !in_array($Order, $ArrayOSec))
-		$Order	= $ArrayEx[0];
-		
-	$CountArray	= count($ArrayEx);
-	
-	
-	$QuerySearch	 = "SELECT ".$SpecifyItems." FROM ".DB_PREFIX.$Table." ";
-	$QuerySearch	.= $WhereItem." ";
-	$QuerySearch	.= $SpecifyWhere." ".$SpecialSpecify." ";
-	$QuerySearch	.= "ORDER BY ".$Order." ".$OrderBY." ";
-	$QuerySearch	.= "LIMIT ".$INI.",".$Limit;
-	$FinalQuery		= $GLOBALS['DATABASE']->query($QuerySearch);
-	
-	$QueryCSearch	 = "SELECT COUNT(".$ArrayEx[0].") AS total FROM ".DB_PREFIX.$Table." ";
-	$QueryCSearch	.= $WhereItem." ";
-	$QueryCSearch	.= $SpecifyWhere." ".$SpecialSpecify." ";
-	$CountQuery		= $GLOBALS['DATABASE']->getFirstRow($QueryCSearch);
+	if (!$Page) {
+		$INI  = 0;
+		$Page = 1;
+	} else {
+		$INI  = ($Page - 1) * $Limit;
+	}
+
+	$ArrayEx    = explode(',', str_replace("CONCAT(u.username, ' (ID:&nbsp;', p.id_owner, ')')", '', $SpecifyItems));
+	$OrderBY    = strtoupper($OrderBY) === 'DESC' ? 'DESC' : 'ASC';
+
+	if (!$Order || !in_array($Order, $ArrayOSec)) {
+		$Order = $ArrayEx[0];
+	}
+
+	$CountArray = count($ArrayEx);
+
+	$db     = Database::get();
+	$params = [':search_key' => $SearchParam];
+
+	$QuerySearch  = "SELECT {$SpecifyItems} FROM " . DB_PREFIX . "{$Table} ";
+	$QuerySearch .= "{$WhereItem} ";
+	$QuerySearch .= "{$SpecifyWhere} {$SpecialSpecify} ";
+	$QuerySearch .= "ORDER BY {$Order} {$OrderBY} ";
+	$QuerySearch .= "LIMIT {$INI},{$Limit}";
+	$FinalRows = $db->nativeQuery($QuerySearch, $params);
+
+	$QueryCSearch  = "SELECT COUNT({$ArrayEx[0]}) AS total FROM " . DB_PREFIX . "{$Table} ";
+	$QueryCSearch .= "{$WhereItem} ";
+	$QueryCSearch .= "{$SpecifyWhere} {$SpecialSpecify}";
+	$CountRow = $db->nativeQuery($QueryCSearch, $params);
+	$CountQuery = $CountRow[0] ?? ['total' => 0];
 	
 	if ($CountQuery['total'] > 0)
 	{
@@ -428,8 +425,8 @@ function MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SpecialS
 		$Search['LIST']	.= "</tr>";
 	
 	
-		while ($WhileResult	= $GLOBALS['DATABASE']->fetch_num($FinalQuery))
-		{
+		foreach ($FinalRows as $WhileResult) {
+			$WhileResult = array_values($WhileResult);
 			$Search['LIST']	 .= "<tr>";
 			if ($Table == "users"){				
 				$WhileResult[3] = (isset($_GET['search']) && $_GET['search'] == "online") ? pretty_time( TIMESTAMP - $WhileResult[3] ) : _date($LNG['php_tdformat'], $WhileResult[3] , $USER['timezone']);
@@ -485,8 +482,6 @@ function MyCrazyLittleSearch($SpecifyItems, $WhereItem, $SpecifyWhere, $SpecialS
 		$Search['LIST']	.= "</table>";
 	
 	
-		$GLOBALS['DATABASE']->free_result($FinalQuery);
-		
 		return $Search;
 	}
 	else
