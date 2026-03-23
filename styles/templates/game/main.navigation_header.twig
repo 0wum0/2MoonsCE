@@ -535,9 +535,10 @@ if(typeof resourceTicker==='function'){
 <!-- RESOURCE ICON INJECTION -->
 <script>
 (function(){
-    // Font Awesome icon classes per resource (no emoji rendering issues)
+    // SVG for metal bar, FA classes for others
+    var svgMetal = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:1em;height:1em"><path d="M3 7h18l-2 10H5L3 7zm2.5 2l1.5 6h10l1.5-6H5.5z"/><rect x="2" y="5" width="20" height="2" rx="1"/></svg>';
     var iconMap = {
-        'metal':      'fas fa-industry',
+        'metal':      null,
         'crystal':    'fas fa-gem',
         'deuterium':  'fas fa-tint',
         'energy':     'fas fa-bolt',
@@ -549,10 +550,17 @@ if(typeof resourceTicker==='function'){
             var iconEl = item.querySelector('.res-icon');
             if (!iconEl) return;
             if (iconEl.querySelector('.res-icon-emoji')) return;
-            var faClass = iconMap[name];
-            if (!faClass) return;
-            var span = document.createElement('i');
-            span.className = 'res-icon-emoji ' + faClass;
+            var span;
+            if (name === 'metal') {
+                span = document.createElement('span');
+                span.className = 'res-icon-emoji';
+                span.innerHTML = svgMetal;
+            } else {
+                var faClass = iconMap[name];
+                if (!faClass) return;
+                span = document.createElement('i');
+                span.className = 'res-icon-emoji ' + faClass;
+            }
             iconEl.appendChild(span);
             if (name === 'darkmatter') {
                 for (var i = 1; i <= 5; i++) {
