@@ -221,13 +221,13 @@ body.loading .header-row-main::after { width:100%; }
 .res-progress-energy { position:relative; height:3px; background:rgba(255,255,255,0.10); border-radius:2px; margin:3px 0 2px; overflow:hidden; }
 .res-energy-income {
   position:absolute; left:0; top:0; height:100%;
-  background:var(--green); border-radius:2px 0 0 2px;
-  transition:width 0.6s ease;
+  background:var(--green); border-radius:2px;
+  transition:width 0.6s ease; z-index:2;
 }
 .res-energy-used {
   position:absolute; right:0; top:0; height:100%;
-  background:var(--red); border-radius:0 2px 2px 0;
-  transition:width 0.6s ease;
+  background:var(--red); border-radius:2px;
+  transition:width 0.6s ease; z-index:1;
 }
 .res-item.res-anim-full { border-color:rgba(255,140,0,0.35) !important; animation:resFullPulse 2s ease-in-out infinite; }
 @keyframes resFullPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 12px rgba(255,140,0,0.22)} }
