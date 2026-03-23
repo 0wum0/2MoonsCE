@@ -315,7 +315,7 @@
         <div class="res-bar-container">
             <div class="res-bar">
                 {% for resourceID, resourceData in resourceTable %}
-                <div class="res-item res-item-tooltip{% if resourceData.type|default(0)|number_format(0,'','') == '2' %} res-item-energy{% endif %}" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-used="{{ resourceData.used|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
+                <div class="res-item res-item-tooltip{% if resourceData.type|default(0)|number_format(0,'','') == '2' %} res-item-energy{% endif %}" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-used="{{ resourceData.used|default(0)|raw }}" data-res-name="{{ resourceData.name }}" data-res-type="{{ resourceData.type|default(0)|raw }}">
                     <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
                     <div class="res-info">
                         {% if resourceData.type|default(0)|number_format(0,'','') == '2' %}
@@ -496,9 +496,10 @@ if(typeof resourceTicker==='function'){
 <script>
 (function(){
     function initEnergyBars() {
-        document.querySelectorAll('.res-item-energy').forEach(function(item) {
-            var income = Number(item.getAttribute('data-res-max')) || 0;
-            var used   = Number(item.getAttribute('data-res-used')) || 0;
+        document.querySelectorAll('.res-item[data-res-type="2"], .res-item-energy').forEach(function(item) {
+            item.classList.add('res-item-energy');
+            var income = Math.abs(Number(item.getAttribute('data-res-max')) || 0);
+            var used   = Math.abs(Number(item.getAttribute('data-res-used')) || 0);
             var total  = Math.max(income, used, 1);
             var incPct = Math.min(100, (income / total) * 100).toFixed(1);
             var usePct = Math.min(100, (used   / total) * 100).toFixed(1);
@@ -518,7 +519,7 @@ if(typeof resourceTicker==='function'){
             if (trendEl) {
                 var diff = income - used;
                 trendEl.textContent = (diff >= 0 ? '+' : '') + Math.round(diff).toLocaleString('de-DE');
-                trendEl.className = 'res-trend ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat');
+                trendEl.className   = 'res-trend ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat');
             }
         });
     }
@@ -581,19 +582,19 @@ if(typeof resourceTicker==='function'){
         var used       = Number(item.getAttribute('data-res-used')) || 0;
 
         // Energy resource: special tooltip
-        if (isEnergy) {
-            var income = max;
-            var balance = income - used;
+        var isEnergy2 = (item.getAttribute('data-res-type') === '2') || isEnergy;
+        if (isEnergy2) {
+            var income = Math.abs(max);
+            var usedAbs = Math.abs(used);
+            var balance = income - usedAbs;
             var balColor = balance >= 0 ? '#00e676' : '#ff3d57';
             var balPrefix = balance >= 0 ? '+' : '';
-            var usedPct  = income > 0 ? Math.min(100, (used   / income) * 100) : (used > 0 ? 100 : 0);
-            var incPct   = used  > 0 ? Math.min(100, (income / used)   * 100) : 100;
-            var total = Math.max(income, used, 1);
-            var incBarW  = Math.min(100, (income / total) * 100).toFixed(1);
-            var useBarW  = Math.min(100, (used   / total) * 100).toFixed(1);
+            var total = Math.max(income, usedAbs, 1);
+            var incBarW  = Math.min(100, (income  / total) * 100).toFixed(1);
+            var useBarW  = Math.min(100, (usedAbs / total) * 100).toFixed(1);
             return '<div style="font-size:11px;letter-spacing:2px;color:#00d4ff;margin-bottom:8px;text-transform:uppercase">' + label + '</div>'
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Einkommen</span><span style="color:#00e676">+' + fmtNum(income) + '</span></div>'
-                + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Verbrauch</span><span style="color:#ff3d57">-' + fmtNum(used) + '</span></div>'
+                + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Verbrauch</span><span style="color:#ff3d57">-' + fmtNum(usedAbs) + '</span></div>'
                 + '<div style="height:1px;background:rgba(0,212,255,0.1);margin:7px 0"></div>'
                 + '<div style="margin-bottom:6px">'
                 +   '<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;position:relative">'
