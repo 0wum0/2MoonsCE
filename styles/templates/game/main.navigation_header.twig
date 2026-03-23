@@ -315,10 +315,10 @@
         <div class="res-bar-container">
             <div class="res-bar">
                 {% for resourceID, resourceData in resourceTable %}
-                <div class="res-item res-item-tooltip{% if resourceData.name == 'energy' %} res-item-energy{% endif %}" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-used="{{ resourceData.used|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
+                <div class="res-item res-item-tooltip{% if resourceData.type == 2 %} res-item-energy{% endif %}" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-used="{{ resourceData.used|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
                     <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
                     <div class="res-info">
-                        {% if resourceData.name == 'energy' %}
+                        {% if resourceData.type == 2 %}
                         <span class="res-val {% if resourceData.used > resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
                             {% if shortlyNumber %}{{ resourceData.max|shortly_number }}{% else %}{{ resourceData.max|number_format }}{% endif %}
                         </span>

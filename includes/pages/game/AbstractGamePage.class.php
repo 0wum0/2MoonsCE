@@ -124,6 +124,7 @@ abstract class AbstractGamePage
 		foreach($reslist['resstype'][1] as $resourceID)
 		{
 			$resourceTable[$resourceID]['name']			= $resource[$resourceID];
+			$resourceTable[$resourceID]['type']			= 1;
 			$resourceTable[$resourceID]['current']		= $PLANET[$resource[$resourceID]];
 			$resourceTable[$resourceID]['max']			= $PLANET[$resource[$resourceID].'_max'];
 			if($USER['urlaubs_modus'] == 1 || $PLANET['planet_type'] != 1)
@@ -139,6 +140,7 @@ abstract class AbstractGamePage
 		foreach($reslist['resstype'][2] as $resourceID)
 		{
 			$resourceTable[$resourceID]['name']			= $resource[$resourceID];
+			$resourceTable[$resourceID]['type']			= 2;
 			$resourceTable[$resourceID]['used']			= $PLANET[$resource[$resourceID].'_used'];
 			$resourceTable[$resourceID]['max']			= $PLANET[$resource[$resourceID]];
 		}
@@ -146,6 +148,7 @@ abstract class AbstractGamePage
 		foreach($reslist['resstype'][3] as $resourceID)
 		{
 			$resourceTable[$resourceID]['name']			= $resource[$resourceID];
+			$resourceTable[$resourceID]['type']			= 3;
 			$resourceTable[$resourceID]['current']		= $USER[$resource[$resourceID]];
 		}
 
