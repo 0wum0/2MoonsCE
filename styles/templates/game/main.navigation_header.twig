@@ -852,6 +852,7 @@ if(typeof resourceTicker==='function'){
     function applyResourceBars(animate){
         var nodes = document.querySelectorAll('.res-item[data-res-current]');
         nodes.forEach(function(node){
+            if (node.getAttribute('data-res-type') === '2') return;
             var current    = Number(node.getAttribute('data-res-current') || 0);
             var max        = Number(node.getAttribute('data-res-max') || 0);
             var production = Number(node.getAttribute('data-res-production') || 0);
