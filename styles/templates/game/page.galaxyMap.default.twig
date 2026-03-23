@@ -1077,11 +1077,40 @@ function planetTex(g, s, slot, colorHex) {
   return { tex: planetTexCache[key], ptype };
 }
 
-// ── Ship silhouette textures ───────────────────────────────
-// Canvas is 128×128. Ship body occupies centre ~40% of canvas.
-// Nose points UP (−Y). Engine exhaust glow only at the stern (+Y).
-// No surrounding halo – glow is strictly directional from engines.
+// ── Ship PNG textures ─────────────────────────────────────
+// Real PNG images from styles/theme/gow/Ships/
+// Mapping: fighter→11(hostile)/5(own/ally), transport→9, colony→10, spy→8, recycler→2
+// hostile fighter uses Spaceship_11 (black/red), own uses Spaceship_0 (blue/orange)
 const shipTexCache = {};
+const SHIP_BASE = 'styles/theme/gow/Ships/';
+const SHIP_PNG = {
+  fighter_hostile: SHIP_BASE + 'Spaceship_11.png',  // black/red aggressive
+  fighter_own:     SHIP_BASE + 'Spaceship_0.png',   // blue/orange interceptor
+  fighter_ally:    SHIP_BASE + 'Spaceship_3.png',   // blue stealth
+  fighter_foreign: SHIP_BASE + 'Spaceship_6.png',   // white/orange
+  transport:       SHIP_BASE + 'Spaceship_9.png',   // wide triangular freighter
+  colony:          SHIP_BASE + 'Spaceship_5.png',   // large detailed colony ship
+  spy:             SHIP_BASE + 'Spaceship_8.png',   // slim stealth arrowhead
+  recycler:        SHIP_BASE + 'Spaceship_2.png',   // compact orange collector
+};
+const shipImgCache = {};
+
+function loadShipTex(url, callback) {
+  if (shipImgCache[url]) { callback(shipImgCache[url]); return; }
+  const img = new Image();
+  img.onload = () => { shipImgCache[url] = img; callback(img); };
+  img.onerror = () => callback(null);
+  img.src = url;
+}
+
+// Sizes per type (world units) – fighter smaller, colony largest
+const SHIP_SIZES = {
+  fighter:   { w: 28, h: 28 },
+  transport: { w: 34, h: 34 },
+  colony:    { w: 42, h: 42 },
+  spy:       { w: 22, h: 22 },
+  recycler:  { w: 30, h: 30 },
+};
 
 // Draw a focused engine exhaust cone at stern position (sx,sy), pointing down
 function drawExhaust(ctx, sx, sy, width, length, col) {
@@ -1100,10 +1129,47 @@ function drawExhaust(ctx, sx, sy, width, length, col) {
   ctx.fill();
 }
 
-function shipTex(type, col) {
-  const key = type + '_' + col;
+function shipTex(type, col, ownerKey) {
+  // ownerKey: 'own','ally','hostile','foreign'
+  // Pick PNG based on type + ownership
+  const pngKey = (type === 'fighter')
+    ? ('fighter_' + (ownerKey || 'foreign'))
+    : (SHIP_PNG[type] ? type : null);
+  const pngUrl = pngKey ? SHIP_PNG[pngKey] || SHIP_PNG[type] : null;
+
+  const key = (pngUrl || type) + '_' + col;
   if (shipTexCache[key]) return shipTexCache[key];
 
+  // --- PNG path: load image, draw onto canvas, apply colour tint ---
+  if (pngUrl) {
+    // Return a placeholder immediately, update when image loads
+    const S = 128, cv = document.createElement('canvas');
+    cv.width = cv.height = S;
+    const ctx = cv.getContext('2d');
+    const tex = new THREE.CanvasTexture(cv);
+    shipTexCache[key] = tex;
+    loadShipTex(pngUrl, (img) => {
+      if (!img) return;
+      ctx.clearRect(0, 0, S, S);
+      // Draw PNG scaled to fill canvas, centred
+      const aspect = img.naturalWidth / img.naturalHeight;
+      let dw = S, dh = S;
+      if (aspect > 1) dh = S / aspect; else dw = S * aspect;
+      const dx = (S - dw) / 2, dy = (S - dh) / 2;
+      ctx.drawImage(img, dx, dy, dw, dh);
+      // Subtle ownership colour overlay
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = col;
+      ctx.fillRect(0, 0, S, S);
+      ctx.restore();
+      tex.needsUpdate = true;
+    });
+    return tex;
+  }
+
+  // --- Fallback: canvas-drawn silhouette (no PNG available) ---
   const S = 128, cv = document.createElement('canvas');
   cv.width = cv.height = S;
   const ctx = cv.getContext('2d');
@@ -2102,8 +2168,11 @@ function rebuildFleetMeshes() {
     const sizeMap = { fighter: 0.55, transport: 0.60, colony: 0.90, spy: 0.40, recycler: 0.58 };
     const shipSz  = dotSize * dotMult * (sizeMap[stype] || 0.55);
 
+    // Ownership key for fighter PNG variant selection
+    const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
+
     const ds = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: shipTex(stype, dotCol),
+      map: shipTex(stype, dotCol, ownerKey),
       transparent: true, depthWrite: false,
       sizeAttenuation: true, blending: THREE.AdditiveBlending
     }));
