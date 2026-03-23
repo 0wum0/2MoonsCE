@@ -52,7 +52,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     public function __construct()
     {
         $mode = HTTP::_GP('mode', 'show');
-        if (in_array($mode, ['fleets', 'galaxy', 'card', 'search'], true)) {
+        if (in_array($mode, ['fleets', 'galaxy', 'card', 'search', 'quickSend'], true)) {
             // JSON API modes: skip eco resource calc, go directly to ajax window
             $this->setWindow('ajax');
             // Close session NOW so Session->save() shutdown handler is already done
@@ -355,6 +355,129 @@ class ShowGalaxyMapPage extends AbstractGamePage
 
         echo json_encode(['players' => $players], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         exit;
+    }
+
+    // ── JSON: quick-send spy probe or interplanetary missile ─────
+    public function quickSend(): void
+    {
+        global $USER, $PLANET, $resource;
+
+        while (ob_get_level() > 0) { ob_end_clean(); }
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['success' => false, 'error' => 'Nicht angemeldet']); exit;
+        }
+
+        $action  = HTTP::_GP('action',  '');
+        $tGal    = (int) HTTP::_GP('galaxy', 0);
+        $tSys    = (int) HTTP::_GP('system', 0);
+        $tPla    = (int) HTTP::_GP('planet', 0);
+        $tType   = 1; // main planet
+
+        if (!in_array($action, ['spy', 'missile'], true) || !$tGal || !$tSys || !$tPla) {
+            echo json_encode(['success' => false, 'error' => 'Ungültige Parameter']); exit;
+        }
+
+        if (IsVacationMode($USER)) {
+            echo json_encode(['success' => false, 'error' => 'Urlaubsmodus aktiv']); exit;
+        }
+
+        $db = Database::get();
+
+        // Load target planet
+        $target = $db->selectSingle(
+            'SELECT id, id_owner FROM %%PLANETS%% WHERE universe=:u AND galaxy=:g AND system=:s AND planet=:p AND planet_type=:t AND destruyed=0',
+            [':u' => Universe::current(), ':g' => $tGal, ':s' => $tSys, ':p' => $tPla, ':t' => $tType]
+        );
+
+        if (!$target) {
+            echo json_encode(['success' => false, 'error' => 'Zielplanet nicht gefunden']); exit;
+        }
+        if ((int)$target['id_owner'] === (int)$USER['id']) {
+            echo json_encode(['success' => false, 'error' => 'Eigener Planet']); exit;
+        }
+
+        // Noob/strong player protection
+        $targetUser = GetUserByID($target['id_owner'], ['onlinetime', 'banaday', 'urlaubs_modus', 'authattack']);
+        if (!empty($targetUser['urlaubs_modus'])) {
+            echo json_encode(['success' => false, 'error' => 'Spieler im Urlaubsmodus']); exit;
+        }
+
+        if ($action === 'spy') {
+            // ── Spionagesonde (Schiff 210, Mission 6) ──
+            $probeKey = $resource[210] ?? 'spy_satellite';
+            $spyCount = (int)($PLANET[$probeKey] ?? 0);
+            if ($spyCount < 1) {
+                echo json_encode(['success' => false, 'error' => 'Keine Spionagesonden vorhanden']); exit;
+            }
+
+            $distance = FleetFunctions::GetTargetDistance(
+                [$PLANET['galaxy'], $PLANET['system'], $PLANET['planet']],
+                [$tGal, $tSys, $tPla]
+            );
+            $fleetSpeed   = FleetFunctions::GetFleetMaxSpeed([210 => 1], $USER);
+            $gameSpeed    = FleetFunctions::GetGameSpeedFactor();
+            $duration     = FleetFunctions::GetMissionDuration(100, $fleetSpeed, $distance, $gameSpeed, $USER);
+            $deutCost     = FleetFunctions::GetFleetConsumption([210 => 1], $duration, $distance, $USER, $gameSpeed);
+
+            if ($PLANET['deuterium'] < $deutCost) {
+                echo json_encode(['success' => false, 'error' => 'Zu wenig Deuterium (' . round($deutCost) . ' benötigt)']); exit;
+            }
+
+            $startTime = TIMESTAMP + $duration;
+            FleetFunctions::sendFleet(
+                [210 => 1], 6,
+                $USER['id'], $PLANET['id'],
+                $PLANET['galaxy'], $PLANET['system'], $PLANET['planet'], $PLANET['planet_type'],
+                $target['id_owner'], $target['id'],
+                $tGal, $tSys, $tPla, $tType,
+                [901 => 0, 902 => 0, 903 => $deutCost],
+                $startTime, $startTime, $startTime
+            );
+
+            // Deduct deuterium from planet
+            $db->update('UPDATE %%PLANETS%% SET deuterium = deuterium - :d WHERE id = :id',
+                [':d' => $deutCost, ':id' => $PLANET['id']]);
+
+            echo json_encode(['success' => true]); exit;
+
+        } else {
+            // ── Interplanetare Rakete (Schiff 503, Mission 10) ──
+            $missileCount = (int)($PLANET['interplanetary_misil'] ?? 0);
+            if ($missileCount < 1) {
+                echo json_encode(['success' => false, 'error' => 'Keine Interplanetaren Raketen vorhanden']); exit;
+            }
+            if ((int)($PLANET['silo'] ?? 0) < 4) {
+                echo json_encode(['success' => false, 'error' => 'Silo Level 4 benötigt']); exit;
+            }
+            if (empty($USER['impulse_motor_tech'])) {
+                echo json_encode(['success' => false, 'error' => 'Impulsantrieb benötigt']); exit;
+            }
+
+            $range = FleetFunctions::getMissileRange($USER['impulse_motor_tech']);
+            if ($tGal !== (int)$PLANET['galaxy']
+                || $tSys < $PLANET['system'] - $range
+                || $tSys > $PLANET['system'] + $range) {
+                echo json_encode(['success' => false, 'error' => 'Ziel außerhalb der Reichweite']); exit;
+            }
+
+            $duration  = FleetFunctions::GetMIPDuration($PLANET['system'], $tSys);
+            $startTime = TIMESTAMP + $duration;
+
+            FleetFunctions::sendFleet(
+                [503 => 1], 10,
+                $USER['id'], $PLANET['id'],
+                $PLANET['galaxy'], $PLANET['system'], $PLANET['planet'], $PLANET['planet_type'],
+                $target['id_owner'], $target['id'],
+                $tGal, $tSys, $tPla, $tType,
+                [901 => 0, 902 => 0, 903 => 0],
+                $startTime, $startTime, $startTime,
+                0, 0
+            );
+
+            echo json_encode(['success' => true]); exit;
+        }
     }
 
     // ── JSON: player card ────────────────────────────────────────
