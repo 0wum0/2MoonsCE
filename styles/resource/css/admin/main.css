@@ -2043,7 +2043,7 @@ td.blank{ border:0; background:url(./styles/resource/images/admin/blank.gif); te
 .pm-field-hint{ font-size:0.73rem; color:#475569; margin-top:4px; }
 .pm-field-input{ width:100%; background:#0a1020; border:1px solid rgba(56,189,248,0.2); border-radius:7px; padding:8px 11px; color:#e2e8f0; font-size:0.875rem; outline:none; transition:border-color .2s; box-sizing:border-box; }
 .pm-field-input:focus{ border-color:#38bdf8; }
-.pm-field-input[type=number]{ -moz-appearance:textfield; }
+.pm-field-input[type=number]{ -moz-appearance:textfield; appearance:textfield; }
 .pm-field-select{ width:100%; background:#0a1020; border:1px solid rgba(56,189,248,0.2); border-radius:7px; padding:8px 11px; color:#e2e8f0; font-size:0.875rem; outline:none; cursor:pointer; transition:border-color .2s; }
 .pm-field-select:focus{ border-color:#38bdf8; }
 .pm-toggle-row{ display:flex; align-items:center; gap:12px; }

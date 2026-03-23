@@ -376,7 +376,7 @@
             </a>
             {% endif %}
             {% if authlevel is defined and authlevel == constant('AUTH_ADM') and currentUser is defined and currentUser.id == 1 %}
-            <a href="admin.php?page=reset" class="sidebar-link{% if GET.page is defined and GET.page == 'reset' %} active{% endif %}" style="color:var(--adm-neon-red);">
+            <a href="admin.php?page=reset&sid={{ sid }}" class="sidebar-link{% if GET.page is defined and GET.page == 'reset' %} active{% endif %}" style="color:var(--adm-neon-red);">
                 <span class="sidebar-link-icon">&#9888;</span> Reset Universe
             </a>
             {% endif %}
