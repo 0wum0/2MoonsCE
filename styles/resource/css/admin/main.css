@@ -229,6 +229,7 @@ body.admin-dashboard a:hover { color:var(--cyan2); }
   display:flex; align-items:center;
   padding:0 24px; gap:16px;
   z-index:999;
+  overflow:visible;
   transition:left var(--transition);
 }
 .admin-topbar::before {
@@ -269,7 +270,7 @@ body.admin-dashboard a:hover { color:var(--cyan2); }
   color:var(--dim); font-size:12px;
 }
 
-.topbar-actions { display:flex; align-items:center; gap:12px; margin-left:auto; }
+.topbar-actions { display:flex; align-items:center; gap:12px; margin-left:auto; overflow:visible; position:relative; }
 
 .topbar-btn {
   background:rgba(0,212,255,0.06);
@@ -2473,15 +2474,15 @@ td.blank{ border:0; background:url(./styles/resource/images/admin/blank.gif); te
 /* Dropdown */
 .adm-notif-dropdown{
     display: none;
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 280px;
+    position: fixed;
+    top: var(--adm-topbar-height, 60px);
+    right: 24px;
+    width: 300px;
     background: #0d1526;
     border: 1px solid #1e2d4a;
     border-radius: 12px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(56,189,248,0.05);
-    z-index: 2000;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.8), 0 0 0 1px rgba(56,189,248,0.08);
+    z-index: 10000;
     overflow: hidden;
 }
 .adm-notif-dropdown.open{

@@ -66,16 +66,26 @@
         'use strict';
 
         function admNotifInit() {
-            var errorBtn      = document.getElementById('notifErrorBtn');
-            var errorDrop     = document.getElementById('notifErrorDropdown');
-            var ticketBtn     = document.getElementById('notifTicketBtn');
-            var ticketDrop    = document.getElementById('notifTicketDropdown');
-            var errorBadge    = document.getElementById('notifErrorBadge');
-            var ticketBadge   = document.getElementById('notifTicketBadge');
-            var errorBody     = document.getElementById('notifErrorBody');
-            var ticketBody    = document.getElementById('notifTicketBody');
+            var errorBtn    = document.getElementById('notifErrorBtn');
+            var errorDrop   = document.getElementById('notifErrorDropdown');
+            var ticketBtn   = document.getElementById('notifTicketBtn');
+            var ticketDrop  = document.getElementById('notifTicketDropdown');
+            var errorBadge  = document.getElementById('notifErrorBadge');
+            var ticketBadge = document.getElementById('notifTicketBadge');
+            var errorBody   = document.getElementById('notifErrorBody');
+            var ticketBody  = document.getElementById('notifTicketBody');
 
             if (!errorBtn || !ticketBtn) return;
+
+            function positionDropdown(btn, drop) {
+                var r = btn.getBoundingClientRect();
+                var dropW = 300;
+                var left  = r.right - dropW;
+                if (left < 8) left = 8;
+                drop.style.top  = (r.bottom + 6) + 'px';
+                drop.style.left = left + 'px';
+                drop.style.right = 'auto';
+            }
 
             function closeAll() {
                 errorDrop.classList.remove('open');
@@ -86,14 +96,20 @@
                 e.stopPropagation();
                 var isOpen = errorDrop.classList.contains('open');
                 closeAll();
-                if (!isOpen) errorDrop.classList.add('open');
+                if (!isOpen) {
+                    positionDropdown(errorBtn, errorDrop);
+                    errorDrop.classList.add('open');
+                }
             });
 
             ticketBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 var isOpen = ticketDrop.classList.contains('open');
                 closeAll();
-                if (!isOpen) ticketDrop.classList.add('open');
+                if (!isOpen) {
+                    positionDropdown(ticketBtn, ticketDrop);
+                    ticketDrop.classList.add('open');
+                }
             });
 
             document.addEventListener('click', function() { closeAll(); });
@@ -128,7 +144,9 @@
                             + '</div></div>';
                     }
                 } else {
-                    body.innerHTML = '<div class="adm-notif-empty">' + (isError ? 'Keine Fehler &#10003;' : 'Keine offenen Tickets &#10003;') + '</div>';
+                    body.innerHTML = '<div class="adm-notif-empty">'
+                        + (isError ? 'Keine Fehler &#10003;' : 'Keine offenen Tickets &#10003;')
+                        + '</div>';
                 }
             }
 
@@ -144,7 +162,7 @@
                             updateBadge(ticketBadge, data.tickets || 0);
                             updateBody(errorBody,  data.errors  || 0, true);
                             updateBody(ticketBody, data.tickets || 0, false);
-                        } catch(e) {}
+                        } catch(ignored) {}
                     }
                 };
                 xhr.send();

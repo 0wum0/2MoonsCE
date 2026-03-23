@@ -32,15 +32,13 @@ class ShowAdminNotificationsPage extends AbstractAdminPage
             $tickets = 0;
         }
 
-        // Error log entry count
+        // Error log entry count — each entry starts with [dd-Mon-YYYY
         $errors = 0;
         try {
             $logFile = ROOT_PATH . 'includes/error.log';
             if (is_readable($logFile) && filesize($logFile) > 0) {
-                $errors = substr_count(file_get_contents($logFile), "\n[");
-                if ($errors === 0) {
-                    $errors = 1;
-                }
+                $count  = preg_match_all('/^\[\d{2}-[A-Za-z]{3}-\d{4}/m', file_get_contents($logFile));
+                $errors = ($count !== false) ? $count : 0;
             }
         } catch (\Throwable $e) {
             $errors = 0;

@@ -309,15 +309,14 @@ class template
 			$supportTicketCount = 0;
 		}
 
-		// Error log line count for header badge
+		// Error log entry count — each entry starts with [dd-Mon-YYYY
 		$errorLogCount = 0;
 		try {
 			$errorLogFile = ROOT_PATH . 'includes/error.log';
 			if (is_readable($errorLogFile) && filesize($errorLogFile) > 0) {
-				$errorLogCount = substr_count(file_get_contents($errorLogFile), "\n[");
-				if ($errorLogCount === 0) {
-					$errorLogCount = (int)(filesize($errorLogFile) > 0);
-				}
+				$logContent    = file_get_contents($errorLogFile);
+				$errorLogCount = preg_match_all('/^\[\d{2}-[A-Za-z]{3}-\d{4}/m', $logContent);
+				if ($errorLogCount === false) $errorLogCount = 0;
 			}
 		} catch (\Throwable $e) {
 			$errorLogCount = 0;
