@@ -26,15 +26,19 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-// @admin-migrated (DB: PDO via Database::get())
-if (!allowedTo(str_replace([dirname(__FILE__), '\\', '/', '.php'], '', __FILE__))) {
-    throw new \Exception('Permission error!');
-}
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
 require_once 'includes/classes/class.FlyingFleetsTable.php';
 
-function ShowFlyingFleetPage(): void
+class ShowFlyingFleetPage extends AbstractAdminPage
 {
+    public function __construct()
+    {
+        parent::__construct('ShowFlyingFleetPage');
+    }
+
+    protected function run(): void
+    {
     global $USER, $LNG;
 
     $db  = Database::get();
@@ -139,7 +143,7 @@ function ShowFlyingFleetPage(): void
         ];
     }
 
-    $template = new template();
-    $template->assign_vars(['FleetList' => $fleetList]);
-    $template->show('FlyingFleetPage.twig');
+    $this->assign(['FleetList' => $fleetList]);
+    $this->show('FlyingFleetPage.twig');
+    }
 }

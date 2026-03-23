@@ -462,6 +462,14 @@ class PluginManager
     /**
      * Dispatch an admin page route registered by a plugin.
      * Returns true if handled, false if not found.
+     *
+     * Supports two handler styles (detected automatically after require_once):
+     *   1. AbstractAdminPage subclass — 4th param is a class name that extends
+     *      AbstractAdminPage; instantiated via new $class() which triggers run().
+     *   2. Plain function (legacy) — 4th param is a function name; called directly.
+     *
+     * Style 1 is preferred for new plugins (Phase 9+). Style 2 is kept for
+     * backward compatibility with all existing plugins.
      */
     public function dispatchAdminRoute(string $pageName): bool
     {
@@ -475,12 +483,23 @@ class PluginManager
         }
         require_once $route['file'];
         $fn = $route['fn'];
-        if (!function_exists($fn)) {
-            error_log('[PluginManager] Plugin admin function not found: ' . $fn);
-            return false;
+
+        // Style 1: AbstractAdminPage subclass
+        if (class_exists($fn, false)
+            && is_a($fn, 'AbstractAdminPage', true)
+        ) {
+            new $fn();
+            return true;
         }
-        $fn();
-        return true;
+
+        // Style 2: plain function (legacy, backward-compatible)
+        if (function_exists($fn)) {
+            $fn();
+            return true;
+        }
+
+        error_log('[PluginManager] Plugin admin handler not found (neither class nor function): ' . $fn);
+        return false;
     }
 
     // ── Plugin Twig Namespaces ───────────────────────────────────────────────

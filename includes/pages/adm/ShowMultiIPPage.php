@@ -26,40 +26,69 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowMultiIPPage()
+class ShowMultiIPPage extends AbstractAdminPage
 {
-	global $LNG;
-	$action = isset($_GET['action'])?$_GET['action']:"";
+    public function __construct()
+    {
+        parent::__construct('ShowMultiIPPage');
+    }
 
-	switch ($action)
-	{
-		case 'known':
-			$GLOBALS['DATABASE']->query("INSERT INTO ".MULTI." SET userID = ".((int) $_GET['id']).";");
-			HTTP::redirectTo("admin.php?page=multiips");
-		break;
-		case 'unknown':
-			$GLOBALS['DATABASE']->query("DELETE FROM ".MULTI." WHERE userID = ".((int) $_GET['id']).";");
-			HTTP::redirectTo("admin.php?page=multiips");
-		break;
-	}
-	$Query	= $GLOBALS['DATABASE']->query("SELECT id, username, email, register_time, onlinetime, user_lastip, IFNULL(multiID, 0) as isKnown FROM ".USERS." LEFT JOIN ".MULTI." ON userID = id WHERE `universe` = '".Universe::getEmulated()."' AND user_lastip IN (SELECT user_lastip FROM ".USERS." WHERE `universe` = '".Universe::getEmulated()."' GROUP BY user_lastip HAVING COUNT(*)>1) ORDER BY user_lastip, id ASC;");
-	$IPs	= array();
-	while($Data = $GLOBALS['DATABASE']->fetch_array($Query)) {
-		if(!isset($IPs[$Data['user_lastip']]))
-			$IPs[$Data['user_lastip']]	= array();
-		
-		$Data['register_time']	= _date($LNG['php_tdformat'], $Data['register_time']);
-		$Data['onlinetime']		= _date($LNG['php_tdformat'], $Data['onlinetime']);
-		
-		$IPs[$Data['user_lastip']][$Data['id']]	= $Data;
-	}
-	
-	$template	= new template();
-	$template->assign_vars(array(
-		'multiGroups'	=> $IPs,
-	));
-	$template->show('MultiIPs.twig');
+    protected function run(): void
+    {
+    global $LNG;
+
+    $db     = Database::get();
+    $uni    = Universe::getEmulated();
+    $action = isset($_GET['action']) ? $_GET['action'] : '';
+
+    switch ($action) {
+        case 'known':
+            $db->insert(
+                "INSERT INTO %%MULTI%% SET userID = :id;",
+                [':id' => (int) ($_GET['id'] ?? 0)]
+            );
+            HTTP::redirectTo('admin.php?page=multiips');
+            break;
+
+        case 'unknown':
+            $db->delete(
+                "DELETE FROM %%MULTI%% WHERE userID = :id;",
+                [':id' => (int) ($_GET['id'] ?? 0)]
+            );
+            HTTP::redirectTo('admin.php?page=multiips');
+            break;
+    }
+
+    $rows = $db->select(
+        "SELECT u.id, u.username, u.email, u.register_time, u.onlinetime,
+                u.user_lastip, IFNULL(m.multiID, 0) AS isKnown
+         FROM %%USERS%% u
+         LEFT JOIN %%MULTI%% m ON m.userID = u.id
+         WHERE u.`universe` = :uni
+           AND u.user_lastip IN (
+               SELECT user_lastip FROM %%USERS%%
+               WHERE `universe` = :uni2
+               GROUP BY user_lastip
+               HAVING COUNT(*) > 1
+           )
+         ORDER BY u.user_lastip, u.id ASC;",
+        [':uni' => (int) $uni, ':uni2' => (int) $uni]
+    );
+
+    $ips = [];
+    foreach ($rows as $data) {
+        $ip = $data['user_lastip'];
+        if (!isset($ips[$ip])) {
+            $ips[$ip] = [];
+        }
+        $data['register_time'] = _date($LNG['php_tdformat'], $data['register_time']);
+        $data['onlinetime']    = _date($LNG['php_tdformat'], $data['onlinetime']);
+        $ips[$ip][$data['id']] = $data;
+    }
+
+    $this->assign(['multiGroups' => $ips]);
+    $this->show('MultiIPs.twig');
+    }
 }
-

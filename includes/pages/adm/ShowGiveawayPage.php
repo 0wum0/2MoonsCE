@@ -26,76 +26,66 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
  
- if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
-function ShowGiveaway()
+// @admin-migrated (Phase 10 — AbstractAdminPage + PDO)
+
+class ShowGiveawayPage extends AbstractAdminPage
 {
+	public function __construct()
+	{
+		parent::__construct('ShowGiveawayPage');
+	}
+
+	protected function run(): void
+	{
 	global $LNG, $resource, $reslist;
-	$template	= new template();	
-	$action	= HTTP::_GP('action', '');
+
+	$action = HTTP::_GP('action', '');
 	if ($action == 'send') {
-		$planet			= HTTP::_GP('planet', 0);
-		$moon			= HTTP::_GP('moon', 0);
-		$mainplanet		= HTTP::_GP('mainplanet', 0);
-		$no_inactive	= HTTP::_GP('no_inactive', 0);
-		
+		$planet      = HTTP::_GP('planet', 0);
+		$moon        = HTTP::_GP('moon', 0);
+		$mainplanet  = HTTP::_GP('mainplanet', 0);
+		$no_inactive = HTTP::_GP('no_inactive', 0);
+
 		if (!$planet && !$moon) {
-			$template->message($LNG['ga_selectplanettype']);
-			exit;
+			$this->message($LNG['ga_selectplanettype']);
+			return;
 		}
-		
-		$planetIN	= array();
-		
-		if ($planet) {
-			$planetIN[]	= "'1'";
-		} 
-		
-		if ($moon) {
-			$planetIN[]	= "'3'";
-		} 
-		
-		$data		= array();
-		
-		$DataIDs	= array_merge($reslist['resstype'][1], $reslist['resstype'][3], $reslist['build'], $reslist['tech'], $reslist['fleet'], $reslist['defense'], $reslist['officier']);
-		
-		$logOld		= array();
-		$logNew		= array();
-		
-		foreach($DataIDs as $ID)
-		{
-			$amount	= max(0, round(HTTP::_GP('element_'.$ID, 0.0)));
-			$data[]	= $resource[$ID]." = ".$resource[$ID]." + ".$amount;
-			
-			$logOld[$ID]	= 0;
-			$logNew[$ID]	= $amount;
+
+		$planetIN = [];
+		if ($planet) $planetIN[] = "'1'";
+		if ($moon)   $planetIN[] = "'3'";
+
+		$data    = [];
+		$DataIDs = array_merge($reslist['resstype'][1], $reslist['resstype'][3], $reslist['build'], $reslist['tech'], $reslist['fleet'], $reslist['defense'], $reslist['officier']);
+		$logOld  = [];
+		$logNew  = [];
+
+		foreach ($DataIDs as $ID) {
+			$amount    = max(0, round(HTTP::_GP('element_' . $ID, 0.0)));
+			$data[]    = $resource[$ID] . ' = ' . $resource[$ID] . ' + ' . $amount;
+			$logOld[$ID] = 0;
+			$logNew[$ID] = $amount;
 		}
-		
-		$SQL		= "UPDATE ".PLANETS." p INNER JOIN ".USERS." u ON p.id_owner = u.id";
-		
-		if ($mainplanet == true) {
-			$SQL	.= " AND p.id = u.id_planet";
-		}
-		
-		if ($no_inactive == true) {
-			$SQL	.= " AND u.onlinetime > ".(TIMESTAMP - INACTIVE);
-		}
-		
-		$SQL	.= " SET ".implode(', ', $data)." WHERE p.universe = ".Universe::getEmulated()." AND p.planet_type IN (".implode(',', $planetIN).")";
-		
-		$GLOBALS['DATABASE']->query($SQL);
-		
+
+		$sql = "UPDATE %%PLANETS%% p INNER JOIN %%USERS%% u ON p.id_owner = u.id";
+		if ($mainplanet) $sql .= " AND p.id = u.id_planet";
+		if ($no_inactive) $sql .= " AND u.onlinetime > " . (TIMESTAMP - INACTIVE);
+		$sql .= " SET " . implode(', ', $data) . " WHERE p.universe = " . (int) Universe::getEmulated() . " AND p.planet_type IN (" . implode(',', $planetIN) . ")";
+
+		Database::get()->nativeQuery($sql);
+
 		$LOG = new Log(4);
 		$LOG->target = 0;
 		$LOG->old = $logOld;
 		$LOG->new = $logNew;
 		$LOG->save();
-		
-		$template->message($LNG['ga_success']);
-		exit;
-	}	
-	
-	$template->assign_vars(array(	
-		'reslist'		=> $reslist
-	));
-	$template->show("giveaway.tpl");
+
+		$this->message($LNG['ga_success']);
+		return;
+	}
+
+	$this->assign(['reslist' => $reslist]);
+	$this->show('giveaway.tpl');
+	}
 }
 

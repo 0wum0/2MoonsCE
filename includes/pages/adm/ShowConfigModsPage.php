@@ -25,10 +25,17 @@ declare(strict_types=1);
  * See LICENSE for details.
  * @visit http://makeit.uno/
  */
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowConfigModsPage()
+class ShowConfigModsPage extends AbstractAdminPage
 {
+    public function __construct()
+    {
+        parent::__construct('ShowConfigModsPage');
+    }
+
+    protected function run(): void
+    {
     global $LNG;
     $config = Config::get(Universe::getEmulated());
 
@@ -61,12 +68,11 @@ function ShowConfigModsPage()
         $LOG->save();
     }
 
-    $template	= new template();
-
-    $template->assign_vars(array(
+    $this->assign(array(
         'expedition_limit_res'					=> $config->expedition_limit_res,
         'expedition_limit_res_active'				=> $config->expedition_limit_res_active,
     ));
 
-    $template->show('ConfigModsBody.twig');
+    $this->show('ConfigModsBody.twig');
+    }
 }

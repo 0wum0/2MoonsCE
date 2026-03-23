@@ -26,14 +26,24 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-function ShowMenuPage()
+// @admin-migrated (Phase 8 — AbstractAdminPage; permission guard added)
+class ShowMenuPage extends AbstractAdminPage
 {
-	global $USER;
-	$template	= new template();
-	
-	$template->assign_vars(array(	
-		'supportticks'	=> $GLOBALS['DATABASE']->getFirstCell("SELECT COUNT(*) FROM ".TICKETS." WHERE universe = ".Universe::getEmulated()." AND status = 0;"),
-	));
-	
-	$template->show('ShowMenuPage.twig');
+    public function __construct()
+    {
+        parent::__construct('ShowMenuPage');
+    }
+
+    protected function run(): void
+    {
+        $supportTicks = (int) Database::get()->selectSingle(
+            "SELECT COUNT(*) AS cnt FROM %%TICKETS%%
+             WHERE universe = :uni AND status = 0;",
+            [':uni' => (int) Universe::getEmulated()],
+            'cnt'
+        );
+
+        $this->assign(['supportticks' => $supportTicks]);
+        $this->show('ShowMenuPage.twig');
+    }
 }

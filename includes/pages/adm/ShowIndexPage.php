@@ -26,13 +26,18 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace([dirname(__FILE__), '\\', '/', '.php'], '', __FILE__))) {
-    exit;
-}
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowIndexPage(): void
+class ShowIndexPage extends AbstractAdminPage
 {
-    // Wenn du willst, dass das Dashboard (Charts etc.) immer die Startseite ist:
-    require_once ROOT_PATH . 'includes/pages/adm/ShowOverviewPage.php';
-    ShowOverviewPage();
+    public function __construct()
+    {
+        parent::__construct('ShowIndexPage');
+    }
+
+    protected function run(): void
+    {
+        require_once ROOT_PATH . 'includes/pages/adm/ShowOverviewPage.php';
+        (new ShowOverviewPage())->show();
+    }
 }

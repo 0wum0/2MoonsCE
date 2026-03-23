@@ -26,33 +26,41 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-function ShowTopnavPage()
+// @admin-migrated (Phase 4 — AbstractAdminPage)
+class ShowTopnavPage extends AbstractAdminPage
 {
-	global $LNG, $USER;
-	$template	= new template();
+    public function __construct()
+    {
+        // No allowedTo() check — topnav is a shared partial used by all admin pages
+        parent::__construct('');
+    }
 
-	$universeSelect	= array();
-	foreach(Universe::availableUniverses() as $uniId)
-	{
-		$config = Config::get($uniId);
-		$universeSelect[$uniId]	= sprintf('%s (ID: %d)', $config->uni_name, $uniId);
-	}
+    protected function run(): void
+    {
+        global $LNG, $USER;
 
-	ksort($universeSelect);
-	$template->assign_vars(array(	
-		'ad_authlevel_title'	=> $LNG['ad_authlevel_title'],
-		're_reset_universe'		=> $LNG['re_reset_universe'],
-		'mu_universe'			=> $LNG['mu_universe'],
-		'mu_moderation_page'	=> $LNG['mu_moderation_page'],
-		'adm_cp_title'			=> $LNG['adm_cp_title'],
-		'adm_cp_index'			=> $LNG['adm_cp_index'],
-		'adm_cp_logout'			=> $LNG['adm_cp_logout'],
-		'sid'					=> session_id(),
-		'id'					=> $USER['id'],
-		'authlevel'				=> $USER['authlevel'],
-		'AvailableUnis'			=> $universeSelect,
-		'UNI'					=> Universe::getEmulated(),
-	));
-	
-	$template->show('ShowTopnavPage.twig');
+        $universeSelect = [];
+        foreach (Universe::availableUniverses() as $uniId) {
+            $config = Config::get($uniId);
+            $universeSelect[$uniId] = sprintf('%s (ID: %d)', $config->uni_name, $uniId);
+        }
+        ksort($universeSelect);
+
+        $this->assign([
+            'ad_authlevel_title' => $LNG['ad_authlevel_title'],
+            're_reset_universe'  => $LNG['re_reset_universe'],
+            'mu_universe'        => $LNG['mu_universe'],
+            'mu_moderation_page' => $LNG['mu_moderation_page'],
+            'adm_cp_title'       => $LNG['adm_cp_title'],
+            'adm_cp_index'       => $LNG['adm_cp_index'],
+            'adm_cp_logout'      => $LNG['adm_cp_logout'],
+            'sid'                => session_id(),
+            'id'                 => $USER['id'],
+            'authlevel'          => $USER['authlevel'],
+            'AvailableUnis'      => $universeSelect,
+            'UNI'                => Universe::getEmulated(),
+        ]);
+
+        $this->show('ShowTopnavPage.twig');
+    }
 }

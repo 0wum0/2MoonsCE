@@ -179,6 +179,8 @@ abstract class AbstractGamePage
 			$forumObj = new Forum();
 			$forumNotifCount = $forumObj->getForumNotificationCount((int)$USER['id']);
 		} catch (Throwable $e) {
+			// Forum notification count is non-critical — degrade to 0 (no badge shown).
+			error_log('[AbstractGamePage] Forum notification count unavailable: ' . $e->getMessage());
 			$forumNotifCount = 0;
 		}
 
@@ -418,7 +420,9 @@ abstract class AbstractGamePage
 		try {
 			$dateTimeUser	= new DateTime("now", new DateTimeZone($timezoneString));
 		} catch (Throwable $e) {
-			// Ultimate fallback: use server time if timezone creation still fails
+			// Timezone was already validated by resolveTimezoneString() — this should not fire.
+			// Log if it does so we can diagnose the edge case.
+			error_log('[AbstractGamePage] DateTime creation failed for validated timezone "' . $timezoneString . '": ' . $e->getMessage());
 			$dateTimeUser	= $dateTimeServer;
 		}
 

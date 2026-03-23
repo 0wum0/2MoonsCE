@@ -1,13 +1,41 @@
 root = true
 
-[*.php]
-charset = utf-8
-indent_style = tab
+[*]
 end_of_line = lf
 insert_final_newline = true
-
-[*.{js,css,twig,html,json}]
+trim_trailing_whitespace = true
 charset = utf-8
+
+[*.php]
 indent_style = space
 indent_size = 4
-end_of_line = lf
+
+[*.{js,ts}]
+indent_style = space
+indent_size = 4
+
+[*.{css,scss}]
+indent_style = space
+indent_size = 4
+
+[*.twig]
+indent_style = space
+indent_size = 4
+
+[*.{html,htm}]
+indent_style = space
+indent_size = 4
+
+[*.{json,yaml,yml}]
+indent_style = space
+indent_size = 2
+
+[*.{sql}]
+indent_style = space
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{Makefile,*.mk}]
+indent_style = tab

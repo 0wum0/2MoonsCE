@@ -175,15 +175,7 @@ declare(strict_types=1);
 
 				foreach ($cron as $idx=>$segment) {
 
-					try {
-
 						$dummy[$idx]	= self::expandSegment($idx, $segment);
-
-					} catch (Exception $e) {
-
-						throw $e;
-
-					}
 
 				}
 

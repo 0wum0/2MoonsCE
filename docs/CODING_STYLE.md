@@ -194,8 +194,142 @@ $data = array('key' => 'value');
 
 ---
 
-## 13. Enforcement
+## 13. Database Access
+
+Always use the PDO wrapper `Database::get()`. Never use `$GLOBALS['DATABASE']` (mysqli legacy) in new or touched code.
+
+```php
+// GOOD — PDO via Database::get()
+$db   = Database::get();
+$rows = $db->select('SELECT id, username FROM %%USERS%% WHERE universe = :uni;', [':uni' => 1]);
+$row  = $db->selectSingle('SELECT id FROM %%USERS%% WHERE id = :id;', [':id' => $userId]);
+$db->update('UPDATE %%USERS%% SET username = :n WHERE id = :id;', [':n' => $name, ':id' => $userId]);
+$db->insert('INSERT INTO %%NEWS%% (title) VALUES (:t);', [':t' => $title]);
+$db->delete('DELETE FROM %%PLANETS%% WHERE id = :id;', [':id' => $planetId]);
+
+// BAD — mysqli legacy, never use in new code
+$GLOBALS['DATABASE']->query("SELECT * FROM " . USERS . " WHERE id = $id");
+$GLOBALS['DATABASE']->sql_escape($input);
+```
+
+- Table name placeholders `%%TABLE_NAME%%` are resolved automatically by the wrapper
+- Always use named `:param` bindings — never concatenate user input into SQL
+- Mark files migrated from mysqli with `// @admin-migrated (DB: PDO via Database::get())`
+
+---
+
+## 14. Admin Page Pattern
+
+New and migrated admin pages extend `AbstractAdminPage`. Legacy plain-function pages remain
+untouched until explicitly migrated (see `docs/ADMIN_PAGE_MIGRATION.md`).
+
+```php
+// GOOD — new admin page pattern
+// @admin-migrated (Phase N — AbstractAdminPage)
+class ShowXxxPage extends AbstractAdminPage
+{
+    public function __construct()
+    {
+        parent::__construct('ShowXxxPage');  // runs allowedTo() then $this->run()
+    }
+
+    protected function run(): void
+    {
+        global $LNG;
+        $this->assign(['key' => $value]);
+        $this->show('XxxPage.twig');         // calls template::show() → adm_main() → layout
+    }
+}
+
+// BAD — old plain-function pattern (legacy only, do not write new pages this way)
+if (!allowedTo(...)) throw new Exception('Permission error!');
+function ShowXxxPage(): void {
+    $template = new template();
+    $template->assign_vars([...]);
+    $template->show('XxxPage.twig');
+}
+```
+
+Key rules:
+- Use `$this->show()` for full-page renders — it calls `template::show()` which injects the admin layout
+- Use `$this->message()` for status/info messages
+- **Never** call `$this->tplObj->display()` directly — it skips the admin layout (`adm_main()`)
+- Routing in `admin.php`: `ShowXxxPage()` → `new ShowXxxPage()`
+
+---
+
+## 15. Twig Templates
+
+- Admin templates live in `styles/templates/adm/`, game in `styles/templates/game/`
+- Use `{{ variable }}` for output — Twig auto-escapes HTML
+- Use `{{ variable|raw }}` **only** when the value is trusted/pre-escaped HTML
+- Use `{% if %}`, `{% for %}`, `{% block %}` — no inline PHP
+- Access language keys via `{{ LNG.key_name }}` (Twig dot notation)
+- Prefer descriptive variable names passed from PHP over complex Twig logic
+
+```twig
+{# GOOD #}
+{% for planet in planets %}
+    <li>{{ planet.name }} [{{ planet.galaxy }}:{{ planet.system }}:{{ planet.position }}]</li>
+{% endfor %}
+
+{# BAD — complex logic in template #}
+{% set total = 0 %}
+{% for p in planets %}{% set total = total + p.metal %}{% endfor %}
+```
+
+---
+
+## 16. JavaScript
+
+- Use `const` / `let` — never `var`
+- One statement per line
+- Use `===` / `!==` — never `==` / `!=`
+- Always `use strict` in module-level scripts
+- jQuery is available globally as `$` — no need to import
+
+```js
+// GOOD
+const url = 'game.php?page=overview';
+let count = 0;
+
+if (response.ok === true) {
+    updateUI(response.data);
+}
+
+// BAD
+var url = 'game.php?page=overview'
+if (response.ok) updateUI(response.data)
+```
+
+---
+
+## 17. Enforcement
 
 - Apply these rules to **all newly written or touched code**
 - Do NOT mass-reformat legacy files without an explicit refactor task
-- Code review checklist: spacing, braces, exception handling, `??` usage
+- Code review checklist: spacing, braces, exception handling, `??` usage, DB layer, admin page pattern
+
+---
+
+## 18. Legacy vs. New Standard
+
+> This section is important for setting realistic expectations.
+
+**Legacy code** (most of `includes/pages/adm/`, parts of `includes/classes/`) may still contain:
+- `array()` instead of `[]`
+- `$GLOBALS['DATABASE']` (mysqli) instead of `Database::get()` (PDO)
+- Plain PHP functions instead of `AbstractAdminPage` subclasses
+- Tabs instead of 4-space indent
+- Mixed variable naming styles
+- Implicit type coercion and no type declarations
+
+**This is intentional and expected.** Legacy code is migrated incrementally as per the
+roadmap (`docs/ROADMAP.md`). A blanket reformat is explicitly forbidden.
+
+**The rule is simple:**
+- Touched files → must conform to this style guide
+- Untouched legacy files → leave alone unless there is a specific migration task
+
+New contributors should not submit PRs that reformat untouched legacy files.
+Reviewers should reject such PRs to keep diffs reviewable.

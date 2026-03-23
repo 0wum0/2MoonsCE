@@ -26,10 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowChatConfigPage()
+class ShowChatConfigPage extends AbstractAdminPage
 {
+    public function __construct()
+    {
+        parent::__construct('ShowChatConfigPage');
+    }
+
+    protected function run(): void
+    {
 	global $LNG;
 
 	$config = Config::get(Universe::getEmulated());
@@ -81,9 +88,7 @@ function ShowChatConfigPage()
 		$LOG->save();
 	}
 
-	$template	= new template();
-
-	$template->assign_vars(array(
+	$this->assign(array(
 		'chat_closed'			=> $config->chat_closed,
 		'chat_allowchan'		=> $config->chat_allowchan,
 		'chat_allowmes'			=> $config->chat_allowmes,
@@ -102,6 +107,7 @@ function ShowChatConfigPage()
 		'ch_botname'			=> $LNG['ch_botname'],
 		'ch_channelname'		=> $LNG['ch_channelname'],
 	));
-	
-	$template->show('ChatConfigBody.twig');
+
+	$this->show('ChatConfigBody.twig');
+    }
 }

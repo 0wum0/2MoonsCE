@@ -26,41 +26,65 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if ($USER['authlevel'] == AUTH_USR)
-{
-	throw new Exception("Permission error!");
-}
+// @admin-migrated (Phase 8 — AbstractAdminPage + PDO; SQL injection fixed)
 
-function ShowAutoCompletePage()
+/**
+ * AJAX autocomplete endpoint: returns a JSON array of username suggestions.
+ * Accepts ?term=<search> — prefix '#' searches by user ID.
+ */
+class ShowAutoCompletePage extends AbstractAdminPage
 {
-	$searchText	= HTTP::_GP('term', '', UTF8_SUPPORT);
-	$searchList	= array();
-	
-	if(empty($searchText) || $searchText === '#') {
-		echo json_encode(array());
-		exit;
-	}
-	
-	if(substr($searchText, 0, 1) === '#')
-	{
-		$where = 'id = '.((int) substr($searchText, 1));
-		$orderBy = ' ORDER BY id ASC';
-	}
-	else
-	{
-		$where = "username LIKE '%".$GLOBALS['DATABASE']->escape($searchText, true)."%'";
-		$orderBy = " ORDER BY (IF(username = '".$GLOBALS['DATABASE']->sql_escape($searchText, true)."', 1, 0) + IF(username LIKE '".$GLOBALS['DATABASE']->sql_escape($searchText, true)."%', 1, 0)) DESC, username";
-	}
-	
-	$userRaw		= $GLOBALS['DATABASE']->query("SELECT id, username FROM ".USERS." WHERE universe = ".Universe::getEmulated()." AND ".$where.$orderBy." LIMIT 20");
-	while($userRow = $GLOBALS['DATABASE']->fetch_array($userRaw))
-	{
-		$searchList[]	= array(
-			'label' => $userRow['username'].' (ID:'.$userRow['id'].')', 
-			'value' => $userRow['username']
-		);
-	}
-	
-	echo json_encode($searchList);
-	exit;
+    public function __construct()
+    {
+        parent::__construct('ShowAutoCompletePage');
+    }
+
+    protected function run(): void
+    {
+        $searchText = HTTP::_GP('term', '', UTF8_SUPPORT);
+
+        if (empty($searchText) || $searchText === '#') {
+            $this->sendJSON([]);
+        }
+
+        $db  = Database::get();
+        $uni = (int) Universe::getEmulated();
+
+        if (str_starts_with($searchText, '#')) {
+            $userId = (int) substr($searchText, 1);
+            $rows = $db->select(
+                "SELECT id, username FROM %%USERS%%
+                 WHERE universe = :uni AND id = :id
+                 ORDER BY id ASC
+                 LIMIT 20;",
+                [':uni' => $uni, ':id' => $userId]
+            );
+        } else {
+            $rows = $db->select(
+                "SELECT id, username FROM %%USERS%%
+                 WHERE universe = :uni
+                   AND username LIKE :term
+                 ORDER BY
+                   (IF(username = :exact, 1, 0) + IF(username LIKE :prefix, 1, 0)) DESC,
+                   username ASC
+                 LIMIT 20;",
+                [
+                    ':uni'    => $uni,
+                    ':term'   => '%' . $searchText . '%',
+                    ':exact'  => $searchText,
+                    ':prefix' => $searchText . '%',
+                ]
+            );
+        }
+
+        $searchList = [];
+        foreach ($rows as $row) {
+            $searchList[] = [
+                'label' => $row['username'] . ' (ID:' . $row['id'] . ')',
+                'value' => $row['username'],
+            ];
+        }
+
+        $this->sendJSON($searchList);
+    }
 }

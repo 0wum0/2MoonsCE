@@ -595,6 +595,8 @@ function exceptionHandler(\Throwable $exception): void
 			$gameName	= $config->game_name;
 			$VERSION	= $config->VERSION;
 		} catch(\Throwable $e) {
+			error_log('[ShowErrorPage] Config unavailable while building error page: ' . $e->getMessage());
+			// $gameName and $VERSION retain their safe defaults ('-' / 'UNKNOWN (FILE)')
 		}
 	}
 	

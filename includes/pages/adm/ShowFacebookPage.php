@@ -26,20 +26,26 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowFacebookPage() {
+class ShowFacebookPage extends AbstractAdminPage
+{
+    public function __construct()
+    {
+        parent::__construct('ShowFacebookPage');
+    }
 
-	global $LNG;
+    protected function run(): void
+    {
+        global $LNG;
 
-	$config = Config::get(Universe::getEmulated());
+        $config = Config::get(Universe::getEmulated());
 
-	if ($_POST)
-	{
+        if ($_POST)
+        {
 		$fb_on		= isset($_POST['fb_on']) && $_POST['fb_on'] == 'on' && !empty($_POST['fb_skey']) && !empty($_POST['fb_apikey']) ? 1 : 0;
 		$fb_apikey	= HTTP::_GP('fb_apikey', '');
 		$fb_skey 	= HTTP::_GP('fb_skey', '');
-
 
 		foreach(array(
 					'fb_on'		=> $fb_on,
@@ -52,8 +58,7 @@ function ShowFacebookPage() {
 		$config->save();
 	}
 	
-	$template	= new template();
-	$template->assign_vars(array(
+	$this->assign(array(
 		'se_save_parameters'	=> $LNG['se_save_parameters'],
 		'fb_info'				=> $LNG['fb_info'],
 		'fb_secrectkey'			=> $LNG['fb_secrectkey'],
@@ -66,5 +71,6 @@ function ShowFacebookPage() {
 		'fb_curl'				=> function_exists('curl_init') ? 1 : 0,
 		'fb_curl_info'			=> function_exists('curl_init') ? $LNG['fb_curl_yes'] : $LNG['fb_curl_no'],
 	));
-	$template->show('FacebookPage.twig');
+	$this->show('FacebookPage.twig');
+	}
 }

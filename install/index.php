@@ -273,7 +273,8 @@ switch ($mode) {
 
         Database::get()->update("UPDATE %%SYSTEM%% SET dbVersion = :v;", array(':v' => DB_VERSION_REQUIRED));
 
-        ClearCache();
+        require_once ROOT_PATH . 'includes/pages/adm/CacheService.php';
+        CacheService::clearAll();
 
 		$template->assign_vars(array(
 			'update'   => !empty($fileList),

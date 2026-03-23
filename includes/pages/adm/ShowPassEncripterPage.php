@@ -26,23 +26,29 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
-
-function ShowPassEncripterPage()
+// @admin-migrated (Phase 4 — AbstractAdminPage)
+class ShowPassEncripterPage extends AbstractAdminPage
 {
-	global $LNG;
-	$Password	= HTTP::_GP('md5q', '', true);
-	
-	$template	= new template();
+    public function __construct()
+    {
+        parent::__construct('ShowPassEncripterPage');
+    }
 
-	$template->assign_vars(array(
-		'md5_md5' 			=> $Password,
-		'md5_enc' 			=> PlayerUtil::cryptPassword($Password),
-		'et_md5_encripter' 	=> $LNG['et_md5_encripter'],
-		'et_encript' 		=> $LNG['et_encript'],
-		'et_result' 		=> $LNG['et_result'],
-		'et_pass' 			=> $LNG['et_pass'],
-	));
-	
-	$template->show('PassEncripterPage.twig');
+    protected function run(): void
+    {
+        global $LNG;
+
+        $password = HTTP::_GP('md5q', '', true);
+
+        $this->assign([
+            'md5_md5'          => $password,
+            'md5_enc'          => PlayerUtil::cryptPassword($password),
+            'et_md5_encripter' => $LNG['et_md5_encripter'],
+            'et_encript'       => $LNG['et_encript'],
+            'et_result'        => $LNG['et_result'],
+            'et_pass'          => $LNG['et_pass'],
+        ]);
+
+        $this->show('PassEncripterPage.twig');
+    }
 }

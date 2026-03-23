@@ -26,9 +26,9 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if ($USER['authlevel'] == AUTH_USR)
-{
-	throw new Exception("Permission error!");#PagePermissionException
+// @admin-harmonized (Phase 8 — permission guard aligned to allowedTo())
+if (!allowedTo(str_replace([dirname(__FILE__), '\\', '/', '.php'], '', __FILE__))) {
+    throw new \Exception('Permission error!');
 }
 
 function ShowLoginPage()

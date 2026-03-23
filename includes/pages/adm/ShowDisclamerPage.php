@@ -26,63 +26,60 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
-
-function ShowDisclamerPage()
+// @admin-migrated (Phase 4 — AbstractAdminPage)
+class ShowDisclamerPage extends AbstractAdminPage
 {
-	global $LNG;
+    public function __construct()
+    {
+        parent::__construct('ShowDisclamerPage');
+    }
 
+    protected function run(): void
+    {
+        global $LNG;
 
-	$config = Config::get(Universe::getEmulated());
+        $config = Config::get(Universe::getEmulated());
 
-	if (!empty($_POST))
-	{
-		$config_before = array(	
-			'disclamerAddress'	=> $config->disclamerAddress,
-			'disclamerPhone'	=> $config->disclamerPhone,
-			'disclamerMail'	=> $config->disclamerMail,
-			'disclamerNotice'	=> $config->disclamerNotice,
-		);
-		
-		$disclaimerAddress	= HTTP::_GP('disclaimerAddress', '', true);
-		$disclaimerPhone	= HTTP::_GP('disclaimerPhone', '', true);
-		$disclaimerMail		= HTTP::_GP('disclaimerMail', '', true);
-		$disclaimerNotice	= HTTP::_GP('disclaimerNotice', '', true);
-		
-		$config_after = array(	
-			'disclamerAddress'	=> $disclaimerAddress,
-			'disclamerPhone'	=> $disclaimerPhone,
-			'disclamerMail'		=> $disclaimerMail,
-			'disclamerNotice'	=> $disclaimerNotice,
-		);
+        if (!empty($_POST)) {
+            $configBefore = [
+                'disclamerAddress' => $config->disclamerAddress,
+                'disclamerPhone'   => $config->disclamerPhone,
+                'disclamerMail'    => $config->disclamerMail,
+                'disclamerNotice'  => $config->disclamerNotice,
+            ];
 
-		foreach($config_after as $key => $value)
-		{
-			$config->$key	= $value;
-		}
-		$config->save();
-		
-		$LOG = new Log(3);
-		$LOG->target = 5;
-		$LOG->old = $config_before;
-		$LOG->new = $config_after;
-		$LOG->save();
-	}
+            $configAfter = [
+                'disclamerAddress' => HTTP::_GP('disclaimerAddress', '', true),
+                'disclamerPhone'   => HTTP::_GP('disclaimerPhone',   '', true),
+                'disclamerMail'    => HTTP::_GP('disclaimerMail',    '', true),
+                'disclamerNotice'  => HTTP::_GP('disclaimerNotice',  '', true),
+            ];
 
-	$template	= new template();
+            foreach ($configAfter as $key => $value) {
+                $config->$key = $value;
+            }
+            $config->save();
 
-	$template->assign_vars(array(
-		'disclaimerAddress'		=> $config->disclamerAddress,
-		'disclaimerPhone'		=> $config->disclamerPhone,
-		'disclaimerMail'		=> $config->disclamerMail,
-		'disclaimerNotice'		=> $config->disclamerNotice,
-		'se_server_parameters'	=> $LNG['mu_disclaimer'],
-		'se_save_parameters'	=> $LNG['se_save_parameters'],
-		'se_disclaimerAddress'	=> $LNG['se_disclaimerAddress'],
-		'se_disclaimerPhone'	=> $LNG['se_disclaimerPhone'],
-		'se_disclaimerMail'		=> $LNG['se_disclaimerMail'],
-		'se_disclaimerNotice'	=> $LNG['se_disclaimerNotice'],
-	));
-	
-	$template->show('DisclamerConfigBody.twig');
+            $log         = new Log(3);
+            $log->target = 5;
+            $log->old    = $configBefore;
+            $log->new    = $configAfter;
+            $log->save();
+        }
+
+        $this->assign([
+            'disclaimerAddress'    => $config->disclamerAddress,
+            'disclaimerPhone'      => $config->disclamerPhone,
+            'disclaimerMail'       => $config->disclamerMail,
+            'disclaimerNotice'     => $config->disclamerNotice,
+            'se_server_parameters' => $LNG['mu_disclaimer'],
+            'se_save_parameters'   => $LNG['se_save_parameters'],
+            'se_disclaimerAddress' => $LNG['se_disclaimerAddress'],
+            'se_disclaimerPhone'   => $LNG['se_disclaimerPhone'],
+            'se_disclaimerMail'    => $LNG['se_disclaimerMail'],
+            'se_disclaimerNotice'  => $LNG['se_disclaimerNotice'],
+        ]);
+
+        $this->show('DisclamerConfigBody.twig');
+    }
 }

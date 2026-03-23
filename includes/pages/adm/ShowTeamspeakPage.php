@@ -26,11 +26,18 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowTeamspeakPage() {
-	global $LNG;
+class ShowTeamspeakPage extends AbstractAdminPage
+{
+    public function __construct()
+    {
+        parent::__construct('ShowTeamspeakPage');
+    }
 
+    protected function run(): void
+    {
+        global $LNG;
 
 	$config = Config::get(Universe::getEmulated());
 
@@ -47,7 +54,7 @@ function ShowTeamspeakPage() {
 			'ts_password'		=> $config->ts_password,
 			'ts_cron_interval'	=> $config->ts_cron_interval
 		);
-		
+
 		$ts_modon 			= isset($_POST['ts_on']) && $_POST['ts_on'] == 'on' ? 1 : 0;		
 		$ts_server			= HTTP::_GP('ts_ip', '');
 		$ts_tcpport			= HTTP::_GP('ts_tcp', 0);
@@ -93,10 +100,7 @@ function ShowTeamspeakPage() {
 		$LOG->save();
 		
 	}
-	$template	= new template();
-	
-
-	$template->assign_vars(array(
+	$this->assign(array(
 		'se_save_parameters'	=> $LNG['se_save_parameters'],
 		'ts_tcpport'			=> $LNG['ts_tcpport'],
 		'ts_serverip'			=> $LNG['ts_serverip'],
@@ -119,6 +123,6 @@ function ShowTeamspeakPage() {
 		'ts_password'			=> $config->ts_password,
 		'ts_cron'				=> $config->ts_cron_interval
 	));
-	$template->show('TeamspeakPage.twig');
-
+	$this->show('TeamspeakPage.twig');
+	}
 }

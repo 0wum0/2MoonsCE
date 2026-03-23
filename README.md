@@ -349,17 +349,24 @@ Login:    der beim Setup gewählte Admin-Account
 
 ---
 
-## Mitarbeiten
+## Contributing
 
-Pull Requests sind willkommen. Bitte einen Feature-Branch erstellen:
+Pull requests are welcome. Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening a PR.
+
+Quick reference:
+
+- Code style: [`docs/CODING_STYLE.md`](docs/CODING_STYLE.md) — 4-space indent, braces, PDO, no `array()`
+- Naming: [`docs/NAMING_CONVENTIONS.md`](docs/NAMING_CONVENTIONS.md) — PascalCase classes, camelCase methods/vars
+- Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — request lifecycle, DB layer, admin page pattern
+- Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) — active migration phases
 
 ```bash
-git checkout -b feature/mein-feature
-git commit -m "feat: kurze Beschreibung"
-git push origin feature/mein-feature
+git checkout -b feature/my-feature
+git commit -m "feat: short description"
+git push origin feature/my-feature
 ```
 
-Issues und Diskussionen über GitHub.
+Issues and discussions via GitHub.
 
 ---
 

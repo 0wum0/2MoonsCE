@@ -26,178 +26,39 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) {
-    throw new Exception("Permission error!");
-}
+// @admin-migrated (Phase 7 — AbstractAdminPage + CacheService)
+require_once 'includes/pages/adm/CacheService.php';
 
 /**
- * Safe Cache Clear for SmartMoons (Twig/Legacy compatible)
- * - erstellt fehlende cache-Ordner automatisch
- * - löscht nur Dateien/Unterordner innerhalb definierter Cache-Verzeichnisse
- * - kein scandir() auf nicht existierende Ordner
+ * Clears all known cache directories and shows a result message.
+ * Cache logic lives in CacheService; this class only formats the message.
  */
-function ClearCacheSafe(): array
+class ShowClearCachePage extends AbstractAdminPage
 {
-    $results = [
-        'cleared_files' => 0,
-        'cleared_dirs'  => 0,
-        'skipped'       => 0,
-        'errors'        => [],
-        'paths'         => [],
-    ];
-
-    // ROOT_PATH ist in 2Moons definiert (admin.php -> includes/common.php)
-    $root = defined('ROOT_PATH') ? (string)ROOT_PATH : './';
-
-    // Normiere Root (mit Slash am Ende)
-    $root = rtrim(str_replace('\\', '/', $root), '/') . '/';
-
-    // Diese Cache-Ordner sind typisch (Smarty/Twig/Custom). Fehlende werden angelegt.
-    $cacheDirs = [
-        $root . 'cache/',
-        $root . 'cache/templates/',
-        $root . 'cache/twig/',
-        $root . 'cache/twig/compilation/',
-        $root . 'cache/twig/cache/',
-        $root . 'cache/smarty/',
-        $root . 'cache/sql/',
-        $root . 'cache/sessions/', // falls ihr da was cached
-    ];
-
-    // Helper: sicheren Pfadcheck (nur innerhalb ROOT_PATH erlaubt)
-    $isInsideRoot = static function (string $path) use ($root): bool {
-        $pathNorm = str_replace('\\', '/', $path);
-
-        // realpath kann false liefern, wenn der Pfad nicht existiert -> dann manuell prüfen
-        $real = @realpath($pathNorm);
-        if ($real !== false) {
-            $realNorm = rtrim(str_replace('\\', '/', $real), '/') . '/';
-            return strpos($realNorm, $root) === 0;
-        }
-
-        // Fallback: wenn kein realpath, wenigstens Prefix-Check
-        return strpos(rtrim($pathNorm, '/') . '/', $root) === 0;
-    };
-
-    // Helper: Ordner sicher anlegen
-    $ensureDir = static function (string $dir) use (&$results, $isInsideRoot): bool {
-        if (!$isInsideRoot($dir)) {
-            $results['errors'][] = 'Refused to create dir outside ROOT_PATH: ' . $dir;
-            return false;
-        }
-
-        if (is_dir($dir)) {
-            return true;
-        }
-
-        if (@mkdir($dir, 0775, true)) {
-            return true;
-        }
-
-        // Nochmal checken, ob parallel erstellt wurde
-        if (is_dir($dir)) {
-            return true;
-        }
-
-        $results['errors'][] = 'Failed to create cache dir: ' . $dir;
-        return false;
-    };
-
-    // Helper: rekursiv löschen (nur Inhalt, nicht den Root-Ordner selbst)
-    $deleteContents = static function (string $dir) use (&$results, $isInsideRoot, &$deleteContents): void {
-        if (!is_dir($dir)) {
-            $results['skipped']++;
-            return;
-        }
-
-        if (!$isInsideRoot($dir)) {
-            $results['errors'][] = 'Refused to delete outside ROOT_PATH: ' . $dir;
-            return;
-        }
-
-        $items = @scandir($dir);
-        if ($items === false) {
-            $results['errors'][] = 'Cannot scan dir: ' . $dir;
-            return;
-        }
-
-        foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-
-            // Sicherheitsdateien nicht löschen (falls vorhanden)
-            if ($item === '.htaccess' || $item === 'index.html' || $item === 'index.htm' || $item === 'index.php') {
-                $results['skipped']++;
-                continue;
-            }
-
-            $path = rtrim($dir, '/\\') . '/' . $item;
-
-            // Symlinks niemals verfolgen/löschen (Sicherheit)
-            if (is_link($path)) {
-                $results['skipped']++;
-                continue;
-            }
-
-            if (is_dir($path)) {
-                $deleteContents($path);
-                // Ordner entfernen, wenn leer
-                $after = @scandir($path);
-                if (is_array($after) && count($after) <= 2) {
-                    if (@rmdir($path)) {
-                        $results['cleared_dirs']++;
-                    } else {
-                        $results['skipped']++;
-                    }
-                }
-            } else {
-                if (@unlink($path)) {
-                    $results['cleared_files']++;
-                } else {
-                    $results['skipped']++;
-                }
-            }
-        }
-    };
-
-    // Erstmal alle Cache-Dirs sicherstellen (damit später nix “No such file” wirft)
-    foreach ($cacheDirs as $dir) {
-        $dir = str_replace('\\', '/', $dir);
-        $results['paths'][] = $dir;
-        $ensureDir($dir);
+    public function __construct()
+    {
+        parent::__construct('ShowClearCachePage');
     }
 
-    // Dann Inhalte löschen
-    foreach ($cacheDirs as $dir) {
-        $dir = str_replace('\\', '/', $dir);
-        $deleteContents($dir);
-    }
+    protected function run(): void
+    {
+        global $LNG;
 
-    return $results;
-}
+        $res = CacheService::clearAll();
 
-function ShowClearCachePage()
-{
-    global $LNG;
-
-    // ✅ NICHT mehr das alte ClearCache() aufrufen (das knallt bei fehlenden Ordnern)
-    $res = ClearCacheSafe();
-
-    $msg = $LNG['cc_cache_clear'] ?? 'Cache wurde geleert.';
-    // Debug-Info optional anhängen (wenn du willst, kannst du das später rausnehmen)
-    $msg .= '<br><br><small style="opacity:.8;">'
-          . 'Gelöscht: ' . (int)$res['cleared_files'] . ' Dateien, '
-          . (int)$res['cleared_dirs'] . ' Ordner'
-          . ($res['skipped'] ? ' | Übersprungen: ' . (int)$res['skipped'] : '')
-          . '</small>';
-
-    if (!empty($res['errors'])) {
-        $msg .= '<br><br><small style="color:#f87171;">'
-              . 'Hinweise: ' . htmlspecialchars(implode(' | ', $res['errors']), ENT_QUOTES, 'UTF-8')
+        $msg = $LNG['cc_cache_clear'] ?? 'Cache wurde geleert.';
+        $msg .= '<br><br><small style="opacity:.8;">'
+              . 'Gelöscht: ' . (int) $res['cleared_files'] . ' Dateien, '
+              . (int) $res['cleared_dirs'] . ' Ordner'
+              . ($res['skipped'] ? ' | Übersprungen: ' . (int) $res['skipped'] : '')
               . '</small>';
-    }
 
-    $template = new template();
-    $template->message($msg);
+        if (!empty($res['errors'])) {
+            $msg .= '<br><br><small style="color:#f87171;">'
+                  . 'Hinweise: ' . htmlspecialchars(implode(' | ', $res['errors']), ENT_QUOTES, 'UTF-8')
+                  . '</small>';
+        }
+
+        $this->message($msg);
+    }
 }

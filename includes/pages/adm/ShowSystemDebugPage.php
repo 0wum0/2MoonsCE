@@ -151,7 +151,8 @@ function ShowSystemDebugPage(): void
             $regProp->setAccessible(true);
             $registry = $regProp->getValue($mm);
         } catch (Throwable $e) {
-            // Reflection failed – degrade gracefully
+            // Reflection failed — debug page renders with partial module data.
+            error_log('[ShowSystemDebugPage] ModuleManager reflection failed: ' . $e->getMessage());
         }
 
         // Determine which module ids come from plugins (priority 100) vs core (priority 10)
@@ -174,6 +175,8 @@ function ShowSystemDebugPage(): void
                 try {
                     $enabled = $moduleObj->isEnabled();
                 } catch (Throwable $e) {
+                    // isEnabled() threw — module is considered disabled for debug display.
+                    error_log('[ShowSystemDebugPage] isEnabled() failed for module "' . $moduleId . '": ' . $e->getMessage());
                     $enabled = false;
                 }
             }

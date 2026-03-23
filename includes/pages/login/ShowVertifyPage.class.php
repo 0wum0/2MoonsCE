@@ -86,10 +86,9 @@ class ShowVertifyPage extends AbstractLoginPage
 
 			try {
 				Mail::send($userData['email'], $userData['userName'], $MailSubject, $MailContent);
-			}
-			catch (Exception $e)
-			{
-				// This mail is wayne.
+			} catch (\Throwable $e) {
+				// Mail send is non-fatal — registration proceeds regardless.
+				error_log('[ShowVertifyPage] Verification mail send failed for user "' . ($userData['userName'] ?? '?') . '": ' . $e->getMessage());
 			}
 		}
 

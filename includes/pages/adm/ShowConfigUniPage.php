@@ -26,9 +26,12 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (DB: PDO via Database::get())
+if (!allowedTo(str_replace([dirname(__FILE__), '\\', '/', '.php'], '', __FILE__))) {
+    throw new \Exception('Permission error!');
+}
 
-function ShowConfigUniPage()
+function ShowConfigUniPage(): void
 {
 	global $LNG;
 
@@ -261,8 +264,12 @@ function ShowConfigUniPage()
 		$LOG->new = $config_after;
 		$LOG->save();
 
-		if($config->adm_attack == 0)
-			$GLOBALS['DATABASE']->query("UPDATE ".USERS." SET `authattack` = '0' WHERE `universe` = '".Universe::getEmulated()."';");
+		if ($config->adm_attack == 0) {
+			Database::get()->update(
+				"UPDATE %%USERS%% SET `authattack` = '0' WHERE `universe` = :uni;",
+				[':uni' => (int) Universe::getEmulated()]
+			);
+		}
 	}
 	
 	$template	= new template();

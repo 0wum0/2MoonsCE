@@ -297,6 +297,7 @@
             <a href="admin.php?page=logout" class="sidebar-link" style="color:var(--adm-neon-red);">
                 <span class="sidebar-link-icon">&#10060;</span> Zum Spiel / Logout
             </a>
+            {{ hook('admin.sidebar.bottom') }}
         </nav>
     </aside>
 
@@ -326,4 +327,5 @@
         </header>
 
         <main class="admin-content">
+            {{ hook('admin.content.top') }}
             <div class="legacy-content">

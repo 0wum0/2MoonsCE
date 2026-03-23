@@ -54,8 +54,6 @@ declare(strict_types=1);
 		 */
 		static public function getNextOccurrence($expression, $timestamp = null) {
 
-			try {
-
 				// Convert timestamp to array
 
 				$next		= self::getTimestamp($timestamp);
@@ -63,12 +61,6 @@ declare(strict_types=1);
 				// Calculate date/time
 
 				$next_time	= self::calculateDateTime($expression, $next);
-
-			} catch (Exception $e) {
-
-				throw $e;
-
-			}
 
 			// return calculated time
 
@@ -88,8 +80,6 @@ declare(strict_types=1);
 
 		static public function getLastOccurrence($expression, $timestamp = null) {
 
-			try {
-
 				// Convert timestamp to array
 
 				$last		= self::getTimestamp($timestamp);
@@ -97,12 +87,6 @@ declare(strict_types=1);
 				// Calculate date/time
 
 				$last_time	= self::calculateDateTime($expression, $last, false);
-
-			} catch (Exception $e) {
-
-				throw $e;
-
-			}
 
 			// return calculated time
 
@@ -410,16 +394,8 @@ declare(strict_types=1);
 
 				// Nope - parse it!
 
-				try {
-
-					self::$pcron[$expression]		= tdCronEntry::parse($expression);
-					self::$pcron['reverse'][$expression]	= self::arrayReverse(self::$pcron[$expression]);
-
-				} catch (Exception $e) {
-
-					throw $e;
-
-				}
+				self::$pcron[$expression]		= tdCronEntry::parse($expression);
+				self::$pcron['reverse'][$expression]	= self::arrayReverse(self::$pcron[$expression]);
 
 			}
 

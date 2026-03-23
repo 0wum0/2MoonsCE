@@ -26,19 +26,34 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 4 — AbstractAdminPage)
+class ShowStatUpdatePage extends AbstractAdminPage
+{
+    public function __construct()
+    {
+        parent::__construct('ShowStatUpdatePage');
+    }
 
-function ShowStatUpdatePage() {
-	global $LNG;
-	require_once('includes/classes/class.statbuilder.php');
-	$stat			= new statbuilder();
-	$result			= $stat->MakeStats();
-	$memory_p		= str_replace(array("%p", "%m"), $result['memory_peak'], $LNG['sb_top_memory']);
-	$memory_e		= str_replace(array("%e", "%m"), $result['end_memory'], $LNG['sb_final_memory']);
-	$memory_i		= str_replace(array("%i", "%m"), $result['initial_memory'], $LNG['sb_start_memory']);
-	$stats_end_time	= sprintf($LNG['sb_stats_update'], $result['totaltime']);
-	$stats_sql		= sprintf($LNG['sb_sql_counts'], $result['sql_count']);
+    protected function run(): void
+    {
+        global $LNG;
 
-	$template = new template();
-	$template->message($LNG['sb_stats_updated'].$stats_end_time.$memory_i.$memory_e.$memory_p.$stats_sql, false, 0, true);
+        require_once 'includes/classes/class.statbuilder.php';
+
+        $stat   = new statbuilder();
+        $result = $stat->MakeStats();
+
+        $memoryPeak    = str_replace(['%p', '%m'], $result['memory_peak'],    $LNG['sb_top_memory']);
+        $memoryEnd     = str_replace(['%e', '%m'], $result['end_memory'],     $LNG['sb_final_memory']);
+        $memoryInitial = str_replace(['%i', '%m'], $result['initial_memory'], $LNG['sb_start_memory']);
+        $statsTime     = sprintf($LNG['sb_stats_update'], $result['totaltime']);
+        $statsSql      = sprintf($LNG['sb_sql_counts'],   $result['sql_count']);
+
+        $this->message(
+            $LNG['sb_stats_updated'] . $statsTime . $memoryInitial . $memoryEnd . $memoryPeak . $statsSql,
+            false,
+            0,
+            true
+        );
+    }
 }

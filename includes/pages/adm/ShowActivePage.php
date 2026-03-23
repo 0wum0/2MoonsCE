@@ -26,36 +26,52 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowActivePage()
+class ShowActivePage extends AbstractAdminPage
 {
-	global $LNG, $USER;
-	$id = HTTP::_GP('id', 0);
-	if(isset($_GET['action']) && $_GET['action'] == 'delete' && !empty($id))
-		$GLOBALS['DATABASE']->query("DELETE FROM ".USERS_VALID." WHERE `validationID` = '".$id."' AND `universe` = '".Universe::getEmulated()."';");
+    public function __construct()
+    {
+        parent::__construct('ShowActivePage');
+    }
 
-	$query = $GLOBALS['DATABASE']->query("SELECT * FROM ".USERS_VALID." WHERE `universe` = '".Universe::getEmulated()."' ORDER BY validationID ASC");
+    protected function run(): void
+    {
+        global $LNG, $USER;
 
-	$Users	= array();
-	while ($User = $GLOBALS['DATABASE']->fetch_array($query)) {
-		$Users[]	= array(
-			'id'			=> $User['validationID'],
-			'name'			=> $User['userName'],
-			'date'			=> _date($LNG['php_tdformat'], $User['date'], $USER['timezone']),
-			'email'			=> $User['email'],
-			'ip'			=> $User['ip'],
-			'password'		=> $User['password'],
-			'validationKey'	=> $User['validationKey'],
-		);
-	}
+        $db  = Database::get();
+        $uni = Universe::getEmulated();
+        $id  = HTTP::_GP('id', 0);
 
-	$template	= new template();
+        if (isset($_GET['action']) && $_GET['action'] === 'delete' && !empty($id)) {
+            $db->delete(
+                "DELETE FROM %%USERS_VALID%% WHERE `validationID` = :id AND `universe` = :uni;",
+                [':id' => (int) $id, ':uni' => (int) $uni]
+            );
+        }
 
-	$template->assign_vars(array(	
-		'Users'				=> $Users,
-		'uni'				=> Universe::getEmulated(),
-	));
-	
-	$template->show('ActivePage.twig');
+        $rows = $db->select(
+            "SELECT * FROM %%USERS_VALID%% WHERE `universe` = :uni ORDER BY validationID ASC;",
+            [':uni' => (int) $uni]
+        );
+
+        $users = [];
+        foreach ($rows as $user) {
+            $users[] = [
+                'id'            => $user['validationID'],
+                'name'          => $user['userName'],
+                'date'          => _date($LNG['php_tdformat'], $user['date'], $USER['timezone']),
+                'email'         => $user['email'],
+                'ip'            => $user['ip'],
+                'password'      => $user['password'],
+                'validationKey' => $user['validationKey'],
+            ];
+        }
+
+        $this->assign([
+            'Users' => $users,
+            'uni'   => $uni,
+        ]);
+        $this->show('ActivePage.twig');
+    }
 }

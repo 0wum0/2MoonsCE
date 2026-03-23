@@ -26,10 +26,17 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
+// @admin-migrated (Phase 10 — AbstractAdminPage)
 
-function ShowConfigBasicPage()
+class ShowConfigBasicPage extends AbstractAdminPage
 {
+    public function __construct()
+    {
+        parent::__construct('ShowConfigBasicPage');
+    }
+
+    protected function run(): void
+    {
 	global $LNG;
 	$config = Config::get(Universe::getEmulated());
 
@@ -63,7 +70,7 @@ function ShowConfigBasicPage()
 			'message_delete_behavior' => $config->message_delete_behavior,
 			'message_delete_days'	=> $config->message_delete_days,
 		);
-		
+
 		$capaktiv 				= isset($_POST['capaktiv']) && $_POST['capaktiv'] == 'on' ? 1 : 0;
 		$ga_active 				= isset($_POST['ga_active']) && $_POST['ga_active'] == 'on' ? 1 : 0;
 		$sendmail_inactive 		= isset($_POST['sendmail_inactive']) && $_POST['sendmail_inactive'] == 'on' ? 1 : 0;
@@ -142,9 +149,7 @@ function ShowConfigBasicPage()
 		}
 	}
 	
-	$template	= new template();
-	
-	$template->assign_vars(array(
+	$this->assign(array(
 		'del_oldstuff'					=> $config->del_oldstuff,
 		'del_user_manually'				=> $config->del_user_manually,
 		'del_user_automatic'			=> $config->del_user_automatic,
@@ -178,5 +183,6 @@ function ShowConfigBasicPage()
         ),
 	));
 	
-	$template->show('ConfigBasicBody.twig');
+	$this->show('ConfigBasicBody.twig');
+	}
 }

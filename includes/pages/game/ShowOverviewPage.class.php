@@ -274,7 +274,8 @@ class ShowOverviewPage extends AbstractGamePage
 				);
 			}
 		} catch (\Throwable $e) {
-			// events table may not exist
+			// %%EVENTS%% table may not exist in all installations — degrade gracefully.
+			error_log('[ShowOverviewPage] Events query failed (table may not exist): ' . $e->getMessage());
 		}
 
 		$sql	= 'SELECT total_points, total_rank

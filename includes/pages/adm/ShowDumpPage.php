@@ -26,63 +26,60 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
-if ($USER['authlevel'] == AUTH_USR)
+// @admin-migrated (Phase 8 — AbstractAdminPage + PDO; $GLOBALS['DATABASE'] removed)
+
+/**
+ * Database dump page.
+ * Lists all tables with the configured prefix and dumps selected ones to a file.
+ */
+class ShowDumpPage extends AbstractAdminPage
 {
-	throw new Exception("Permission error!");#PagePermissionException
-}
+    public function __construct()
+    {
+        parent::__construct('ShowDumpPage');
+    }
 
-function ShowDumpPage()
-{
-	global $LNG;
+    protected function run(): void
+    {
+        global $LNG;
 
-	$action = isset($_REQUEST['action'])?$_REQUEST['action']:'';
+        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
-	switch($action)
-	{
-		case 'dump':
-			$dbTables	= HTTP::_GP('dbtables', array());
-			if(empty($dbTables)) {
-				$template	= new template();
-				$template->message($LNG['du_not_tables_selected']);
-				exit;
-			}
-			
-			$fileName	= '2MoonsBackup_'.date('d_m_Y_H_i_s', TIMESTAMP).'.sql';
-			$filePath	= 'includes/backups/'.$fileName;
-		
-			require_once 'includes/classes/SQLDumper.class.php';
-		
-			$dump	= new SQLDumper;
-			$dump->dumpTablesToFile($dbTables, $filePath);
-			
-			$template	= new template();
-			$template->message(sprintf($LNG['du_success'], 'includes/backups/'.$fileName));
-		break;
-		default:
-			$dumpData['perRequest']		= 100;
+        switch ($action) {
+            case 'dump':
+                $dbTables = HTTP::_GP('dbtables', []);
+                if (empty($dbTables)) {
+                    $this->message($LNG['du_not_tables_selected']);
+                    return;
+                }
 
-			$dumpData		= array();
+                $fileName = '2MoonsBackup_' . date('d_m_Y_H_i_s', TIMESTAMP) . '.sql';
+                $filePath = 'includes/backups/' . $fileName;
 
-			$prefixCounts	= strlen(DB_PREFIX);
+                require_once 'includes/classes/SQLDumper.class.php';
 
-			$dumpData['sqlTables']	= array();
-			$sqlTableRaw			= $GLOBALS['DATABASE']->query("SHOW TABLE STATUS FROM `".DB_NAME."`;");
+                $dump = new SQLDumper();
+                $dump->dumpTablesToFile($dbTables, $filePath);
 
-			while($table = $GLOBALS['DATABASE']->fetchArray($sqlTableRaw))
-			{
-				if(DB_PREFIX == substr($table['Name'], 0, $prefixCounts))
-				{
-					$dumpData['sqlTables'][]	= $table['Name'];
-				}
-			}
+                $this->message(sprintf($LNG['du_success'], 'includes/backups/' . $fileName));
+                return;
 
-			$template	= new template();
+            default:
+                $prefixCounts = strlen(DB_PREFIX);
+                $sqlTables    = [];
 
-			$template->assign_vars(array(	
-				'dumpData'	=> $dumpData,
-			));
-			
-			$template->show('DumpPage.twig');
-		break;
-	}
+                $tableStatusRows = Database::get()->nativeQuery(
+                    "SHOW TABLE STATUS FROM `" . DB_NAME . "`;"
+                );
+                foreach ($tableStatusRows as $table) {
+                    if (DB_PREFIX === substr($table['Name'], 0, $prefixCounts)) {
+                        $sqlTables[] = $table['Name'];
+                    }
+                }
+
+                $this->assign(['dumpData' => ['sqlTables' => $sqlTables]]);
+                $this->show('DumpPage.twig');
+                return;
+        }
+    }
 }
