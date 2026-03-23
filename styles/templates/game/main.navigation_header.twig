@@ -319,8 +319,9 @@
                     <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
                     <div class="res-info">
                         {% if resourceData.type|default(0)|number_format(0,'','') == '2' %}
-                        <span class="res-val {% if resourceData.used > resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
-                            {% if shortlyNumber %}{{ resourceData.max|shortly_number }}{% else %}{{ resourceData.max|number_format }}{% endif %}
+                        {% set energyBalance = resourceData.max + resourceData.used %}
+                        <span class="res-val {% if energyBalance < 0 %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
+                            {% if shortlyNumber %}{{ energyBalance|shortly_number }}{% else %}{{ energyBalance|number_format }}{% endif %}
                         </span>
                         <div class="res-progress res-progress-energy">
                             <div class="res-progress-fill res-energy-income" id="resbar_{{ resourceData.name }}"></div>
