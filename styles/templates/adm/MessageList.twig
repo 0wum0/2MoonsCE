@@ -98,8 +98,8 @@
         {% if page > 1 %}
         <button class="ml-page-btn" onclick="mlGotoPage({{ page - 1 }})" title="Vorherige Seite">&laquo;</button>
         {% endif %}
-        {% set pStart = [1, page - 3]|max %}
-        {% set pEnd   = [maxPage, page + 3]|min %}
+        {% set pStart = max(1, page - 3) %}
+        {% set pEnd   = min(maxPage, page + 3) %}
         {% if pStart > 1 %}
           <button class="ml-page-btn" onclick="mlGotoPage(1)">1</button>
           {% if pStart > 2 %}<span class="ml-page-ellipsis">&hellip;</span>{% endif %}
@@ -167,8 +167,8 @@
         {% if page > 1 %}
         <button class="ml-page-btn" onclick="mlGotoPage({{ page - 1 }})">&laquo;</button>
         {% endif %}
-        {% set pStart = [1, page - 3]|max %}
-        {% set pEnd   = [maxPage, page + 3]|min %}
+        {% set pStart = max(1, page - 3) %}
+        {% set pEnd   = min(maxPage, page + 3) %}
         {% if pStart > 1 %}
           <button class="ml-page-btn" onclick="mlGotoPage(1)">1</button>
           {% if pStart > 2 %}<span class="ml-page-ellipsis">&hellip;</span>{% endif %}
