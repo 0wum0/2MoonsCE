@@ -76,8 +76,8 @@ class NewsRepository
             [
                 ':user'  => $user,
                 ':date'  => TIMESTAMP,
-                ':title' => $title,
-                ':text'  => $text,
+                ':title' => self::safe4byte($title),
+                ':text'  => self::safe4byte($text),
             ]
         );
     }
@@ -96,12 +96,23 @@ class NewsRepository
             "UPDATE %%NEWS%% SET `title` = :title, `text` = :text, `date` = :date
              WHERE `id` = :id LIMIT 1;",
             [
-                ':title' => $title,
-                ':text'  => $text,
+                ':title' => self::safe4byte($title),
+                ':text'  => self::safe4byte($text),
                 ':date'  => TIMESTAMP,
                 ':id'    => $id,
             ]
         );
+    }
+
+    /**
+     * Strips 4-byte UTF-8 sequences (emoji etc.) that are rejected by columns
+     * still using the 3-byte utf8 charset. Safe to call after migration_17
+     * because once the table is utf8mb4 the value passes through the PDO driver
+     * without hitting this path — the column accepts all codepoints natively.
+     */
+    private static function safe4byte(string $value): string
+    {
+        return (string) preg_replace('/[\xF0-\xF7][\x80-\xBF]{3}/', '', $value);
     }
 
     /**
