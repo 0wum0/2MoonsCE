@@ -315,10 +315,10 @@
         <div class="res-bar-container">
             <div class="res-bar">
                 {% for resourceID, resourceData in resourceTable %}
-                <div class="res-item res-item-tooltip{% if resourceData.type == 2 %} res-item-energy{% endif %}" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-used="{{ resourceData.used|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
+                <div class="res-item res-item-tooltip{% if resourceData.type|default(0)|number_format(0,'','') == '2' %} res-item-energy{% endif %}" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-used="{{ resourceData.used|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
                     <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
                     <div class="res-info">
-                        {% if resourceData.type == 2 %}
+                        {% if resourceData.type|default(0)|number_format(0,'','') == '2' %}
                         <span class="res-val {% if resourceData.used > resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
                             {% if shortlyNumber %}{{ resourceData.max|shortly_number }}{% else %}{{ resourceData.max|number_format }}{% endif %}
                         </span>
@@ -574,10 +574,37 @@ if(typeof resourceTicker==='function'){
     function buildResTooltipHTML(item) {
         var name       = item.getAttribute('data-res-name') || '';
         var label      = item.getAttribute('data-tooltip-content') || name;
+        var isEnergy   = item.classList.contains('res-item-energy');
         var current    = Number(item.getAttribute('data-res-current')) || 0;
         var max        = Number(item.getAttribute('data-res-max')) || 0;
         var production = Number(item.getAttribute('data-res-production')) || 0;
+        var used       = Number(item.getAttribute('data-res-used')) || 0;
 
+        // Energy resource: special tooltip
+        if (isEnergy) {
+            var income = max;
+            var balance = income - used;
+            var balColor = balance >= 0 ? '#00e676' : '#ff3d57';
+            var balPrefix = balance >= 0 ? '+' : '';
+            var usedPct  = income > 0 ? Math.min(100, (used   / income) * 100) : (used > 0 ? 100 : 0);
+            var incPct   = used  > 0 ? Math.min(100, (income / used)   * 100) : 100;
+            var total = Math.max(income, used, 1);
+            var incBarW  = Math.min(100, (income / total) * 100).toFixed(1);
+            var useBarW  = Math.min(100, (used   / total) * 100).toFixed(1);
+            return '<div style="font-size:11px;letter-spacing:2px;color:#00d4ff;margin-bottom:8px;text-transform:uppercase">' + label + '</div>'
+                + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Einkommen</span><span style="color:#00e676">+' + fmtNum(income) + '</span></div>'
+                + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Verbrauch</span><span style="color:#ff3d57">-' + fmtNum(used) + '</span></div>'
+                + '<div style="height:1px;background:rgba(0,212,255,0.1);margin:7px 0"></div>'
+                + '<div style="margin-bottom:6px">'
+                +   '<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;position:relative">'
+                +     '<div style="position:absolute;left:0;top:0;height:100%;width:' + incBarW + '%;background:#00e676;border-radius:3px 0 0 3px"></div>'
+                +     '<div style="position:absolute;right:0;top:0;height:100%;width:' + useBarW + '%;background:#ff3d57;border-radius:0 3px 3px 0"></div>'
+                +   '</div>'
+                + '</div>'
+                + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#7a9ab8">Bilanz</span><span style="color:' + balColor + '">' + balPrefix + fmtNum(balance) + '</span></div>';
+        }
+
+        // Normal resource tooltip
         // Live current value from resourceTicker if available
         var valEl = name ? document.getElementById('current_' + name) : null;
         if (valEl) {
