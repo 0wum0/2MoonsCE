@@ -816,6 +816,137 @@ body.admin-dashboard .button:hover,
 .flipcard-back-item-value { color:var(--white); font-weight:600; }
 
 /* ════════════════════════════════════════════════════════════
+   DASHBOARD STRUCTURE
+   ════════════════════════════════════════════════════════════ */
+
+/* Header row */
+.db-header{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(56,189,248,0.12);
+}
+.db-header-left{ flex: 1 1 260px; }
+.db-header-right{ display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.db-title{
+    margin: 0 0 4px;
+    font-family: var(--font-hud);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: 1px;
+}
+.db-subtitle{
+    margin: 0;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+/* Period tabs */
+.db-period-tabs{
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 4px;
+}
+.db-period-tab{
+    padding: 6px 14px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    letter-spacing: 0.4px;
+}
+.db-period-tab:hover{ background: rgba(56,189,248,0.1); color: #94a3b8; }
+.db-period-tab.active{
+    background: rgba(56,189,248,0.18);
+    color: #38bdf8;
+}
+
+/* Quick links strip */
+.db-quicklinks{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+}
+.db-ql{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .12s, color .12s, border-color .12s;
+    white-space: nowrap;
+}
+.db-ql:hover{
+    background: rgba(56,189,248,0.1);
+    border-color: rgba(56,189,248,0.25);
+    color: #7dd3fc;
+}
+
+/* Alert bar */
+.db-alert{
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    color: #f87171;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Section headings */
+.db-section-head{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 36px 0 16px;
+    font-family: var(--font-hud);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #38bdf8;
+}
+.db-section-head::after{
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(56,189,248,0.25), transparent);
+}
+.db-section-head:first-of-type{ margin-top: 0; }
+.db-section-icon{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: rgba(56,189,248,0.1);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
    CHARTS
    ════════════════════════════════════════════════════════════ */
 .charts-grid {

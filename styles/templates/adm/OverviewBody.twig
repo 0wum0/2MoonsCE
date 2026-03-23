@@ -30,27 +30,40 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-<div class="dash-header">
-  <h1>{{ LNG.adm_dash_title }}</h1>
-  <p>{{ LNG.adm_dash_subtitle }} &mdash; {{ LNG.adm_dash_uni }} {{ uniName|default('1') }}</p>
-</div>
-
-<div class="period-tabs">
-  <button class="period-tab{% if period == 'day' %} active{% endif %}" data-period="day">{{ LNG.adm_period_day }}</button>
-  <button class="period-tab{% if period == 'week' %} active{% endif %}" data-period="week">{{ LNG.adm_period_week }}</button>
-  <button class="period-tab{% if period == 'month' %} active{% endif %}" data-period="month">{{ LNG.adm_period_month }}</button>
-  <button class="period-tab{% if period == 'year' %} active{% endif %}" data-period="year">{{ LNG.adm_period_year }}</button>
+{# ══ HEADER ══════════════════════════════════════════════════════ #}
+<div class="db-header">
+  <div class="db-header-left">
+    <h1 class="db-title">{{ LNG.adm_dash_title }}</h1>
+    <p class="db-subtitle">{{ LNG.adm_dash_subtitle }} &mdash; {{ LNG.adm_dash_uni }} {{ uniName|default('1') }}</p>
+  </div>
+  <div class="db-header-right">
+    <div class="db-period-tabs">
+      <button class="db-period-tab{% if period == 'day' %} active{% endif %}" data-period="day">{{ LNG.adm_period_day }}</button>
+      <button class="db-period-tab{% if period == 'week' %} active{% endif %}" data-period="week">{{ LNG.adm_period_week }}</button>
+      <button class="db-period-tab{% if period == 'month' %} active{% endif %}" data-period="month">{{ LNG.adm_period_month }}</button>
+      <button class="db-period-tab{% if period == 'year' %} active{% endif %}" data-period="year">{{ LNG.adm_period_year }}</button>
+    </div>
+    <div class="db-quicklinks">
+      <a class="db-ql" href="admin.php?page=clearcache">&#128465; Cache</a>
+      <a class="db-ql" href="admin.php?page=log">&#128203; Error-Log</a>
+      <a class="db-ql" href="admin.php?page=fleets">&#128640; Flotten</a>
+      <a class="db-ql" href="admin.php?page=messagelist">&#9993; Nachrichten</a>
+      <a class="db-ql" href="admin.php?page=support">&#127903; Tickets</a>
+      <a class="db-ql" href="admin.php?page=EditBots">&#129302; Bots</a>
+    </div>
+  </div>
 </div>
 
 {% if Messages is defined and Messages is not empty %}
-  <div style="background:rgba(248,113,113,0.1);border:1px solid var(--adm-neon-red);border-radius:var(--adm-radius);padding:16px;margin-bottom:24px;">
+  <div class="db-alert">
     {% for Message in Messages %}
-      <div style="color:var(--adm-neon-red);font-size:13px;margin-bottom:4px;">&#9888; {{ Message }}</div>
+      <div>&#9888; {{ Message }}</div>
     {% endfor %}
   </div>
 {% endif %}
 
-{# ---- KPI Flipcards (wie bei dir) ---- #}
+{# ══ SECTION 1: LIVE-ÜBERBLICK ════════════════════════════════════ #}
+<div class="db-section-head"><span class="db-section-icon">&#128200;</span> Live-Überblick</div>
 <div class="flipcards-grid">
   <div class="flipcard" data-color="blue">
     <div class="flipcard-inner">
@@ -247,106 +260,8 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-{# ---- EXTRA BOXES (die dir fehlen) ---- #}
-<div class="dashboard-grid">
-
-  <div class="dash-box">
-    <div class="dash-box-title">
-      <span>&#127942; {{ LNG.adm_top_players }}</span>
-      <span class="dash-meta">{{ LNG.adm_top_players_sub }}</span>
-    </div>
-    <div class="dash-box-sub">{{ LNG.adm_top_players_uni }}</div>
-
-    {% set topPlayers = report.top_players|default([]) %}
-    {% if topPlayers is not empty %}
-      <div class="dash-list">
-        {% for p in topPlayers %}
-          <div class="dash-row">
-            <div class="dash-row-left">
-              <span class="badge">{{ loop.index }}</span>
-              <span class="dash-name">{{ p.username|default(LNG.adm_unknown) }}</span>
-            </div>
-            <div class="dash-meta">{{ p.points|default(0) }} {{ LNG.adm_pts }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="no-data">{{ LNG.adm_no_top_players }}</div>
-    {% endif %}
-  </div>
-
-  <div class="dash-box">
-    <div class="dash-box-title">
-      <span>&#128293; {{ LNG.adm_active_players }}</span>
-      <span class="dash-meta">Top 5</span>
-    </div>
-    <div class="dash-box-sub">{{ LNG.adm_active_players_sub }}</div>
-
-    {% set activePlayers = report.active_players|default([]) %}
-    {% if activePlayers is not empty %}
-      <div class="dash-list">
-        {% for p in activePlayers %}
-          <div class="dash-row">
-            <div class="dash-row-left">
-              <span class="badge">{{ loop.index }}</span>
-              <span class="dash-name">{{ p.username|default(LNG.adm_unknown) }}</span>
-            </div>
-            <div class="dash-meta">{{ LNG.adm_online }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="no-data">{{ LNG.adm_no_activity }}</div>
-    {% endif %}
-  </div>
-
-  <div class="dash-box">
-    <div class="dash-box-title">
-      <span>&#128279; {{ LNG.adm_multi_ip }}</span>
-      <span class="dash-meta">{{ report.multiaccount_flags.flagged_ips|default(0) }} IPs</span>
-    </div>
-    <div class="dash-box-sub">{{ LNG.adm_multi_ip_sub }}</div>
-
-    <div class="dash-list">
-      <div class="dash-row">
-        <div class="dash-row-left">
-          <span class="badge warn">IPs</span>
-          <span class="dash-name">{{ LNG.adm_kpi_shared_ips }}</span>
-        </div>
-        <div class="dash-meta">{{ report.multiaccount_flags.flagged_ips|default(0) }}</div>
-      </div>
-      <div class="dash-row">
-        <div class="dash-row-left">
-          <span class="badge warn">User</span>
-          <span class="dash-name">{{ LNG.adm_kpi_affected_users }}</span>
-        </div>
-        <div class="dash-meta">{{ report.multiaccount_flags.flagged_users|default(0) }}</div>
-      </div>
-      <a class="qa" href="admin.php?page=multiips" style="margin-top:10px;">
-        &#128269; {{ LNG.adm_multi_ip_open }}
-      </a>
-    </div>
-  </div>
-
-  <div class="dash-box">
-    <div class="dash-box-title">
-      <span>&#9881; {{ LNG.adm_quick_actions }}</span>
-      <span class="dash-meta">{{ LNG.adm_admin_tools }}</span>
-    </div>
-    <div class="dash-box-sub">{{ LNG.adm_quick_links }}</div>
-
-    <div class="quick-actions">
-      <a class="qa" href="admin.php?page=clearcache">&#128465; {{ LNG.adm_qa_cache }}</a>
-      <a class="qa" href="admin.php?page=log">&#128203; {{ LNG.adm_qa_log }}</a>
-      <a class="qa" href="admin.php?page=fleets">&#128640; {{ LNG.adm_qa_fleets }}</a>
-      <a class="qa" href="admin.php?page=messagelist">&#9993; {{ LNG.adm_qa_messages }}</a>
-      <a class="qa" href="admin.php?page=EditBots">&#129302; {{ LNG.adm_qa_bots }}</a>
-    </div>
-  </div>
-
-</div>
-
-{# ---- Charts (wie bei dir) ---- #}
+{# ══ SECTION 2: ZEITVERLAUF ═══════════════════════════════════════ #}
+<div class="db-section-head"><span class="db-section-icon">&#128202;</span> Zeitverlauf &mdash; {{ periodLabel|default('Heute') }}</div>
 <div class="charts-grid">
   <div class="chart-card">
     <div class="chart-card-header">
@@ -399,7 +314,8 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-{# ---- NEW: Extended Dashboard Panels ---- #}
+{# ══ SECTION 3: SPIELER & AKTIVITÄT ════════════════════════════ #}
+<div class="db-section-head"><span class="db-section-icon">&#128101;</span> Spieler &amp; Aktivität</div>
 <div class="dash-ext-grid">
 
   {# Last 10 Registrations #}
@@ -514,7 +430,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
 </div>
 
-{# ---- NEW: Fleet missions + Buildings charts ---- #}
+{# ══ SECTION 4: GEBÄUDE & FLOTTEN ══════════════════════════════ #}
+<div class="db-section-head"><span class="db-section-icon">&#127959;</span> Gebäude &amp; Flotten</div>
 <div class="charts-grid">
 
   <div class="chart-card">
@@ -539,7 +456,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 </div>
 
-{# ---- NEW: Buildings table ---- #}
 <div class="dash-ext-grid">
   <div class="dash-ext-card">
     <div class="dash-ext-title">&#127959; Gebäude-Statistik: Meistgebaut</div>
@@ -580,10 +496,9 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-{# ---- Bot Log Section (wie bei dir) ---- #}
+{# ══ SECTION 5: BOT-MONITOR ════════════════════════════════════ #}
+<div class="db-section-head"><span class="db-section-icon">&#129302;</span> Bot-Monitor</div>
 <div class="report-section">
-  <div class="report-section-title">&#128202; {{ LNG.adm_bilanz }} &mdash; {{ periodLabel|default(LNG.adm_today) }}</div>
-
   <div class="report-grid">
     <div class="report-card" style="grid-column: 1 / -1;">
       <div class="report-card-title">&#129302; {{ LNG.adm_bot_live_log }}</div>
@@ -764,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return url.toString();
   }
 
-  document.querySelectorAll('.period-tab').forEach(btn => {
+  document.querySelectorAll('.db-period-tab').forEach(btn => {
     btn.addEventListener('click', () => { window.location.href = buildPeriodUrl(btn.dataset.period); });
   });
 
