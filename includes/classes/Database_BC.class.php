@@ -26,6 +26,19 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
+/**
+ * @deprecated Use Database::get() (PDO) instead.
+ *
+ * This mysqli-based backward-compatibility wrapper is kept solely to support
+ * legacy admin/install code that has not yet been migrated to the PDO layer.
+ *
+ * Migration plan: see docs/ROADMAP.md §Phase 3 – Database Unification.
+ * Do NOT add new code that depends on this class.
+ * Remove this class once all usages in includes/pages/adm/ are replaced.
+ *
+ * @see Database
+ * @todo Remove after full PDO migration (ROADMAP Phase 3)
+ */
 class Database_BC extends mysqli
 {
     protected $exception;

@@ -53,12 +53,24 @@ class AdminStatsService
     private function getPeriodTimestamp(string $period): int
     {
         return match ($period) {
-            'day' => TIMESTAMP - 86400,
-            'week' => TIMESTAMP - 604800,
+            'day'   => TIMESTAMP - 86400,
+            'week'  => TIMESTAMP - 604800,
             'month' => TIMESTAMP - 2592000,
-            'year' => TIMESTAMP - 31536000,
+            'year'  => TIMESTAMP - 31536000,
             default => TIMESTAMP - 86400,
         };
+    }
+
+    /**
+     * Extract a COUNT(*) result from a selectSingle row.
+     * COUNT(*) always returns a row — a missing 'cnt' key is a programming error.
+     */
+    private function extractCount(array $row, string $context): int
+    {
+        if (!isset($row['cnt'])) {
+            error_log('[AdminStatsService] Missing cnt key in result (' . $context . ')');
+        }
+        return (int) ($row['cnt'] ?? 0);
     }
 
     /**
@@ -82,8 +94,8 @@ class AdminStatsService
         );
 
         return [
-            'online' => (int)($online['cnt'] ?? 0),
-            'total' => (int)($total['cnt'] ?? 0),
+            'online' => $this->extractCount($online, 'getPlayersOnline/online'),
+            'total'  => $this->extractCount($total,  'getPlayersOnline/total'),
         ];
     }
 
@@ -92,7 +104,7 @@ class AdminStatsService
      */
     public function getRegistrations(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         $result = $db->selectSingle(
@@ -101,51 +113,57 @@ class AdminStatsService
         );
 
         return [
-            'count' => (int)($result['cnt'] ?? 0),
+            'count'  => $this->extractCount($result, 'getRegistrations'),
             'period' => $period,
         ];
     }
 
     /**
-     * Flotten verschickt im Zeitraum (aus log_fleets oder fleets)
+     * Flotten verschickt im Zeitraum.
+     * Tries %%LOG_FLEETS%% first (optional table); falls back to active %%FLEETS%%.
+     * Returns -1 when neither table is available (sentinel: data not available).
      */
     public function getFleetsSent(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
-        // Versuche log_fleets Tabelle
+        // Primary: fleet log table (may not exist in all installations)
         try {
             $result = $db->selectSingle(
                 "SELECT COUNT(*) as cnt FROM %%LOG_FLEETS%% WHERE fleet_universe = :uni AND fleet_start_time > :since;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            // Fallback: aktive Flotten
+            $count = $this->extractCount($result, 'getFleetsSent/log_fleets');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getFleetsSent: log_fleets unavailable, trying fleets table. ' . $e->getMessage());
+
+            // Fallback: active fleet table
             try {
                 $result = $db->selectSingle(
                     "SELECT COUNT(*) as cnt FROM %%FLEETS%% WHERE fleet_universe = :uni AND start_time > :since;",
                     [':uni' => $this->universe, ':since' => $since]
                 );
-                $count = (int)($result['cnt'] ?? 0);
-            } catch (\Exception $e2) {
-                $count = -1; // n/a
+                $count = $this->extractCount($result, 'getFleetsSent/fleets_fallback');
+            } catch (\Throwable $e2) {
+                error_log('[AdminStatsService] getFleetsSent: fleets fallback also failed. ' . $e2->getMessage());
+                $count = -1; // sentinel: data not available
             }
         }
 
         return [
-            'count' => $count,
+            'count'  => $count,
             'period' => $period,
         ];
     }
 
     /**
-     * Gegründete Allianzen im Zeitraum
+     * Gegründete Allianzen im Zeitraum.
+     * Returns -1 when the alliance table is not available (sentinel: data not available).
      */
     public function getAlliancesFounded(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         try {
@@ -153,23 +171,26 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%ALLIANCE%% WHERE ally_universe = :uni AND ally_register_time > :since;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            $count = -1; // n/a
+            $count = $this->extractCount($result, 'getAlliancesFounded');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getAlliancesFounded: table unavailable. ' . $e->getMessage());
+            $count = -1; // sentinel: data not available
         }
 
         return [
-            'count' => $count,
+            'count'  => $count,
             'period' => $period,
         ];
     }
 
     /**
-     * Kämpfe/Kampfberichte im Zeitraum
+     * Kämpfe/Kampfberichte im Zeitraum.
+     * Tries %%TOPKB%% first; falls back to %%RW%%.
+     * Returns -1 when neither table is available (sentinel: data not available).
      */
     public function getCombats(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         try {
@@ -177,32 +198,37 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%TOPKB%% WHERE universe = :uni AND `time` > :since;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            // Fallback: Kampfberichte (raports)
+            $count = $this->extractCount($result, 'getCombats/topkb');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getCombats: topkb unavailable, trying rw fallback. ' . $e->getMessage());
+
+            // Fallback: battle reports table
             try {
                 $result = $db->selectSingle(
                     "SELECT COUNT(*) as cnt FROM %%RW%% WHERE 1;",
                     []
                 );
-                $count = (int)($result['cnt'] ?? 0);
-            } catch (\Exception $e2) {
-                $count = -1; // n/a
+                $count = $this->extractCount($result, 'getCombats/rw_fallback');
+            } catch (\Throwable $e2) {
+                error_log('[AdminStatsService] getCombats: rw fallback also failed. ' . $e2->getMessage());
+                $count = -1; // sentinel: data not available
             }
         }
 
         return [
-            'count' => $count,
+            'count'  => $count,
             'period' => $period,
         ];
     }
 
     /**
-     * Nachrichten im Zeitraum
+     * Nachrichten im Zeitraum.
+     * Tries with universe filter first; falls back without it.
+     * Returns -1 when the messages table is not available (sentinel: data not available).
      */
     public function getMessages(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         try {
@@ -210,58 +236,67 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%MESSAGES%% WHERE message_time > :since AND message_universe = :uni;",
                 [':since' => $since, ':uni' => $this->universe]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            // Fallback ohne Universe Filter
+            $count = $this->extractCount($result, 'getMessages/with_universe');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getMessages: universe-scoped query failed, trying fallback. ' . $e->getMessage());
+
+            // Fallback: without universe filter (older schema may lack the column)
             try {
                 $result = $db->selectSingle(
                     "SELECT COUNT(*) as cnt FROM %%MESSAGES%% WHERE message_time > :since;",
                     [':since' => $since]
                 );
-                $count = (int)($result['cnt'] ?? 0);
-            } catch (\Exception $e2) {
-                $count = -1;
+                $count = $this->extractCount($result, 'getMessages/no_universe_fallback');
+            } catch (\Throwable $e2) {
+                error_log('[AdminStatsService] getMessages: fallback also failed. ' . $e2->getMessage());
+                $count = -1; // sentinel: data not available
             }
         }
 
         return [
-            'count' => $count,
+            'count'  => $count,
             'period' => $period,
         ];
     }
 
     /**
-     * Multiaccounts / Verdachts-IPs
+     * Multiaccounts / Verdachts-IPs.
+     * Returns -1 for both values when the query fails (sentinel: data not available).
      */
     public function getMultiaccountFlags(string $period): array
     {
         $db = Database::get();
 
         try {
-            // Zähle IPs die von mehreren Usern genutzt werden
+            // Count IPs shared by more than one user account
             $result = $db->select(
                 "SELECT user_lastip, COUNT(*) as cnt FROM %%USERS%% WHERE universe = :uni GROUP BY user_lastip HAVING COUNT(*) > 1;",
                 [':uni' => $this->universe]
             );
-            $flaggedIps = count($result);
+            $flaggedIps   = count($result);
             $flaggedUsers = 0;
             foreach ($result as $row) {
-                $flaggedUsers += (int)$row['cnt'];
+                if (!isset($row['cnt'])) {
+                    error_log('[AdminStatsService] getMultiaccountFlags: missing cnt in row');
+                }
+                $flaggedUsers += (int) ($row['cnt'] ?? 0);
             }
-        } catch (\Exception $e) {
-            $flaggedIps = -1;
-            $flaggedUsers = -1;
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getMultiaccountFlags: query failed. ' . $e->getMessage());
+            $flaggedIps   = -1; // sentinel: data not available
+            $flaggedUsers = -1; // sentinel: data not available
         }
 
         return [
-            'flagged_ips' => $flaggedIps,
+            'flagged_ips'   => $flaggedIps,
             'flagged_users' => $flaggedUsers,
-            'period' => $period,
+            'period'        => $period,
         ];
     }
 
     /**
-     * Top 5 Spieler nach Punkten
+     * Top 5 Spieler nach Punkten.
+     * Returns empty array on failure (table must exist; logs the error).
      */
     public function getTopPlayers(int $limit = 5): array
     {
@@ -274,10 +309,11 @@ class AdminStatsService
                  LEFT JOIN %%STATPOINTS%% s ON s.id_owner = u.id AND s.stat_type = 1
                  WHERE u.universe = :uni
                  ORDER BY points DESC
-                 LIMIT " . (int)$limit . ";",
+                 LIMIT " . (int) $limit . ";",
                 [':uni' => $this->universe]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getTopPlayers: query failed. ' . $e->getMessage());
             $result = [];
         }
 
@@ -285,7 +321,8 @@ class AdminStatsService
     }
 
     /**
-     * Aktivste Spieler (nach letztem Login)
+     * Aktivste Spieler (nach letztem Login).
+     * Returns empty array on failure (table must exist; logs the error).
      */
     public function getMostActivePlayers(int $limit = 5): array
     {
@@ -297,10 +334,11 @@ class AdminStatsService
                  FROM %%USERS%%
                  WHERE universe = :uni
                  ORDER BY onlinetime DESC
-                 LIMIT " . (int)$limit . ";",
+                 LIMIT " . (int) $limit . ";",
                 [':uni' => $this->universe]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getMostActivePlayers: query failed. ' . $e->getMessage());
             $result = [];
         }
 
@@ -308,7 +346,8 @@ class AdminStatsService
     }
 
     /**
-     * Gesperrte Spieler
+     * Gesperrte Spieler.
+     * Returns -1 when the query fails (sentinel: data not available).
      */
     public function getBannedPlayers(): array
     {
@@ -319,16 +358,18 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%USERS%% WHERE universe = :uni AND bana = 1;",
                 [':uni' => $this->universe]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            $count = -1;
+            $count = $this->extractCount($result, 'getBannedPlayers');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getBannedPlayers: query failed. ' . $e->getMessage());
+            $count = -1; // sentinel: data not available
         }
 
         return ['count' => $count];
     }
 
     /**
-     * Support Tickets offen
+     * Support Tickets offen.
+     * Returns -1 when the tickets table is not available (sentinel: data not available).
      */
     public function getOpenTickets(): array
     {
@@ -339,16 +380,18 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%TICKETS%% WHERE universe = :uni AND status = 0;",
                 [':uni' => $this->universe]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            $count = -1;
+            $count = $this->extractCount($result, 'getOpenTickets');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getOpenTickets: table unavailable. ' . $e->getMessage());
+            $count = -1; // sentinel: data not available
         }
 
         return ['count' => $count];
     }
 
     /**
-     * Fliegende Flotten aktuell
+     * Fliegende Flotten aktuell.
+     * Returns -1 when the query fails (sentinel: data not available).
      */
     public function getFlyingFleets(): array
     {
@@ -359,16 +402,18 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%FLEETS%% WHERE fleet_universe = :uni;",
                 [':uni' => $this->universe]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            $count = -1;
+            $count = $this->extractCount($result, 'getFlyingFleets');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getFlyingFleets: query failed. ' . $e->getMessage());
+            $count = -1; // sentinel: data not available
         }
 
         return ['count' => $count];
     }
 
     /**
-     * Planeten Gesamt
+     * Planeten Gesamt.
+     * Returns -1 when the query fails (sentinel: data not available).
      */
     public function getPlanetsTotal(): array
     {
@@ -379,16 +424,18 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%PLANETS%% WHERE universe = :uni;",
                 [':uni' => $this->universe]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            $count = -1;
+            $count = $this->extractCount($result, 'getPlanetsTotal');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getPlanetsTotal: query failed. ' . $e->getMessage());
+            $count = -1; // sentinel: data not available
         }
 
         return ['count' => $count];
     }
 
     /**
-     * Allianzen Gesamt
+     * Allianzen Gesamt.
+     * Returns -1 when the alliance table is not available (sentinel: data not available).
      */
     public function getAlliancesTotal(): array
     {
@@ -399,9 +446,10 @@ class AdminStatsService
                 "SELECT COUNT(*) as cnt FROM %%ALLIANCE%% WHERE ally_universe = :uni;",
                 [':uni' => $this->universe]
             );
-            $count = (int)($result['cnt'] ?? 0);
-        } catch (\Exception $e) {
-            $count = -1;
+            $count = $this->extractCount($result, 'getAlliancesTotal');
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getAlliancesTotal: table unavailable. ' . $e->getMessage());
+            $count = -1; // sentinel: data not available
         }
 
         return ['count' => $count];
@@ -410,18 +458,19 @@ class AdminStatsService
     // ===== CHART DATA METHODS =====
 
     /**
-     * Aktivitätsverlauf (Registrierungen als Proxy für Zeitreihe)
+     * Aktivitätsverlauf (Registrierungen als Proxy für Zeitreihe).
+     * Returns empty chart data on failure (logs the error).
      */
     public function getActivityTimeline(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         $groupBy = match ($period) {
-            'day' => "FROM_UNIXTIME(onlinetime, '%H')",
-            'week' => "FROM_UNIXTIME(onlinetime, '%Y-%m-%d')",
+            'day'   => "FROM_UNIXTIME(onlinetime, '%H')",
+            'week'  => "FROM_UNIXTIME(onlinetime, '%Y-%m-%d')",
             'month' => "FROM_UNIXTIME(onlinetime, '%Y-%m-%d')",
-            'year' => "FROM_UNIXTIME(onlinetime, '%Y-%m')",
+            'year'  => "FROM_UNIXTIME(onlinetime, '%Y-%m')",
             default => "FROM_UNIXTIME(onlinetime, '%H')",
         };
 
@@ -434,7 +483,8 @@ class AdminStatsService
                  ORDER BY label ASC;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getActivityTimeline: query failed. ' . $e->getMessage());
             $result = [];
         }
 
@@ -442,18 +492,19 @@ class AdminStatsService
     }
 
     /**
-     * Registrierungen Zeitreihe
+     * Registrierungen Zeitreihe.
+     * Returns empty chart data on failure (logs the error).
      */
     public function getRegistrationTimeline(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         $groupBy = match ($period) {
-            'day' => "FROM_UNIXTIME(register_time, '%H')",
-            'week' => "FROM_UNIXTIME(register_time, '%Y-%m-%d')",
+            'day'   => "FROM_UNIXTIME(register_time, '%H')",
+            'week'  => "FROM_UNIXTIME(register_time, '%Y-%m-%d')",
             'month' => "FROM_UNIXTIME(register_time, '%Y-%m-%d')",
-            'year' => "FROM_UNIXTIME(register_time, '%Y-%m')",
+            'year'  => "FROM_UNIXTIME(register_time, '%Y-%m')",
             default => "FROM_UNIXTIME(register_time, '%H')",
         };
 
@@ -466,7 +517,8 @@ class AdminStatsService
                  ORDER BY label ASC;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getRegistrationTimeline: query failed. ' . $e->getMessage());
             $result = [];
         }
 
@@ -474,22 +526,24 @@ class AdminStatsService
     }
 
     /**
-     * Flottenstarts Zeitreihe
+     * Flottenstarts Zeitreihe.
+     * Tries %%LOG_FLEETS%% first; falls back to %%FLEETS%%.
+     * Returns empty chart data when neither table is available (logs the error).
      */
     public function getFleetTimeline(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         $groupBy = match ($period) {
-            'day' => "FROM_UNIXTIME(fleet_start_time, '%H')",
-            'week' => "FROM_UNIXTIME(fleet_start_time, '%Y-%m-%d')",
+            'day'   => "FROM_UNIXTIME(fleet_start_time, '%H')",
+            'week'  => "FROM_UNIXTIME(fleet_start_time, '%Y-%m-%d')",
             'month' => "FROM_UNIXTIME(fleet_start_time, '%Y-%m-%d')",
-            'year' => "FROM_UNIXTIME(fleet_start_time, '%Y-%m')",
+            'year'  => "FROM_UNIXTIME(fleet_start_time, '%Y-%m')",
             default => "FROM_UNIXTIME(fleet_start_time, '%H')",
         };
 
-        // Versuche log_fleets zuerst
+        // Primary: fleet log table (may not exist in all installations)
         try {
             $result = $db->select(
                 "SELECT {$groupBy} as label, COUNT(*) as value
@@ -499,7 +553,9 @@ class AdminStatsService
                  ORDER BY label ASC;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getFleetTimeline: log_fleets unavailable, trying fleets fallback. ' . $e->getMessage());
+
             try {
                 $result = $db->select(
                     "SELECT {$groupBy} as label, COUNT(*) as value
@@ -509,7 +565,8 @@ class AdminStatsService
                      ORDER BY label ASC;",
                     [':uni' => $this->universe, ':since' => $since]
                 );
-            } catch (\Exception $e2) {
+            } catch (\Throwable $e2) {
+                error_log('[AdminStatsService] getFleetTimeline: fleets fallback also failed. ' . $e2->getMessage());
                 $result = [];
             }
         }
@@ -518,18 +575,19 @@ class AdminStatsService
     }
 
     /**
-     * Kämpfe Zeitreihe
+     * Kämpfe Zeitreihe.
+     * Returns empty chart data on failure (logs the error).
      */
     public function getCombatTimeline(string $period): array
     {
-        $db = Database::get();
+        $db    = Database::get();
         $since = $this->getPeriodTimestamp($period);
 
         $groupBy = match ($period) {
-            'day' => "FROM_UNIXTIME(`time`, '%H')",
-            'week' => "FROM_UNIXTIME(`time`, '%Y-%m-%d')",
+            'day'   => "FROM_UNIXTIME(`time`, '%H')",
+            'week'  => "FROM_UNIXTIME(`time`, '%Y-%m-%d')",
             'month' => "FROM_UNIXTIME(`time`, '%Y-%m-%d')",
-            'year' => "FROM_UNIXTIME(`time`, '%Y-%m')",
+            'year'  => "FROM_UNIXTIME(`time`, '%Y-%m')",
             default => "FROM_UNIXTIME(`time`, '%H')",
         };
 
@@ -542,7 +600,8 @@ class AdminStatsService
                  ORDER BY label ASC;",
                 [':uni' => $this->universe, ':since' => $since]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AdminStatsService] getCombatTimeline: query failed. ' . $e->getMessage());
             $result = [];
         }
 
@@ -550,15 +609,18 @@ class AdminStatsService
     }
 
     /**
-     * Format chart data for JavaScript
+     * Format chart data for JavaScript consumption.
      */
     private function formatChartData(array $rows): array
     {
         $labels = [];
         $values = [];
         foreach ($rows as $row) {
-            $labels[] = $row['label'] ?? '';
-            $values[] = (int)($row['value'] ?? 0);
+            if (!isset($row['label'], $row['value'])) {
+                error_log('[AdminStatsService] formatChartData: row missing label or value key');
+            }
+            $labels[] = (string) ($row['label'] ?? '');
+            $values[] = (int) ($row['value'] ?? 0);
         }
         return ['labels' => $labels, 'values' => $values];
     }
