@@ -191,6 +191,7 @@ class PluginManager
             );
             return is_array($row) && !empty($row) ? $row : null;
         } catch (Throwable $e) {
+            error_log('[PluginManager] dbGetPlugin: DB query failed for "' . $id . '": ' . $e->getMessage());
             return null;
         }
     }
@@ -205,6 +206,7 @@ class PluginManager
             $rows = $db->select('SELECT * FROM %%PLUGINS%% ORDER BY installed_at ASC;');
             return is_array($rows) ? $rows : [];
         } catch (Throwable $e) {
+            error_log('[PluginManager] getAllPlugins: DB query failed: ' . $e->getMessage());
             return [];
         }
     }
@@ -1101,7 +1103,7 @@ class PluginManager
             try {
                 $self->loadLanguage($pluginId);
             } catch (Throwable $e) {
-                // ignore
+                error_log('[PluginManager] lang(): loadLanguage failed for "' . $pluginId . '": ' . $e->getMessage());
             }
         }
         return (string) ($self->langCache[$pluginId][$key] ?? $key);

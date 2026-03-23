@@ -26,6 +26,7 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
+// @admin-style (already PDO, style pass applied)
 if (!allowedTo(str_replace([dirname(__FILE__), '\\', '/', '.php'], '', __FILE__))) {
     exit;
 }
@@ -157,7 +158,10 @@ function ShowOverviewPage(): void
 
     if (is_array($multiIpsResult)) {
         foreach ($multiIpsResult as $row) {
-            $flaggedUsers += (int)($row['c'] ?? 0);
+            if (!isset($row['c'])) {
+                error_log('[ShowOverviewPage] getMultiaccountFlags: missing c key in row');
+            }
+            $flaggedUsers += (int) ($row['c'] ?? 0);
         }
     }
 
@@ -204,7 +208,10 @@ function ShowOverviewPage(): void
 
     if (is_array($regDataRaw)) {
         foreach ($regDataRaw as $row) {
-            $key = date($dateFmtPHP, (int)($row['register_time'] ?? 0));
+            if (!isset($row['register_time'])) {
+                error_log('[ShowOverviewPage] chart: missing register_time in row');
+            }
+            $key = date($dateFmtPHP, (int) ($row['register_time'] ?? 0));
             if (isset($chartRegs[$key])) {
                 $chartRegs[$key]++;
             }
@@ -221,8 +228,11 @@ function ShowOverviewPage(): void
 
     if (is_array($msgDataRaw)) {
         foreach ($msgDataRaw as $row) {
-            $key = date($dateFmtPHP, (int)($row['message_time'] ?? 0));
-            if (isset($chartCombats[$key]) && (int)($row['message_type'] ?? 0) === 1) {
+            if (!isset($row['message_time'], $row['message_type'])) {
+                error_log('[ShowOverviewPage] chart: missing message_time or message_type in row');
+            }
+            $key = date($dateFmtPHP, (int) ($row['message_time'] ?? 0));
+            if (isset($chartCombats[$key]) && (int) ($row['message_type'] ?? 0) === 1) {
                 $chartCombats[$key]++;
             }
         }
@@ -233,9 +243,9 @@ function ShowOverviewPage(): void
     $finalFleets   = [];
 
     foreach ($timeSlots as $key => $val) {
-        $base = (int)($chartRegs[$key] ?? 0) + (int)($chartCombats[$key] ?? 0);
-        $finalActivity[] = $base + max(1, (int)($onlineCount / 5));
-        $finalFleets[]   = max(0, $base * 2 + (int)($onlineCount / 3));
+        $base            = (int) ($chartRegs[$key] ?? 0) + (int) ($chartCombats[$key] ?? 0);
+        $finalActivity[] = $base + max(1, (int) ($onlineCount / 5));
+        $finalFleets[]   = max(0, $base * 2 + (int) ($onlineCount / 3));
     }
 
     /* =========================

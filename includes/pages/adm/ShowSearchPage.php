@@ -26,6 +26,9 @@ declare(strict_types=1);
  * @visit http://makeit.uno/
  */
 
+// TODO: @db-migrate — still uses $GLOBALS['DATABASE'] (mysqli). Dynamic SQL in MyCrazyLittleSearch()
+// makes a direct PDO port non-trivial (ORDER BY injection-safe whitelist already in place).
+// Migration plan: see docs/ROADMAP.md §Phase 3 – Database Unification.
 if (!allowedTo(str_replace(array(dirname(__FILE__), '\\', '/', '.php'), '', __FILE__))) throw new Exception("Permission error!");
 
 function ShowSearchPage()
@@ -118,7 +121,8 @@ function ShowSearchPage()
 	switch($SearchMethod)
 	{
 		case 'exacto':
-			$SpecifyWhere	= "= '".$GLOBALS['DATABASE']->sql_escape($SearchKey)."'";
+			// TODO: @db-migrate — replace sql_escape() with PDO prepared statement
+		$SpecifyWhere	= "= '".$GLOBALS['DATABASE']->sql_escape($SearchKey)."'";
 		break;
 		case 'last':
 			$SpecifyWhere	= "LIKE '".$GLOBALS['DATABASE']->sql_escape($SearchKey, true)."%'";

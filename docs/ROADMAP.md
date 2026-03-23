@@ -28,22 +28,47 @@
 ### 1.2 Exception Handling Cleanup 🔄
 - [x] Policy defined in `CODING_STYLE.md` and `ARCHITECTURE.md`
 - [x] `AdminStatsService.php` fixed as reference implementation
-- [ ] Audit remaining admin service classes
-- [ ] Audit game page classes
-- [ ] Remove bare `catch (\Exception $e) { $result = []; }` patterns
+- [x] `PluginManager.class.php`: fixed 3 silent catches (`dbGetPlugin`, `getAllPlugins`, `lang()`) — now all log errors
+- [x] `ShowOverviewPage.php` (adm): fixed silent `??` on row keys — now logs missing keys
+- [ ] Audit remaining game page classes
+- [ ] Remove remaining bare `catch (\Exception $e) { $result = []; }` patterns in adm pages
 
 ### 1.3 Admin Page Base Class 🔄
 - [x] `AbstractAdminPage.php` created
-- [ ] Apply to `ShowStatsPage.php` (first migration candidate)
+- [x] `ShowStatsPage.php` — style pass applied (`@admin-style`)
+- [x] `ShowBanPage.php` — PDO migrated (`@admin-migrated`)
+- [x] `ShowFlyingFleetPage.php` — PDO migrated (`@admin-migrated`)
+- [ ] Apply AbstractAdminPage class extension to `ShowStatsPage.php`
 - [ ] Apply to `ShowIndexPage.php`
 - [ ] Apply to remaining admin pages incrementally
 
 ### 1.4 Database Unification Preparation 🔄
 - [x] `Database` (PDO) is primary interface for all game pages
-- [x] `AdminStatsService` uses `Database::get()` (PDO)
-- [ ] Audit `includes/pages/adm/` for `Database_BC` / raw `mysqli` usage
-- [ ] Migrate admin pages one-by-one to `Database::get()`
-- [ ] Mark `Database_BC.class.php` with `@deprecated` PHPDoc
+- [x] `AdminStatsService.php` uses `Database::get()` (PDO)
+- [x] `ShowBanPage.php` migrated: `$GLOBALS['DATABASE']` → `Database::get()` + parameterised queries
+- [x] `ShowFlyingFleetPage.php` migrated: `$GLOBALS['DATABASE']` → `Database::get()`
+- [x] `ShowOverviewPage.php` (adm) — already PDO, style pass applied
+- [x] `Database_BC.class.php` marked `@deprecated` with migration instructions
+- [x] `ShowSearchPage.php` — `// TODO: @db-migrate` markers added (complex dynamic SQL, deferred)
+- [ ] Audit remaining 27 files still using `$GLOBALS['DATABASE']` (see list below)
+- [ ] Migrate in batches of 2–3 files per session
+
+**Remaining mysqli files (priority order):**
+1. 📋 `ShowAccountEditorPage.php` (51 usages — high complexity, do last)
+2. 📋 `ShowResetPage.php` (23 usages)
+3. 📋 `ShowUniversePage.php` (20 usages)
+4. 📋 `ShowLogPage.php` (13 usages)
+5. 📋 `ShowQuickEditorPage.php` (13 usages)
+6. 📋 `ShowAccountDataPage.php` (11 usages)
+7. 📋 `ShowCronjobPage.php` (7 usages)
+8. 📋 `ShowMessageListPage.php` (7 usages)
+9. 📋 `ShowNewsPage.php` (7 usages)
+10. 📋 `ShowRightsPage.php` (7 usages)
+11. 📋 `ShowCreatorPage.php` (6 usages)
+12. 📋 `ShowAutoCompletePage.php` (4 usages)
+13. 📋 `ShowMultiIPPage.php` (4 usages)
+14. 📋 `ShowSendMessagesPage.php` (4 usages)
+15. 📋 Remaining pages (1–3 usages each)
 
 ---
 
@@ -52,12 +77,12 @@
 > Migrate all admin pages from plain PHP to `AbstractAdminPage`.
 > One page per task, test after each.
 
-**Priority order (most complex first):**
+**Priority order:**
 
-1. 📋 `ShowStatsPage.php` — already uses `AdminStatsService`, good candidate
+1. 📋 `ShowStatsPage.php` — style-pass done, extend AbstractAdminPage next
 2. 📋 `ShowAccountEditorPage.php`
 3. 📋 `ShowAccountDataPage.php`
-4. 📋 `ShowBanPage.php`
+4. ✅ `ShowBanPage.php` — PDO migrated (style + parameterised queries)
 5. 📋 `ShowSendMessagesPage.php`
 6. 📋 `ShowCronjobPage.php`
 7. 📋 `ShowNewsPage.php`
