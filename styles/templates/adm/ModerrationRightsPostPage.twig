@@ -23,6 +23,18 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#128274;</div>
+      <div>
+        <div class="content-card-title">Rechte zuweisen</div>
+        <div class="content-card-subtitle">Berechtigungen für Moderator konfigurieren</div>
+      </div>
+    </div>
+    <a href="?page=rights&amp;mode=rights&amp;sid={{ sid }}" class="btn-secondary">&#8592; Zurück</a>
+  </div>
+  <div class="content-card-body">
 <form action="?page=rights&amp;mode=rights&amp;sid={{ sid }}" method="post">
 <input name="action" type="hidden" value="send">
 <input name="id_1" type="hidden" value="{{ id }}">
@@ -51,5 +63,7 @@
 <tr><td colspan="3"><input type="submit" value="{{ button_submit }}"></td></tr>
 </table>
 </form>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

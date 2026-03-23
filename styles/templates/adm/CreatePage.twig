@@ -23,13 +23,23 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
-<table>
-<tr><th colspan="9">{{ new_creator_title }}</th></tr>
-<tr>
-   	<td><a href="?page=create&amp;mode=user"><img src="./styles/resource/images/admin/arrowright.png" width="16" height="10"> {{ new_creator_title_u }}</a></td>
-   	<td><a href="?page=create&amp;mode=planet"><img src="./styles/resource/images/admin/arrowright.png" width="16" height="10"> {{ new_creator_title_p }}</a></td>
-   	<td><a href="?page=create&amp;mode=moon"><img src="./styles/resource/images/admin/arrowright.png" width="16" height="10"> {{ new_creator_title_l }}</a></td>
-</tr>
-</table>
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#10010;</div>
+      <div>
+        <div class="content-card-title">{{ new_creator_title }}</div>
+        <div class="content-card-subtitle">Spieler, Planet oder Mond erstellen</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+      <a href="?page=create&amp;mode=user" class="btn-secondary">&#128100; {{ new_creator_title_u }}</a>
+      <a href="?page=create&amp;mode=planet" class="btn-secondary">&#127759; {{ new_creator_title_p }}</a>
+      <a href="?page=create&amp;mode=moon" class="btn-secondary">&#127769; {{ new_creator_title_l }}</a>
+    </div>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

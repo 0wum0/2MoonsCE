@@ -319,13 +319,19 @@ class Database
         $this->queryCounter++;
     }
 
-    public function nativeQuery($qry)
+    public function nativeQuery($qry, array $params = [])
     {
         $this->lastInsertId = false;
         $this->rowCount     = false;
 
         $qry = str_replace($this->dbTableNames['keys'], $this->dbTableNames['names'], $qry);
-        $stmt = $this->dbHandle->query($qry);
+
+        if (!empty($params)) {
+            $stmt = $this->dbHandle->prepare($qry);
+            $stmt->execute($params);
+        } else {
+            $stmt = $this->dbHandle->query($qry);
+        }
 
         $isSelect = in_array($this->getQueryType($qry), ['select', 'show']);
         if ($isSelect) {

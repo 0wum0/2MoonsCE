@@ -23,6 +23,17 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#127760;</div>
+      <div>
+        <div class="content-card-title">{{ fb_settings|default('Social Media') }}</div>
+        <div class="content-card-subtitle">Social Media / Facebook Integration</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 <form action="" method="post">
 <table>
 <tr>
@@ -45,5 +56,7 @@
 </tr>
 </table>
 </form>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

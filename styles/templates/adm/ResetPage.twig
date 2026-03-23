@@ -23,6 +23,17 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon" style="background:linear-gradient(135deg,rgba(255,61,87,0.20),rgba(255,61,87,0.06));">&#9888;</div>
+      <div>
+        <div class="content-card-title" style="color:var(--adm-neon-red);">{{ re_player_and_planets|default('Universum Reset') }}</div>
+        <div class="content-card-subtitle">Gefährliche Aktion – nicht rückgängig zu machen</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 <form action="" method="post" onsubmit="return confirm('{{ re_reset_universe_confirmation }}');">
 <table>
 <tr><th colspan="2">{{ re_player_and_planets }}</th></tr>
@@ -66,5 +77,7 @@
 <tr><td colspan="2" height="60"><input type="submit" value="{{ button_submit }}"></td></tr>
 </table>
 </form>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

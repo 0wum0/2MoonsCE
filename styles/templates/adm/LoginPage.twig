@@ -30,107 +30,273 @@
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background: #0a0e17;
+            background: #050810;
             color: #e2e8f0;
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            position: relative;
         }
-        .login-card {
-            background: #1a1f2e;
-            border: 1px solid #1e293b;
-            border-radius: 16px;
-            padding: 40px;
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+        @keyframes gridMove {
+            0%   { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        /* Ambient glow orbs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 0;
+            animation: orbPulse 8s ease-in-out infinite;
+        }
+        .bg-orb-1 { width: 500px; height: 500px; background: #0ea5e9; top: -150px; left: -150px; animation-delay: 0s; }
+        .bg-orb-2 { width: 400px; height: 400px; background: #a78bfa; bottom: -100px; right: -100px; animation-delay: 3s; }
+        .bg-orb-3 { width: 300px; height: 300px; background: #34d399; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 6s; }
+        @keyframes orbPulse {
+            0%, 100% { opacity: 0.12; transform: scale(1); }
+            50%       { opacity: 0.22; transform: scale(1.08); }
+        }
+        .bg-orb-3 { animation: orbPulse3 8s ease-in-out infinite; animation-delay: 6s; }
+        @keyframes orbPulse3 {
+            0%, 100% { opacity: 0.08; transform: translate(-50%,-50%) scale(1); }
+            50%       { opacity: 0.15; transform: translate(-50%,-50%) scale(1.1); }
+        }
+
+        /* Floating particles */
+        .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0%   { opacity: 0; transform: translateY(0) scale(0); }
+            10%  { opacity: 0.6; transform: scale(1); }
+            90%  { opacity: 0.3; }
+            100% { opacity: 0; transform: translateY(-100vh) scale(0.5); }
+        }
+
+        /* Login card */
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             margin: 20px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
+
+        .login-card {
+            background: rgba(15, 20, 35, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0,212,255,0.18);
+            border-radius: 20px;
+            padding: 44px 40px;
+            box-shadow:
+                0 0 0 1px rgba(0,212,255,0.06),
+                0 20px 60px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+            animation: cardAppear 0.6s ease-out;
+        }
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Top accent line */
+        .login-card::before {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, #a78bfa, transparent);
+            margin: -44px -40px 36px;
+            border-radius: 20px 20px 0 0;
+        }
+
         .login-brand {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 36px;
         }
         .login-brand-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #38bdf8, #a78bfa);
-            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(167,139,250,0.2));
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 12px;
+            font-size: 26px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 20px rgba(0,212,255,0.15);
+            animation: iconGlow 3s ease-in-out infinite;
+        }
+        @keyframes iconGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.15); }
+            50%       { box-shadow: 0 0 35px rgba(0,212,255,0.35); }
         }
         .login-brand h1 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
-        .login-brand h1 span { color: #38bdf8; }
-        .login-brand p { color: #64748b; font-size: 14px; margin-top: 4px; }
-        .form-group { margin-bottom: 20px; }
+        .login-brand h1 span { color: #00d4ff; }
+        .login-brand p { color: #64748b; font-size: 13px; margin-top: 5px; letter-spacing: 0.5px; }
+
+        .form-group { margin-bottom: 22px; }
         .form-group label {
             display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #94a3b8;
-            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
         }
         .form-group input {
             width: 100%;
-            padding: 10px 14px;
-            background: #111827;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
+            padding: 11px 16px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 10px;
             color: #e2e8f0;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.25s, box-shadow 0.25s;
         }
-        .form-group input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.1); }
-        .form-group input[readonly] { opacity: 0.7; cursor: not-allowed; }
+        .form-group input:focus {
+            border-color: rgba(0,212,255,0.5);
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.08), 0 0 12px rgba(0,212,255,0.1);
+        }
+        .form-group input[readonly] {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background: rgba(0,0,0,0.25);
+        }
+
         .login-btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-            color: #0a0e17;
+            padding: 13px;
+            background: linear-gradient(135deg, #0ea5e9, #00d4ff);
+            color: #020812;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: box-shadow 0.3s;
+            transition: box-shadow 0.25s, transform 0.15s;
+            margin-top: 4px;
+            position: relative;
+            overflow: hidden;
         }
-        .login-btn:hover { box-shadow: 0 0 20px rgba(56,189,248,0.3); }
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        .login-btn:hover::after { transform: translateX(100%); }
+        .login-btn:hover { box-shadow: 0 0 25px rgba(0,212,255,0.4), 0 4px 16px rgba(0,0,0,0.4); transform: translateY(-1px); }
+        .login-btn:active { transform: translateY(0); }
+
         .login-hint {
             text-align: center;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #64748b;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #334155;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .login-error {
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="login-brand">
-            <div class="login-brand-icon">&#9733;</div>
-            <h1><span>Smart</span>Moons</h1>
-            <p>{{ LNG.adm_password_info|default('Admin Login') }}</p>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-brand">
+                <div class="login-brand-icon">&#9654;</div>
+                <h1><span>2Moons</span>CE</h1>
+                <p>{{ LNG.adm_password_info|default('Administration Panel') }}</p>
+            </div>
+
+            {% if error is defined and error %}
+            <div class="login-error">{{ error }}</div>
+            {% endif %}
+
+            <form action="" method="POST">
+                <div class="form-group">
+                    <label>{{ LNG.adm_username|default('Username') }}</label>
+                    <input type="text" readonly value="{{ username }}">
+                </div>
+                <div class="form-group">
+                    <label>{{ LNG.adm_password|default('Passwort') }}</label>
+                    <input type="password" name="admin_pw" autofocus placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;">
+                </div>
+                <button type="submit" class="login-btn">{{ LNG.adm_absenden|default('Login') }} &#8594;</button>
+            </form>
+            <div class="login-hint">2MoonsCE &bull; Admin Console</div>
         </div>
-        <form action="" method="POST">
-            <div class="form-group">
-                <label>{{ LNG.adm_username|default('Username') }}</label>
-                <input type="text" readonly value="{{ username }}">
-            </div>
-            <div class="form-group">
-                <label>{{ LNG.adm_password|default('Passwort') }}</label>
-                <input type="password" name="admin_pw" autofocus>
-            </div>
-            <button type="submit" class="login-btn">{{ LNG.adm_absenden|default('Login') }}</button>
-        </form>
-        <div class="login-hint">2MoonsCE Administration</div>
     </div>
+
+    <script>
+    (function() {
+        var container = document.getElementById('particles');
+        if (!container) return;
+        for (var i = 0; i < 40; i++) {
+            var p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.animationDuration = (8 + Math.random() * 20) + 's';
+            p.style.animationDelay = (Math.random() * 15) + 's';
+            p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+            p.style.opacity = (0.2 + Math.random() * 0.5).toString();
+            if (Math.random() > 0.5) p.style.background = '#a78bfa';
+            container.appendChild(p);
+        }
+    })();
+    </script>
 </body>
 </html>

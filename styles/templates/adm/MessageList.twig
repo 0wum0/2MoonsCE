@@ -23,6 +23,17 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#9993;</div>
+      <div>
+        <div class="content-card-title">Nachrichten</div>
+        <div class="content-card-subtitle">Spieler-Nachrichten einsehen</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 <form action="admin.php?page=messagelist" method="post" id="form">
 <input type="hidden" name="side" value="{{ page }}" id="side">
 <table>
@@ -78,6 +89,8 @@
 	{% endfor %}
 </table>
 </form>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}
 <script src="scripts/admin/messageList.js"></script>

@@ -23,6 +23,17 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#9999;</div>
+      <div>
+        <div class="content-card-title">{{ LNG.qe_planet|default('Quick Editor: Planet') }}</div>
+        <div class="content-card-subtitle">Schnell-Bearbeitung Planetendaten</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 <script type="text/javascript">
 function check(){
 	$.post('?page=qeditor&edit=planet&id={{ id }}&action=send', $('#userform').serialize(), function(data){
@@ -93,5 +104,7 @@ function check(){
 </tr>
 </table>
 </form>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

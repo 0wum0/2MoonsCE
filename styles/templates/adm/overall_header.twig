@@ -304,10 +304,11 @@
     <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
         <header class="admin-topbar">
             <button class="topbar-hamburger" id="hamburgerBtn" aria-label="Menu">&#9776;</button>
-            <div class="topbar-search">
+            <form class="topbar-search" action="admin.php" method="GET" onsubmit="return globalSearchSubmit(this)">
+                <input type="hidden" name="page" value="search">
                 <span class="topbar-search-icon">&#128269;</span>
-                <input type="text" id="globalSearch" placeholder="Spieler / Planet / Allianz suchen..." autocomplete="off">
-            </div>
+                <input type="text" id="globalSearch" name="q" placeholder="Spieler / Planet / Allianz suchen..." autocomplete="off">
+            </form>
             <div class="topbar-actions">
                 {% if authlevel is defined and authlevel == constant('AUTH_ADM') and AvailableUnis is defined %}
                 <select id="universe" class="topbar-btn" onchange="window.location.href='admin.php?page={{ GET.page|default('overview') }}&uni='+this.value">
@@ -328,4 +329,3 @@
 
         <main class="admin-content">
             {{ hook('admin.content.top') }}
-            <div class="legacy-content">

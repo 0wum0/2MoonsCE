@@ -23,9 +23,20 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#9881;</div>
+      <div>
+        <div class="content-card-title">{{ LNG.se_server_parameters|default('Server Konfiguration') }}</div>
+        <div class="content-card-subtitle">{{ LNG.se_game_name|default('Grundeinstellungen') }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 <form action="" method="post">
 <input type="hidden" name="opt_save" value="1">
-<table width="70%" cellpadding="2" cellspacing="2">
+<table>
 <tr>
 	<th colspan="2">{{ LNG.se_server_parameters }}</th>
 	<th colspan="1" width="5%">(?)</th>
@@ -166,5 +177,7 @@
 </tr>
 </table>
 </form>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

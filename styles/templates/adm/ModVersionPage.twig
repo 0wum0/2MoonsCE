@@ -23,6 +23,17 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#8505;</div>
+      <div>
+        <div class="content-card-title">Mod Versionen</div>
+        <div class="content-card-subtitle">Übersicht installierter Mods</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 {% for Mod in MVC %}
 <table>
     <tr>
@@ -61,7 +72,9 @@
     </tr>
 	{% endif %}
 </table>
-<br><br>
+<br>
 {% endfor %}
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

@@ -23,6 +23,17 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#128230;</div>
+      <div>
+        <div class="content-card-title">{{ mod_module|default('Module') }}</div>
+        <div class="content-card-subtitle">Spielmodul-Verwaltung</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
 <table>
 <tr>
     <th colspan="3">{{ mod_module }}</th>
@@ -43,5 +54,7 @@
 	</tr>
 {% endfor %}
 </table>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}

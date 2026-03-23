@@ -21,13 +21,30 @@
 	See LICENSE for details.
 	@visit http://makeit.uno/
 #}
-            </div><!-- /legacy-content -->
         </main>
     </div>
 </div><!-- /admin-wrapper -->
 
 <script src="./scripts/base/jquery.js?v={{ REV|default('3100') }}"></script>
 <script src="./scripts/game/admin-dashboard.js?v={{ REV|default('3100') }}"></script>
+<script>
+function globalSearchSubmit(form) {
+    var q = form.querySelector('#globalSearch').value.trim();
+    if (!q) return false;
+    window.location.href = 'admin.php?page=search&search=' + encodeURIComponent(q);
+    return false;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    var gs = document.getElementById('globalSearch');
+    if (!gs) return;
+    gs.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            var q = gs.value.trim();
+            if (q) window.location.href = 'admin.php?page=search&search=' + encodeURIComponent(q);
+        }
+    });
+});
+</script>
 {{ hook('admin.footer.beforeScripts') }}
 {% if pluginJs is defined %}{% for jsPath in pluginJs %}<script src="{{ jsPath }}"></script>
 {% endfor %}{% endif %}

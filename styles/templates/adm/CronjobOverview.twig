@@ -23,6 +23,18 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#9200;</div>
+      <div>
+        <div class="content-card-title">{{ LNG.cronjob_overview|default('Cronjobs') }}</div>
+        <div class="content-card-subtitle">Geplante Aufgaben verwalten</div>
+      </div>
+    </div>
+    <a href="admin.php?page=cronjob&amp;action=detail" class="btn-secondary">&#43; Neuer Cronjob</a>
+  </div>
+  <div class="content-card-body">
 <div class="table-responsive">
 <table>
 <tr>
@@ -65,6 +77,8 @@
 </td>
 </tr>
 </table>
+</div>
+  </div>
 </div>
 </div>
 {% include "overall_footer.twig" %}

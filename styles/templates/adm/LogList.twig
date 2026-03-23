@@ -23,6 +23,18 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#128203;</div>
+      <div>
+        <div class="content-card-title">{{ LNG.log_cat|default('Admin Log') }}</div>
+        <div class="content-card-subtitle">Log-Einträge</div>
+      </div>
+    </div>
+    <a href="?page=log" class="btn-secondary">&#8592; Zurück</a>
+  </div>
+  <div class="content-card-body">
 <div class="table-responsive">
 <table>
 <tr>
@@ -44,6 +56,8 @@
 </tr>
 {% endfor %}
 </table>
+</div>
+  </div>
 </div>
 </div>
 {% include "overall_footer.twig" %}

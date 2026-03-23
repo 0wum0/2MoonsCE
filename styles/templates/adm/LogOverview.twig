@@ -23,18 +23,24 @@
 #}
 {% include "overall_header.twig" %}
 <div class="legacy-content">
-<table>
-<tr>
-	<th colspan="2">{{ LNG.log_cat }}</th>
-</tr>
-<tr>
-	<td width="50%"><a href="?page=log&amp;type=planet">{{ LNG.log_planet }}</a></td>
-	<td width="50%"><a href="?page=log&amp;type=player">{{ LNG.log_player }}</a></td>
-</tr>
-<tr>
-	<td><a href="?page=log&amp;type=settings">{{ LNG.log_settings }}</a></td>
-	<td><a href="?page=log&amp;type=present">{{ LNG.log_present }}</a></td>
-</tr>
-</table>
+<div class="content-card">
+  <div class="content-card-header">
+    <div class="content-card-header-left">
+      <div class="content-card-icon">&#128203;</div>
+      <div>
+        <div class="content-card-title">{{ LNG.log_cat }}</div>
+        <div class="content-card-subtitle">Admin Log Kategorien</div>
+      </div>
+    </div>
+  </div>
+  <div class="content-card-body">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="?page=log&amp;type=planet" class="btn-secondary">&#127759; {{ LNG.log_planet }}</a>
+      <a href="?page=log&amp;type=player" class="btn-secondary">&#128100; {{ LNG.log_player }}</a>
+      <a href="?page=log&amp;type=settings" class="btn-secondary">&#9881; {{ LNG.log_settings }}</a>
+      <a href="?page=log&amp;type=present" class="btn-secondary">&#127873; {{ LNG.log_present }}</a>
+    </div>
+  </div>
+</div>
 </div>
 {% include "overall_footer.twig" %}
