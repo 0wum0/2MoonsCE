@@ -250,7 +250,7 @@ body.loading .header-row-main::after { width:100%; }
 /* Icon element rendered as a child span via JS so it sits above the overlay */
 .res-icon-emoji {
   position:relative; z-index:2;
-  font-size:26px; line-height:1; opacity:0.50;
+  font-size:22px; line-height:1; opacity:0.50;
   transition:opacity 0.3s, transform 0.3s, filter 0.3s;
   pointer-events:none;
 }
@@ -279,8 +279,7 @@ body.loading .header-row-main::after { width:100%; }
 .res-item[data-res-name="energy"]     { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(255,220,0,0.24) 100%); }
 .res-item[data-res-name="darkmatter"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(160,80,255,0.30) 100%); }
 /* Per-resource icon emoji + animation (applied via JS to .res-icon-emoji span) */
-.res-item[data-res-name="metal"]      .res-icon-emoji { color:#a0b4c8; animation:resIconSpin 8s linear infinite; }
-.res-item[data-res-name="metal"]:hover .res-icon-emoji { animation-duration:2s; }
+.res-item[data-res-name="metal"]      .res-icon-emoji { color:#a0b4c8; animation:resIconFloat 3.5s ease-in-out infinite 0.6s; }
 .res-item[data-res-name="crystal"]    .res-icon-emoji { color:#60b0ff; animation:resIconFloat 3s ease-in-out infinite; }
 .res-item[data-res-name="deuterium"]  .res-icon-emoji { color:#00dcc0; animation:resIconFloat 2.5s ease-in-out infinite 0.4s; }
 .res-item[data-res-name="energy"]     .res-icon-emoji { color:#ffe040; animation:resIconPulse 1.8s ease-in-out infinite; }

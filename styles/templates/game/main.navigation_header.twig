@@ -535,27 +535,25 @@ if(typeof resourceTicker==='function'){
 <!-- RESOURCE ICON INJECTION -->
 <script>
 (function(){
+    // Font Awesome icon classes per resource (no emoji rendering issues)
     var iconMap = {
-        'metal':      '🪨',
-        'crystal':    '💎',
-        'deuterium':  '💧',
-        'energy':     '⚡',
-        'darkmatter': '✦'
+        'metal':      'fas fa-cubes',
+        'crystal':    'fas fa-gem',
+        'deuterium':  'fas fa-tint',
+        'energy':     'fas fa-bolt',
+        'darkmatter': 'fas fa-circle'
     };
     function initResIcons() {
         document.querySelectorAll('.res-item[data-res-name]').forEach(function(item) {
             var name = item.getAttribute('data-res-name') || '';
             var iconEl = item.querySelector('.res-icon');
             if (!iconEl) return;
-            // Only inject once
             if (iconEl.querySelector('.res-icon-emoji')) return;
-            var emoji = iconMap[name];
-            if (!emoji) return;
-            var span = document.createElement('span');
-            span.className = 'res-icon-emoji';
-            span.textContent = emoji;
+            var faClass = iconMap[name];
+            if (!faClass) return;
+            var span = document.createElement('i');
+            span.className = 'res-icon-emoji ' + faClass;
             iconEl.appendChild(span);
-            // Dark matter: add pixel particles
             if (name === 'darkmatter') {
                 for (var i = 1; i <= 5; i++) {
                     var px = document.createElement('span');
