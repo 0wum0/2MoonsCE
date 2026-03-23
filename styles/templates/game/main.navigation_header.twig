@@ -56,6 +56,22 @@
             </div>
         </div>
 
+        <!-- RESOURCE BAR (inline in topbar) -->
+        <div class="res-bar-inline">
+            {% for resourceID, resourceData in resourceTable %}
+            <div class="res-item res-item-tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
+                <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
+                <div class="res-info">
+                    <span class="res-val {% if resourceData.current >= resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
+                        {% if shortlyNumber %}{{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}{% else %}{{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}{% endif %}
+                    </span>
+                    <div class="res-progress"><div class="res-progress-fill" id="resbar_{{ resourceData.name }}"></div></div>
+                    <span class="res-trend" id="restrend_{{ resourceData.name }}">±0</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
         <div class="header-spacer"></div>
 
         <!-- NOTIFICATION ICONS -->
@@ -310,25 +326,6 @@
         </div>
     </div>
 
-    <!-- RESOURCE BAR (eigene Zeile, NICHT im header-row-main!) -->
-    <div class="res-bar-row">
-        <div class="res-bar-container">
-            <div class="res-bar">
-                {% for resourceID, resourceData in resourceTable %}
-                <div class="res-item res-item-tooltip" data-tooltip-content="{{ LNG.tech[resourceID] }}" data-res-current="{{ resourceData.current|default(0)|raw }}" data-res-max="{{ resourceData.max|default(0)|raw }}" data-res-production="{{ resourceData.production|default(0)|raw }}" data-res-name="{{ resourceData.name }}">
-                    <div class="res-icon"><img src="{{ dpath }}images/{{ resourceData.name }}.gif" alt="{{ LNG.tech[resourceID] }}"></div>
-                    <div class="res-info">
-                        <span class="res-val {% if resourceData.current >= resourceData.max %}text-danger{% endif %}" id="current_{{ resourceData.name }}">
-                            {% if shortlyNumber %}{{ resourceData.current|default(resourceData.max + resourceData.used)|shortly_number }}{% else %}{{ resourceData.current|default(resourceData.max + resourceData.used)|number_format }}{% endif %}
-                        </span>
-                        <div class="res-progress"><div class="res-progress-fill" id="resbar_{{ resourceData.name }}"></div></div>
-                        <span class="res-trend" id="restrend_{{ resourceData.name }}">±0</span>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 </header>
 {{ hook('ingame.navHeader.after') }}
 

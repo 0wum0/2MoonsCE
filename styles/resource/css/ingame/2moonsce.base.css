@@ -47,7 +47,7 @@ img { max-width: 100%; height: auto; }
   --shadow-lg:0 16px 56px rgba(0,0,0,0.88);
   --glow-cyan:0 0 20px rgba(0,212,255,0.28); --glow-red:0 0 20px rgba(255,61,87,0.38);
   --glow-gold:0 0 16px rgba(240,180,41,0.35);
-  --header-h:110px; --sidebar-w:240px; --sidebar-icon-w:64px;
+  --header-h:52px; --sidebar-w:240px; --sidebar-icon-w:64px;
   --transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
   /* Legacy aliases */
   --sm-bg0:#080e1e; --sm-bg1:#0d1628; --sm-bg2:#111d32; --sm-bg3:#16243e;

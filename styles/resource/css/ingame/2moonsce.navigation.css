@@ -180,10 +180,15 @@ body.loading #game-header::after { width:100%; }
 .user-menu-logout:hover { background:rgba(255,61,87,0.1) !important; color:var(--red) !important; border-left-color:var(--red) !important; }
 .user-menu-logout:hover i { color:var(--red) !important; }
 
-/* ── RESOURCE BAR ── */
-.res-bar-row {
-  background:rgba(3,6,15,0.92); padding:0 16px;
+/* ── RESOURCE BAR (inline in topbar) ── */
+.res-bar-row { display:none !important; }
+.res-bar-inline {
+  display:flex; align-items:center; gap:5px; flex:1;
+  overflow-x:auto; overflow-y:visible;
+  scrollbar-width:none; -ms-overflow-style:none;
+  padding:0 6px;
 }
+.res-bar-inline::-webkit-scrollbar { display:none; }
 .res-bar-container { overflow-x:auto; }
 .res-bar { display:flex; gap:6px; padding:6px 0; justify-content:center; flex-wrap:wrap; }
 .res-item {
