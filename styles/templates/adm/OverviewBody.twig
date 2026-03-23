@@ -399,6 +399,187 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+{# ---- NEW: Extended Dashboard Panels ---- #}
+<div class="dash-ext-grid">
+
+  {# Last 10 Registrations #}
+  <div class="dash-ext-card">
+    <div class="dash-ext-title">&#128100; Letzte 10 Registrierungen</div>
+    {% set regs = report.last_registrations|default([]) %}
+    {% if regs is not empty %}
+    <table class="dash-ext-table">
+      <thead><tr><th>#</th><th>Spieler</th><th>Datum</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for i, r in regs %}
+        <tr class="{% if i < 3 %}dash-row-new{% endif %}">
+          <td><span class="dash-rank-badge {% if i < 3 %}dash-rank-new{% endif %}">{{ loop.index }}</span></td>
+          <td>
+            <a href="admin.php?page=accountedit&id={{ r.id }}" class="dash-player-link">{{ r.username }}</a>
+            {% if i < 3 %}<span class="dash-new-badge">NEU</span>{% endif %}
+          </td>
+          <td class="dash-muted">{{ r.register_time|date('d.m.Y H:i') }}</td>
+          <td>
+            {% if r.authlevel < 0 %}<span class="dash-tag dash-tag-bot">Bot</span>
+            {% elseif r.authlevel > 0 %}<span class="dash-tag dash-tag-admin">Admin</span>
+            {% else %}<span class="dash-tag dash-tag-ok">Spieler</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="no-data">Keine Daten</div>{% endif %}
+  </div>
+
+  {# Real vs Bot Overview #}
+  <div class="dash-ext-card">
+    <div class="dash-ext-title">&#129302; Spieler vs. Bots</div>
+    <div class="dash-split-stat">
+      <div class="dash-split-item dash-split-real">
+        <div class="dash-split-num">{{ report.real_player_count|default(0) }}</div>
+        <div class="dash-split-label">Echte Spieler</div>
+      </div>
+      <div class="dash-split-divider"></div>
+      <div class="dash-split-item dash-split-bot">
+        <div class="dash-split-num">{{ report.bot_player_count|default(0) }}</div>
+        <div class="dash-split-label">Bot-Accounts</div>
+      </div>
+    </div>
+
+    <div class="dash-ext-subtitle">&#128293; Aktivste echte Spieler (24h)</div>
+    {% set topReal = report.top_online_real|default([]) %}
+    {% if topReal is not empty %}
+    <div class="dash-mini-list">
+      {% for p in topReal %}
+      <a href="admin.php?page=accountedit&id={{ p.id }}" class="dash-mini-row">
+        <span class="dash-mini-rank">{{ loop.index }}</span>
+        <span class="dash-mini-name">{{ p.username }}</span>
+        <span class="dash-muted">{{ p.onlinetime|date('H:i') }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}<div class="no-data">Niemand online</div>{% endif %}
+
+    <div class="dash-ext-subtitle" style="margin-top:14px;">&#129302; Aktivste Bots</div>
+    {% set topBots = report.top_bots|default([]) %}
+    {% if topBots is not empty %}
+    <div class="dash-mini-list">
+      {% for p in topBots %}
+      <a href="admin.php?page=accountedit&id={{ p.id }}" class="dash-mini-row dash-mini-row-bot">
+        <span class="dash-mini-rank">{{ loop.index }}</span>
+        <span class="dash-mini-name">{{ p.username }}</span>
+        <span class="dash-muted">{{ p.onlinetime|date('H:i') }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}<div class="no-data">Keine Bots</div>{% endif %}
+  </div>
+
+  {# Playstyle Classification #}
+  <div class="dash-ext-card dash-ext-card-wide">
+    <div class="dash-ext-title">&#127918; Spielertypen (Top 20 nach Punkten)</div>
+    <div class="dash-playstyle-grid">
+
+      <div class="dash-playstyle-col">
+        <div class="dash-playstyle-header dash-playstyle-miner">&#9935; Miner ({{ report.playstyle.miners|default([])|length }})</div>
+        {% for p in report.playstyle.miners|default([]) %}
+        <a href="admin.php?page=accountedit&id={{ p.id }}" class="dash-ps-row">
+          <span class="dash-ps-name">{{ p.name }}</span>
+          <span class="dash-ps-pts">{{ p.total }} Pkt</span>
+        </a>
+        {% else %}<div class="no-data">–</div>{% endfor %}
+      </div>
+
+      <div class="dash-playstyle-col">
+        <div class="dash-playstyle-header dash-playstyle-aggressor">&#9876; Aggressiv ({{ report.playstyle.aggressors|default([])|length }})</div>
+        {% for p in report.playstyle.aggressors|default([]) %}
+        <a href="admin.php?page=accountedit&id={{ p.id }}" class="dash-ps-row">
+          <span class="dash-ps-name">{{ p.name }}</span>
+          <span class="dash-ps-pts">{{ p.total }} Pkt</span>
+        </a>
+        {% else %}<div class="no-data">–</div>{% endfor %}
+      </div>
+
+      <div class="dash-playstyle-col">
+        <div class="dash-playstyle-header dash-playstyle-neutral">&#9878; Neutral ({{ report.playstyle.neutrals|default([])|length }})</div>
+        {% for p in report.playstyle.neutrals|default([]) %}
+        <a href="admin.php?page=accountedit&id={{ p.id }}" class="dash-ps-row">
+          <span class="dash-ps-name">{{ p.name }}</span>
+          <span class="dash-ps-pts">{{ p.total }} Pkt</span>
+        </a>
+        {% else %}<div class="no-data">–</div>{% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{# ---- NEW: Fleet missions + Buildings charts ---- #}
+<div class="charts-grid">
+
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">&#128640; Flottenaktionen (aktuell fliegend)</div>
+        <div class="chart-card-subtitle">Aufschlüsselung nach Missionstyp</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartFleetMissions"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">&#127959; Meistgebaute Gebäude</div>
+        <div class="chart-card-subtitle">Gesamt-Level aller Spieler (Top 10)</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartBuildingsMost"></canvas></div>
+  </div>
+
+</div>
+
+{# ---- NEW: Buildings table ---- #}
+<div class="dash-ext-grid">
+  <div class="dash-ext-card">
+    <div class="dash-ext-title">&#127959; Gebäude-Statistik: Meistgebaut</div>
+    {% set bMost = report.buildings_most|default([]) %}
+    {% if bMost is not empty %}
+    <table class="dash-ext-table">
+      <thead><tr><th>Element-ID</th><th>Gesamt-Level</th><th>Spieler</th></tr></thead>
+      <tbody>
+        {% for b in bMost %}
+        <tr>
+          <td><span class="dash-tag dash-tag-ok">ID {{ b.elementID }}</span></td>
+          <td>{{ b.total_levels }}</td>
+          <td class="dash-muted">{{ b.player_count }} Spieler</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="no-data">Keine Records-Daten</div>{% endif %}
+  </div>
+
+  <div class="dash-ext-card">
+    <div class="dash-ext-title">&#128683; Wenigstgebaute Gebäude</div>
+    {% set bLeast = report.buildings_least|default([]) %}
+    {% if bLeast is not empty %}
+    <table class="dash-ext-table">
+      <thead><tr><th>Element-ID</th><th>Gesamt-Level</th><th>Spieler</th></tr></thead>
+      <tbody>
+        {% for b in bLeast %}
+        <tr>
+          <td><span class="dash-tag dash-tag-warn">ID {{ b.elementID }}</span></td>
+          <td>{{ b.total_levels }}</td>
+          <td class="dash-muted">{{ b.player_count }} Spieler</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="no-data">Keine Records-Daten</div>{% endif %}
+  </div>
+</div>
+
 {# ---- Bot Log Section (wie bei dir) ---- #}
 <div class="report-section">
   <div class="report-section-title">&#128202; {{ LNG.adm_bilanz }} &mdash; {{ periodLabel|default(LNG.adm_today) }}</div>
@@ -541,6 +722,38 @@ document.addEventListener('DOMContentLoaded', function() {
     ]},
     options: ctxOpts
   });
+
+  // Fleet missions doughnut
+  const fmLabels = toArray(charts.fleetMissionLabels);
+  const fmData   = toArray(charts.fleetMissionData);
+  const fmColors = ['#f87171','#fb923c','#fbbf24','#34d399','#38bdf8','#818cf8','#c084fc','#e879f9','#f472b6','#94a3b8','#2dd4bf','#a3e635'];
+  if (fmLabels.length > 0) {
+    mkChart('chartFleetMissions', {
+      type: 'doughnut',
+      data: { labels: fmLabels, datasets: [{ data: fmData, backgroundColor: fmColors.slice(0, fmData.length), borderWidth: 2, borderColor: '#0d1526' }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'right', labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 14, padding: 10 } },
+          tooltip: { callbacks: { label: function(ctx) { return ' ' + ctx.label + ': ' + ctx.raw; } } }
+        },
+        cutout: '60%'
+      }
+    });
+  }
+
+  // Buildings most built bar
+  const bReport = (data.report || {});
+  const bMost   = Array.isArray(bReport.buildings_most) ? bReport.buildings_most : [];
+  if (bMost.length > 0) {
+    const bLabels = bMost.map(b => 'ID ' + b.elementID);
+    const bData   = bMost.map(b => parseInt(b.total_levels) || 0);
+    mkChart('chartBuildingsMost', {
+      type: 'bar',
+      data: { labels: bLabels, datasets: [{ label: 'Gesamt-Level', data: bData, backgroundColor: '#818cf8', borderRadius: 4 }] },
+      options: Object.assign({}, ctxOpts, { indexAxis: 'y', plugins: { legend: { display: false } } })
+    });
+  }
 
   function buildPeriodUrl(period){
     const url = new URL(window.location.href);

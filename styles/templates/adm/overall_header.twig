@@ -35,7 +35,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Share+Tech+Mono&display=swap">
-    <link rel="stylesheet" href="./styles/resource/css/admin/main.css?v=4">
+    <link rel="stylesheet" href="./styles/resource/css/admin/main.css?v=5">
     <style>
         /* Inline critical styles to prevent FOUC */
         body { background: #03060f; color: #a8c8e8; margin: 0; font-family: 'Exo 2', system-ui, sans-serif; }
@@ -126,28 +126,68 @@
                 }
             }
 
-            function updateBody(body, count, isError) {
-                if (count > 0) {
-                    if (isError) {
-                        body.innerHTML = '<div class="adm-notif-item adm-notif-item-error">'
-                            + '<div class="adm-notif-item-icon">&#9888;</div>'
-                            + '<div class="adm-notif-item-text">'
-                            + '<strong>' + count + ' Fehler-Eintr' + (count === 1 ? 'ag' : '\u00e4ge') + '</strong>'
-                            + '<span>im Error-Log vorhanden</span>'
-                            + '</div></div>';
-                    } else {
-                        body.innerHTML = '<div class="adm-notif-item adm-notif-item-ticket">'
+            function esc(str) {
+                return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
+
+            function updateTicketBody(body, count, items) {
+                if (count === 0) {
+                    body.innerHTML = '<div class="adm-notif-empty">Keine offenen Tickets &#10003;</div>';
+                    return;
+                }
+                var html = '';
+                if (Array.isArray(items) && items.length > 0) {
+                    items.forEach(function(t) {
+                        var url = 'admin.php?page=support&id=' + encodeURIComponent(t.id);
+                        html += '<a class="adm-notif-item adm-notif-item-ticket adm-notif-link" href="' + url + '">'
                             + '<div class="adm-notif-item-icon">&#127903;</div>'
                             + '<div class="adm-notif-item-text">'
-                            + '<strong>' + count + ' offene' + (count === 1 ? 's Ticket' : ' Tickets') + '</strong>'
-                            + '<span>warten auf Antwort</span>'
-                            + '</div></div>';
+                            + '<strong>' + esc(t.subject) + '</strong>'
+                            + '<span><em>' + esc(t.category) + '</em> &mdash; ' + esc(t.sender) + '</span>'
+                            + '<span class="adm-notif-time">' + esc(t.time) + '</span>'
+                            + '</div></a>';
+                    });
+                    if (count > items.length) {
+                        html += '<a class="adm-notif-viewmore" href="admin.php?page=support">+'
+                            + (count - items.length) + ' weitere &rarr;</a>';
                     }
                 } else {
-                    body.innerHTML = '<div class="adm-notif-empty">'
-                        + (isError ? 'Keine Fehler &#10003;' : 'Keine offenen Tickets &#10003;')
-                        + '</div>';
+                    html = '<div class="adm-notif-item adm-notif-item-ticket">'
+                        + '<div class="adm-notif-item-icon">&#127903;</div>'
+                        + '<div class="adm-notif-item-text"><strong>' + count
+                        + ' offene' + (count === 1 ? 's Ticket' : ' Tickets') + '</strong>'
+                        + '<span>warten auf Antwort</span></div></div>';
                 }
+                body.innerHTML = html;
+            }
+
+            function updateErrorBody(body, count, items, logUrl) {
+                if (count === 0) {
+                    body.innerHTML = '<div class="adm-notif-empty">Keine Fehler &#10003;</div>';
+                    return;
+                }
+                var html = '';
+                if (Array.isArray(items) && items.length > 0) {
+                    items.forEach(function(e) {
+                        html += '<a class="adm-notif-item adm-notif-item-error adm-notif-link" href="' + esc(logUrl || 'admin.php?page=log') + '">'
+                            + '<div class="adm-notif-item-icon">&#9888;</div>'
+                            + '<div class="adm-notif-item-text">'
+                            + '<strong>' + esc(e.header) + '</strong>'
+                            + (e.message ? '<span>' + esc(e.message) + '</span>' : '')
+                            + '</div></a>';
+                    });
+                    if (count > items.length) {
+                        html += '<a class="adm-notif-viewmore" href="' + esc(logUrl || 'admin.php?page=log') + '">'
+                            + 'Alle ' + count + ' Eintr\u00e4ge ansehen &rarr;</a>';
+                    }
+                } else {
+                    html = '<a class="adm-notif-item adm-notif-item-error adm-notif-link" href="' + esc(logUrl || 'admin.php?page=log') + '">'
+                        + '<div class="adm-notif-item-icon">&#9888;</div>'
+                        + '<div class="adm-notif-item-text"><strong>' + count
+                        + ' Fehler-Eintr' + (count === 1 ? 'ag' : '\u00e4ge') + '</strong>'
+                        + '<span>im Error-Log vorhanden</span></div></a>';
+                }
+                body.innerHTML = html;
             }
 
             function poll() {
@@ -160,8 +200,8 @@
                             var data = JSON.parse(xhr.responseText);
                             updateBadge(errorBadge,  data.errors  || 0);
                             updateBadge(ticketBadge, data.tickets || 0);
-                            updateBody(errorBody,  data.errors  || 0, true);
-                            updateBody(ticketBody, data.tickets || 0, false);
+                            updateErrorBody(errorBody,  data.errors  || 0, data.errorItems  || [], data.errorLogUrl);
+                            updateTicketBody(ticketBody, data.tickets || 0, data.ticketItems || []);
                         } catch(ignored) {}
                     }
                 };

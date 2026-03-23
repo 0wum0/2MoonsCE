@@ -170,7 +170,7 @@ function ShowOverviewPage(): void
     ==========================*/
 
     $topPlayers = $db->select(
-        "SELECT u.username, s.total_points as points
+        "SELECT u.id, u.username, s.total_points as points
          FROM %%STATPOINTS%% s
          LEFT JOIN %%USERS%% u ON u.id = s.id_owner
          WHERE s.stat_type = 1
@@ -179,13 +179,182 @@ function ShowOverviewPage(): void
     );
 
     $activePlayers = $db->select(
-        "SELECT username
+        "SELECT id, username, onlinetime
          FROM %%USERS%%
-         WHERE onlinetime >= :time
+         WHERE onlinetime >= :time AND authlevel = 0
          ORDER BY onlinetime DESC
-         LIMIT 5",
+         LIMIT 10",
         [':time' => TIMESTAMP - 86400]
     );
+
+    /* =========================
+       LAST 10 REGISTRATIONS
+    ==========================*/
+
+    $lastRegistrations = $db->select(
+        "SELECT id, username, register_time, user_lastip, authlevel
+         FROM %%USERS%%
+         ORDER BY register_time DESC
+         LIMIT 10"
+    );
+
+    /* =========================
+       FLEET MISSIONS BREAKDOWN
+    ==========================*/
+
+    // Mission types: 1=attack, 2=ACS, 3=transport, 4=deploy, 5=hold, 6=spy, 7=colonize,
+    //                8=recycle, 9=destroy, 10=ACS defend, 11=expedition, 15=expedition return
+    $fleetMissions = $db->select(
+        "SELECT fleet_mission, COUNT(*) as cnt
+         FROM %%FLEETS%%
+         GROUP BY fleet_mission
+         ORDER BY cnt DESC"
+    );
+
+    $missionLabels = [
+        1  => 'Angriff',
+        2  => 'ACS Angriff',
+        3  => 'Transport',
+        4  => 'Stationieren',
+        5  => 'Halten',
+        6  => 'Spionage',
+        7  => 'Kolonisieren',
+        8  => 'Recyceln',
+        9  => 'Zerstören',
+        10 => 'ACS Verteidigung',
+        11 => 'Expedition',
+        15 => 'Rückkehr',
+    ];
+
+    $fleetMissionData   = [];
+    $fleetMissionLabels = [];
+    $totalFleetsSent    = 0;
+    if (is_array($fleetMissions)) {
+        foreach ($fleetMissions as $row) {
+            $mid                  = (int)($row['fleet_mission'] ?? 0);
+            $cnt                  = (int)($row['cnt'] ?? 0);
+            $fleetMissionLabels[] = $missionLabels[$mid] ?? "Mission $mid";
+            $fleetMissionData[]   = $cnt;
+            $totalFleetsSent     += $cnt;
+        }
+    }
+
+    /* =========================
+       BUILDINGS MOST / LEAST BUILT
+    ==========================*/
+
+    // Use records table: elementID = building/research/fleet element, level = max level reached
+    // Building IDs 1-44 (standard 2Moons range), get top 10 and bottom 10 by total levels built
+    $buildingStats = $db->select(
+        "SELECT elementID, SUM(level) as total_levels, COUNT(*) as player_count
+         FROM %%RECORDS%%
+         WHERE elementID BETWEEN 1 AND 44
+         GROUP BY elementID
+         ORDER BY total_levels DESC
+         LIMIT 10"
+    );
+
+    $buildingLeast = $db->select(
+        "SELECT elementID, SUM(level) as total_levels, COUNT(*) as player_count
+         FROM %%RECORDS%%
+         WHERE elementID BETWEEN 1 AND 44
+         GROUP BY elementID
+         ORDER BY total_levels ASC
+         LIMIT 5"
+    );
+
+    /* =========================
+       PLAYER PLAYSTYLE CLASSIFICATION
+       Miner: high buildings/research points, low fleet points
+       Aggressive: high fleet + many attacks (message_type=1 sent)
+       Bot: authlevel < 0 or special flag
+    ==========================*/
+
+    // Real players (authlevel = 0, not banned)
+    $realPlayerCount = (int)$db->selectSingle(
+        "SELECT COUNT(*) as cnt FROM %%USERS%% WHERE authlevel = 0 AND bana = 0",
+        [], 'cnt'
+    );
+
+    // Bot players (authlevel < 0)
+    $botPlayerCount = (int)$db->selectSingle(
+        "SELECT COUNT(*) as cnt FROM %%USERS%% WHERE authlevel < 0",
+        [], 'cnt'
+    );
+
+    // Most online real players (last 24h, non-bot)
+    $topOnlineReal = $db->select(
+        "SELECT u.id, u.username, u.onlinetime
+         FROM %%USERS%% u
+         WHERE u.authlevel = 0 AND u.onlinetime >= :t
+         ORDER BY u.onlinetime DESC
+         LIMIT 10",
+        [':t' => TIMESTAMP - 86400]
+    );
+
+    // Most active bots
+    $topBots = $db->select(
+        "SELECT id, username, onlinetime
+         FROM %%USERS%%
+         WHERE authlevel < 0
+         ORDER BY onlinetime DESC
+         LIMIT 10"
+    );
+
+    // Player playstyle: join statpoints to classify
+    // stat_type 1=total, 2=buildings, 3=research, 4=fleet, 5=defence
+    $playstyleData = $db->select(
+        "SELECT u.id, u.username,
+                MAX(CASE WHEN s.stat_type = 1 THEN s.total_points ELSE 0 END) as total_pts,
+                MAX(CASE WHEN s.stat_type = 2 THEN s.total_points ELSE 0 END) as building_pts,
+                MAX(CASE WHEN s.stat_type = 3 THEN s.total_points ELSE 0 END) as research_pts,
+                MAX(CASE WHEN s.stat_type = 4 THEN s.total_points ELSE 0 END) as fleet_pts,
+                MAX(CASE WHEN s.stat_type = 5 THEN s.total_points ELSE 0 END) as defence_pts
+         FROM %%USERS%% u
+         LEFT JOIN %%STATPOINTS%% s ON s.id_owner = u.id
+         WHERE u.authlevel = 0 AND u.bana = 0
+         GROUP BY u.id, u.username
+         ORDER BY total_pts DESC
+         LIMIT 20"
+    );
+
+    // Classify each player
+    $miners      = [];
+    $aggressors  = [];
+    $neutrals    = [];
+
+    if (is_array($playstyleData)) {
+        foreach ($playstyleData as $p) {
+            $total    = (int)($p['total_pts']    ?? 1);
+            $fleet    = (int)($p['fleet_pts']    ?? 0);
+            $building = (int)($p['building_pts'] ?? 0);
+            $research = (int)($p['research_pts'] ?? 0);
+            $defence  = (int)($p['defence_pts']  ?? 0);
+            if ($total < 1) $total = 1;
+
+            $fleetRatio    = $fleet    / $total;
+            $buildingRatio = ($building + $research) / $total;
+            $defenceRatio  = $defence  / $total;
+
+            $entry = [
+                'id'       => (int)$p['id'],
+                'name'     => $p['username'],
+                'total'    => $total,
+                'fleet'    => $fleet,
+                'building' => $building,
+                'research' => $research,
+                'defence'  => $defence,
+            ];
+
+            if ($fleetRatio >= 0.50) {
+                $aggressors[] = $entry;
+            } elseif ($buildingRatio >= 0.60) {
+                $miners[] = $entry;
+            } else {
+                $neutrals[] = $entry;
+            }
+        }
+    }
 
     /* =========================
        CHARTS: TIMESLOTS
@@ -428,18 +597,37 @@ function ShowOverviewPage(): void
         'top_players'         => is_array($topPlayers) ? $topPlayers : [],
         'active_players'      => is_array($activePlayers) ? $activePlayers : [],
         'bot_activity'        => $botActivity,
+        'last_registrations'  => is_array($lastRegistrations) ? $lastRegistrations : [],
+        'fleet_missions'      => [
+            'labels' => $fleetMissionLabels,
+            'data'   => $fleetMissionData,
+            'total'  => $totalFleetsSent,
+        ],
+        'buildings_most'      => is_array($buildingStats) ? $buildingStats : [],
+        'buildings_least'     => is_array($buildingLeast) ? $buildingLeast : [],
+        'real_player_count'   => $realPlayerCount,
+        'bot_player_count'    => $botPlayerCount,
+        'top_online_real'     => is_array($topOnlineReal) ? $topOnlineReal : [],
+        'top_bots'            => is_array($topBots) ? $topBots : [],
+        'playstyle'           => [
+            'miners'     => $miners,
+            'aggressors' => $aggressors,
+            'neutrals'   => $neutrals,
+        ],
     ];
 
     // ✅ Chart Fix: Labels & alle Datasets als NUMERISCHE Arrays rausgeben
     $labels = array_keys($timeSlots);
 
     $chartData = [
-        'labels'        => array_values($labels),
-        'registrations' => array_values($chartRegs),
-        'activity'      => array_values($finalActivity),
-        'fleets'        => array_values($finalFleets),
-        'combats'       => array_values($chartCombats),
-        'bots'          => array_values($chartBots),
+        'labels'              => array_values($labels),
+        'registrations'       => array_values($chartRegs),
+        'activity'            => array_values($finalActivity),
+        'fleets'              => array_values($finalFleets),
+        'combats'             => array_values($chartCombats),
+        'bots'                => array_values($chartBots),
+        'fleetMissionLabels'  => $fleetMissionLabels,
+        'fleetMissionData'    => $fleetMissionData,
     ];
 
     $template = new template();
