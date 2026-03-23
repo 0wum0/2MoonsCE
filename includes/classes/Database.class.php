@@ -315,6 +315,9 @@ class Database
     {
         $this->lastInsertId = false;
         $this->rowCount     = false;
+        if ($this->dbHandle === null) {
+            $this->__construct();
+        }
         $this->rowCount     = $this->dbHandle->exec($qry);
         $this->queryCounter++;
     }
@@ -323,6 +326,10 @@ class Database
     {
         $this->lastInsertId = false;
         $this->rowCount     = false;
+
+        if ($this->dbHandle === null) {
+            $this->__construct();
+        }
 
         $qry = str_replace($this->dbTableNames['keys'], $this->dbTableNames['names'], $qry);
 
