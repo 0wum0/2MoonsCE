@@ -242,14 +242,14 @@ body.loading .header-row-main::after { width:100%; }
 }
 .res-icon img { display:none; }
 .res-icon::before {
-  font-size:28px; line-height:1; opacity:0.22;
+  font-size:26px; line-height:1; opacity:0.45;
   transition:opacity 0.3s, transform 0.3s, filter 0.3s;
 }
-.res-item:hover .res-icon::before { opacity:0.65; filter:drop-shadow(0 0 8px currentColor); transform:scale(1.18) rotate(-5deg); }
-/* Dark gradient overlay */
+.res-item:hover .res-icon::before { opacity:0.85; filter:drop-shadow(0 0 8px currentColor); transform:scale(1.18) rotate(-5deg); }
+/* Subtle dark overlay – left side darker so text stays readable, right side lighter so icon shines */
 .res-icon::after {
   content:''; position:absolute; inset:0;
-  background:linear-gradient(120deg,rgba(0,10,30,0.82) 40%,rgba(0,0,0,0.0) 100%);
+  background:linear-gradient(110deg,rgba(2,6,20,0.78) 0%,rgba(2,6,20,0.40) 55%,rgba(0,0,0,0.0) 100%);
   pointer-events:none;
 }
 /* Idle animations */
@@ -258,16 +258,16 @@ body.loading .header-row-main::after { width:100%; }
 @keyframes resIconPulse  { 0%,100%{opacity:0.22} 50%{opacity:0.40;filter:drop-shadow(0 0 6px currentColor)} }
 @keyframes resIconOrbit  { 0%{transform:rotate(0deg) scale(1)} 50%{transform:rotate(180deg) scale(1.06)} 100%{transform:rotate(360deg) scale(1)} }
 /* Per-resource icon + color + animation */
-.res-item[data-res-name="metal"] { background:linear-gradient(135deg,rgba(120,140,160,0.22) 0%,rgba(4,8,22,0.97) 100%); }
+.res-item[data-res-name="metal"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(120,140,160,0.28) 100%); }
 .res-item[data-res-name="metal"] .res-icon::before { content:'⚙'; color:#a0b4c8; animation:resIconSpin 8s linear infinite; }
 .res-item[data-res-name="metal"]:hover .res-icon::before { animation-duration:2s; }
-.res-item[data-res-name="crystal"] { background:linear-gradient(135deg,rgba(80,160,255,0.22) 0%,rgba(4,8,22,0.97) 100%); }
+.res-item[data-res-name="crystal"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(80,160,255,0.28) 100%); }
 .res-item[data-res-name="crystal"] .res-icon::before { content:'💎'; color:#60b0ff; animation:resIconFloat 3s ease-in-out infinite; }
-.res-item[data-res-name="deuterium"] { background:linear-gradient(135deg,rgba(0,220,180,0.22) 0%,rgba(4,8,22,0.97) 100%); }
+.res-item[data-res-name="deuterium"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(0,220,180,0.28) 100%); }
 .res-item[data-res-name="deuterium"] .res-icon::before { content:'💧'; color:#00dcc0; animation:resIconFloat 2.5s ease-in-out infinite 0.4s; }
-.res-item[data-res-name="energy"] { background:linear-gradient(135deg,rgba(255,220,0,0.18) 0%,rgba(4,8,22,0.97) 100%); }
+.res-item[data-res-name="energy"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(255,220,0,0.22) 100%); }
 .res-item[data-res-name="energy"] .res-icon::before { content:'⚡'; color:#ffe040; animation:resIconPulse 1.8s ease-in-out infinite; }
-.res-item[data-res-name="darkmatter"] { background:linear-gradient(135deg,rgba(160,80,255,0.22) 0%,rgba(4,8,22,0.97) 100%); }
+.res-item[data-res-name="darkmatter"] { background:linear-gradient(135deg,rgba(4,8,22,0.97) 0%,rgba(160,80,255,0.28) 100%); }
 .res-item[data-res-name="darkmatter"] .res-icon::before { content:'🌑'; color:#b060ff; animation:resIconOrbit 6s ease-in-out infinite; }
 /* Hover glow per resource */
 .res-item[data-res-name="metal"]:hover     { box-shadow:inset 0 0 0 1px rgba(160,180,200,0.15), 0 0 20px rgba(160,180,200,0.12); }
@@ -280,13 +280,13 @@ body.loading .header-row-main::after { width:100%; }
   position:absolute; inset:0; display:flex; flex-direction:column;
   justify-content:center; padding:4px 7px; z-index:1; min-width:0;
 }
-.res-val { font-family:var(--font-mono); font-size:11px; color:var(--white); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,0.9); }
+.res-val { font-family:var(--font-mono); font-size:11px; color:#e8f4ff; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; font-weight:700; text-shadow:0 0 8px rgba(0,0,0,1), 0 1px 4px rgba(0,0,0,1); }
 .res-val.text-danger { color:var(--red) !important; }
 .res-progress { height:3px; background:rgba(255,255,255,0.15); border-radius:2px; margin:3px 0 2px; overflow:hidden; }
 .res-progress-fill { height:100%; border-radius:2px; transition:width 0.6s ease,background 0.6s ease; }
 .res-progress-fill.is-full { animation:fullBarPulse 1.5s ease-in-out infinite; }
 @keyframes fullBarPulse { 0%,100%{opacity:.7} 50%{opacity:1;box-shadow:0 0 6px rgba(255,140,0,0.5)} }
-.res-trend { font-family:var(--font-mono); font-size:9px; display:block; text-shadow:0 1px 2px rgba(0,0,0,0.9); }
+.res-trend { font-family:var(--font-mono); font-size:9px; display:block; text-shadow:0 0 6px rgba(0,0,0,1), 0 1px 3px rgba(0,0,0,1); }
 .res-trend.up { color:var(--green); }
 .res-trend.down { color:var(--red); }
 .res-trend.flat { color:rgba(168,200,232,0.7); }
