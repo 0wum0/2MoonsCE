@@ -68,9 +68,9 @@ html:has(#gm-root), body:has(#gm-root) {
 /* ── Root: covers full viewport over game UI ──────────────────────── */
 #gm-root {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: var(--sm-header-total, 60px); left: 0; right: 0; bottom: 0;
   width: 100%; max-width: 100vw;
-  z-index: 8000;
+  z-index: 800;
   background: #020510;
   font-family: 'Rajdhani', sans-serif;
   color: #c8e6ff;
@@ -415,6 +415,7 @@ html:has(#gm-root), body:has(#gm-root) {
 .ab-msg  { background:rgba(168,85,247,.09); border:1px solid rgba(168,85,247,.3);  color:var(--purple); }
 .ab-card { background:rgba(255,215,0,.07);  border:1px solid rgba(255,215,0,.25);  color:var(--gold); }
 .ab-rec  { background:rgba(255,153,0,.09);  border:1px solid rgba(255,153,0,.28);  color:#ff9900; }
+.ab-mis  { background:rgba(232,48,74,.10);  border:1px solid rgba(232,48,74,.35);  color:#e8304a; }
 .ap-own  { text-align:center;padding:7px;font-size:11px;color:var(--green);font-family:'Orbitron',monospace;letter-spacing:1px; }
 
 /* ── Player card ─────────────────────────────────────────────────── */
@@ -2165,8 +2166,9 @@ function rebuildFleetMeshes() {
 
     const stype   = fleetShipType(f.mission || 0, isHostile, isNeutral);
     // Colony ships noticeably bigger; spy probes small; others equal
-    const sizeMap = { fighter: 0.55, transport: 0.60, colony: 0.90, spy: 0.40, recycler: 0.58 };
-    const shipSz  = dotSize * dotMult * (sizeMap[stype] || 0.55);
+    // Sizes are in world units – planets are ~8-20 units, ships must be smaller
+    const baseSz = { fighter: 14, transport: 16, colony: 22, spy: 10, recycler: 15 };
+    const shipSz = (baseSz[stype] || 14) * ((window.innerWidth <= 768) ? 2.5 : 1);
 
     // Ownership key for fighter PNG variant selection
     const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
@@ -2174,19 +2176,20 @@ function rebuildFleetMeshes() {
     const ds = new THREE.Sprite(new THREE.SpriteMaterial({
       map: shipTex(stype, dotCol, ownerKey),
       transparent: true, depthWrite: false,
-      sizeAttenuation: true, blending: THREE.AdditiveBlending
+      sizeAttenuation: true
+      // No AdditiveBlending – PNG images need normal alpha blending
     }));
     ds.position.set(curPos.x, curPos.y + 4, curPos.z);
     ds.scale.setScalar(shipSz);
 
-    // Rotate sprite so nose points along travel direction (2D screen rotation)
-    // Get forward direction projected onto XZ plane, convert to sprite rotation angle
+    // Rotate sprite so nose points along travel direction
+    // PNG ships have nose pointing UP in image → atan2(dx,dz) gives correct forward angle
     const prg2    = Math.min(1, prg + 0.01);
     const ahead   = st.curve.getPoint(prg2);
     const dx      = ahead.x - curPos.x;
     const dz      = ahead.z - curPos.z;
     if (Math.abs(dx) + Math.abs(dz) > 0.001) {
-      ds.material.rotation = Math.atan2(dx, dz); // atan2(x,z) → angle in XZ plane
+      ds.material.rotation = Math.atan2(dx, dz);
     }
 
     ds.userData = { fleet: f, isFleetDot: true };
@@ -2850,9 +2853,10 @@ function showAction(pl) {
   } else {
     const uid = pl.user_id;
     btn.innerHTML = `
-      <a class="ap-btn ab-spy"  href="${base}&target_mission=6"><i class="fas fa-satellite"></i> SPY</a>
+      <button class="ap-btn ab-spy" onclick="GM.quickSpy(${g},${ss},${p})"><i class="fas fa-satellite"></i> SPY</button>
       <a class="ap-btn ab-atk"  href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ATTACK</a>
       <a class="ap-btn ab-flt"  href="${base}"><i class="fas fa-rocket"></i> FLEET</a>
+      <button class="ap-btn ab-mis" onclick="GM.quickMissile(${g},${ss},${p})"><i class="fas fa-bomb"></i> RAKETE</button>
       <a class="ap-btn ab-msg"  href="game.php?page=messages&mode=write&player_id=${uid}"><i class="fas fa-envelope"></i> MESSAGE</a>
       <a class="ap-btn ab-card" href="javascript:GM.showCard(${uid})"><i class="fas fa-id-card"></i> PLAYERCARD</a>
       ${pl.has_debris ? `<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>` : ''}
@@ -2863,6 +2867,76 @@ function showAction(pl) {
   flyTo(posMap[sysKey] || toWorld(g, ss, 0, 0, 1), 400);
 }
 function closeAction() { actionEl.style.display = 'none'; }
+
+// ── Quick-Send: Spionagesonde + Interplanetare Rakete ───────
+function gmConfirmModal(title, text, icon, accentCol, onYes) {
+  let m = document.getElementById('gm-confirm-modal');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'gm-confirm-modal';
+    m.style.cssText = [
+      'position:fixed','inset:0','z-index:9900',
+      'display:flex','align-items:center','justify-content:center',
+      'background:rgba(2,5,16,0.82)','backdrop-filter:blur(6px)'
+    ].join(';');
+    document.body.appendChild(m);
+  }
+  m.innerHTML = `
+    <div style="background:rgba(4,12,32,0.98);border:1px solid ${accentCol}44;
+      border-radius:14px;padding:28px 32px;max-width:340px;width:90%;text-align:center;
+      box-shadow:0 8px 40px rgba(0,0,0,.8),0 0 0 1px ${accentCol}22;font-family:'Rajdhani',sans-serif;">
+      <div style="font-size:32px;margin-bottom:12px">${icon}</div>
+      <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;color:${accentCol};margin-bottom:8px">${title}</div>
+      <div style="font-size:14px;color:#c8e6ff;margin-bottom:22px;line-height:1.5">${text}</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button id="gm-cm-yes" style="padding:9px 24px;border-radius:8px;border:1px solid ${accentCol};
+          background:${accentCol}22;color:${accentCol};font-family:'Orbitron',monospace;font-size:10px;
+          letter-spacing:1.5px;cursor:pointer">JA</button>
+        <button id="gm-cm-no" style="padding:9px 24px;border-radius:8px;border:1px solid rgba(100,140,180,.3);
+          background:rgba(100,140,180,.08);color:#7a9ab8;font-family:'Orbitron',monospace;font-size:10px;
+          letter-spacing:1.5px;cursor:pointer">NEIN</button>
+      </div>
+    </div>
+  `;
+  m.style.display = 'flex';
+  document.getElementById('gm-cm-yes').onclick = () => { m.style.display='none'; onYes(); };
+  document.getElementById('gm-cm-no').onclick  = () => { m.style.display='none'; };
+  m.onclick = (e) => { if (e.target === m) m.style.display='none'; };
+}
+
+function quickSpy(g, s, p) {
+  gmConfirmModal(
+    'SPIONAGESONDE', `Spionagesonde senden nach [${g}:${s}:${p}]?`,
+    '<i class="fas fa-satellite" style="color:#ffd700"></i>',
+    '#ffd700',
+    () => {
+      fetch(`game.php?page=galaxyMap&mode=quickSend&action=spy&galaxy=${g}&system=${s}&planet=${p}`, { method:'POST' })
+        .then(r => r.json())
+        .then(d => showFleetToast(
+          d.success ? '✓ Spionagesonde erfolgreich verschickt' : '✗ ' + (d.error||'Fehler'),
+          d.success ? '#00e87a' : '#e8304a'
+        ))
+        .catch(() => showFleetToast('✗ Verbindungsfehler', '#e8304a'));
+    }
+  );
+}
+
+function quickMissile(g, s, p) {
+  gmConfirmModal(
+    'INTERPLANETARE RAKETE', `Interplanetare Rakete abfeuern auf [${g}:${s}:${p}]?`,
+    '<i class="fas fa-bomb" style="color:#e8304a"></i>',
+    '#e8304a',
+    () => {
+      fetch(`game.php?page=galaxyMap&mode=quickSend&action=missile&galaxy=${g}&system=${s}&planet=${p}`, { method:'POST' })
+        .then(r => r.json())
+        .then(d => showFleetToast(
+          d.success ? '✓ Interplanetare Rakete erfolgreich verschickt' : '✗ ' + (d.error||'Fehler'),
+          d.success ? '#00e87a' : '#e8304a'
+        ))
+        .catch(() => showFleetToast('✗ Verbindungsfehler', '#e8304a'));
+    }
+  );
+}
 
 // ── Player card ────────────────────────────────────────────
 async function showCard(userId){
@@ -3284,7 +3358,7 @@ function animate(now = 0){
   } catch(e) {}
 })();
 init();
-return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet};
+return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile};
 })();
 </script>
 {% endautoescape %}
