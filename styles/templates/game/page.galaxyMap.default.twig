@@ -417,6 +417,8 @@ html:has(#gm-root), body:has(#gm-root) {
 .ab-rec  { background:rgba(255,153,0,.09);  border:1px solid rgba(255,153,0,.28);  color:#ff9900; }
 .ab-mis  { background:rgba(232,48,74,.10);  border:1px solid rgba(232,48,74,.35);  color:#e8304a; }
 .ap-own  { text-align:center;padding:7px;font-size:11px;color:var(--green);font-family:'Orbitron',monospace;letter-spacing:1px; }
+.fm-row  { display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;color:#7a9ab8; }
+.fm-row span:last-child { color:#c8e6ff;font-weight:500; }
 
 /* ── Player card ─────────────────────────────────────────────────── */
 #gm-card {
@@ -650,6 +652,14 @@ html:has(#gm-root), body:has(#gm-root) {
       <div class="pc-av-wrap"><div id="pc-av-letter" class="pc-av">?</div></div>
     </div>
     <div class="pc-body-inner" id="pc-body"></div>
+  </div>
+
+  <!-- Fleet action modal -->
+  <div id="gm-fleet-modal" style="display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;background:rgba(2,5,16,0.75);backdrop-filter:blur(4px)">
+    <div style="background:#0a1628;border:1px solid rgba(0,212,255,0.25);border-radius:14px;padding:22px 26px;min-width:280px;max-width:340px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.6)">
+      <button onclick="GM.closeFleetModal()" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#4a6a8a;font-size:16px;cursor:pointer;line-height:1"><i class="fas fa-times"></i></button>
+      <div id="gm-fleet-modal-body"></div>
+    </div>
   </div>
 
   <!-- Tooltip -->
@@ -2264,8 +2274,8 @@ function rebuildFleetMeshes() {
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
 
     const stype    = fleetShipType(f.mission || 0, isHostile, isNeutral);
-    const baseSz   = { fighter: 6, transport: 7, colony: 10, spy: 4, recycler: 6,
-                       cruiser: 8, battleship: 9, destroyer: 8, bomber: 7 };
+    const baseSz   = { fighter: 3, transport: 4, colony: 5, spy: 2, recycler: 3,
+                       cruiser: 4, battleship: 5, destroyer: 4, bomber: 4 };
     const shipSz   = (baseSz[stype] || 18) * ((window.innerWidth <= 768) ? 2.5 : 1);
     const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
 
@@ -2873,6 +2883,13 @@ function doHover(cx,cy){
 }
 
 function doClick(cx, cy) {
+  // Check fleet first
+  const fl = hitFleet(cx, cy);
+  if (fl) {
+    tipEl.style.display = 'none';
+    showFleetAction(fl);
+    return;
+  }
   const pl = hitPlanet(cx, cy);
   if (pl) {
     selectPlanet(pl);
@@ -2882,6 +2899,43 @@ function doClick(cx, cy) {
     deselectPlanet();
     closeAction();
   }
+}
+
+function showFleetAction(fl) {
+  const modal = document.getElementById('gm-fleet-modal');
+  if (!modal) return;
+  const nowS   = (Date.now() / 1000) + serverTimeOffset;
+  const remain = Math.max(0, Math.round(fl.end_time - nowS));
+  const mins   = Math.floor(remain / 60), secs = remain % 60;
+  const fcol   = fl.is_hostile ? '#ff3355' : fl.is_own ? '#00d4ff' : fl.is_ally ? '#a855f7' : '#aaccff';
+  const isEnemy = !fl.is_own && !fl.is_ally;
+
+  const acsUrl = `game.php?page=fleet1&galaxy=${fl.end.g}&system=${fl.end.s}&planet=${fl.end.p}&mission=2`;
+  const atkUrl = `game.php?page=fleet1&galaxy=${fl.end.g}&system=${fl.end.s}&planet=${fl.end.p}&mission=1`;
+
+  document.getElementById('gm-fleet-modal-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700;color:${fcol};letter-spacing:1px">${(fl.mission_name||'FLEET').toUpperCase()}</div>
+    </div>
+    <div class="fm-row"><span>Commander</span><span>${fl.owner_name||'?'}</span></div>
+    <div class="fm-row"><span>Von</span><span>[${fl.start.g}:${fl.start.s}:${fl.start.p}]</span></div>
+    <div class="fm-row"><span>Ziel</span><span>[${fl.end.g}:${fl.end.s}:${fl.end.p}]</span></div>
+    <div class="fm-row"><span>Ankunft in</span><span style="color:${fcol}">${mins}m ${secs}s</span></div>
+    ${isEnemy ? `
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <a class="ap-btn ab-atk" href="${atkUrl}"><i class="fas fa-crosshairs"></i> ANGREIFEN</a>
+      <a class="ap-btn" style="background:rgba(168,85,247,0.15);border-color:#a855f7;color:#a855f7" href="${acsUrl}"><i class="fas fa-users"></i> ACS JOIN</a>
+    </div>` : `
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
+      <a class="ap-btn" style="background:rgba(0,212,255,0.1);border-color:#00d4ff;color:#00d4ff" href="game.php?page=fleet1"><i class="fas fa-rocket"></i> FLOTTE SENDEN</a>
+    </div>`}
+  `;
+  modal.style.display = 'flex';
+}
+
+function closeFleetModal() {
+  const m = document.getElementById('gm-fleet-modal');
+  if (m) m.style.display = 'none';
 }
 
 // ── Planet selection + highlight ring ──────────────────────
@@ -3362,7 +3416,7 @@ function animate(now = 0){
     if (livePos) selRing.position.copy(livePos);
   }
 
-  // Smooth-lerp fleet progress between polls
+  // Real-time fleet progress – directly set from clock, no lerp lag
   needFleetRebuild = false;
   const nowSec = (Date.now() / 1000) + serverTimeOffset;
   for (const id in fleetAnimState) {
@@ -3371,17 +3425,17 @@ function animate(now = 0){
     const realPrg = Math.min(1, Math.max(0,
       (nowSec - (st.data.start_time||0)) / Math.max(1, (st.data.end_time||1) - (st.data.start_time||0))
     ));
-    st.targetPrg = realPrg;
-    if (Math.abs(st.displayPrg - realPrg) > 0.0005) {
-      st.displayPrg += (realPrg - st.displayPrg) * 0.04;
+    // Snap directly to real position – no lerp so movement is smooth and real-time
+    if (Math.abs(st.displayPrg - realPrg) > 0.00001) {
+      st.displayPrg = realPrg;
       needFleetRebuild = true;
     }
   }
-  // Throttle fleet rebuilds to max once per 3 frames for performance
+  // Throttle fleet rebuilds to max once per 2 frames
   fleetRebuildCooldown--;
   if (needFleetRebuild && fleetRebuildCooldown <= 0) {
     rebuildFleetMeshes();
-    fleetRebuildCooldown = 3;
+    fleetRebuildCooldown = 2;
   }
 
   // Hostile blink + "arriving soon" pulse – only mutates material/scale, no geometry changes
@@ -3456,7 +3510,7 @@ function animate(now = 0){
   } catch(e) {}
 })();
 init();
-return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile};
+return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile,closeFleetModal};
 })();
 </script>
 {% endautoescape %}
