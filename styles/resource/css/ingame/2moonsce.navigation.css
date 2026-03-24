@@ -108,7 +108,43 @@ body.loading .header-row-main::after { width:100%; }
 }
 @keyframes attackPulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
 .attack-btn { background:rgba(255,61,87,0.15) !important; border-color:rgba(255,61,87,0.4) !important; color:var(--red) !important; }
-#game-header.under-attack { border-bottom-color:rgba(255,61,87,0.4) !important; box-shadow:0 4px 28px rgba(255,61,87,0.12),0 4px 28px rgba(0,0,0,0.75) !important; }
+#game-header.under-attack .header-row-main { border-bottom-color:rgba(255,61,87,0.45) !important; }
+
+/* ── ATTACK BANNER ── sits directly below the header (res-bar) */
+#attack-banner {
+  position: fixed;
+  top: var(--header-h, 88px);
+  left: 0; right: 0;
+  z-index: 990;
+  background: rgba(255,20,40,0.92);
+  border-bottom: 1px solid rgba(255,61,87,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 5px 16px;
+  font-family: var(--font-hud); font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #fff;
+  animation: attackBannerPulse 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes attackBannerPulse {
+  0%,100% { background: rgba(200,20,35,0.92); }
+  50%      { background: rgba(255,50,70,0.97); }
+}
+.attack-banner-icon { font-size: 13px; flex-shrink: 0; animation: attackPulse 1s ease-in-out infinite; }
+.attack-banner-text { font-weight: 700; }
+.attack-banner-pulse {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  animation: attackBannerShine 2.5s linear infinite;
+}
+@keyframes attackBannerShine {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+/* Push page-content down when banner is visible */
+body.under-attack #page-content { padding-top: calc(var(--page-top-pad, 0px) + 32px) !important; }
 .notif-dropdown {
   position:absolute; top:calc(100% + 8px); right:0; width:300px;
   background:var(--panel2); border:1px solid var(--border2); border-radius:13px;

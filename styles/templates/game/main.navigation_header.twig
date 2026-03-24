@@ -339,6 +339,9 @@
 </header>
 {{ hook('ingame.navHeader.after') }}
 
+<!-- ATTACK BANNER: shown below res-bar when under attack -->
+<div id="attack-banner" style="display:none;" aria-live="assertive" role="alert"></div>
+
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
@@ -963,9 +966,19 @@ var SmartNotif=(function(){
 
     function setAttackMode(on){
         var i=document.getElementById('attack-indicator');
+        var b=document.getElementById('attack-banner');
         var h=document.getElementById('game-header');
         if(i) i.style.display = on ? 'flex' : 'none';
         if(h){ if(on) h.classList.add('under-attack'); else h.classList.remove('under-attack'); }
+        if(on) document.body.classList.add('under-attack'); else document.body.classList.remove('under-attack');
+        if(b){
+            b.style.display = on ? 'block' : 'none';
+            if(on && !b.innerHTML){
+                b.innerHTML = '<span class="attack-banner-icon"><i class="fas fa-exclamation-triangle"></i></span>'
+                    + '<span class="attack-banner-text">{{ LNG.ov_attack_incoming|default("Feindliche Flotte im Anflug!")|e("js") }}</span>'
+                    + '<span class="attack-banner-pulse"></span>';
+            }
+        }
     }
 
     function fmt(s){
