@@ -52,7 +52,7 @@ class ShowGalaxyMapPage extends AbstractGamePage
     public function __construct()
     {
         $mode = HTTP::_GP('mode', 'show');
-        if (in_array($mode, ['fleets', 'galaxy', 'card', 'search', 'quickSend'], true)) {
+        if (in_array($mode, ['fleets', 'galaxy', 'card', 'search', 'quickSend', 'get_ships', 'send_fleet'], true)) {
             // JSON API modes: skip eco resource calc, go directly to ajax window
             $this->setWindow('ajax');
             // Close session NOW so Session->save() shutdown handler is already done
@@ -478,6 +478,209 @@ class ShowGalaxyMapPage extends AbstractGamePage
 
             echo json_encode(['success' => true]); exit;
         }
+    }
+
+    // ── JSON: get ships on current planet ─────────────────────
+    public function get_ships(): void
+    {
+        global $USER, $PLANET, $resource, $reslist, $pricelist, $LNG;
+
+        while (ob_get_level() > 0) { ob_end_clean(); }
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['error' => 'not authenticated']); exit;
+        }
+        if (IsVacationMode($USER)) {
+            echo json_encode(['error' => 'vacation']); exit;
+        }
+
+        $ships = [];
+        foreach ($reslist['fleet'] as $shipID) {
+            if ($shipID == 212) continue;
+            $count = (int)($PLANET[$resource[$shipID]] ?? 0);
+            if ($count <= 0) continue;
+            $ships[] = [
+                'id'       => $shipID,
+                'name'     => $LNG['tech'][$shipID] ?? 'Ship ' . $shipID,
+                'count'    => $count,
+                'capacity' => (int)($pricelist[$shipID]['capacity'] ?? 0),
+                'speed'    => (int)(FleetFunctions::GetFleetMaxSpeed([$shipID => 1], $USER)),
+            ];
+        }
+
+        $slots     = FleetFunctions::GetMaxFleetSlots($USER);
+        $usedSlots = FleetFunctions::GetCurrentFleets($USER['id']);
+
+        echo json_encode([
+            'ships'       => $ships,
+            'slots_total' => $slots,
+            'slots_used'  => $usedSlots,
+            'slots_free'  => max(0, $slots - $usedSlots),
+            'planet' => [
+                'galaxy'    => (int)$PLANET['galaxy'],
+                'system'    => (int)$PLANET['system'],
+                'planet'    => (int)$PLANET['planet'],
+                'name'      => $PLANET['name'],
+                'metal'     => (float)$PLANET[$resource[901]],
+                'crystal'   => (float)$PLANET[$resource[902]],
+                'deuterium' => (float)$PLANET[$resource[903]],
+            ],
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // ── JSON: send fleet from galaxy map ─────────────────────────
+    public function send_fleet(): void
+    {
+        global $USER, $PLANET, $resource, $reslist, $pricelist;
+
+        while (ob_get_level() > 0) { ob_end_clean(); }
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (empty($USER['id'])) {
+            echo json_encode(['error' => 'not authenticated']); exit;
+        }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['error' => 'POST required']); exit;
+        }
+        if (IsVacationMode($USER)) {
+            echo json_encode(['error' => 'vacation_mode']); exit;
+        }
+
+        $targetGalaxy = (int)($_POST['tg'] ?? 0);
+        $targetSystem = (int)($_POST['ts'] ?? 0);
+        $targetPlanet = (int)($_POST['tp'] ?? 0);
+        $targetType   = (int)($_POST['tt'] ?? 1);
+        $mission      = (int)($_POST['mission'] ?? 0);
+        $metal        = max(0, (float)($_POST['metal']     ?? 0));
+        $crystal      = max(0, (float)($_POST['crystal']   ?? 0));
+        $deuterium    = max(0, (float)($_POST['deuterium'] ?? 0));
+        $speedPct     = max(10, min(100, (int)($_POST['speed'] ?? 100)));
+        $shipInput    = $_POST['ships'] ?? [];
+
+        $cfg = Config::get();
+        if ($targetGalaxy < 1 || $targetGalaxy > (int)$cfg->max_galaxy ||
+            $targetSystem  < 1 || $targetSystem  > (int)$cfg->max_system ||
+            $targetPlanet  < 1 || $targetPlanet  > ((int)$cfg->max_planets + 1)) {
+            echo json_encode(['error' => 'invalid_target']); exit;
+        }
+
+        // Build fleet array
+        $fleetArray = [];
+        $fleetRoom  = 0;
+        foreach ($reslist['fleet'] as $shipID) {
+            if ($shipID == 212) continue;
+            $cnt = max(0, (int)($shipInput[$shipID] ?? 0));
+            if ($cnt < 1) continue;
+            $available = (int)($PLANET[$resource[$shipID]] ?? 0);
+            if ($cnt > $available) {
+                echo json_encode(['error' => 'not_enough_ships', 'ship' => $shipID]); exit;
+            }
+            $fleetArray[$shipID] = $cnt;
+            $fleetRoom += ($pricelist[$shipID]['capacity'] ?? 0) * $cnt;
+        }
+        $fleetRoom *= 1 + ($USER['factor']['ShipStorage'] ?? 0);
+
+        if (empty($fleetArray)) {
+            echo json_encode(['error' => 'no_ships']); exit;
+        }
+
+        // Fleet slots
+        $usedSlots = FleetFunctions::GetCurrentFleets($USER['id']);
+        if (FleetFunctions::GetMaxFleetSlots($USER) <= $usedSlots) {
+            echo json_encode(['error' => 'no_slots']); exit;
+        }
+
+        // Load target planet
+        $db = Database::get();
+        $targetData = $db->selectSingle(
+            'SELECT id, id_owner, destruyed FROM %%PLANETS%%
+             WHERE universe=:u AND galaxy=:g AND system=:s AND planet=:p AND planet_type=:t',
+            [':u' => Universe::current(), ':g' => $targetGalaxy, ':s' => $targetSystem,
+             ':p' => $targetPlanet, ':t' => $targetType]
+        );
+
+        if ($mission == 7) {
+            if (!empty($targetData)) { echo json_encode(['error' => 'target_exists']); exit; }
+            $targetData = ['id' => 0, 'id_owner' => 0];
+        } elseif ($mission == 15) {
+            $targetData = ['id' => 0, 'id_owner' => 0];
+        } else {
+            if (empty($targetData) || (int)$targetData['destruyed'] !== 0) {
+                echo json_encode(['error' => 'no_target']); exit;
+            }
+        }
+
+        // Same planet
+        if ((int)$PLANET['galaxy'] == $targetGalaxy && (int)$PLANET['system'] == $targetSystem &&
+            (int)$PLANET['planet'] == $targetPlanet  && (int)$PLANET['planet_type'] == $targetType) {
+            echo json_encode(['error' => 'same_planet']); exit;
+        }
+
+        // Mission check
+        $MisInfo = [
+            'galaxy'     => $targetGalaxy,
+            'system'     => $targetSystem,
+            'planet'     => $targetPlanet,
+            'planettype' => $targetType,
+            'IsAKS'      => 0,
+            'Ship'       => $fleetArray,
+        ];
+        $availableMissions = FleetFunctions::GetFleetMissions($USER, $MisInfo, $targetData ?? []);
+        if (!in_array($mission, $availableMissions['MissionSelector'] ?? [], true)) {
+            echo json_encode(['error' => 'invalid_mission', 'available' => $availableMissions['MissionSelector'] ?? []]); exit;
+        }
+
+        // Flight calculation
+        $distance    = FleetFunctions::GetTargetDistance(
+            [(int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet']],
+            [$targetGalaxy, $targetSystem, $targetPlanet]
+        );
+        $maxSpeed    = FleetFunctions::GetFleetMaxSpeed($fleetArray, $USER);
+        $speedFactor = FleetFunctions::GetGameSpeedFactor();
+        $duration    = FleetFunctions::GetMissionDuration($speedPct, $maxSpeed, $distance, $speedFactor, $USER);
+        $consumption = FleetFunctions::GetFleetConsumption($fleetArray, $duration, $distance, $USER, $speedFactor);
+
+        if ((float)$PLANET[$resource[903]] < $consumption) {
+            echo json_encode(['error' => 'not_enough_deuterium',
+                'need' => round($consumption), 'have' => round((float)$PLANET[$resource[903]])]); exit;
+        }
+
+        // Clamp resources to available + room
+        $fleetRoom -= $consumption;
+        $resourcesToSend = [
+            901 => min($metal,     floor((float)$PLANET[$resource[901]])),
+            902 => min($crystal,   floor((float)$PLANET[$resource[902]])),
+            903 => min($deuterium, max(0, floor((float)$PLANET[$resource[903]] - $consumption))),
+        ];
+        if (array_sum($resourcesToSend) > $fleetRoom) {
+            $resourcesToSend = [901 => 0, 902 => 0, 903 => 0];
+        }
+
+        $now        = TIMESTAMP;
+        $fleetStart = $now + $duration;
+        $fleetStay  = $fleetStart;
+        $fleetEnd   = $fleetStart + $duration;
+
+        FleetFunctions::sendFleet(
+            $fleetArray, $mission,
+            $USER['id'], $PLANET['id'],
+            (int)$PLANET['galaxy'], (int)$PLANET['system'], (int)$PLANET['planet'], (int)$PLANET['planet_type'],
+            (int)$targetData['id_owner'], (int)$targetData['id'],
+            $targetGalaxy, $targetSystem, $targetPlanet, $targetType,
+            $resourcesToSend,
+            $fleetStart, $fleetStay, $fleetEnd,
+            0
+        );
+
+        echo json_encode([
+            'ok'          => true,
+            'arrival'     => $fleetStart,
+            'duration'    => $duration,
+            'consumption' => round($consumption),
+            'ships'       => count($fleetArray),
+        ]); exit;
     }
 
     // ── JSON: player card ────────────────────────────────────────
