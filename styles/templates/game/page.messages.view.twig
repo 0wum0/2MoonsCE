@@ -139,12 +139,16 @@ function mccToggle(id) {
     var body = card.querySelector('.mcc-card-body');
     var isOpen = card.classList.contains('is-open');
     if (isOpen) {
+        // Freeze current height so transition has a start value, then animate to 0
         body.style.maxHeight = body.scrollHeight + 'px';
+        body.style.opacity = '1';
         requestAnimationFrame(function() {
-            body.style.maxHeight = '0';
-            body.style.opacity = '0';
+            requestAnimationFrame(function() {
+                body.style.maxHeight = '0';
+                body.style.opacity = '0';
+                card.classList.remove('is-open');
+            });
         });
-        card.classList.remove('is-open');
     } else {
         card.classList.add('is-open');
         body.style.maxHeight = '0';

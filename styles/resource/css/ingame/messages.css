@@ -394,10 +394,12 @@
 /* Top row: sender name + time — like an email inbox */
 .mcc-card-from-row {
     display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
+    min-width: 0;
 }
 .mcc-card-from {
     font-size: 12px; font-weight: 600; color: var(--mc-white);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; flex: 1;
 }
 .mcc-card-time {
     margin-left: auto; font-size: 10px; color: var(--mc-muted);
@@ -701,4 +703,22 @@
     .mcc-cat-item.active { border-bottom-color: var(--mc-accent); border-left: none; background: rgba(0,212,255,0.08); }
     .mcc-topbar { height: auto; padding: 10px 14px; flex-wrap: wrap; }
     .mcc-topbar-title { font-size: 11px; }
+
+    /* Card head: prevent right-side elements from squeezing the text */
+    .mcc-card-head { gap: 7px; padding: 9px 10px; }
+    .mcc-card-meta { min-width: 0; flex: 1; }
+    .mcc-card-time { font-size: 9px; }
+    .mcc-card-from { font-size: 11px; }
+    .mcc-card-subject { font-size: 10px; }
+    /* Card body text: full width, no overflow */
+    .mcc-card-text { padding: 10px 12px 10px; font-size: 12px; word-break: break-word; overflow-wrap: anywhere; }
+    .mcc-card-text table { max-width: 100%; overflow-x: auto; display: block; }
+    /* Actions stack on mobile */
+    .mcc-card-actions { flex-wrap: wrap; gap: 5px; padding: 7px 10px; }
+    /* Feed padding tighter */
+    .mcc-feed { padding: 6px 8px; }
+    /* Toolbar */
+    .mcc-toolbar-row { padding: 8px 10px; }
+    /* Topbar compose button: shrink text */
+    .mcc-btn-compose { padding: 6px 10px; font-size: 9px; }
 }
