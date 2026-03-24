@@ -21,6 +21,7 @@
 	See LICENSE for details.
 	@visit http://makeit.uno/
 #}
+{% verbatim %}
 <style>
 #gf-bar{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:850!important;background:rgba(3,6,15,0.97)!important;border-top:1px solid rgba(0,212,255,0.15)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;padding:6px 20px!important;font-size:11px!important;color:rgba(140,170,200,0.7)!important;font-family:monospace!important;backdrop-filter:blur(12px)!important;}
 #gf-bar a{text-decoration:none!important;}
@@ -33,6 +34,7 @@
 #page-content{padding-bottom:40px!important;}
 @media(max-width:768px){#gf-bar{bottom:56px!important;}#page-content{padding-bottom:100px!important;}}
 </style>
+{% endverbatim %}
 <footer id="gf-bar">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span>&copy; {{ "now"|date("Y") }} <strong style="color:#fff;">{{ gameName }}</strong></span>
