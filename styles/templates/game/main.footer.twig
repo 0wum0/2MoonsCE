@@ -21,13 +21,13 @@
 	See LICENSE for details.
 	@visit http://makeit.uno/
 #}
-<footer class="game-footer">
+<footer class="game-footer" id="game-footer-bar">
     <div class="footer-content-box">
         <div class="footer-info">
             &copy; {{ "now"|date("Y") }} <span class="text-highlight">{{ gameName }}</span>
-            <a href="game.php?page=changelog" class="footer-link footer-changelog-link"><i class="fas fa-history"></i> {{ LNG.menu_changelog }}</a>
             <span class="separator">&bull;</span>
-            {{ LNG.footer_powered_by }} <a href="https://github.com/0wum0/2MoonsCE" target="_blank" class="footer-link">2MoonsCE</a>
+            <a href="https://github.com/0wum0/2MoonsCE/blob/main/CHANGELOG.md" target="_blank" rel="noopener" class="footer-changelog-badge"><i class="fas fa-history"></i> CHANGELOG</a>
+            {{ LNG.footer_powered_by }} <a href="https://github.com/0wum0/2MoonsCE/blob/main/CHANGELOG.md" target="_blank" rel="noopener" class="footer-link footer-powered-link">2MoonsCE</a>
         </div>
         <div class="footer-links">
             <a href="game.php?page=disclamer" class="footer-link-v4"><i class="fas fa-gavel"></i> {{ LNG.menu_disclamer }}</a>

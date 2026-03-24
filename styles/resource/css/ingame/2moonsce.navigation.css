@@ -450,15 +450,55 @@ body.loading .header-row-main::after { width:100%; }
 .dock-badge { position:absolute; top:0; right:0; min-width:16px; height:16px; background:var(--red); color:#fff; font-family:var(--font-hud); font-size:9px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 3px; border:1.5px solid var(--bg0); }
 
 /* ── FOOTER ── */
-.game-footer { background:rgba(3,6,15,0.9) !important; border-top:1px solid var(--border) !important; padding:0 !important; }
+.game-footer {
+  position: fixed !important;
+  bottom: 0; left: 0; right: 0; z-index: 800;
+  background: rgba(3,6,15,0.97) !important;
+  border-top: 1px solid var(--border) !important;
+  padding: 0 !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
 .footer-glass-panel, .footer-content-box {
   display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
-  padding:12px 22px; font-size:11px; color:var(--dim); font-family:var(--font-mono);
+  padding:7px 22px; font-size:11px; color:var(--dim); font-family:var(--font-mono);
 }
 .footer-link, .footer-link-v4 { color:var(--dim) !important; transition:var(--transition); }
 .footer-link:hover, .footer-link-v4:hover { color:var(--cyan) !important; }
-.footer-info { display:flex; align-items:center; gap:8px; }
+.footer-info { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .separator { color:rgba(0,212,255,0.2); }
+
+/* Green changelog badge */
+.footer-changelog-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.45);
+  color: #22c55e !important;
+  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px;
+  text-decoration: none !important;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.footer-changelog-badge:hover {
+  background: rgba(34,197,94,0.28) !important;
+  border-color: rgba(34,197,94,0.7) !important;
+  box-shadow: 0 0 10px rgba(34,197,94,0.3);
+  color: #4ade80 !important;
+}
+.footer-powered-link { color: var(--cyan) !important; font-weight: 600; }
+.footer-powered-link:hover { color: #fff !important; text-decoration: underline; }
+
+/* Ensure page content is never hidden behind fixed footer */
+#page-content { padding-bottom: 44px !important; }
+.content-wrapper { padding-bottom: 0; }
+
+/* On mobile the dock sits above the footer — keep spacing correct */
+@media (max-width: 768px) {
+  .game-footer { bottom: 56px; z-index: 799; }
+  #page-content { padding-bottom: 100px !important; }
+}
 
 /* ── CHAT FAB ── */
 .chat-fab {
