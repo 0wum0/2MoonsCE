@@ -274,8 +274,12 @@ class ShowOverviewPage extends AbstractGamePage
 				);
 			}
 		} catch (\Throwable $e) {
-			// %%EVENTS%% table may not exist in all installations — degrade gracefully.
-			error_log('[ShowOverviewPage] Events query failed (table may not exist): ' . $e->getMessage());
+			// Silently degrade if table doesn't exist (MySQL 1146 / SQLSTATE 42S02).
+			// Only log truly unexpected errors.
+			$msg = $e->getMessage();
+			if (strpos($msg, '1146') === false && strpos($msg, "doesn't exist") === false && strpos($msg, '42S02') === false) {
+				error_log('[ShowOverviewPage] Events query failed: ' . $msg);
+			}
 		}
 
 		$sql	= 'SELECT total_points, total_rank

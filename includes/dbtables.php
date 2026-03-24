@@ -24,7 +24,7 @@ declare(strict_types=1);
  * See LICENSE for details.
  * @visit http://makeit.uno/
  */
-define('DB_VERSION_REQUIRED', 17);
+define('DB_VERSION_REQUIRED', 18);
 define('DB_NAME'			, $databaseConfig['dbname']);
 define('DB_PREFIX'			, $databaseConfig['prefix']);
 
@@ -72,6 +72,7 @@ $dbTableNames	= array(
 	'LOG'				=> DB_PREFIX.'log',
 	'LOG_FLEETS'		=> DB_PREFIX.'log_fleets',
 	'LOSTPASSWORD'		=> DB_PREFIX.'lostpassword',
+	'EVENTS'			=> DB_PREFIX.'events',
 	'NEWS'				=> DB_PREFIX.'news',
 	'NOTES'				=> DB_PREFIX.'notes',
 	'MESSAGES'			=> DB_PREFIX.'messages',
