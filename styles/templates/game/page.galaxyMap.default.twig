@@ -1871,12 +1871,14 @@ function systemCenter(g, s) {
   return { x: Math.cos(theta) * r, z: Math.sin(theta) * r };
 }
 
-// Fallback helper (used by fleet position lookup when posMap misses)
+// Fallback helper (used by fleet position lookup when posMap misses).
+// MUST use the EXACT same orbit formula as buildPlanets() so fallback
+// positions are consistent with rendered planet positions.
 function toWorld(g, s, p, _pi, _tot) {
-  const c = systemCenter(g, s);
-  const slot  = Math.max(1, p || 1);
-  const r     = 40 + slot * 18;
-  const angle = (slot / 10) * Math.PI * 2;
+  const c    = systemCenter(g, s);
+  const slot = Math.max(1, p || 1);
+  const r    = 40 + slot * 22;                                  // same as buildPlanets
+  const angle = (slot / 10) * Math.PI * 2 + (g * 1.7 + s * 0.91); // same initAngle
   return new THREE.Vector3(c.x + Math.cos(angle) * r, 0, c.z + Math.sin(angle) * r);
 }
 
@@ -2248,21 +2250,20 @@ function buildFleets(fleets) {
     fleetAnimState[id].targetPrg = realPrg;
     fleetAnimState[id].data      = f;
 
-    // Resolve world positions – prefer live planet mesh position, then posMap, then toWorld() with orbit offset
-    const spKey = `${f.start.g}:${f.start.s}:${f.start.p}`;
-    const epKey = `${f.end.g}:${f.end.s}:${f.end.p}`;
-    // toWorld with planet slot gives proper orbital position, NOT the sun center
-    const spWorld = toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
-    const epWorld = toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
-    fleetAnimState[id].sPos = (posMap[spKey] || spWorld).clone();
-    fleetAnimState[id].ePos = (posMap[epKey] || epWorld).clone();
+    // Store coord keys so the animate loop can rebuild curves from live posMap
+    fleetAnimState[id].spKey = `${f.start.g}:${f.start.s}:${f.start.p}`;
+    fleetAnimState[id].epKey = `${f.end.g}:${f.end.s}:${f.end.p}`;
+    fleetAnimState[id].startCoord = { g: f.start.g, s: f.start.s, p: f.start.p };
+    fleetAnimState[id].endCoord   = { g: f.end.g,   s: f.end.s,   p: f.end.p   };
 
-    // Build CatmullRomCurve3 with a mid-point arc for visual interest
-    const s3 = fleetAnimState[id].sPos;
-    const e3 = fleetAnimState[id].ePos;
-    const mid = s3.clone().lerp(e3, 0.5);
-    mid.y += s3.distanceTo(e3) * 0.12; // slight arc
-    fleetAnimState[id].curve = new THREE.CatmullRomCurve3([s3, mid, e3]);
+    // Build initial curve from current posMap (will be updated every frame in animate)
+    const _sp0 = posMap[fleetAnimState[id].spKey] || toWorld(f.start.g, f.start.s, f.start.p, 0, 1);
+    const _ep0 = posMap[fleetAnimState[id].epKey] || toWorld(f.end.g,   f.end.s,   f.end.p,   0, 1);
+    fleetAnimState[id].sPos = _sp0.clone();
+    fleetAnimState[id].ePos = _ep0.clone();
+    const _mid0 = _sp0.clone().lerp(_ep0, 0.5);
+    _mid0.y += _sp0.distanceTo(_ep0) * 0.12;
+    fleetAnimState[id].curve = new THREE.CatmullRomCurve3([_sp0.clone(), _mid0, _ep0.clone()]);
   });
 
   // Remove gone fleets and dispose their cached meshes
@@ -3769,7 +3770,30 @@ function animate(now = 0){
   let anyMissingMesh = false;
   for (const id in fleetAnimState) {
     const st = fleetAnimState[id];
-    if (!st.curve) continue;
+    if (!st.startCoord) continue;
+
+    // ── Rebuild curve every frame from live posMap so ships track orbiting planets ──
+    const liveSp = posMap[st.spKey] || toWorld(st.startCoord.g, st.startCoord.s, st.startCoord.p, 0, 1);
+    const liveEp = posMap[st.epKey] || toWorld(st.endCoord.g,   st.endCoord.s,   st.endCoord.p,   0, 1);
+    // Only rebuild if endpoints moved more than 0.5 units (avoids rebuilding every frame when planet is far)
+    const spMoved = !st.sPos || st.sPos.distanceToSquared(liveSp) > 0.25;
+    const epMoved = !st.ePos || st.ePos.distanceToSquared(liveEp) > 0.25;
+    if (spMoved || epMoved || !st.curve) {
+      st.sPos = liveSp.clone();
+      st.ePos = liveEp.clone();
+      const midPt = liveSp.clone().lerp(liveEp, 0.5);
+      midPt.y += liveSp.distanceTo(liveEp) * 0.12;
+      st.curve = new THREE.CatmullRomCurve3([liveSp.clone(), midPt, liveEp.clone()]);
+      // Invalidate cached path line so it gets rebuilt from the updated curve
+      if (st.pathLineMesh) {
+        fleetGroup.remove(st.pathLineMesh);
+        st.pathLineMesh.geometry.dispose();
+        st.pathLineMesh.material.dispose();
+        st.pathLineMesh = null;
+      }
+      anyMissingMesh = true; // trigger rebuildFleetMeshes() this frame
+    }
+
     if (!st.shipMesh) { anyMissingMesh = true; continue; }
     const realPrg = Math.min(1, Math.max(0,
       (nowSec - (st.data.start_time||0)) / Math.max(1, (st.data.end_time||1) - (st.data.start_time||0))
