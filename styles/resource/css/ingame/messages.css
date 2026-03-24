@@ -408,9 +408,15 @@
 
 /* Subject row below sender */
 .mcc-card-subject {
+    display: block !important;
     font-size: 11px; font-weight: 400; color: #506880;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
     min-width: 0;
+    line-height: 1.4;
 }
 .mcc-card.is-unread .mcc-card-subject { color: #7a9ab8; }
 .mcc-unread-pip {
