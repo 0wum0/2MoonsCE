@@ -635,9 +635,21 @@ html:has(#gm-root), body:has(#gm-root) {
     <div style="text-align:center;font-size:9px;color:var(--dim);margin-top:5px;font-family:'Orbitron',monospace" id="upd-time">Auto-refresh aktiv</div>
   </div>
 
-  <!-- Action panel -->
-  <div id="gm-action">
-    <button class="ap-x" onclick="GM.closeAction()"><i class="fas fa-times"></i></button>
+  <!-- Planet action modal (replaces side action panel) -->
+  <div id="gm-planet-modal" style="display:none;position:fixed;inset:0;z-index:1100;align-items:center;justify-content:center;background:rgba(2,5,16,0.78);backdrop-filter:blur(5px)">
+    <div id="gm-planet-modal-box" style="background:#07111e;border:1px solid rgba(0,212,255,0.22);border-radius:16px;padding:0;min-width:320px;max-width:420px;width:calc(100vw - 32px);position:relative;box-shadow:0 12px 60px rgba(0,0,0,0.8);overflow:hidden;animation:fadeScale .2s ease">
+      <div id="gm-pm-header" style="padding:18px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06);position:relative">
+        <div id="gm-pm-name" style="font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:2px;color:#00d4ff">–</div>
+        <div id="gm-pm-coord" style="font-size:11px;color:#4a6a8a;margin-top:3px">–</div>
+        <button onclick="GM.closePlanetModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#4a6a8a;font-size:15px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="gm-pm-meta" style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.06)"></div>
+      <div id="gm-pm-body" style="padding:16px 20px 18px"></div>
+    </div>
+  </div>
+
+  <!-- Legacy action panel (kept for backwards compat, hidden) -->
+  <div id="gm-action" style="display:none">
     <div class="ap-name" id="ap-name">–</div>
     <div class="ap-coord" id="ap-coord">–</div>
     <div class="ap-meta" id="ap-meta"></div>
@@ -2239,29 +2251,20 @@ function rebuildFleetMeshes() {
       dotCol = '#ddeeff'; dotSize = 14;
     }
 
-    // Full path line – built once, stored in st.pathLineMesh
+    // Single path line – built once, no duplicate trail
     if (!st.pathLineMesh) {
       const pathPoints = st.curve.getPoints(64);
       const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
-      let pathLine;
-      if (useDash) {
-        const pm = new THREE.LineDashedMaterial({
-          color: lineCol, transparent: true, opacity: lineOpacity * 0.5,
-          dashSize: 18, gapSize: 10, depthWrite: false
-        });
-        pathLine = new THREE.Line(pathGeo, pm);
-        pathLine.computeLineDistances();
-      } else {
-        pathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({
-          color: lineCol, transparent: true, opacity: lineOpacity * 0.4, depthWrite: false
-        }));
-      }
+      const pm = new THREE.LineDashedMaterial({
+        color: lineCol, transparent: true, opacity: lineOpacity * 0.35,
+        dashSize: 12, gapSize: 14, depthWrite: false
+      });
+      const pathLine = new THREE.Line(pathGeo, pm);
+      pathLine.computeLineDistances();
       pathLine.userData = { fleet: f };
       st.pathLineMesh = pathLine;
-      fleetGroup.add(pathLine);
-    } else {
-      fleetGroup.add(st.pathLineMesh);
     }
+    fleetGroup.add(st.pathLineMesh);
 
     // 3D Ship mesh – built once, position updated each frame
     if (!st.shipMesh) {
@@ -2275,17 +2278,52 @@ function rebuildFleetMeshes() {
       st.shipMesh = ds;
     }
 
-    // Update ship position every frame
+    // Update ship position
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
     st.shipMesh.position.set(curPos.x, curPos.y + 4, curPos.z);
     const prg2  = Math.min(1, prg + 0.01);
     const ahead = st.curve.getPoint(prg2);
     const dx    = ahead.x - curPos.x;
     const dz    = ahead.z - curPos.z;
+    let shipAngle = 0;
     if (Math.abs(dx) + Math.abs(dz) > 0.001) {
-      st.shipMesh.rotation.y = Math.atan2(dx, dz) + Math.PI / 2;
+      shipAngle = Math.atan2(dx, dz) + Math.PI / 2;
+      st.shipMesh.rotation.y = shipAngle;
     }
     fleetGroup.add(st.shipMesh);
+
+    // Engine exhaust trail – short particle streak behind ship
+    if (!st.exhaustTrail) {
+      const trailCount = 12;
+      const trailPos = new Float32Array(trailCount * 3);
+      const trailAlpha = new Float32Array(trailCount);
+      const trailGeo = new THREE.BufferGeometry();
+      trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
+      trailGeo.setAttribute('alpha',    new THREE.BufferAttribute(trailAlpha, 1));
+      const trailMat = new THREE.PointsMaterial({
+        color: lineCol, size: 1.2, transparent: true, opacity: 0.7,
+        sizeAttenuation: true, depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      st.exhaustTrail = new THREE.Points(trailGeo, trailMat);
+      st.exhaustTrail.userData = { fleet: f };
+      st.exhaustHistory = [];
+    }
+    // Store last N positions
+    st.exhaustHistory.unshift(curPos.clone());
+    if (st.exhaustHistory.length > 12) st.exhaustHistory.length = 12;
+    const pos = st.exhaustTrail.geometry.attributes.position;
+    for (let i = 0; i < 12; i++) {
+      const hp = st.exhaustHistory[i];
+      if (hp) {
+        pos.setXYZ(i, hp.x, hp.y + 4, hp.z);
+      } else {
+        pos.setXYZ(i, curPos.x, curPos.y + 4, curPos.z);
+      }
+    }
+    pos.needsUpdate = true;
+    st.exhaustTrail.material.opacity = 0.65;
+    fleetGroup.add(st.exhaustTrail);
   }
 }
 
@@ -2956,61 +2994,102 @@ function deselectPlanet() {
   set('st-sel', '–');
 }
 
-// ── Action panel ────────────────────────────────────────────
+// ── Planet Modal ─────────────────────────────────────────────
 function showAction(pl) {
+  const modal = document.getElementById('gm-planet-modal');
+  if (!modal) return;
   const {galaxy:g, system:ss, planet:p} = pl;
-  const base = `game.php?page=fleetTable&galaxy=${g}&system=${ss}&planet=${p}&planettype=1`;
-  set('ap-coord', `[${g}:${ss}:${p}]`);
-  const btn = document.getElementById('ap-btns');
+  const base    = `game.php?page=fleetTable&galaxy=${g}&system=${ss}&planet=${p}&planettype=1`;
+  const nameCol = pl.is_empty ? '#4a6a8a' : pl.is_own ? '#00ff88' : pl.is_ally ? '#a855f7' : '#00d4ff';
+  const name    = pl.is_empty ? 'FREIER SLOT' : (pl.name||'Unknown Planet').toUpperCase();
 
-  /* ── FREIER SLOT ── */
+  document.getElementById('gm-pm-name').textContent  = name;
+  document.getElementById('gm-pm-name').style.color  = nameCol;
+  document.getElementById('gm-pm-coord').textContent = `[${g}:${ss}:${p}]`;
+
+  // Meta boxes
+  const metaEl = document.getElementById('gm-pm-meta');
   if (pl.is_empty) {
-    set('ap-name', 'FREIER SLOT');
-    document.getElementById('ap-name').style.color = '#4a6a8a';
-    document.getElementById('ap-meta').innerHTML = `
-      <div class="ap-box"><div class="ap-box-lbl">STATUS</div><div class="ap-box-val" style="color:#4a6a8a">UNBEWOHNT</div></div>
-      <div class="ap-box"><div class="ap-box-lbl">GALAXY</div><div class="ap-box-val" style="color:var(--cyan)">${g}</div></div>
-      <div class="ap-box"><div class="ap-box-lbl">SYSTEM</div><div class="ap-box-val" style="color:var(--cyan)">${ss}</div></div>
-    `;
-    btn.innerHTML = `
-      <a class="ap-btn ab-flt" href="${base}&target_mission=7"><i class="fas fa-flag"></i> KOLONISIEREN</a>
-      <a class="ap-btn ab-flt" href="${base}"><i class="fas fa-rocket"></i> FLEET SENDEN</a>
-      <a class="ap-btn ab-spy" href="${base}&target_mission=6"><i class="fas fa-satellite"></i> PHALANX SPY</a>
-    `;
-    actionEl.style.display = 'block';
-    const sunKey0 = `${g}:${ss}:0`;
-    flyTo(posMap[sunKey0] || toWorld(g, ss, 0, 0, 1), 400);
-    return;
+    metaEl.innerHTML = `
+      <div style="flex:1;padding:10px 14px;text-align:center;border-right:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">STATUS</div>
+        <div style="font-size:12px;color:#4a6a8a;margin-top:3px">UNBEWOHNT</div>
+      </div>
+      <div style="flex:1;padding:10px 14px;text-align:center">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">POSITION</div>
+        <div style="font-size:12px;color:#00d4ff;margin-top:3px">${g}:${ss}:${p}</div>
+      </div>`;
+  } else {
+    metaEl.innerHTML = `
+      <div style="flex:1;padding:10px 14px;text-align:center;border-right:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">SPIELER</div>
+        <div style="font-size:11px;color:${nameCol};margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pl.username||'?'}</div>
+      </div>
+      <div style="flex:1;padding:10px 14px;text-align:center;border-right:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">RANG</div>
+        <div style="font-size:12px;color:#ffd700;margin-top:3px">#${pl.total_rank||'?'}</div>
+      </div>
+      <div style="flex:1;padding:10px 14px;text-align:center">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">ALLIANZ</div>
+        <div style="font-size:11px;color:#a855f7;margin-top:3px">${pl.ally_tag?'['+pl.ally_tag+']':'–'}</div>
+      </div>`;
   }
 
-  /* ── BELEGTER PLANET ── */
-  const nameCol = pl.is_own ? 'var(--green)' : pl.is_ally ? 'var(--purple)' : 'var(--cyan)';
-  set('ap-name', (pl.name||'Unknown').toUpperCase());
-  document.getElementById('ap-name').style.color = nameCol;
-  document.getElementById('ap-meta').innerHTML = `
-    <div class="ap-box"><div class="ap-box-lbl">PLAYER</div><div class="ap-box-val" style="color:${nameCol}">${pl.username||'?'}</div></div>
-    <div class="ap-box"><div class="ap-box-lbl">RANK</div><div class="ap-box-val" style="color:var(--gold)">#${pl.total_rank||'?'}</div></div>
-    <div class="ap-box"><div class="ap-box-lbl">ALLIANCE</div><div class="ap-box-val">${pl.ally_tag?'['+pl.ally_tag+']':'–'}</div></div>
-  `;
+  // Body: fleet send form + action buttons
+  const bodyEl = document.getElementById('gm-pm-body');
   if (pl.is_own) {
-    btn.innerHTML = `<div class="ap-own"><i class="fas fa-check" style="margin-right:6px"></i>YOUR PLANET</div>`;
+    bodyEl.innerHTML = `
+      <div style="text-align:center;padding:8px 0;color:#00ff88;font-size:11px;font-family:'Orbitron',monospace;letter-spacing:1px">
+        <i class="fas fa-check" style="margin-right:6px"></i>DEIN PLANET
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <a class="ap-btn ab-flt" href="${base}"><i class="fas fa-rocket"></i> FLOTTE SENDEN</a>
+      </div>`;
+  } else if (pl.is_empty) {
+    bodyEl.innerHTML = `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <a class="ap-btn ab-flt" href="${base}&target_mission=7"><i class="fas fa-flag"></i> KOLONISIEREN</a>
+        <a class="ap-btn ab-flt" href="${base}"><i class="fas fa-rocket"></i> FLEET SENDEN</a>
+      </div>`;
   } else {
     const uid = pl.user_id;
-    btn.innerHTML = `
-      <button class="ap-btn ab-spy" onclick="GM.quickSpy(${g},${ss},${p})"><i class="fas fa-satellite"></i> SPY</button>
-      <a class="ap-btn ab-atk"  href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ATTACK</a>
-      <a class="ap-btn ab-flt"  href="${base}"><i class="fas fa-rocket"></i> FLEET</a>
-      <button class="ap-btn ab-mis" onclick="GM.quickMissile(${g},${ss},${p})"><i class="fas fa-bomb"></i> RAKETE</button>
-      <a class="ap-btn ab-msg"  href="game.php?page=messages&mode=write&player_id=${uid}"><i class="fas fa-envelope"></i> MESSAGE</a>
-      <a class="ap-btn ab-card" href="javascript:GM.showCard(${uid})"><i class="fas fa-id-card"></i> PLAYERCARD</a>
-      ${pl.has_debris ? `<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>` : ''}
-    `;
+    bodyEl.innerHTML = `
+      <div style="margin-bottom:14px">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace;margin-bottom:8px">SCHNELLAKTIONEN</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="ap-btn ab-spy" onclick="GM.quickSpy(${g},${ss},${p})"><i class="fas fa-satellite"></i> SPY</button>
+          <a class="ap-btn ab-atk" href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ANGRIFF</a>
+          <button class="ap-btn ab-mis" onclick="GM.quickMissile(${g},${ss},${p})"><i class="fas fa-bomb"></i> RAKETE</button>
+          ${pl.has_debris ? `<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>` : ''}
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace;margin-bottom:8px">FLOTTE SENDEN</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <a class="ap-btn ab-flt" href="${base}&target_mission=1" style="justify-content:center"><i class="fas fa-crosshairs"></i> ANGRIFF</a>
+          <a class="ap-btn ab-flt" href="${base}&target_mission=2" style="justify-content:center"><i class="fas fa-users"></i> ACS ATTACK</a>
+          <a class="ap-btn ab-flt" href="${base}&target_mission=3" style="justify-content:center"><i class="fas fa-shield-alt"></i> STATIONIEREN</a>
+          <a class="ap-btn ab-flt" href="${base}&target_mission=4" style="justify-content:center"><i class="fas fa-box"></i> TRANSPORT</a>
+          <a class="ap-btn ab-flt" href="${base}&target_mission=6" style="justify-content:center"><i class="fas fa-satellite"></i> SPIONAGE</a>
+          <a class="ap-btn ab-flt" href="${base}&target_mission=8" style="justify-content:center"><i class="fas fa-recycle"></i> RECYCELN</a>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">
+        <a class="ap-btn ab-msg" href="game.php?page=messages&mode=write&player_id=${uid}"><i class="fas fa-envelope"></i> NACHRICHT</a>
+        <a class="ap-btn ab-card" href="javascript:GM.showCard(${uid})"><i class="fas fa-id-card"></i> PROFIL</a>
+      </div>`;
   }
-  actionEl.style.display = 'block';
+
+  modal.style.display = 'flex';
   const sysKey = `${g}:${ss}:0`;
   flyTo(posMap[sysKey] || toWorld(g, ss, 0, 0, 1), 400);
 }
-function closeAction() { actionEl.style.display = 'none'; }
+
+function closePlanetModal() {
+  const m = document.getElementById('gm-planet-modal');
+  if (m) m.style.display = 'none';
+}
+function closeAction() { closePlanetModal(); }
 
 // ── Quick-Send: Spionagesonde + Interplanetare Rakete ───────
 function gmConfirmModal(title, text, icon, accentCol, onYes) {
@@ -3408,7 +3487,7 @@ function animate(now = 0){
     if (livePos) selRing.position.copy(livePos);
   }
 
-  // Real-time fleet position update – move ship directly, no full scene rebuild
+  // Real-time fleet position update – move ship + trail directly
   const nowSec = (Date.now() / 1000) + serverTimeOffset;
   let anyMissingMesh = false;
   for (const id in fleetAnimState) {
@@ -3427,6 +3506,20 @@ function animate(now = 0){
     const ddz   = ahead.z - curPos.z;
     if (Math.abs(ddx) + Math.abs(ddz) > 0.001) {
       st.shipMesh.rotation.y = Math.atan2(ddx, ddz) + Math.PI / 2;
+    }
+    // Update exhaust trail particle history
+    if (st.exhaustTrail && st.exhaustHistory) {
+      if (frame % 2 === 0) { // every 2 frames for performance
+        st.exhaustHistory.unshift(curPos.clone());
+        if (st.exhaustHistory.length > 12) st.exhaustHistory.length = 12;
+        const posAttr = st.exhaustTrail.geometry.attributes.position;
+        for (let i = 0; i < 12; i++) {
+          const hp = st.exhaustHistory[i];
+          if (hp) posAttr.setXYZ(i, hp.x, hp.y + 4, hp.z);
+          else    posAttr.setXYZ(i, curPos.x, curPos.y + 4, curPos.z);
+        }
+        posAttr.needsUpdate = true;
+      }
     }
   }
   // Build meshes for any fleet that doesn't have one yet
@@ -3504,7 +3597,7 @@ function animate(now = 0){
   } catch(e) {}
 })();
 init();
-return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile,closeFleetModal};
+return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile,closeFleetModal,closePlanetModal};
 })();
 </script>
 {% endautoescape %}
