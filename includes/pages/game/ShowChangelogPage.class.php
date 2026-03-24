@@ -45,8 +45,19 @@ class ShowChangelogPage extends AbstractGamePage
 
         $parsedown = new Parsedown();
 
+        $html = $parsedown->text($rawContent !== false ? $rawContent : '');
+
+        if (HTTP::_GP('ajax', 0)) {
+            // Render inline for Dialog.open() — no full layout
+            echo '<div style="padding:20px 24px;max-height:520px;overflow-y:auto;font-family:monospace;font-size:13px;color:#c8e6ff;background:#020510;line-height:1.7;">';
+            echo '<style>.cl-wrap h1,.cl-wrap h2,.cl-wrap h3{color:#00d4ff;font-family:monospace;margin:14px 0 6px;} .cl-wrap h1{font-size:16px;border-bottom:1px solid rgba(0,212,255,.2);padding-bottom:6px;} .cl-wrap h2{font-size:14px;} .cl-wrap h3{font-size:13px;color:#a0c8f0;} .cl-wrap ul{margin:4px 0 8px 18px;} .cl-wrap li{margin-bottom:3px;} .cl-wrap code{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);border-radius:3px;padding:1px 5px;font-size:11px;} .cl-wrap a{color:#00d4ff;} .cl-wrap hr{border-color:rgba(0,212,255,.15);margin:10px 0;}</style>';
+            echo '<div class="cl-wrap">' . $html . '</div>';
+            echo '</div>';
+            exit;
+        }
+
 		$this->assign(array(
-			'ChangelogList'	=> $parsedown->text($rawContent !== false ? $rawContent : ''),
+			'ChangelogList'	=> $html,
 		));
 		
 		$this->display('page.changelog.default.twig');
