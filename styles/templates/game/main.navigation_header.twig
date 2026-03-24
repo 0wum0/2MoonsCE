@@ -220,11 +220,6 @@
                 </div>
             </div>
 
-            <!-- THEME TOGGLE -->
-            <button id="sm-theme-toggle" class="notif-btn" title="{{ LNG.hd_theme_toggle }}" aria-label="{{ LNG.hd_theme_switch }}" style="flex-shrink:0">
-                <i class="fas fa-moon" id="sm-theme-icon"></i>
-            </button>
-
             <!-- FORUM BENACHRICHTIGUNGEN -->
             <div class="notif-icon-wrap" id="forum-notif-wrap">
                 <button class="notif-btn{% if forum_notif_count is defined and forum_notif_count > 0 %} notif-btn-active{% endif %}" id="forum-notif-btn" onclick="SmartNotif.toggle('forum')">
@@ -825,36 +820,6 @@ if(typeof resourceTicker==='function'){
     }
     setDockFabActive();
 
-    /* === FEATURE 6: Dark / Light Mode Toggle === */
-    (function() {
-        var STORAGE_KEY = 'sm_theme';
-        var html = document.documentElement;
-        var btn  = document.getElementById('sm-theme-toggle');
-        var icon = document.getElementById('sm-theme-icon');
-
-        function applyTheme(t) {
-            html.setAttribute('data-theme', t);
-            if (icon) icon.className = (t === 'light') ? 'fas fa-sun' : 'fas fa-moon';
-            if (btn) {
-                btn.title = (t === 'light') ? {{ LNG.hd_theme_dark|json_encode }} : {{ LNG.hd_theme_light|json_encode }};
-                btn.setAttribute('aria-label', btn.title);
-            }
-        }
-
-        function getSaved() {
-            try { return localStorage.getItem(STORAGE_KEY) || 'dark'; } catch(e) { return 'dark'; }
-        }
-
-        applyTheme(getSaved());
-
-        if (btn) {
-            btn.addEventListener('click', function() {
-                var next = (html.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
-                applyTheme(next);
-                try { localStorage.setItem(STORAGE_KEY, next); } catch(e) {}
-            });
-        }
-    })();
 
 })();
 </script>
@@ -1187,10 +1152,22 @@ var SmartNotif=(function(){
         } catch(e) {}
         {% endif %}
         {% if buildQueue.building is defined and buildQueue.building %}
-        toast({{ LNG.hd_build_prefix|json_encode }} + ' ' + {{ buildQueue.building.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.building.items[0].level|default('?')|json_encode }}, 'building', '#3b82f6');
+        try {
+            var _bKey = 'sm_bq_{{ buildQueue.building.items[0].name|default("")|e("js") }}_{{ buildQueue.building.items[0].level|default(0) }}_{{ buildQueue.building.endTime|default(0) }}';
+            if (!sessionStorage.getItem(_bKey)) {
+                sessionStorage.setItem(_bKey, '1');
+                toast({{ LNG.hd_build_prefix|json_encode }} + ' ' + {{ buildQueue.building.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.building.items[0].level|default('?')|json_encode }}, 'hammer', '#3b82f6');
+            }
+        } catch(e) {}
         {% endif %}
         {% if buildQueue.research is defined and buildQueue.research %}
-        toast({{ LNG.hd_research_prefix|json_encode }} + ' ' + {{ buildQueue.research.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.research.items[0].level|default('?')|json_encode }}, 'flask', '#a855f7');
+        try {
+            var _rKey = 'sm_rq_{{ buildQueue.research.items[0].name|default("")|e("js") }}_{{ buildQueue.research.items[0].level|default(0) }}_{{ buildQueue.research.endTime|default(0) }}';
+            if (!sessionStorage.getItem(_rKey)) {
+                sessionStorage.setItem(_rKey, '1');
+                toast({{ LNG.hd_research_prefix|json_encode }} + ' ' + {{ buildQueue.research.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.research.items[0].level|default('?')|json_encode }}, 'flask', '#a855f7');
+            }
+        } catch(e) {}
         {% endif %}
     }
 

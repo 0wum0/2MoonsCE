@@ -410,6 +410,7 @@
 .mcc-card-subject {
     font-size: 11px; font-weight: 400; color: #506880;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0;
 }
 .mcc-card.is-unread .mcc-card-subject { color: #7a9ab8; }
 .mcc-unread-pip {
@@ -704,34 +705,23 @@
     .mcc-topbar { height: auto; padding: 10px 14px; flex-wrap: wrap; }
     .mcc-topbar-title { font-size: 11px; }
 
-    /* Card head: two-row layout on mobile so subject gets full width */
-    .mcc-card-head {
-        flex-wrap: wrap;
-        gap: 5px 7px;
-        padding: 8px 10px;
-    }
-    /* Avatar stays left, shrinks to fixed size */
-    .mcc-card-head .mcc-avatar { flex-shrink: 0; }
-    /* Checkbox also shrinks */
-    .mcc-card-head .mcc-row-check { flex-shrink: 0; }
-    /* Meta fills the remaining first-row space */
-    .mcc-card-meta { min-width: 0; flex: 1; }
-    /* Chevron on the right of the first row */
-    .mcc-card-right { flex-shrink: 0; margin-left: auto; }
-    /* Subject breaks out to full width below the first row */
+    /* Card head on mobile */
+    .mcc-card-head { gap: 6px 7px; padding: 8px 10px; }
+    /* Meta column: from-row on top, subject below — both truncate properly */
+    .mcc-card-meta { min-width: 0; flex: 1; overflow: hidden; }
+    .mcc-card-from-row { min-width: 0; }
+    .mcc-card-from { font-size: 11px; }
+    .mcc-card-time { font-size: 9px; }
+    /* Subject: allow wrapping on narrow screens */
     .mcc-card-subject {
-        flex-basis: 100%;
-        width: 100%;
         white-space: normal;
         overflow: visible;
         text-overflow: unset;
-        font-size: 11px;
+        font-size: 10px;
         color: #7a9ab8;
-        padding: 0 0 2px 0;
-        line-height: 1.4;
+        line-height: 1.35;
+        word-break: break-word;
     }
-    .mcc-card-from { font-size: 11px; }
-    .mcc-card-time { font-size: 9px; }
     /* Card body text: full width, no overflow */
     .mcc-card-text { padding: 10px 12px 10px; font-size: 12px; word-break: break-word; overflow-wrap: anywhere; }
     .mcc-card-text table { max-width: 100%; overflow-x: auto; display: block; }
