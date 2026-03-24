@@ -116,4 +116,47 @@
 
     </div>
 </div>
+
+<script>
+function mccToggle(id) {
+    var card = document.getElementById('mcc-card-' + id);
+    if (!card) return;
+    var body = card.querySelector('.mcc-card-body');
+    if (!body) return;
+    var isOpen = card.classList.contains('is-open');
+    if (isOpen) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        body.style.opacity = '1';
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                body.style.maxHeight = '0';
+                body.style.opacity = '0';
+                card.classList.remove('is-open');
+            });
+        });
+    } else {
+        card.classList.add('is-open');
+        body.style.maxHeight = '0';
+        body.style.opacity = '0';
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                body.style.maxHeight = body.scrollHeight + 'px';
+                body.style.opacity = '1';
+            });
+        });
+    }
+}
+function mccDeleteChecked(messCat, pg) {
+    var ids = [];
+    document.querySelectorAll('.mcc-row-check:checked').forEach(function(c){ ids.push(c.value); });
+    if (!ids.length) return;
+    if (!confirm('Markierte Nachrichten löschen?')) return;
+    if (typeof SmAjax !== 'undefined') {
+        var payload = {};
+        ids.forEach(function(id, i){ payload['messageID[' + i + ']'] = id; });
+        SmAjax.post('game.php?page=messages&mode=delete', payload, { noRefresh: true })
+            .done(function(){ Message.getMessages(messCat, pg); });
+    }
+}
+</script>
 {% endblock %}

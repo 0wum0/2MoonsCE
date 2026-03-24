@@ -1178,7 +1178,13 @@ var SmartNotif=(function(){
     /* ===== TOAST bei Page Load ===== */
     function initToasts(){
         {% if new_message is defined and new_message > 0 %}
-        toast({{ new_message }} + ' ' + {{ LNG.hd_new_messages|json_encode }}, 'envelope', '#00f3ff');
+        try {
+            var _msgKey = 'sm_msg_toast_{{ new_message }}';
+            if (!sessionStorage.getItem(_msgKey)) {
+                sessionStorage.setItem(_msgKey, '1');
+                toast({{ new_message }} + ' ' + {{ LNG.hd_new_messages|json_encode }}, 'envelope', '#00f3ff');
+            }
+        } catch(e) {}
         {% endif %}
         {% if buildQueue.building is defined and buildQueue.building %}
         toast({{ LNG.hd_build_prefix|json_encode }} + ' ' + {{ buildQueue.building.items[0].name|default('?')|json_encode }} + ' Lv.' + {{ buildQueue.building.items[0].level|default('?')|json_encode }}, 'building', '#3b82f6');
@@ -1188,8 +1194,11 @@ var SmartNotif=(function(){
         {% endif %}
     }
 
-    /* ===== INIT â jQuery oder Vanilla ===== */
+    /* ===== INIT – jQuery oder Vanilla ===== */
+    var _initDone = false;
     function doInit(){
+        if (_initDone) return;
+        _initDone = true;
         try { initFleets(); } catch(e){ console.error('SmartNotif fleets error:', e); }
         try { initQueues(); } catch(e){ console.error('SmartNotif queues error:', e); }
         setTimeout(function(){
@@ -1200,11 +1209,12 @@ var SmartNotif=(function(){
     if(typeof jQuery !== 'undefined'){
         jQuery(doInit);
     } else {
-        document.addEventListener('DOMContentLoaded', doInit);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', doInit);
+        } else {
+            doInit();
+        }
     }
-    window.addEventListener('load', function() {
-        setTimeout(doInit, 50);
-    });
     return {toggle:toggle, closeAll:closeAll, setBadge:setBadge, setAttackMode:setAttackMode, toast:toast};
 })();
 </script>
