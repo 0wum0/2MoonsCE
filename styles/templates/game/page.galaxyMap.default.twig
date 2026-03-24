@@ -2161,7 +2161,9 @@ function buildFleets(fleets) {
     f.progress = realPrg;
     const id = f.id;
     activeIds.add(id);
-    if (!fleetAnimState[id]) fleetAnimState[id] = { displayPrg: realPrg };
+    if (!fleetAnimState[id]) {
+      fleetAnimState[id] = { displayPrg: realPrg };
+    }
     fleetAnimState[id].targetPrg = realPrg;
     fleetAnimState[id].data      = f;
 
@@ -2182,15 +2184,21 @@ function buildFleets(fleets) {
     fleetAnimState[id].curve = new THREE.CatmullRomCurve3([s3, mid, e3]);
   });
 
-  // Remove gone fleets
+  // Remove gone fleets and dispose their cached meshes
   for (const id in fleetAnimState) {
-    if (!activeIds.has(parseInt(id))) delete fleetAnimState[id];
+    if (!activeIds.has(parseInt(id))) {
+      const st = fleetAnimState[id];
+      if (st.pathLineMesh) { fleetGroup.remove(st.pathLineMesh); st.pathLineMesh.geometry.dispose(); st.pathLineMesh.material.dispose(); }
+      if (st.shipMesh) { fleetGroup.remove(st.shipMesh); }
+      delete fleetAnimState[id];
+    }
   }
   rebuildFleetMeshes();
 }
 
 function rebuildFleetMeshes() {
-  disposeGroup(fleetGroup);
+  // Remove all children from fleetGroup WITHOUT disposing cached meshes
+  while (fleetGroup.children.length) fleetGroup.remove(fleetGroup.children[0]);
   for (const id in fleetAnimState) {
     const st  = fleetAnimState[id];
     const f   = st.data;
@@ -2215,85 +2223,69 @@ function rebuildFleetMeshes() {
     const dotMult = (window.innerWidth <= 768) ? 14 : 4;
     let lineCol, lineOpacity, useDash, dotCol, dotSize;
     if (isOwn) {
-      lineCol = 0x00d4ff; lineOpacity = 0.95; useDash = false;
-      dotCol = '#00d4ff'; dotSize = 22; // cyan – high contrast vs dark bg
+      lineCol = 0x00d4ff; lineOpacity = 0.35; useDash = false;
+      dotCol = '#00d4ff'; dotSize = 22;
     } else if (isAlly) {
-      lineCol = 0xa855f7; lineOpacity = 0.80; useDash = true;
+      lineCol = 0xa855f7; lineOpacity = 0.25; useDash = true;
       dotCol = '#a855f7'; dotSize = 18;
     } else if (isTargetingMe) {
-      lineCol = 0xff0033; lineOpacity = 0.98; useDash = true;
-      dotCol = '#ff0033'; dotSize = 22; // largest – danger!
+      lineCol = 0xff0033; lineOpacity = 0.45; useDash = true;
+      dotCol = '#ff0033'; dotSize = 22;
     } else if (isHostile) {
-      lineCol = 0xff3355; lineOpacity = 0.85; useDash = true;
+      lineCol = 0xff3355; lineOpacity = 0.30; useDash = true;
       dotCol = '#ff3355'; dotSize = 18;
-    } else { // neutral – white dashed
-      lineCol = 0xddeeff; lineOpacity = 0.65; useDash = true;
+    } else {
+      lineCol = 0xddeeff; lineOpacity = 0.18; useDash = true;
       dotCol = '#ddeeff'; dotSize = 14;
     }
 
-    // Full path line (start → end, ghost/dim background)
-    const pathPoints = st.curve.getPoints(64);
-    const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
-    let pathLine;
-    if (useDash) {
-      const pm = new THREE.LineDashedMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity * 0.55,
-        dashSize: 18, gapSize: 10, depthWrite: false, linewidth: 1
-      });
-      pathLine = new THREE.Line(pathGeo, pm);
-      pathLine.computeLineDistances();
+    // Full path line – built once, stored in st.pathLineMesh
+    if (!st.pathLineMesh) {
+      const pathPoints = st.curve.getPoints(64);
+      const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
+      let pathLine;
+      if (useDash) {
+        const pm = new THREE.LineDashedMaterial({
+          color: lineCol, transparent: true, opacity: lineOpacity * 0.5,
+          dashSize: 18, gapSize: 10, depthWrite: false
+        });
+        pathLine = new THREE.Line(pathGeo, pm);
+        pathLine.computeLineDistances();
+      } else {
+        pathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({
+          color: lineCol, transparent: true, opacity: lineOpacity * 0.4, depthWrite: false
+        }));
+      }
+      pathLine.userData = { fleet: f };
+      st.pathLineMesh = pathLine;
+      fleetGroup.add(pathLine);
     } else {
-      pathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity * 0.45, depthWrite: false
-      }));
+      fleetGroup.add(st.pathLineMesh);
     }
-    pathLine.userData = { fleet: f };
-    fleetGroup.add(pathLine);
 
-    // Trail line (start → current dot position — brighter/solid)
-    const trailCount = Math.max(2, Math.round(Math.max(0.01, prg) * 64));
-    const trailPoints = st.curve.getPoints(trailCount);
-    const trailGeo = new THREE.BufferGeometry().setFromPoints(trailPoints);
-    let trailLine;
-    if (useDash) {
-      const tm = new THREE.LineDashedMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity,
-        dashSize: 14, gapSize: 6, depthWrite: false, linewidth: 1
-      });
-      trailLine = new THREE.Line(trailGeo, tm);
-      trailLine.computeLineDistances();
-    } else {
-      trailLine = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({
-        color: lineCol, transparent: true, opacity: lineOpacity, depthWrite: false
-      }));
+    // 3D Ship mesh – built once, position updated each frame
+    if (!st.shipMesh) {
+      const stype    = fleetShipType(f.mission || 0, isHostile, isNeutral);
+      const baseSz   = { fighter: 3, transport: 4, colony: 5, spy: 2, recycler: 3,
+                         cruiser: 4, battleship: 5, destroyer: 4, bomber: 4 };
+      const shipSz   = (baseSz[stype] || 3) * ((window.innerWidth <= 768) ? 2.5 : 1);
+      const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
+      const ds = makeShip3D(stype, ownerKey, shipSz);
+      ds.userData = { fleet: f, isFleetDot: true };
+      st.shipMesh = ds;
     }
-    trailLine.userData = { fleet: f, isTrail: true };
-    fleetGroup.add(trailLine);
 
-    // 3D Ship mesh at current position
+    // Update ship position every frame
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
-
-    const stype    = fleetShipType(f.mission || 0, isHostile, isNeutral);
-    const baseSz   = { fighter: 3, transport: 4, colony: 5, spy: 2, recycler: 3,
-                       cruiser: 4, battleship: 5, destroyer: 4, bomber: 4 };
-    const shipSz   = (baseSz[stype] || 18) * ((window.innerWidth <= 768) ? 2.5 : 1);
-    const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
-
-    const ds = makeShip3D(stype, ownerKey, shipSz);
-    ds.position.set(curPos.x, curPos.y + 4, curPos.z);
-
-    // Rotate 3D ship nose along travel direction
-    // FBX models exported with nose along +X → need +Math.PI/2 offset so nose points forward (+Z)
+    st.shipMesh.position.set(curPos.x, curPos.y + 4, curPos.z);
     const prg2  = Math.min(1, prg + 0.01);
     const ahead = st.curve.getPoint(prg2);
     const dx    = ahead.x - curPos.x;
     const dz    = ahead.z - curPos.z;
     if (Math.abs(dx) + Math.abs(dz) > 0.001) {
-      ds.rotation.y = Math.atan2(dx, dz) + Math.PI / 2;
+      st.shipMesh.rotation.y = Math.atan2(dx, dz) + Math.PI / 2;
     }
-
-    ds.userData = { fleet: f, isFleetDot: true };
-    fleetGroup.add(ds);
+    fleetGroup.add(st.shipMesh);
   }
 }
 
@@ -3416,27 +3408,29 @@ function animate(now = 0){
     if (livePos) selRing.position.copy(livePos);
   }
 
-  // Real-time fleet progress – directly set from clock, no lerp lag
-  needFleetRebuild = false;
+  // Real-time fleet position update – move ship directly, no full scene rebuild
   const nowSec = (Date.now() / 1000) + serverTimeOffset;
+  let anyMissingMesh = false;
   for (const id in fleetAnimState) {
     const st = fleetAnimState[id];
-    if (st.targetPrg === undefined || !st.curve) continue;
+    if (!st.curve) continue;
+    if (!st.shipMesh) { anyMissingMesh = true; continue; }
     const realPrg = Math.min(1, Math.max(0,
       (nowSec - (st.data.start_time||0)) / Math.max(1, (st.data.end_time||1) - (st.data.start_time||0))
     ));
-    // Snap directly to real position – no lerp so movement is smooth and real-time
-    if (Math.abs(st.displayPrg - realPrg) > 0.00001) {
-      st.displayPrg = realPrg;
-      needFleetRebuild = true;
+    st.displayPrg = realPrg;
+    const curPos = st.curve.getPoint(realPrg);
+    st.shipMesh.position.set(curPos.x, curPos.y + 4, curPos.z);
+    const prg2  = Math.min(1, realPrg + 0.005);
+    const ahead = st.curve.getPoint(prg2);
+    const ddx   = ahead.x - curPos.x;
+    const ddz   = ahead.z - curPos.z;
+    if (Math.abs(ddx) + Math.abs(ddz) > 0.001) {
+      st.shipMesh.rotation.y = Math.atan2(ddx, ddz) + Math.PI / 2;
     }
   }
-  // Throttle fleet rebuilds to max once per 2 frames
-  fleetRebuildCooldown--;
-  if (needFleetRebuild && fleetRebuildCooldown <= 0) {
-    rebuildFleetMeshes();
-    fleetRebuildCooldown = 2;
-  }
+  // Build meshes for any fleet that doesn't have one yet
+  if (anyMissingMesh) rebuildFleetMeshes();
 
   // Hostile blink + "arriving soon" pulse – only mutates material/scale, no geometry changes
   const nowSecAnim = (Date.now() / 1000) + serverTimeOffset;
