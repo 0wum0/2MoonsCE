@@ -666,11 +666,80 @@ html:has(#gm-root), body:has(#gm-root) {
     <div class="pc-body-inner" id="pc-body"></div>
   </div>
 
-  <!-- Fleet action modal -->
+  <!-- Fleet hover/click info modal -->
   <div id="gm-fleet-modal" style="display:none;position:fixed;inset:0;z-index:1200;align-items:center;justify-content:center;background:rgba(2,5,16,0.75);backdrop-filter:blur(4px)">
     <div style="background:#0a1628;border:1px solid rgba(0,212,255,0.25);border-radius:14px;padding:22px 26px;min-width:280px;max-width:340px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.6)">
       <button onclick="GM.closeFleetModal()" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#4a6a8a;font-size:16px;cursor:pointer;line-height:1"><i class="fas fa-times"></i></button>
       <div id="gm-fleet-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- In-Galaxy fleet SEND modal -->
+  <div id="gm-send-modal" style="display:none;position:fixed;inset:0;z-index:1300;align-items:center;justify-content:center;background:rgba(2,5,16,0.82);backdrop-filter:blur(6px)">
+    <div style="background:#07111e;border:1px solid rgba(0,212,255,0.28);border-radius:16px;width:min(520px,calc(100vw - 24px));max-height:calc(100vh - 40px);overflow-y:auto;position:relative;box-shadow:0 16px 80px rgba(0,0,0,0.9);animation:fadeScale .2s ease">
+      <!-- Header -->
+      <div style="padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#07111e;z-index:1">
+        <div>
+          <div style="font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;color:#00d4ff"><i class="fas fa-rocket" style="margin-right:8px"></i>FLOTTE SENDEN</div>
+          <div id="gsm-target" style="font-size:11px;color:#4a6a8a;margin-top:2px"></div>
+        </div>
+        <button onclick="GM.closeSendModal()" style="background:none;border:none;color:#4a6a8a;font-size:16px;cursor:pointer"><i class="fas fa-times"></i></button>
+      </div>
+      <!-- Body -->
+      <div style="padding:16px 20px">
+        <!-- Slots + from-planet -->
+        <div id="gsm-info" style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.1);border-radius:8px;overflow:hidden"></div>
+
+        <!-- Mission selector -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace;margin-bottom:7px">MISSION</div>
+          <div id="gsm-missions" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        </div>
+
+        <!-- Ship list -->
+        <div style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">SCHIFFE</div>
+            <button onclick="gmSendSelectAll()" style="background:none;border:1px solid rgba(0,212,255,0.2);border-radius:4px;color:#00d4ff;font-size:9px;padding:2px 8px;cursor:pointer;font-family:'Orbitron',monospace;letter-spacing:1px">ALLE</button>
+          </div>
+          <div id="gsm-ships" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+          <div id="gsm-noships" style="display:none;text-align:center;color:#4a6a8a;font-size:11px;padding:12px">Keine Schiffe auf diesem Planeten</div>
+        </div>
+
+        <!-- Resources (shown only for transport/deploy) -->
+        <div id="gsm-res-section" style="display:none;margin-bottom:14px">
+          <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace;margin-bottom:7px">RESSOURCEN LADEN</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <div>
+              <div style="font-size:9px;color:#aaa;margin-bottom:3px">Metall</div>
+              <input id="gsm-metal" type="number" min="0" value="0" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:5px 8px;font-size:11px">
+            </div>
+            <div>
+              <div style="font-size:9px;color:#aaa;margin-bottom:3px">Kristall</div>
+              <input id="gsm-crystal" type="number" min="0" value="0" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:5px 8px;font-size:11px">
+            </div>
+            <div>
+              <div style="font-size:9px;color:#aaa;margin-bottom:3px">Deuterium</div>
+              <input id="gsm-deut" type="number" min="0" value="0" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:5px 8px;font-size:11px">
+            </div>
+          </div>
+        </div>
+
+        <!-- Speed -->
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace">GESCHWINDIGKEIT</div>
+            <div id="gsm-speed-lbl" style="font-size:9px;color:#00d4ff;font-family:'Orbitron',monospace">100%</div>
+          </div>
+          <input id="gsm-speed" type="range" min="10" max="100" step="10" value="100" style="width:100%;accent-color:#00d4ff" oninput="document.getElementById('gsm-speed-lbl').textContent=this.value+'%'">
+        </div>
+
+        <!-- Send button -->
+        <div id="gsm-error" style="display:none;background:rgba(255,48,96,0.1);border:1px solid rgba(255,48,96,0.3);border-radius:7px;padding:8px 12px;font-size:11px;color:#ff3060;margin-bottom:10px"></div>
+        <button id="gsm-send-btn" onclick="gmSendFleet()" style="width:100%;padding:11px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.4);border-radius:9px;color:#00d4ff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .2s">
+          <i class="fas fa-rocket" style="margin-right:8px"></i>ABSENDEN
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2968,6 +3037,219 @@ function closeFleetModal() {
   if (m) m.style.display = 'none';
 }
 
+// ── In-Galaxy Fleet Send Modal ──────────────────────────────
+const MISSIONS = [
+  { id:1,  label:'ANGRIFF',      icon:'fa-crosshairs', col:'#ff3355' },
+  { id:2,  label:'ACS ATTACK',   icon:'fa-users',      col:'#ff6600' },
+  { id:3,  label:'TRANSPORT',    icon:'fa-box',        col:'#00d4ff' },
+  { id:4,  label:'STATIONIEREN', icon:'fa-shield-alt', col:'#00ff88' },
+  { id:5,  label:'HALTEN',       icon:'fa-hourglass',  col:'#8888ff' },
+  { id:6,  label:'SPIONAGE',     icon:'fa-satellite',  col:'#ffff00' },
+  { id:7,  label:'KOLONISIEREN', icon:'fa-flag',       col:'#00ff44' },
+  { id:8,  label:'RECYCELN',     icon:'fa-recycle',    col:'#ff9900' },
+  { id:9,  label:'ZERSTÖREN',    icon:'fa-skull',      col:'#ff0066' },
+  { id:15, label:'EXPEDITION',   icon:'fa-search',     col:'#cc00ff' },
+];
+
+let _gsmTarget = null;
+let _gsmShips  = [];
+let _gsmMission = 1;
+
+async function openSendModal(pl) {
+  _gsmTarget = pl;
+  _gsmMission = pl.is_own ? 4 : 1;
+
+  const modal = document.getElementById('gm-send-modal');
+  modal.style.display = 'flex';
+
+  document.getElementById('gsm-target').textContent =
+    `Ziel: [${pl.galaxy}:${pl.system}:${pl.planet}] ${pl.name || ''}`;
+  document.getElementById('gsm-error').style.display = 'none';
+  document.getElementById('gsm-ships').innerHTML =
+    '<div style="color:#4a6a8a;font-size:11px;grid-column:span 2;text-align:center;padding:8px"><i class="fas fa-spinner fa-spin"></i> Lade Schiffe…</div>';
+
+  // Load ships from server
+  const apiUrl = window.SM.apiBase + 'get_ships';
+  let data;
+  try {
+    const r = await fetch(apiUrl);
+    data = await r.json();
+  } catch(e) {
+    document.getElementById('gsm-ships').innerHTML =
+      '<div style="color:#ff3060;grid-column:span 2;text-align:center">API-Fehler</div>';
+    return;
+  }
+
+  if (data.error) {
+    document.getElementById('gsm-ships').innerHTML =
+      `<div style="color:#ff3060;grid-column:span 2;text-align:center">${data.error}</div>`;
+    return;
+  }
+
+  _gsmShips = data.ships || [];
+
+  // Info bar
+  const p = data.planet;
+  document.getElementById('gsm-info').innerHTML = `
+    <div style="flex:1;padding:8px 12px;text-align:center;border-right:1px solid rgba(0,212,255,0.08)">
+      <div style="font-size:9px;color:#4a6a8a;font-family:'Orbitron',monospace">VON</div>
+      <div style="font-size:11px;color:#00d4ff;margin-top:2px">[${p.galaxy}:${p.system}:${p.planet}]</div>
+      <div style="font-size:10px;color:#aaa">${p.name}</div>
+    </div>
+    <div style="flex:1;padding:8px 12px;text-align:center;border-right:1px solid rgba(0,212,255,0.08)">
+      <div style="font-size:9px;color:#4a6a8a;font-family:'Orbitron',monospace">SLOTS</div>
+      <div style="font-size:12px;color:${data.slots_free>0?'#00ff88':'#ff3060'};margin-top:2px">${data.slots_free}/${data.slots_total}</div>
+    </div>
+    <div style="flex:1;padding:8px 12px;text-align:center">
+      <div style="font-size:9px;color:#4a6a8a;font-family:'Orbitron',monospace">RESSOURCEN</div>
+      <div style="font-size:9px;margin-top:3px;color:#aaa">
+        M: ${Math.floor(p.metal).toLocaleString()}<br>
+        K: ${Math.floor(p.crystal).toLocaleString()}<br>
+        D: ${Math.floor(p.deuterium).toLocaleString()}
+      </div>
+    </div>`;
+
+  // Mission buttons
+  const mEl = document.getElementById('gsm-missions');
+  const show = pl.is_own
+    ? [3, 4, 15]
+    : pl.is_empty
+    ? [7]
+    : [1, 2, 3, 6, 8];
+  mEl.innerHTML = MISSIONS.filter(m => show.includes(m.id)).map(m => `
+    <button onclick="gmSetMission(${m.id})" id="gsm-m-${m.id}"
+      style="flex:1;min-width:80px;padding:6px 8px;border-radius:7px;border:1px solid ${m.col}44;
+      background:${m.id===_gsmMission ? m.col+'22':'rgba(0,0,0,0.3)'};
+      color:${m.col};font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;
+      transition:all .15s" data-col="${m.col}">
+      <i class="fas ${m.icon}" style="margin-right:4px"></i>${m.label}
+    </button>`).join('');
+
+  // Ship inputs
+  const sEl = document.getElementById('gsm-ships');
+  const nsEl = document.getElementById('gsm-noships');
+  if (_gsmShips.length === 0) {
+    sEl.style.display = 'none';
+    nsEl.style.display = 'block';
+  } else {
+    sEl.style.display = 'grid';
+    nsEl.style.display = 'none';
+    sEl.innerHTML = _gsmShips.map(s => `
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:7px 10px;display:flex;align-items:center;gap:8px">
+        <div style="flex:1;font-size:10px;color:#c8e6ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</div>
+        <div style="font-size:9px;color:#4a6a8a">/${s.count}</div>
+        <input type="number" id="gsm-ship-${s.id}" min="0" max="${s.count}" value="0"
+          style="width:60px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,212,255,0.2);border-radius:5px;color:#00d4ff;padding:3px 6px;font-size:11px;text-align:right">
+      </div>`).join('');
+  }
+
+  gmUpdateResSection();
+}
+
+function gmSetMission(id) {
+  _gsmMission = id;
+  document.querySelectorAll('#gsm-missions button').forEach(b => {
+    const col = b.dataset.col;
+    const active = parseInt(b.id.replace('gsm-m-','')) === id;
+    b.style.background = active ? col + '22' : 'rgba(0,0,0,0.3)';
+    b.style.borderColor = active ? col : col + '44';
+  });
+  gmUpdateResSection();
+}
+
+function gmUpdateResSection() {
+  const showRes = [3, 4, 5].includes(_gsmMission);
+  document.getElementById('gsm-res-section').style.display = showRes ? 'block' : 'none';
+}
+
+function gmSendSelectAll() {
+  _gsmShips.forEach(s => {
+    const el = document.getElementById('gsm-ship-'+s.id);
+    if (el) el.value = s.count;
+  });
+}
+
+async function gmSendFleet() {
+  const errEl = document.getElementById('gsm-error');
+  const btn   = document.getElementById('gsm-send-btn');
+  errEl.style.display = 'none';
+
+  if (!_gsmTarget) return;
+
+  // Collect ships
+  const ships = {};
+  let hasShip = false;
+  for (const s of _gsmShips) {
+    const v = parseInt(document.getElementById('gsm-ship-'+s.id)?.value || 0);
+    if (v > 0) { ships[s.id] = v; hasShip = true; }
+  }
+  if (!hasShip) {
+    errEl.textContent = 'Keine Schiffe ausgewählt!';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>SENDE…';
+
+  const body = new URLSearchParams({
+    tg: _gsmTarget.galaxy, ts: _gsmTarget.system,
+    tp: _gsmTarget.planet, tt: 1,
+    mission: _gsmMission,
+    metal:    document.getElementById('gsm-metal')?.value  || 0,
+    crystal:  document.getElementById('gsm-crystal')?.value || 0,
+    deuterium:document.getElementById('gsm-deut')?.value   || 0,
+    speed:    document.getElementById('gsm-speed')?.value  || 100,
+  });
+  for (const [id, cnt] of Object.entries(ships)) {
+    body.append('ships['+id+']', cnt);
+  }
+
+  const url = window.SM.apiBase + 'send_fleet';
+
+  try {
+    const r    = await fetch(url, { method: 'POST', body });
+    const data = await r.json();
+    if (data.ok) {
+      closeSendModal();
+      closePlanetModal();
+      const eta = Math.round(data.duration / 60);
+      // Show success toast
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0a2a0a;border:1px solid #00ff88;border-radius:10px;padding:12px 24px;color:#00ff88;font-family:Orbitron,monospace;font-size:11px;z-index:9999;letter-spacing:1px';
+      t.innerHTML = `<i class="fas fa-check" style="margin-right:8px"></i>FLOTTE GESTARTET · ETA ${eta} min`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+      // Reload fleets
+      setTimeout(() => reloadFleets(), 1500);
+    } else {
+      const msgs = {
+        no_ships: 'Keine Schiffe ausgewählt',
+        no_slots: 'Keine freien Flotten-Slots',
+        no_target: 'Ziel nicht gefunden',
+        same_planet: 'Start = Ziel',
+        not_enough_deuterium: 'Zu wenig Deuterium',
+        not_enough_ships: 'Nicht genug Schiffe',
+        invalid_mission: 'Mission nicht verfügbar',
+        target_exists: 'Ziel bereits besiedelt',
+      };
+      errEl.textContent = msgs[data.error] || data.error || 'Unbekannter Fehler';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Verbindungsfehler';
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-rocket" style="margin-right:8px"></i>ABSENDEN';
+}
+
+function closeSendModal() {
+  const m = document.getElementById('gm-send-modal');
+  if (m) m.style.display = 'none';
+}
+
 // ── Planet selection + highlight ring ──────────────────────
 function selectPlanet(pl) {
   selectedPlanet = pl;
@@ -3037,19 +3319,21 @@ function showAction(pl) {
 
   // Body: fleet send form + action buttons
   const bodyEl = document.getElementById('gm-pm-body');
+  // Store pl reference on window so inline onclick can reach it
+  window._gmPlanetModalPl = pl;
   if (pl.is_own) {
     bodyEl.innerHTML = `
       <div style="text-align:center;padding:8px 0;color:#00ff88;font-size:11px;font-family:'Orbitron',monospace;letter-spacing:1px">
         <i class="fas fa-check" style="margin-right:6px"></i>DEIN PLANET
       </div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-        <a class="ap-btn ab-flt" href="${base}"><i class="fas fa-rocket"></i> FLOTTE SENDEN</a>
+        <button class="ap-btn ab-flt" onclick="GM.openSendModal(window._gmPlanetModalPl)"><i class="fas fa-rocket"></i> FLOTTE SENDEN</button>
       </div>`;
   } else if (pl.is_empty) {
     bodyEl.innerHTML = `
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
         <a class="ap-btn ab-flt" href="${base}&target_mission=7"><i class="fas fa-flag"></i> KOLONISIEREN</a>
-        <a class="ap-btn ab-flt" href="${base}"><i class="fas fa-rocket"></i> FLEET SENDEN</a>
+        <button class="ap-btn ab-flt" onclick="GM.openSendModal(window._gmPlanetModalPl)"><i class="fas fa-rocket"></i> FLEET SENDEN</button>
       </div>`;
   } else {
     const uid = pl.user_id;
@@ -3058,21 +3342,14 @@ function showAction(pl) {
         <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace;margin-bottom:8px">SCHNELLAKTIONEN</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
           <button class="ap-btn ab-spy" onclick="GM.quickSpy(${g},${ss},${p})"><i class="fas fa-satellite"></i> SPY</button>
-          <a class="ap-btn ab-atk" href="${base}&target_mission=1"><i class="fas fa-crosshairs"></i> ANGRIFF</a>
           <button class="ap-btn ab-mis" onclick="GM.quickMissile(${g},${ss},${p})"><i class="fas fa-bomb"></i> RAKETE</button>
-          ${pl.has_debris ? `<a class="ap-btn ab-rec" href="${base}&target_mission=8"><i class="fas fa-recycle"></i> RECYCLE</a>` : ''}
+          ${pl.has_debris ? `<button class="ap-btn ab-rec" onclick="GM.openSendModal(window._gmPlanetModalPl)"><i class="fas fa-recycle"></i> RECYCLE</button>` : ''}
         </div>
       </div>
       <div style="margin-bottom:14px">
-        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px;font-family:'Orbitron',monospace;margin-bottom:8px">FLOTTE SENDEN</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          <a class="ap-btn ab-flt" href="${base}&target_mission=1" style="justify-content:center"><i class="fas fa-crosshairs"></i> ANGRIFF</a>
-          <a class="ap-btn ab-flt" href="${base}&target_mission=2" style="justify-content:center"><i class="fas fa-users"></i> ACS ATTACK</a>
-          <a class="ap-btn ab-flt" href="${base}&target_mission=3" style="justify-content:center"><i class="fas fa-shield-alt"></i> STATIONIEREN</a>
-          <a class="ap-btn ab-flt" href="${base}&target_mission=4" style="justify-content:center"><i class="fas fa-box"></i> TRANSPORT</a>
-          <a class="ap-btn ab-flt" href="${base}&target_mission=6" style="justify-content:center"><i class="fas fa-satellite"></i> SPIONAGE</a>
-          <a class="ap-btn ab-flt" href="${base}&target_mission=8" style="justify-content:center"><i class="fas fa-recycle"></i> RECYCELN</a>
-        </div>
+        <button class="ap-btn ab-flt" style="width:100%;justify-content:center;padding:10px" onclick="GM.openSendModal(window._gmPlanetModalPl)">
+          <i class="fas fa-rocket" style="margin-right:8px"></i>FLOTTE SENDEN (IN GALAXY)
+        </button>
       </div>
       <div style="display:flex;gap:7px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">
         <a class="ap-btn ab-msg" href="game.php?page=messages&mode=write&player_id=${uid}"><i class="fas fa-envelope"></i> NACHRICHT</a>
@@ -3597,7 +3874,7 @@ function animate(now = 0){
   } catch(e) {}
 })();
 init();
-return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile,closeFleetModal,closePlanetModal};
+return{setView,navJump,navHome,reloadFleets,closeAction,closeCard,showCard,selectPlanet,deselectPlanet,quickSpy,quickMissile,closeFleetModal,closePlanetModal,openSendModal,closeSendModal};
 })();
 </script>
 {% endautoescape %}

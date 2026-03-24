@@ -44,6 +44,12 @@ switch ($action) {
     case 'player_card':
         echo json_encode(getPlayerCard());
         break;
+    case 'get_ships':
+        echo json_encode(getShipsOnPlanet());
+        break;
+    case 'send_fleet':
+        echo json_encode(sendFleetQuick());
+        break;
     default:
         echo json_encode(['error' => 'Unknown action']);
 }
@@ -292,5 +298,204 @@ function getPlayerCard(): array
         'desunits'     => number_format((int)$data['desunits']),
         'online'       => $online,
         'is_self'      => ((int)$data['id'] === (int)$USER['id']),
+    ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET SHIPS: Available ships on user's current home planet
+// ─────────────────────────────────────────────────────────────────────────────
+function getShipsOnPlanet(): array
+{
+    global $USER, $PLANET, $resource, $reslist, $pricelist, $LNG;
+
+    if (IsVacationMode($USER)) {
+        return ['error' => 'vacation'];
+    }
+
+    $ships = [];
+    foreach ($reslist['fleet'] as $shipID) {
+        if ($shipID == 212) continue; // skip Solar Satellite
+        $count = (int)($PLANET[$resource[$shipID]] ?? 0);
+        if ($count <= 0) continue;
+        $ships[] = [
+            'id'       => $shipID,
+            'name'     => $LNG['tech'][$shipID] ?? 'Ship '.$shipID,
+            'count'    => $count,
+            'capacity' => (int)($pricelist[$shipID]['capacity'] ?? 0),
+            'speed'    => (int)(FleetFunctions::GetFleetMaxSpeed([$shipID => 1], $USER)),
+        ];
+    }
+
+    $slots     = FleetFunctions::GetMaxFleetSlots($USER);
+    $usedSlots = FleetFunctions::GetCurrentFleets($USER['id']);
+
+    return [
+        'ships'       => $ships,
+        'slots_total' => $slots,
+        'slots_used'  => $usedSlots,
+        'slots_free'  => max(0, $slots - $usedSlots),
+        'planet'      => [
+            'galaxy' => (int)$PLANET['galaxy'],
+            'system' => (int)$PLANET['system'],
+            'planet' => (int)$PLANET['planet'],
+            'name'   => $PLANET['name'],
+            'metal'      => (float)$PLANET[$resource[901]],
+            'crystal'    => (float)$PLANET[$resource[902]],
+            'deuterium'  => (float)$PLANET[$resource[903]],
+        ],
+    ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEND FLEET: Quick fleet dispatch from galaxy map
+// ─────────────────────────────────────────────────────────────────────────────
+function sendFleetQuick(): array
+{
+    global $USER, $PLANET, $resource, $reslist, $pricelist, $LNG;
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return ['error' => 'POST required'];
+    }
+    if (IsVacationMode($USER)) {
+        return ['error' => 'vacation_mode'];
+    }
+
+    $targetGalaxy  = (int)($_POST['tg'] ?? 0);
+    $targetSystem  = (int)($_POST['ts'] ?? 0);
+    $targetPlanet  = (int)($_POST['tp'] ?? 0);
+    $targetType    = (int)($_POST['tt'] ?? 1);
+    $mission       = (int)($_POST['mission'] ?? 0);
+    $metal         = max(0, (float)($_POST['metal']     ?? 0));
+    $crystal       = max(0, (float)($_POST['crystal']   ?? 0));
+    $deuterium     = max(0, (float)($_POST['deuterium'] ?? 0));
+    $speedPct      = max(10, min(100, (int)($_POST['speed'] ?? 100)));
+    $shipInput     = $_POST['ships'] ?? [];
+
+    // Validate target coords
+    $cfg = Config::get();
+    if ($targetGalaxy < 1 || $targetGalaxy > $cfg->max_galaxy ||
+        $targetSystem  < 1 || $targetSystem  > $cfg->max_system ||
+        $targetPlanet  < 1 || $targetPlanet  > ($cfg->max_planets + 1)) {
+        return ['error' => 'invalid_target'];
+    }
+
+    // Build fleet array from POST
+    $fleetArray = [];
+    $fleetRoom  = 0;
+    foreach ($reslist['fleet'] as $shipID) {
+        if ($shipID == 212) continue;
+        $cnt = max(0, (int)($shipInput[$shipID] ?? 0));
+        if ($cnt < 1) continue;
+        $available = (int)($PLANET[$resource[$shipID]] ?? 0);
+        if ($cnt > $available) {
+            return ['error' => 'not_enough_ships', 'ship' => $shipID];
+        }
+        $fleetArray[$shipID] = $cnt;
+        $fleetRoom += ($pricelist[$shipID]['capacity'] ?? 0) * $cnt;
+    }
+    $fleetRoom *= 1 + ($USER['factor']['ShipStorage'] ?? 0);
+
+    if (empty($fleetArray)) {
+        return ['error' => 'no_ships'];
+    }
+
+    // Check fleet slots
+    $usedSlots = FleetFunctions::GetCurrentFleets($USER['id']);
+    if (FleetFunctions::GetMaxFleetSlots($USER) <= $usedSlots) {
+        return ['error' => 'no_slots'];
+    }
+
+    // Load target planet
+    $db = Database::get();
+    $targetData = $db->selectSingle(
+        "SELECT id, id_owner, destruyed, ally_deposit FROM %%PLANETS%%
+         WHERE universe = :u AND galaxy = :g AND system = :s AND planet = :p AND planet_type = :t",
+        [':u' => Universe::current(), ':g' => $targetGalaxy, ':s' => $targetSystem,
+         ':p' => $targetPlanet, ':t' => ($targetType == 2 ? 1 : $targetType)]
+    );
+
+    if ($mission == 7) {
+        if (!empty($targetData)) return ['error' => 'target_exists'];
+        $targetData = ['id' => 0, 'id_owner' => 0];
+    } elseif ($mission == 15) {
+        $targetData = ['id' => 0, 'id_owner' => 0];
+    } else {
+        if (empty($targetData) || $targetData['destruyed'] != 0) {
+            return ['error' => 'no_target'];
+        }
+    }
+
+    // Same planet check
+    if ($PLANET['galaxy'] == $targetGalaxy && $PLANET['system'] == $targetSystem &&
+        $PLANET['planet'] == $targetPlanet && $PLANET['planet_type'] == $targetType) {
+        return ['error' => 'same_planet'];
+    }
+
+    // Validate mission availability
+    $MisInfo = [
+        'galaxy'     => $targetGalaxy,
+        'system'     => $targetSystem,
+        'planet'     => $targetPlanet,
+        'planettype' => $targetType,
+        'IsAKS'      => 0,
+        'Ship'       => $fleetArray,
+    ];
+    $availableMissions = FleetFunctions::GetFleetMissions($USER, $MisInfo, $targetData);
+    if (!in_array($mission, $availableMissions['MissionSelector'])) {
+        return ['error' => 'invalid_mission', 'available' => $availableMissions['MissionSelector']];
+    }
+
+    // Calculate flight
+    $distance      = FleetFunctions::GetTargetDistance(
+        $PLANET['galaxy'], $PLANET['system'], $PLANET['planet'],
+        $targetGalaxy,     $targetSystem,     $targetPlanet
+    );
+    $maxSpeed      = FleetFunctions::GetFleetMaxSpeed($fleetArray, $USER);
+    $speedFactor   = FleetFunctions::GetGameSpeedFactor();
+    $duration      = FleetFunctions::GetMissionDuration($speedPct, $maxSpeed, $distance, $speedFactor, $USER);
+    $consumption   = FleetFunctions::GetFleetConsumption($fleetArray, $duration, $distance, $USER, $speedFactor);
+
+    if ((float)$PLANET[$resource[903]] < $consumption) {
+        return ['error' => 'not_enough_deuterium', 'need' => $consumption, 'have' => (float)$PLANET[$resource[903]]];
+    }
+
+    // Clamp resources to available
+    $fleetRoom -= $consumption;
+    $resourcesToSend = [
+        901 => min($metal,     floor((float)$PLANET[$resource[901]])),
+        902 => min($crystal,   floor((float)$PLANET[$resource[902]])),
+        903 => min($deuterium, floor((float)$PLANET[$resource[903]] - $consumption)),
+    ];
+    if (array_sum($resourcesToSend) > $fleetRoom) {
+        $resourcesToSend = [901 => 0, 902 => 0, 903 => 0];
+    }
+
+    // Deduct resources from planet
+    $PLANET[$resource[901]] -= $resourcesToSend[901];
+    $PLANET[$resource[902]] -= $resourcesToSend[902];
+    $PLANET[$resource[903]] -= $resourcesToSend[903] + $consumption;
+
+    $now           = TIMESTAMP;
+    $fleetStart    = $now + $duration;
+    $fleetStay     = $fleetStart;
+    $fleetEnd      = $fleetStart + $duration;
+
+    FleetFunctions::sendFleet(
+        $fleetArray, $mission,
+        $USER['id'], $PLANET['id'],
+        $PLANET['galaxy'], $PLANET['system'], $PLANET['planet'], $PLANET['planet_type'],
+        $targetData['id_owner'], $targetData['id'],
+        $targetGalaxy, $targetSystem, $targetPlanet, $targetType,
+        $resourcesToSend,
+        $fleetStart, $fleetStay, $fleetEnd,
+        0
+    );
+
+    return [
+        'ok'          => true,
+        'arrival'     => $fleetStart,
+        'duration'    => $duration,
+        'consumption' => $consumption,
+        'ships'       => count($fleetArray),
     ];
 }
