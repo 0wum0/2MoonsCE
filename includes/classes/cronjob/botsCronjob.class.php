@@ -151,11 +151,14 @@ class botsCronjob implements CronjobTask
             // Nicht schlimm, falls Spalte nicht existiert
         }
 
-        // ── Heal: Bots deren User-Planet fehlt (z.B. nach Universe-Reset) ──
-        // Setze next_fleet_action auf jetzt, damit BotEngine sie beim nächsten
-        // botActionsCronjob-Tick aufgreift und recreateBotPlanet() ausführt.
+        // ── Heal: Bots deren Planet fehlt ODER nach Reset leer ist ──
+        // Fall 1: Planet komplett gelöscht → recreateBotPlanet() wird beim nächsten Tick ausgeführt
+        // Fall 2: Planet vorhanden aber Ressourcen + Metall-Mine = 0 (Universe Reset)
+        //         → healEmptyPlanet() füllt Starterressourcen auf
+        // In beiden Fällen: next_fleet_action = 0 damit der Tick sofort greift.
         try {
-            $healed = (int)$db->nativeQuery(
+            // Fall 1: Kein Planet vorhanden
+            $db->nativeQuery(
                 "UPDATE {$botsTable} b
                  SET b.next_fleet_action = 0
                  WHERE NOT EXISTS (
@@ -165,11 +168,25 @@ class botsCronjob implements CronjobTask
                        AND p.planet_type = 1
                  )"
             );
-            if ($healed > 0) {
-                $log("HEAL: {$healed} Bots ohne Planet zurückgesetzt (next_fleet_action=0)");
-            }
         } catch (Throwable $t) {
-            $log("HEAL Fehler: " . $t->getMessage());
+            $log("HEAL Fall 1 Fehler: " . $t->getMessage());
+        }
+
+        try {
+            // Fall 2: Planet vorhanden aber leer (metal=0 AND metal_mine=0) → Post-Reset
+            $db->nativeQuery(
+                "UPDATE {$botsTable} b
+                 INNER JOIN " . DB_PREFIX . "planets p
+                     ON p.id_owner = b.id_owner
+                    AND p.universe = {$universeID}
+                    AND p.planet_type = 1
+                 SET b.next_fleet_action = 0
+                 WHERE p.metal = 0
+                   AND p.metal_mine = 0"
+            );
+            $log("HEAL: Bots mit leerem Planet (Post-Reset) auf next_fleet_action=0 gesetzt");
+        } catch (Throwable $t) {
+            $log("HEAL Fall 2 Fehler: " . $t->getMessage());
         }
 
         $log("--- BotsCronjob Ende ---");

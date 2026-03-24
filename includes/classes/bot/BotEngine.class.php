@@ -96,6 +96,11 @@ class BotEngine
             return;
         }
 
+        // ── Post-reset heal: if planet has no metal AND no mine (level 0) ──
+        // This happens after a universe reset that zeroed buildings+resources.
+        // Inject starter resources so the bot can immediately queue a mine.
+        $planet = $this->healEmptyPlanet($planet, $universeId);
+
         // Heartbeat like a real player
         $this->touchActivity($ownerId, $botId);
 
@@ -1442,6 +1447,80 @@ class BotEngine
         } catch (Throwable $t) {
             $this->log("recreateBotPlanet FAILED ownerId={$ownerId}: " . $t->getMessage() . " @ " . $t->getFile() . ":" . $t->getLine());
             return null;
+        }
+    }
+
+    /**
+     * Detects a post-reset planet (all resources AND metal mine = 0) and
+     * injects starter resources so the bot can queue a mine on the same tick.
+     * Returns the refreshed planet row.
+     */
+    private function healEmptyPlanet(array $planet, int $universeId): array
+    {
+        global $resource;
+
+        $metalKey  = $resource[901] ?? 'metal';
+        $crystKey  = $resource[902] ?? 'crystal';
+        $deutKey   = $resource[903] ?? 'deuterium';
+        $mineKey   = $resource[1]   ?? 'metal_mine';
+
+        $hasMetal  = (float)($planet[$metalKey]  ?? 0) > 0;
+        $hasCryst  = (float)($planet[$crystKey]  ?? 0) > 0;
+        $hasDeut   = (float)($planet[$deutKey]   ?? 0) > 0;
+        $hasMine   = (int)  ($planet[$mineKey]   ?? 0) > 0;
+
+        // Only heal if planet looks completely wiped (no resources AND no mine)
+        if ($hasMetal || $hasCryst || $hasDeut || $hasMine) {
+            return $planet;
+        }
+
+        try {
+            $config     = Config::get($universeId);
+            $metalStart = max(5000, (int)($config->metal_start    ?? 500));
+            $crystStart = max(5000, (int)($config->crystal_start  ?? 500));
+            $deutStart  = max(0,    (int)($config->deuterium_start ?? 0));
+
+            // Give a generous starter pack so the bot can afford mines + robo factory
+            $metalGrant  = max($metalStart, 50000);
+            $crystGrant  = max($crystStart, 30000);
+            $deutGrant   = max($deutStart,  10000);
+
+            $this->db->update(
+                "UPDATE %%PLANETS%% SET
+                    {$metalKey}   = :metal,
+                    {$crystKey}   = :crystal,
+                    {$deutKey}    = :deut,
+                    field_current = 0,
+                    b_building    = 0,
+                    b_building_id = '',
+                    b_hangar      = 0,
+                    b_hangar_id   = ''
+                 WHERE id = :pid",
+                [
+                    ':metal'   => $metalGrant,
+                    ':crystal' => $crystGrant,
+                    ':deut'    => $deutGrant,
+                    ':pid'     => (int)$planet['id'],
+                ]
+            );
+
+            // Also reset research queue on user so no stale queue blocks building
+            $this->db->update(
+                "UPDATE %%USERS%% SET
+                    b_tech = 0, b_tech_id = 0, b_tech_planet = 0, b_tech_queue = ''
+                 WHERE id = :uid",
+                [':uid' => (int)$planet['id_owner']]
+            );
+
+            $this->log("healEmptyPlanet: injected resources planetId={$planet['id']} metal={$metalGrant} crystal={$crystGrant} deut={$deutGrant}");
+
+            // Refresh planet row from DB
+            $fresh = $this->db->selectSingle("SELECT * FROM %%PLANETS%% WHERE id = :pid LIMIT 1;", [':pid' => (int)$planet['id']]);
+            return is_array($fresh) ? $fresh : $planet;
+
+        } catch (Throwable $t) {
+            $this->log("healEmptyPlanet FAILED planetId={$planet['id']}: " . $t->getMessage());
+            return $planet;
         }
     }
 
