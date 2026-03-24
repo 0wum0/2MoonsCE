@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+convert.mjs
+convert.cjs
+convert2.cjs
+package.json
+FBX2glTF.exe

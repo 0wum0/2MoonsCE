@@ -663,6 +663,8 @@ html:has(#gm-root), body:has(#gm-root) {
 <!-- Outer FAB: lives outside #gm-root so it is never clipped -->
 <button id="gm-fab-outer" title="Map Controls" aria-label="Map Controls öffnen"><i class="fas fa-sliders-h"></i></button>
 
+<!-- GLTFLoader from CDN (same Three.js r128 build) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 {% autoescape false %}
 <script>
 /* ============================================================
@@ -1078,30 +1080,126 @@ function planetTex(g, s, slot, colorHex) {
   return { tex: planetTexCache[key], ptype };
 }
 
-// ── Ship PNG textures ─────────────────────────────────────
-// Real PNG images from styles/theme/gow/Ships/
-// Mapping: fighter→11(hostile)/5(own/ally), transport→9, colony→10, spy→8, recycler→2
-// hostile fighter uses Spaceship_11 (black/red), own uses Spaceship_0 (blue/orange)
-const shipTexCache = {};
-const SHIP_BASE = 'styles/theme/gow/Ships/';
-const SHIP_PNG = {
-  fighter_hostile: SHIP_BASE + 'Spaceship_11.png',  // black/red aggressive
-  fighter_own:     SHIP_BASE + 'Spaceship_0.png',   // blue/orange interceptor
-  fighter_ally:    SHIP_BASE + 'Spaceship_3.png',   // blue stealth
-  fighter_foreign: SHIP_BASE + 'Spaceship_6.png',   // white/orange
-  transport:       SHIP_BASE + 'Spaceship_9.png',   // wide triangular freighter
-  colony:          SHIP_BASE + 'Spaceship_5.png',   // large detailed colony ship
-  spy:             SHIP_BASE + 'Spaceship_8.png',   // slim stealth arrowhead
-  recycler:        SHIP_BASE + 'Spaceship_2.png',   // compact orange collector
+// ── 3D Ship GLB System ─────────────────────────────────────
+// GLB files converted from FBX (Corvette_01-05, Frigate_01-05)
+// Mapping: ship type → GLB model
+const GLB_BASE = 'styles/theme/gow/3dShips/glb/';
+const SHIP_GLB = {
+  fighter:   GLB_BASE + 'Corvette_01.glb',   // fast interceptor
+  transport: GLB_BASE + 'Corvette_04.glb',   // cargo hauler
+  colony:    GLB_BASE + 'Frigate_03.glb',    // large colony ship
+  spy:       GLB_BASE + 'Corvette_05.glb',   // stealth probe
+  recycler:  GLB_BASE + 'Corvette_02.glb',   // recycler
+  cruiser:   GLB_BASE + 'Frigate_01.glb',    // cruiser
+  battleship:GLB_BASE + 'Frigate_02.glb',    // battleship
+  destroyer: GLB_BASE + 'Frigate_04.glb',    // destroyer
+  bomber:    GLB_BASE + 'Frigate_05.glb',    // bomber
 };
-const shipImgCache = {};
 
-function loadShipTex(url, callback) {
-  if (shipImgCache[url]) { callback(shipImgCache[url]); return; }
-  const img = new Image();
-  img.onload = () => { shipImgCache[url] = img; callback(img); };
-  img.onerror = () => callback(null);
-  img.src = url;
+// Cache: url → THREE.Group (cloned per use)
+const glbCache = {};
+const glbLoading = {}; // url → array of pending callbacks
+
+// Owner tint colours
+const SHIP_TINT = {
+  own:     new THREE.Color(0x00d4ff),  // cyan
+  ally:    new THREE.Color(0xa855f7),  // purple
+  hostile: new THREE.Color(0xff3355),  // red
+  foreign: new THREE.Color(0xaaccff),  // light blue
+};
+
+let _gltfLoader = null;
+function getGLTFLoader() {
+  if (!_gltfLoader) {
+    if (typeof THREE.GLTFLoader !== 'undefined') {
+      _gltfLoader = new THREE.GLTFLoader();
+    } else if (typeof GLTFLoader !== 'undefined') {
+      _gltfLoader = new GLTFLoader();
+    }
+  }
+  return _gltfLoader;
+}
+
+function loadGLB(url, callback) {
+  if (glbCache[url]) { callback(glbCache[url]); return; }
+  if (glbLoading[url]) { glbLoading[url].push(callback); return; }
+  glbLoading[url] = [callback];
+  const loader = getGLTFLoader();
+  if (!loader) { callback(null); return; }
+  loader.load(url,
+    (gltf) => {
+      glbCache[url] = gltf.scene;
+      glbLoading[url].forEach(cb => cb(gltf.scene));
+      delete glbLoading[url];
+    },
+    undefined,
+    (err) => {
+      console.warn('GLB load failed:', url, err);
+      glbLoading[url].forEach(cb => cb(null));
+      delete glbLoading[url];
+    }
+  );
+}
+
+// Preload all ship models at startup
+function preloadShipGLBs() {
+  Object.values(SHIP_GLB).forEach(url => loadGLB(url, () => {}));
+}
+
+function makeShip3D(type, ownerKey, scale) {
+  const url = SHIP_GLB[type] || SHIP_GLB.fighter;
+  const tint = SHIP_TINT[ownerKey] || SHIP_TINT.foreign;
+
+  // Fallback sprite while GLB loads
+  const group = new THREE.Group();
+  group.userData.isShip3D = true;
+  group.userData.pendingLoad = true;
+
+  // Placeholder: glowing sphere
+  const ph = new THREE.Mesh(
+    new THREE.SphereGeometry(scale * 0.5, 6, 6),
+    new THREE.MeshBasicMaterial({ color: tint, transparent: true, opacity: 0.7 })
+  );
+  group.add(ph);
+
+  loadGLB(url, (scene) => {
+    if (!scene) return;
+    // Remove placeholder
+    group.remove(ph);
+    ph.geometry.dispose(); ph.material.dispose();
+
+    const mesh = scene.clone(true);
+
+    // Apply tint to all meshes
+    mesh.traverse(child => {
+      if (!child.isMesh) return;
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      child.material = mats.map(m => {
+        const nm = new THREE.MeshStandardMaterial({
+          color: tint.clone(),
+          metalness: 0.6,
+          roughness: 0.4,
+          emissive: tint.clone().multiplyScalar(0.15),
+        });
+        return nm;
+      });
+      if (child.material.length === 1) child.material = child.material[0];
+    });
+
+    // Auto-scale to target world-unit size
+    const box = new THREE.Box3().setFromObject(mesh);
+    const sz  = new THREE.Vector3();
+    box.getSize(sz);
+    const maxDim = Math.max(sz.x, sz.y, sz.z);
+    if (maxDim > 0) mesh.scale.setScalar(scale / maxDim);
+
+    group.add(mesh);
+    group.userData.pendingLoad = false;
+    // Trigger fleet rebuild so the real mesh shows up
+    needFleetRebuild = true;
+  });
+
+  return group;
 }
 
 // Sizes per type (world units) – fighter smaller, colony largest
@@ -1423,6 +1521,7 @@ function init() {
   buildNebula();
   bindEvents();
   initMobilePanel();
+  preloadShipGLBs();
   requestAnimationFrame(measureFooterHeight);
 
   // Apply correct initial camera for whichever view mode was set by the boot IIFE
@@ -2161,35 +2260,25 @@ function rebuildFleetMeshes() {
     trailLine.userData = { fleet: f, isTrail: true };
     fleetGroup.add(trailLine);
 
-    // Fleet ship sprite at current position
+    // 3D Ship mesh at current position
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
 
-    const stype   = fleetShipType(f.mission || 0, isHostile, isNeutral);
-    // Colony ships noticeably bigger; spy probes small; others equal
-    // Sizes are in world units – planets are ~8-20 units, ships must be smaller
-    const baseSz = { fighter: 14, transport: 16, colony: 22, spy: 10, recycler: 15 };
-    const shipSz = (baseSz[stype] || 14) * ((window.innerWidth <= 768) ? 2.5 : 1);
-
-    // Ownership key for fighter PNG variant selection
+    const stype    = fleetShipType(f.mission || 0, isHostile, isNeutral);
+    const baseSz   = { fighter: 18, transport: 22, colony: 30, spy: 12, recycler: 20,
+                       cruiser: 25, battleship: 28, destroyer: 26, bomber: 24 };
+    const shipSz   = (baseSz[stype] || 18) * ((window.innerWidth <= 768) ? 2.5 : 1);
     const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
 
-    const ds = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: shipTex(stype, dotCol, ownerKey),
-      transparent: true, depthWrite: false,
-      sizeAttenuation: true
-      // No AdditiveBlending – PNG images need normal alpha blending
-    }));
+    const ds = makeShip3D(stype, ownerKey, shipSz);
     ds.position.set(curPos.x, curPos.y + 4, curPos.z);
-    ds.scale.setScalar(shipSz);
 
-    // Rotate sprite so nose points along travel direction
-    // PNG ships have nose pointing UP in image → atan2(dx,dz) gives correct forward angle
-    const prg2    = Math.min(1, prg + 0.01);
-    const ahead   = st.curve.getPoint(prg2);
-    const dx      = ahead.x - curPos.x;
-    const dz      = ahead.z - curPos.z;
+    // Rotate 3D ship nose along travel direction
+    const prg2  = Math.min(1, prg + 0.01);
+    const ahead = st.curve.getPoint(prg2);
+    const dx    = ahead.x - curPos.x;
+    const dz    = ahead.z - curPos.z;
     if (Math.abs(dx) + Math.abs(dz) > 0.001) {
-      ds.material.rotation = Math.atan2(dx, dz);
+      ds.rotation.y = Math.atan2(dx, dz);
     }
 
     ds.userData = { fleet: f, isFleetDot: true };

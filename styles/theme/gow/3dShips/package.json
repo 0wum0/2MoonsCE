@@ -1,0 +1,19 @@
+{
+  "name": "3dships",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "canvas": "^3.2.2",
+    "fbx2gltf": "^0.9.7-p1",
+    "jsdom": "^29.0.1",
+    "three": "^0.183.2",
+    "three-stdlib": "^2.36.1"
+  }
+}
