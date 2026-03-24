@@ -2264,8 +2264,8 @@ function rebuildFleetMeshes() {
     const curPos = st.curve.getPoint(Math.max(0, Math.min(1, prg)));
 
     const stype    = fleetShipType(f.mission || 0, isHostile, isNeutral);
-    const baseSz   = { fighter: 18, transport: 22, colony: 30, spy: 12, recycler: 20,
-                       cruiser: 25, battleship: 28, destroyer: 26, bomber: 24 };
+    const baseSz   = { fighter: 6, transport: 7, colony: 10, spy: 4, recycler: 6,
+                       cruiser: 8, battleship: 9, destroyer: 8, bomber: 7 };
     const shipSz   = (baseSz[stype] || 18) * ((window.innerWidth <= 768) ? 2.5 : 1);
     const ownerKey = isOwn ? 'own' : isAlly ? 'ally' : isHostile ? 'hostile' : 'foreign';
 
@@ -2813,8 +2813,16 @@ function hitFleet(cx, cy) {
   if (!dots.length) return null;
   setMV(cx, cy);
   RC.setFromCamera(MV, camera);
-  const hits = RC.intersectObjects(dots, false);
-  return hits.length ? hits[0].object.userData.fleet : null;
+  // recursive=true so raycaster hits child meshes inside the Group
+  const hits = RC.intersectObjects(dots, true);
+  if (!hits.length) return null;
+  // Walk up the parent chain to find the Group with fleet userData
+  let obj = hits[0].object;
+  while (obj) {
+    if (obj.userData && obj.userData.fleet) return obj.userData.fleet;
+    obj = obj.parent;
+  }
+  return null;
 }
 
 function doHover(cx,cy){
