@@ -145,6 +145,37 @@ class ShowResetPage extends AbstractAdminPage
 				$db->update("UPDATE %%USERS%% SET `bana` = 0, `banaday` = 0 WHERE `universe` = :u;", [':u' => $uni]);
 			}
 
+			if (($_POST['delete_bots'] ?? '') === 'on') {
+				$botsTable   = DB_PREFIX . 'bots';
+				// Collect bot owner IDs for this universe
+				$botOwnerIds = $db->select(
+					"SELECT b.id_owner FROM {$botsTable} b
+					 INNER JOIN %%USERS%% u ON u.id = b.id_owner
+					 WHERE u.universe = :u;",
+					[':u' => $uni]
+				);
+				if (!empty($botOwnerIds)) {
+					$ids = implode(',', array_map(fn($r) => (int)$r['id_owner'], $botOwnerIds));
+					// Delete bot planets
+					$db->nativeQuery("DELETE FROM %%PLANETS%% WHERE id_owner IN ({$ids}) AND universe = {$uni};");
+					// Delete bot users
+					$db->nativeQuery("DELETE FROM %%USERS%% WHERE id IN ({$ids}) AND universe = {$uni};");
+					// Delete statpoints
+					$db->nativeQuery("DELETE FROM %%STATPOINTS%% WHERE id_owner IN ({$ids});");
+					// Delete fleets belonging to bots
+					$db->nativeQuery("DELETE FROM %%FLEETS%% WHERE fleet_owner IN ({$ids}) AND fleet_universe = {$uni};");
+				}
+				// Delete all bot entries for this universe
+				$db->nativeQuery(
+					"DELETE b FROM {$botsTable} b
+					 LEFT JOIN %%USERS%% u ON u.id = b.id_owner
+					 WHERE u.id IS NULL OR u.universe = {$uni};"
+				);
+				// Also reset bot_activity_log and bot_stats if they exist
+				try { $db->nativeQuery("TRUNCATE TABLE " . DB_PREFIX . "bot_activity_log;"); } catch (Throwable $e) {}
+				try { $db->nativeQuery("TRUNCATE TABLE " . DB_PREFIX . "bot_stats;"); } catch (Throwable $e) {}
+			}
+
 			$this->message($LNG['re_reset_excess'], '?page=reset&sid=' . session_id(), 3);
 			return;
 		}

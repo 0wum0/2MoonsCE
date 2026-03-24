@@ -1331,9 +1331,118 @@ class BotEngine
 
     private function getMainPlanet(int $ownerId, int $universeId): ?array
     {
-        $sql = "SELECT * FROM %%PLANETS%% WHERE id_owner = :uid ORDER BY id ASC LIMIT 1;";
-        $row = $this->db->selectSingle($sql, [':uid' => $ownerId]);
-        return is_array($row) ? $row : null;
+        $sql = "SELECT * FROM %%PLANETS%% WHERE id_owner = :uid AND universe = :uni ORDER BY id ASC LIMIT 1;";
+        $row = $this->db->selectSingle($sql, [':uid' => $ownerId, ':uni' => $universeId]);
+        if (is_array($row)) {
+            return $row;
+        }
+
+        // Planet missing (e.g. after universe reset) — try to recreate it
+        $this->log("getMainPlanet: no planet for ownerId={$ownerId} uni={$universeId} — attempting recreation");
+        return $this->recreateBotPlanet($ownerId, $universeId);
+    }
+
+    private function recreateBotPlanet(int $ownerId, int $universeId): ?array
+    {
+        try {
+            $playerUtilPath = ROOT_PATH . 'includes/classes/PlayerUtil.class.php';
+            if (!file_exists($playerUtilPath)) {
+                $this->log("recreateBotPlanet: PlayerUtil.class.php not found");
+                return null;
+            }
+            require_once $playerUtilPath;
+
+            $user = $this->getUser($ownerId);
+            if (!$user) {
+                $this->log("recreateBotPlanet: user {$ownerId} not found in DB — removing bot entry");
+                $this->db->delete("DELETE FROM " . DB_PREFIX . "bots WHERE id_owner = :uid", [':uid' => $ownerId]);
+                return null;
+            }
+
+            $planetName = $user['username'] . '_home';
+            // createPlayer creates user+planet; we only need a planet — use a helper approach:
+            // Find a free position and insert a starter planet directly
+            $config = Config::get($universeId);
+            $maxG   = (int)($config->max_galaxy ?? 9);
+            $maxS   = (int)($config->max_system ?? 499);
+            $maxP   = (int)($config->max_planets ?? 15);
+
+            // Find free slot (try up to 50 random positions)
+            $galaxy = $system = $planet = null;
+            for ($attempt = 0; $attempt < 50; $attempt++) {
+                $g = mt_rand(1, $maxG);
+                $s = mt_rand(1, $maxS);
+                $p = mt_rand(4, min($maxP, 12));
+                if (PlayerUtil::isPositionFree($universeId, $g, $s, $p)) {
+                    $galaxy = $g; $system = $s; $planet = $p;
+                    break;
+                }
+            }
+
+            if ($galaxy === null) {
+                $this->log("recreateBotPlanet: no free position found for ownerId={$ownerId}");
+                return null;
+            }
+
+            // Get start resources from config
+            $metalStart = (int)($config->metal_start ?? 500);
+            $crystStart = (int)($config->crystal_start ?? 500);
+            $deutStart  = (int)($config->deuterium_start ?? 0);
+
+            $planetId = $this->db->insert(
+                "INSERT INTO %%PLANETS%% SET
+                    name          = :name,
+                    universe      = :uni,
+                    id_owner      = :uid,
+                    galaxy        = :g,
+                    system        = :s,
+                    planet        = :p,
+                    planet_type   = 1,
+                    last_update   = :now,
+                    image         = :img,
+                    diameter      = 12800,
+                    temp_max      = 30,
+                    temp_min      = 10,
+                    metal         = :metal,
+                    crystal       = :crystal,
+                    deuterium     = :deut,
+                    metal_max     = 100000,
+                    crystal_max   = 100000,
+                    deuterium_max = 100000,
+                    field_max     = 163,
+                    field_current = 0",
+                [
+                    ':name'  => $planetName,
+                    ':uni'   => $universeId,
+                    ':uid'   => $ownerId,
+                    ':g'     => $galaxy,
+                    ':s'     => $system,
+                    ':p'     => $planet,
+                    ':now'   => time(),
+                    ':img'   => 'planeten/small/s_' . mt_rand(1, 10) . '.jpg',
+                    ':metal' => $metalStart,
+                    ':crystal' => $crystStart,
+                    ':deut'  => $deutStart,
+                ]
+            );
+
+            // Update user's id_planet to point to new home planet
+            $this->db->update(
+                "UPDATE %%USERS%% SET id_planet = :pid, galaxy = :g, system = :s, planet = :p WHERE id = :uid",
+                [':pid' => $planetId, ':g' => $galaxy, ':s' => $system, ':p' => $planet, ':uid' => $ownerId]
+            );
+
+            $this->log("recreateBotPlanet: created planetId={$planetId} at [{$galaxy}:{$system}:{$planet}] for ownerId={$ownerId}");
+
+            // Return fresh planet row
+            $sql = "SELECT * FROM %%PLANETS%% WHERE id = :pid LIMIT 1;";
+            $row = $this->db->selectSingle($sql, [':pid' => $planetId]);
+            return is_array($row) ? $row : null;
+
+        } catch (Throwable $t) {
+            $this->log("recreateBotPlanet FAILED ownerId={$ownerId}: " . $t->getMessage() . " @ " . $t->getFile() . ":" . $t->getLine());
+            return null;
+        }
     }
 
     private function touchActivity(int $userId, int $botId): void

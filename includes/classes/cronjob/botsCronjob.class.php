@@ -151,6 +151,27 @@ class botsCronjob implements CronjobTask
             // Nicht schlimm, falls Spalte nicht existiert
         }
 
+        // ── Heal: Bots deren User-Planet fehlt (z.B. nach Universe-Reset) ──
+        // Setze next_fleet_action auf jetzt, damit BotEngine sie beim nächsten
+        // botActionsCronjob-Tick aufgreift und recreateBotPlanet() ausführt.
+        try {
+            $healed = (int)$db->nativeQuery(
+                "UPDATE {$botsTable} b
+                 SET b.next_fleet_action = 0
+                 WHERE NOT EXISTS (
+                     SELECT 1 FROM " . DB_PREFIX . "planets p
+                     WHERE p.id_owner = b.id_owner
+                       AND p.universe = {$universeID}
+                       AND p.planet_type = 1
+                 )"
+            );
+            if ($healed > 0) {
+                $log("HEAL: {$healed} Bots ohne Planet zurückgesetzt (next_fleet_action=0)");
+            }
+        } catch (Throwable $t) {
+            $log("HEAL Fehler: " . $t->getMessage());
+        }
+
         $log("--- BotsCronjob Ende ---");
     }
 }
