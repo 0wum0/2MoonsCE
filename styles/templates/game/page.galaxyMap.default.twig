@@ -2273,12 +2273,13 @@ function rebuildFleetMeshes() {
     ds.position.set(curPos.x, curPos.y + 4, curPos.z);
 
     // Rotate 3D ship nose along travel direction
+    // FBX models exported with nose along +X → need +Math.PI/2 offset so nose points forward (+Z)
     const prg2  = Math.min(1, prg + 0.01);
     const ahead = st.curve.getPoint(prg2);
     const dx    = ahead.x - curPos.x;
     const dz    = ahead.z - curPos.z;
     if (Math.abs(dx) + Math.abs(dz) > 0.001) {
-      ds.rotation.y = Math.atan2(dx, dz);
+      ds.rotation.y = Math.atan2(dx, dz) + Math.PI / 2;
     }
 
     ds.userData = { fleet: f, isFleetDot: true };
